@@ -1,0 +1,378 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\MiniGame">
+      <UniqueIdentifier>{50fde8f8-8479-4cc8-a248-2fa91f57016e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platforming">
+      <UniqueIdentifier>{c5a3b310-eb8f-43d5-93f1-d74a6d650fe6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platforming\PlatformingEntities">
+      <UniqueIdentifier>{6616b0bf-4c38-4189-9a44-179e26c6e2df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Structural">
+      <UniqueIdentifier>{e66d1dcf-f043-4b9d-8cdb-5e62f1754de4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platforming\Movement">
+      <UniqueIdentifier>{f80ed8d2-b4f7-470f-93e1-22bccaa4f4d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MiniGame\Attack">
+      <UniqueIdentifier>{1c887999-cd89-4a31-9870-619b3369e8ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MiniGame\Character">
+      <UniqueIdentifier>{8e40a890-99aa-4a62-98a2-81225ab536d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MiniGame\Tile">
+      <UniqueIdentifier>{8b4a6e11-5363-411a-b235-3312dc611ead}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\movementHelperClass.h">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movementHelper.h">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movementStanding.h">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movementWalk.h">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movementJump.h">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movementFalling.h">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movementFly.h">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="src\combatHelper.h">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClInclude>
+    <ClInclude Include="src\combatHelperClass.h">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClInclude>
+    <ClInclude Include="src\miniGameLevelHelper.h">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gridHelper.h">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClInclude>
+    <ClInclude Include="src\collectibleHelper.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enemyHelper.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entityHelper.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platformHelper.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\playerHelper.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\projectileHelper.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\collisionHelper.h">
+      <Filter>Source Files\Platforming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\damageHelper.h">
+      <Filter>Source Files\Platforming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entityQuadTree.h">
+      <Filter>Source Files\Platforming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\miniGameWorldDataHelper.h">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClInclude>
+    <ClInclude Include="src\slashHelper.h">
+      <Filter>Source Files\Platforming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\worldDataHelper.h">
+      <Filter>Source Files\Platforming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameInstanceHelper.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameStateHelper.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameStateHelperClass.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\helperClass.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hitboxHelper.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imageHelper.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ImageHelperClass.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menuHelper.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\screenHelper.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\settingsHelper.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\styleHelper.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textBoxHelper.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textBoxHelperClass.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textBoxPresets.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\worldHelper.h">
+      <Filter>Source Files\Platforming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menuHelperClass.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
+    <ClInclude Include="src\combatAttackHelper.h">
+      <Filter>Source Files\MiniGame\Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\combatAttackHelperClass.h">
+      <Filter>Source Files\MiniGame\Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\combatAttackPreset.h">
+      <Filter>Source Files\MiniGame\Attack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\combatCharacterHelper.h">
+      <Filter>Source Files\MiniGame\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="src\combatCharacterPresets.h">
+      <Filter>Source Files\MiniGame\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="src\combatMovementHelper.h">
+      <Filter>Source Files\MiniGame\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tileCoordsHelper.h">
+      <Filter>Source Files\MiniGame\Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tileHelper.h">
+      <Filter>Source Files\MiniGame\Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tileHelperClass.h">
+      <Filter>Source Files\MiniGame\Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tilePresets.h">
+      <Filter>Source Files\MiniGame\Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\projectilePresets.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\collectiblePresets.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enemyPresets.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entityPresets.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\platformPresets.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\playerPreset.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\worldHelperClass.h">
+      <Filter>Source Files\Platforming</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lotusAdventureLevelsDemo.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\movementHelper.cpp">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movementFalling.cpp">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movementJump.cpp">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movementStanding.cpp">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movementWalk.cpp">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movementFly.cpp">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="src\combatHelperClass.cpp">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\collisionHelper.cpp">
+      <Filter>Source Files\Platforming</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entityQuadTree.cpp">
+      <Filter>Source Files\Platforming</Filter>
+    </ClCompile>
+    <ClCompile Include="src\worldDataHelper.cpp">
+      <Filter>Source Files\Platforming</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameInstanceHelper.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameStateHelper.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameStateHelperClass.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\helperClass.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hitboxHelper.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImageHelper.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImageHelperClass.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\screenHelper.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\styleHelper.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\worldHelper.cpp">
+      <Filter>Source Files\Platforming</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menuHelperClass.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\combatAttackHelper.cpp">
+      <Filter>Source Files\MiniGame\Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\combatAttackHelperClass.cpp">
+      <Filter>Source Files\MiniGame\Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\combatAttackPreset.cpp">
+      <Filter>Source Files\MiniGame\Attack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\combatCharacterHelper.cpp">
+      <Filter>Source Files\MiniGame\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="src\combatCharacterPresets.cpp">
+      <Filter>Source Files\MiniGame\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="src\combatHelper.cpp">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gridHelper.cpp">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\miniGameLevelHelper.cpp">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\combatMovementHelper.cpp">
+      <Filter>Source Files\MiniGame\Character</Filter>
+    </ClCompile>
+    <ClCompile Include="src\miniGameWorldDataHelper.cpp">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tileCoordsHelper.cpp">
+      <Filter>Source Files\MiniGame\Tile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tileHelper.cpp">
+      <Filter>Source Files\MiniGame\Tile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tileHelperClass.cpp">
+      <Filter>Source Files\MiniGame\Tile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tilePresets.cpp">
+      <Filter>Source Files\MiniGame\Tile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menuHelper.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\settingsHelper.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\textBoxHelper.cpp">
+      <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\worldHelperClass.cpp">
+      <Filter>Source Files\Platforming</Filter>
+    </ClCompile>
+    <ClCompile Include="src\damageHelper.cpp">
+      <Filter>Source Files\Platforming</Filter>
+    </ClCompile>
+    <ClCompile Include="src\slashHelper.cpp">
+      <Filter>Source Files\Platforming</Filter>
+    </ClCompile>
+    <ClCompile Include="src\collectibleHelper.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\collectiblePreset.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\enemyHelper.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\enemyPresets.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entityHelper.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platformHelper.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\platformPresets.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\playerHelper.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\playerPreset.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\projectileHelper.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\projectilePresets.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lotusAdventureLevelsDemo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
