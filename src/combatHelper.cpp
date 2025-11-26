@@ -34,7 +34,7 @@ void CombatManager::createCurCharacterList()
     mpCurCombatCharacters.clear();
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        if (pCharacter->mAmAlive == true)
+        if (pCharacter->mAmAlive)
         {
             mpCurCombatCharacters.push_back(pCharacter);
         }
@@ -55,6 +55,12 @@ std::vector <CombatCharacter*> CombatManager::getCurCharactersThatCanPlay() cons
 }
 
 CombatCharacter* CombatManager::returnNextCharacter(CombatCharacter* pCurCharacter)
+{
+    int i = -1;
+    return returnNextCharacter(pCurCharacter, i);
+}
+
+CombatCharacter* CombatManager::returnNextCharacter(CombatCharacter* pCurCharacter, int& outIndex)
 {
     std::vector <CombatCharacter*> curCharactersThatCanPlay = getCurCharactersThatCanPlay();
     if (curCharactersThatCanPlay.size() == 0)
@@ -77,17 +83,20 @@ CombatCharacter* CombatManager::returnNextCharacter(CombatCharacter* pCurCharact
         if (indexOfCurCharacter + 1 < curCharactersThatCanPlay.size())
         {
             pNextCharacter = curCharactersThatCanPlay[indexOfCurCharacter + 1];
+            outIndex = indexOfCurCharacter + 1;
         }
         else
         {
             pNextCharacter = curCharactersThatCanPlay[0];
+            outIndex = 0;
         }
         updateCharacterPostTurn(pCurCharacter, pNextCharacter);
         return pNextCharacter;
     }
 }
 
-int CombatManager::returnCurCharacterIndex(CombatCharacter* pGivenCharacter) const
+
+int CombatManager::returnCharacterIndex(CombatCharacter* pGivenCharacter) const
 {
     for (int count = 0; count < mpAllCombatCharacters.size(); count++)
     {
@@ -175,8 +184,9 @@ void CombatManager::attack(CombatCharacter* pAttackingCharacter, Tile* pGivenTil
     }
 }
 
-bool CombatManager::checkIfWonGame()
+GameOverStats CombatManager::getGameOverStats()
 {
+    GameOverStats stats = GameOverStats();
     int numPlayers = 0;
     int numEnemies = 0;
     for (CombatCharacter* pCurCharacter : mpCurCombatCharacters)
@@ -198,13 +208,16 @@ bool CombatManager::checkIfWonGame()
     if (numPlayers == 0)
     {
         resetStats();
+        stats.mGameOver = true;
+        stats.mWonGame = false;
     }
     else if (numEnemies == 0)
     {
         resetStats();
-        return true;
+        stats.mGameOver = true;
+        stats.mWonGame = true;
     }
-    return false;
+    return stats;
 }
 
 void CombatManager::resetStats()

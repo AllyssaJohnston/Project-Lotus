@@ -1,6 +1,6 @@
 #pragma once
 
-#include  <memory>
+#include <memory>
 #include "imageHelper.h"
 #include "movementHelper.h"
 
@@ -117,7 +117,7 @@ public:
 	bool hasCharacteristic(EEntityCharacteristicsTypes characteristic) const;
 	
 
-	virtual void isPathBlocked();
+	virtual void setTrapped();
 
 	virtual std::string getHostName() const;
 };

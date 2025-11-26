@@ -4,10 +4,9 @@
 
 class StandingState : public MovementState
 {
-	PositionData& mPositionData;
 	MovementData& mMovementData;
 public:
-	StandingState(PositionData&, MovementData&);
+	StandingState(PositionData&, MovementData&, AttemptMove&);
 	virtual void printState();
-	virtual void tickUpdate(bool moveHorizontal);
+	virtual void calcMove(bool moveHorizontal);
 };

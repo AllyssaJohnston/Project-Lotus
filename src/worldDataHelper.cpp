@@ -1,4 +1,5 @@
 #include "worldDataHelper.h"
+#include "globals.h"
 
 #include <corecrt_math_defines.h>
 #define degToRad(angleDegrees) ((float)(angleDegrees) * M_PI / 180.0f)
@@ -25,7 +26,30 @@ WorldData::~WorldData()
 }
 
 
-void WorldData::entityPreTickUpdateMovement(SlashManager& slashManager)
+void WorldData::getAllDynamicEntities(std::vector<Entity*>& dynamicEntities, Hitbox hitbox)
+{
+	Level* pLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
+	pLevel->mDynamicEntities.getEntitiesInHitbox(dynamicEntities, hitbox);
+	if (mPlayer.getMovementManager().getHitbox().overlap(hitbox)) 
+	{
+		dynamicEntities.push_back(&mPlayer);
+	}
+	for (Projectile* projectile : mpProjectiles)
+	{
+		if (projectile->getMovementManager().getHitbox().overlap(hitbox)) 
+		{
+			dynamicEntities.push_back(projectile);
+		}
+	}
+}
+
+void WorldData::getAllStaticEntities(std::vector<Entity*>& staticEntities, Hitbox hitbox) {
+	Level* pLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
+	pLevel->mStaticEntities.getEntitiesInHitbox(staticEntities, hitbox);
+}
+
+
+void WorldData::entityPreTickUpdateMovement(SlashManager& slashManager) //TODO rename entityPreTickCalcMovement
 {
 	//PLAYER
 	Level* curLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
@@ -66,8 +90,15 @@ void WorldData::entityPreTickUpdateMovement(SlashManager& slashManager)
 		curProjectile->tick();
 	}
 
+	for (Collectible* curCollectible : curLevel->mpActiveCollectibles)
+	{
+		curCollectible->preTick();
+		curCollectible->tick();
+	}
+
 	slashManager.tick();
 }
+
 
 void WorldData::createLevelChunk()
 {
@@ -126,46 +157,58 @@ void WorldData::updateBackgroundEffects()
 	}
 }
 
+#if COLLISION_SYSTEM == 0
+
+void WorldData::updateNonstaticMovement(std::vector<Entity*> nonstaticEntities)
+{
+	for (Entity* pCurEntity : nonstaticEntities)
+	{
+		pCurEntity->getMovementManager().moveToWantToMoveTo();
+	}
+}
+
 void WorldData::entityCollisions(CollisionManager& collisionManager, DamageManager& damageManager, SlashManager& slashManager, KeyboardData& keyboardData)
 {
 	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
 
+	//move
+	//get all nonstatic in level
+	std::vector <Entity*> nonstaticEntities;
+	getAllDynamicEntities(nonstaticEntities, pCurLevel->getHitbox());
+
+	updateNonstaticMovement(nonstaticEntities);
+
+	//collision
 	updatePlayerCollisions(collisionManager, damageManager);
-	if (keyboardData.mKeyState[int(EKeyboardInput_UP)] == true and keyboardData.mLastFrameKeyState[int(EKeyboardInput_UP)] == false)
-	{
-		if (canPlayerWallJump())
-		{
-			mPlayer.getMovementManager().startWallJump();
-		}
-	}
+	
 	updateCurLevelChunk();
 
 	//NON STATIC PLATFORMS
 	for (Platform* curPlatform : pCurLevel->mpActiveNonStaticPlatforms)
 	{
 		collideWithWorld(curPlatform);
-		collideWithPlatforms(		  collisionManager, damageManager, curPlatform);
+		collideWithPlatforms(collisionManager, damageManager, curPlatform);
 		collideWithNonStaticPlatforms(collisionManager, damageManager, curPlatform);
-		collideWithEnemies(			  collisionManager, damageManager, curPlatform);
+		collideWithEnemies(collisionManager, damageManager, curPlatform);
 	}
 
 	//ENEMIES
 	for (Enemy* curEnemy : pCurLevel->mpActiveEnemies)
-	{	
+	{
 		collideWithWorld(curEnemy);
-		collideWithPlatforms(			collisionManager, damageManager, curEnemy);
-		checkIfOnEdgeOfPlatform(		collisionManager,				 curEnemy);
-		collideWithNonStaticPlatforms(	collisionManager, damageManager, curEnemy);
-		collideWithEnemies(				collisionManager, damageManager, curEnemy);
+		collideWithPlatforms(collisionManager, damageManager, curEnemy);
+		checkIfOnEdgeOfPlatform(collisionManager, curEnemy);
+		collideWithNonStaticPlatforms(collisionManager, damageManager, curEnemy);
+		collideWithEnemies(collisionManager, damageManager, curEnemy);
 	}
 
 	//PROJECTILES
 	for (Projectile* curProjectile : mpProjectiles)
 	{
 		collideWithWorld(curProjectile);
-		collideWithPlatforms(			collisionManager, damageManager, curProjectile);
-		collideWithNonStaticPlatforms(	collisionManager, damageManager, curProjectile);
-		collideWithEnemies(				collisionManager, damageManager, curProjectile);
+		collideWithPlatforms(collisionManager, damageManager, curProjectile);
+		collideWithNonStaticPlatforms(collisionManager, damageManager, curProjectile);
+		collideWithEnemies(collisionManager, damageManager, curProjectile);
 	}
 
 	//SLASH COLLISIONS
@@ -175,14 +218,14 @@ void WorldData::entityCollisions(CollisionManager& collisionManager, DamageManag
 		EntityDistance closestBlockingEntity;
 		std::vector<Entity*> entities = pCurLevel->getAllActiveEntities();
 
-		int hitboxX1 = std::min(mPlayer.getMovementManager().getHitbox().getTopLeft().getX(),     slashManager.mHitbox.getTopLeft().getX());
+		int hitboxX1 = std::min(mPlayer.getMovementManager().getHitbox().getTopLeft().getX(), slashManager.mHitbox.getTopLeft().getX());
 		int hitboxX2 = std::max(mPlayer.getMovementManager().getHitbox().getBottomRight().getX(), slashManager.mHitbox.getBottomRight().getX());
 		int hitboxY1 = slashManager.mHitbox.getTopLeft().getY();
 		int hitboxY2 = slashManager.mHitbox.getBottomRight().getY();
 		Hitbox approxSlashHitbox = Hitbox(hitboxX1, hitboxX2, hitboxY1, hitboxY2);
 
 		for (Entity* pEntity : entities)
-		{	
+		{
 			if (pEntity->getAmAlive() and pEntity->getMovementManager().getHitbox().overlap(approxSlashHitbox))
 			{
 				if (pEntity->mVulnerableToProjectiles)
@@ -215,7 +258,7 @@ void WorldData::entityCollisions(CollisionManager& collisionManager, DamageManag
 void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, DamageManager& damageManager)
 {
 	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
-	MovementManager & movementManager = mPlayer.getMovementManager();
+	MovementManager& movementManager = mPlayer.getMovementManager();
 
 	//WINDOW
 	bool instantDeath = true;
@@ -239,12 +282,13 @@ void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, Damag
 
 	movementManager.setOnGroundFalse();
 	bool check = true;
-	
+
 	//PLATFORMS
 	std::vector <Entity*> platformEntities;
 	pCurLevel->mStaticEntities.getEntitiesInHitbox(platformEntities, movementManager.getHitbox());
 	pCurLevel->mDynamicEntities.getEntitiesInHitbox(platformEntities, movementManager.getHitbox(), EEntityClassTypes_PLATFORM);
 
+	mPlayer.mCanWallJump = false;
 	for (Entity* pEntity : platformEntities)
 	{
 		Platform* pCurPlatform = (Platform*)pEntity;
@@ -253,7 +297,7 @@ void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, Damag
 		{
 			bool fallenOnIt = false;
 			bool doSeparate = false;
-			EBoxSide playerSeparationPath   = curPlatformHitbox.separate(movementManager.getHitbox(), doSeparate);
+			EBoxSide playerSeparationPath = curPlatformHitbox.separate(movementManager.getHitbox(), doSeparate);
 			EBoxSide platformSeparationPath = movementManager.getHitbox().separate(curPlatformHitbox, doSeparate);
 
 			if (platformSeparationPath == EBoxSide_TOP and (movementManager.getCurDirectionY() == EDirection_NONE or movementManager.getCurDirectionY() == EDirection_DOWN))
@@ -261,9 +305,17 @@ void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, Damag
 				fallenOnIt = true;
 			}
 
-			EEntityEdgeType playerEdgeType   = movementManager.getEdgeType(playerSeparationPath);
+			EEntityEdgeType playerEdgeType = movementManager.getEdgeType(playerSeparationPath);
 			EEntityEdgeType platformEdgeType = pCurPlatform->getMovementManager().getEdgeType(platformSeparationPath);
-			if		(platformEdgeType == EEntityEdgeType_NON_EXISTENT)
+			
+			if (platformEdgeType == EEntityEdgeType_WALL_JUMPABLE)
+			{
+				if (!mPlayer.getMovementManager().isOnGround())
+				{
+					mPlayer.mCanWallJump = true;
+				}
+			}
+			if (platformEdgeType == EEntityEdgeType_NON_EXISTENT)
 			{
 				//PASS
 			}
@@ -329,7 +381,7 @@ void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, Damag
 				movementManager.getMovementStates()[EMovementStateIndex_JUMPING]->landed();
 				((JumpingState*)movementManager.getMovementStates()[EMovementStateIndex_JUMPING])->endJump();
 
-				playerEdgeType   = movementManager.getHitboxEdges().mBottom;
+				playerEdgeType = movementManager.getHitboxEdges().mBottom;
 				platformEdgeType = pCurPlatform->getMovementManager().getHitboxEdges().mTop;
 
 				if (damageManager.willKillCharacter(pCurPlatform, playerEdgeType))
@@ -339,7 +391,7 @@ void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, Damag
 				if (platformEdgeType == EEntityEdgeType_BOUNCY)
 				{
 					movementManager.collideWithBouncy();
-				} 
+				}
 				else if (platformEdgeType == EEntityEdgeType_CRUMBLING)
 				{
 					pCurPlatform->startCrumble();
@@ -351,7 +403,7 @@ void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, Damag
 			}
 			if (pCurPlatform->getSubClassType() == EEntitySubClassTypes_AREA_EFFECT)
 			{
-				AreaEffectPlatform * pCurAreaEffectPlatform = (AreaEffectPlatform*) pCurPlatform;
+				AreaEffectPlatform* pCurAreaEffectPlatform = (AreaEffectPlatform*)pCurPlatform;
 				if (movementManager.getHitbox().overlap(pCurAreaEffectPlatform->mAreaEffectHitbox))
 				{
 					movementManager.push(pCurAreaEffectPlatform->mAreaEffectMovement, pCurAreaEffectPlatform->mEffectDirection);
@@ -368,7 +420,7 @@ void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, Damag
 		if (check)
 		{
 			Enemy* pCurEnemy = (Enemy*)pEntity;
-			
+
 			bool overlap = movementManager.getHitbox().overlap(pCurEnemy->getMovementManager().getHitbox());
 			if (overlap)
 			{
@@ -376,7 +428,7 @@ void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, Damag
 				bool doSeparate = false;
 				EBoxSide playerSeparationPath = pCurEnemy->getMovementManager().getHitbox().separate(movementManager.getHitbox(), doSeparate);
 				doSeparate = true;
-				EBoxSide enemySeparationPath  = movementManager.getHitbox().separate(pCurEnemy->getMovementManager().getHitbox(), doSeparate);
+				EBoxSide enemySeparationPath = movementManager.getHitbox().separate(pCurEnemy->getMovementManager().getHitbox(), doSeparate);
 
 				if (enemySeparationPath == EBoxSide_TOP)
 				{
@@ -402,7 +454,7 @@ void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, Damag
 						movementManager.setCurFacingDirection(pCurEnemy->getMovementManager().getCurDirection());
 						int x = pCurEnemy->getMovementManager().getHitbox().getTopLeft().getX() + pCurEnemy->mAttachmentPoint.getX();
 						int y = pCurEnemy->getMovementManager().getHitbox().getTopLeft().getY() + pCurEnemy->mAttachmentPoint.getY() - movementManager.getHitbox().getHeight();
-						movementManager.getHitbox().setTopLeft(Vect2(x,y));
+						movementManager.getHitbox().setTopLeft(Vect2(x, y));
 						collisionManager.addRidingContact(&mPlayer, pCurEnemy);
 						check = false;
 					}
@@ -424,12 +476,12 @@ void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, Damag
 					//SPECIAL CASES
 					if (enemyEdgeType == EEntityEdgeType_BOUNCY)
 					{
-						if (movementManager.isAmJump() == false)
+						if (!movementManager.getJumpingData().mAmJump)
 						{
 							movementManager.collideWithBouncy();
 						}
 					}
-					else if (pCurEnemy->mRideable and (pCurEnemy->getAmAlive() == true))
+					else if (pCurEnemy->mRideable and pCurEnemy->getAmAlive())
 					{
 						collisionManager.addRidingContact(&mPlayer, pCurEnemy);
 					}
@@ -471,39 +523,6 @@ void WorldData::updatePlayerCollisions(CollisionManager& collisionManager, Damag
 
 }
 
-bool WorldData::canPlayerWallJump()
-{
-	Vect2 movementVect = mPlayer.getMovementManager().getMovementVect2();
-	Hitbox& hitbox = mPlayer.getMovementManager().getHitbox();
-	Hitbox IncreasedPlayerHitbox = Hitbox(hitbox.getTopLeft() - movementVect, hitbox.getWidth() + movementVect.getX(), hitbox.getHeight() + movementVect.getY());
-	
-	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
-	std::vector <Entity*> platformEntities;
-	pCurLevel->mStaticEntities.getEntitiesInHitbox(platformEntities, IncreasedPlayerHitbox);
-	pCurLevel->mDynamicEntities.getEntitiesInHitbox(platformEntities, IncreasedPlayerHitbox, EEntityClassTypes_PLATFORM);
-
-	for (Entity* curEntity : platformEntities)
-	{
-		Platform* curPlatform = (Platform*)curEntity;
-		Hitbox& curPlatformHitbox = curPlatform->getMovementManager().getHitbox();
-
-		bool doSeparate = false;
-		EBoxSide separationPath = mPlayer.getMovementManager().getHitbox().separate(curPlatformHitbox, doSeparate);
-		EEntityEdgeType edgeType = curPlatform->getMovementManager().getEdgeType(separationPath);
-
-		if ((edgeType == EEntityEdgeType_WALL_JUMPABLE) and ((separationPath == EBoxSide_LEFT ) or (separationPath == EBoxSide_RIGHT)))
-		{
-			if (mPlayer.getMovementManager().isOnGround() == false)
-			{
-				doSeparate = true;
-				mPlayer.getMovementManager().getHitbox().separate(curPlatformHitbox, doSeparate);
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
 void WorldData::collideWithWorld(Entity* pCurEntity)
 {
 	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
@@ -517,9 +536,9 @@ void WorldData::collideWithWorld(Entity* pCurEntity)
 		if (isHorizontalPath)
 		{
 			pCurEntity->getMovementManager().collided(EDirection_LEFT);
-			if (pCurEntity->getMovementManager().getSwitchedDir())
+			if (pCurEntity->getMovementManager().getDidSwitchedDir())
 			{
-				pCurEntity->isPathBlocked();
+				pCurEntity->setTrapped();
 			}
 		}
 		if (pCurEntity->getClassType() == EEntityClassTypes_PROJECTILE)
@@ -533,9 +552,9 @@ void WorldData::collideWithWorld(Entity* pCurEntity)
 		if (isHorizontalPath)
 		{
 			pCurEntity->getMovementManager().collided(EDirection_RIGHT);
-			if (pCurEntity->getMovementManager().getSwitchedDir())
+			if (pCurEntity->getMovementManager().getDidSwitchedDir())
 			{
-				pCurEntity->isPathBlocked();
+				pCurEntity->setTrapped();
 			}
 		}
 		if (pCurEntity->getClassType() == EEntityClassTypes_PROJECTILE)
@@ -616,10 +635,10 @@ void WorldData::collideWithPlatforms(CollisionManager& collisionManager, DamageM
 				return;
 			}
 			int doSeparate = false;
-			EBoxSide platformSeparationPath  = movementManager.getHitbox().separate(curPlatformHitbox, doSeparate);
-			EBoxSide entitySeparationPath    = curPlatformHitbox.separate(movementManager.getHitbox(), doSeparate);
+			EBoxSide platformSeparationPath = movementManager.getHitbox().separate(curPlatformHitbox, doSeparate);
+			EBoxSide entitySeparationPath = curPlatformHitbox.separate(movementManager.getHitbox(), doSeparate);
 			EEntityEdgeType platformEdgeType = curPlatform.getMovementManager().getEdgeType(platformSeparationPath);
-			EEntityEdgeType entityEdgeType   = movementManager.getEdgeType(entitySeparationPath);
+			EEntityEdgeType entityEdgeType = movementManager.getEdgeType(entitySeparationPath);
 
 			if (platformEdgeType == EEntityEdgeType_NON_EXISTENT and check)
 			{
@@ -637,7 +656,7 @@ void WorldData::collideWithPlatforms(CollisionManager& collisionManager, DamageM
 				doSeparate = true;
 				platformSeparationPath = movementManager.getHitbox().separate(curPlatformHitbox, doSeparate);
 				doSeparate = false;
-				entitySeparationPath   = curPlatformHitbox.separate(movementManager.getHitbox(), doSeparate);
+				entitySeparationPath = curPlatformHitbox.separate(movementManager.getHitbox(), doSeparate);
 				platformEdgeType = curPlatform.getMovementManager().getEdgeType(platformSeparationPath);
 				entityEdgeType = movementManager.getEdgeType(entitySeparationPath);
 
@@ -712,7 +731,7 @@ void WorldData::collideWithNonStaticPlatforms(CollisionManager& collisionManager
 
 	std::vector <Entity*> platformEntities;
 	pCurLevel->mDynamicEntities.getEntitiesInHitbox(platformEntities, pCurEntity->getMovementManager().getHitbox(), EEntityClassTypes_PLATFORM);
-	
+
 	for (Entity* pEntity : platformEntities)
 	{
 		Platform* pCurNonStaticPlatform = (Platform*)pEntity;
@@ -731,7 +750,7 @@ void WorldData::collideWithNonStaticPlatforms(CollisionManager& collisionManager
 			else
 			{
 				bool doSeparate = false;
-				EBoxSide separationPath  = pCurNonStaticPlatform->getMovementManager().getHitbox().separate(pCurEntity->getMovementManager().getHitbox(), doSeparate);
+				EBoxSide separationPath = pCurNonStaticPlatform->getMovementManager().getHitbox().separate(pCurEntity->getMovementManager().getHitbox(), doSeparate);
 				EEntityEdgeType edgeType = pCurNonStaticPlatform->getMovementManager().getEdgeType(separationPath);
 
 				damageManager.spreadEdges(pCurNonStaticPlatform, pCurEntity);
@@ -759,9 +778,9 @@ void WorldData::collideWithNonStaticPlatforms(CollisionManager& collisionManager
 
 					if (pCurEntity->getSubClassType() == EEntitySubClassTypes_CRATE)
 					{
-						doSeparate							= false;
+						doSeparate = false;
 						EBoxSide		crateSeparationPath = pCurEntity->getMovementManager().getHitbox().separate(pCurNonStaticPlatform->getMovementManager().getHitbox(), doSeparate);
-						EEntityEdgeType crateEdgeType		= pCurEntity->getMovementManager().getEdgeType(crateSeparationPath);
+						EEntityEdgeType crateEdgeType = pCurEntity->getMovementManager().getEdgeType(crateSeparationPath);
 
 						if (edgeType == EEntityEdgeType_MOVEABLE and crateEdgeType == EEntityEdgeType_MOVEABLE)
 						{
@@ -780,7 +799,7 @@ void WorldData::collideWithNonStaticPlatforms(CollisionManager& collisionManager
 						}
 						else
 						{
-							if (separationPath == EBoxSide_BOTTOM )
+							if (separationPath == EBoxSide_BOTTOM)
 							{
 								//crate on crate or crate on Moving platform 
 								createdRidingContact = true;
@@ -802,7 +821,7 @@ void WorldData::collideWithNonStaticPlatforms(CollisionManager& collisionManager
 					{
 						if (pCurNonStaticPlatform->getSubClassType() == EEntitySubClassTypes_CRATE)
 						{
-							if (separationPath == EBoxSide_TOP )
+							if (separationPath == EBoxSide_TOP)
 							{
 								//crate on crate or crate on Moving platform
 								createdRidingContact = true;
@@ -825,7 +844,7 @@ void WorldData::collideWithNonStaticPlatforms(CollisionManager& collisionManager
 					if (createdRidingContact == false)
 					{
 						bool doSeparate = true;
-						EBoxSide separationPath  = pCurNonStaticPlatform->getMovementManager().getHitbox().separate(pCurEntity->getMovementManager().getHitbox(), doSeparate);
+						EBoxSide separationPath = pCurNonStaticPlatform->getMovementManager().getHitbox().separate(pCurEntity->getMovementManager().getHitbox(), doSeparate);
 					}
 					if ((separationPath == EBoxSide_TOP or separationPath == EBoxSide_BOTTOM) and createdRidingContact == false)
 					{
@@ -855,10 +874,10 @@ void WorldData::collideWithEnemies(CollisionManager& collisionManager, DamageMan
 		{
 			if (pCurEntity->getClassType() == EEntityClassTypes_PROJECTILE)
 			{
-				Projectile* pCurProjectile = (Projectile*) pCurEntity;
+				Projectile* pCurProjectile = (Projectile*)pCurEntity;
 				if (pCurEnemy->takeDamageFromProjectile(pCurEntity->getHostName()))
 				{
-					killedCharacter(pCurEnemy,  instantDeath);
+					killedCharacter(pCurEnemy, instantDeath);
 					killedCharacter(pCurEntity, instantDeath);
 					return;
 				}
@@ -938,7 +957,7 @@ void WorldData::collideWithEnemies(CollisionManager& collisionManager, DamageMan
 									int y = pCurEnemy->getMovementManager().getHitbox().getTopLeft().getY() + pCurEnemy->mAttachmentPoint.getY() - pCurEntity->getMovementManager().getHitbox().getHeight();
 
 									pCurEnemy->setNextAnimationToPlay(EAnimationType_GRABBING);
-									pCurEntity->getMovementManager().getHitbox().setTopLeft(Vect2(x,y));
+									pCurEntity->getMovementManager().getHitbox().setTopLeft(Vect2(x, y));
 									collisionManager.addRidingContact(pCurEntity, pCurEnemy);
 								}
 							}
@@ -993,7 +1012,7 @@ void WorldData::checkIfOnEdgeOfPlatform(CollisionManager& collisionManager, Enem
 	{
 		return;
 	}
-	if (pCurEnemy->getMovementManager().getCode() == EEntityMovements_JUMP)
+	if (pCurEnemy->getMovementManager().getMovementCode() == EEntityMovements_JUMP)
 	{
 		return;
 	}
@@ -1007,13 +1026,13 @@ void WorldData::checkIfOnEdgeOfPlatform(CollisionManager& collisionManager, Enem
 		Platform& curPlatform = *(Platform*)pEntity;
 		Hitbox& curPlatformHitbox = curPlatform.getMovementManager().getHitbox();
 
-		int curEnemyY2    = pCurEnemy->getMovementManager().getHitbox().getBottomRight().getY();
+		int curEnemyY2 = pCurEnemy->getMovementManager().getHitbox().getBottomRight().getY();
 		int curPlatformY1 = curPlatformHitbox.getTopLeft().getY();
 		//make sure the enemy is on the platform we are testing against
-		if (std::abs(curPlatformY1 - curEnemyY2) <= 5) 
+		if (std::abs(curPlatformY1 - curEnemyY2) <= 5)
 		{
 
-			int curHeight = pCurEnemy->getMovementManager().getHeight();
+			int curHeight = pCurEnemy->getMovementManager().getHitbox().getHeight();
 			Vect2 leftHitboxVect2 = Vect2(curPlatformHitbox.getTopLeft().getX(), curPlatformHitbox.getTopLeft().getY() - curHeight);
 			Hitbox platformHitboxLeft = Hitbox(leftHitboxVect2, pCurEnemy->getMovementManager().getMovementVect2().getX(), curHeight);
 			Vect2 rightHitboxVect2 = Vect2(curPlatformHitbox.getBottomRight().getX() - pCurEnemy->getMovementManager().getMovementVect2().getX(), curPlatformHitbox.getTopLeft().getY() - curHeight);
@@ -1021,20 +1040,20 @@ void WorldData::checkIfOnEdgeOfPlatform(CollisionManager& collisionManager, Enem
 
 			bool collide = false;
 
-			EDirection curDirection     = EDirection_INVALID;
+			EDirection curDirection = EDirection_INVALID;
 			EDirection directionToSetTo = EDirection_INVALID;
 			bool doSeparate = true;
 			if (platformHitboxLeft.overlap(pCurEnemy->getMovementManager().getHitbox()))
 			{
-				collide			 = true;
-				curDirection	 = EDirection_LEFT;
+				collide = true;
+				curDirection = EDirection_LEFT;
 				directionToSetTo = EDirection_RIGHT;
 				pCurEnemy->getMovementManager().getHitbox().separate(platformHitboxLeft, doSeparate);
 			}
 			else if (platformHitboxRight.overlap(pCurEnemy->getMovementManager().getHitbox()))
 			{
-				collide			 = true;
-				curDirection	 = EDirection_RIGHT;
+				collide = true;
+				curDirection = EDirection_RIGHT;
 				directionToSetTo = EDirection_LEFT;
 				pCurEnemy->getMovementManager().getHitbox().separate(platformHitboxRight, doSeparate);
 			}
@@ -1047,9 +1066,9 @@ void WorldData::checkIfOnEdgeOfPlatform(CollisionManager& collisionManager, Enem
 					if (pCurEnemy->getMovementManager().getCurDirection() != directionToSetTo)
 					{
 						pCurEnemy->getMovementManager().collided(curDirection);
-						if (pCurEnemy->getMovementManager().getSwitchedDir())
+						if (pCurEnemy->getMovementManager().getDidSwitchedDir())
 						{
-							pCurEnemy->isPathBlocked();
+							pCurEnemy->setTrapped();
 						}
 					}
 				}
@@ -1077,20 +1096,866 @@ void WorldData::collectedCollectible(Collectible* curCollectible)
 	case EEntityCharacterTypes_C_END_OF_LEVEL:
 		if (results.mCanGoToNextLevel)
 		{
-			setNextLevel(results.mNextWorldNumber, results.mNextLevelNumber);
+			mpNextLevelData = results.mpNextLevelData;
+			mGoToNextLevel = true;
 		}
 		else
 		{
 			curCollectible->setAmPickedUp(false);
 		}
 		break;
+	case EEntityCharacterTypes_C_MINI_GAME_LEVEL:
+		mpNextLevelData = &((CMiniGameLevelPreset*)curCollectible->mpsgPreset)->nextLevelData;
+		mGoToNextLevel = true;
+		break;
 	default:
 		SDL_assert(false);
 		break;
 	}
+
+}
+
+#elif COLLISION_SYSTEM == 1
+
+void WorldData::entityCollisions(CollisionManager& collisionManager, DamageManager& damageManager, SlashManager& slashManager, KeyboardData& keyboardData)
+{
+	updateCurLevelChunk();
+
+	updateNonstaticCollisions(collisionManager, damageManager);
+
+	slashCollisions(slashManager);
+}
+
+void WorldData::collideWithWorld(Entity* pCurEntity)
+{
+	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
+	Hitbox& curHitbox = pCurEntity->getMovementManager().getHitbox();
+	bool instantDeath = true;
+	bool isHorizontalPath = pCurEntity->getMovementManager().getPath() == EEntityMovementPath_HORIZONTAL or pCurEntity->getMovementManager().getPath() == EEntityMovementPath_HORIZONTAL_CAN_FALL;
+	if (curHitbox.getTopLeft().getX() <= 0)
+	{
+		int updatedX = pCurEntity->getMovementManager().getMovementVect2().getX();
+		curHitbox.setTopLeftX(updatedX);
+		if (isHorizontalPath)
+		{
+			pCurEntity->getMovementManager().collided(EDirection_LEFT);
+			if (pCurEntity->getMovementManager().getDidSwitchedDir())
+			{
+				pCurEntity->setTrapped();
+			}
+		}
+		if (pCurEntity->getClassType() == EEntityClassTypes_PROJECTILE)
+		{
+			killedCharacter(pCurEntity, instantDeath);
+		}
+	}
+	else if (curHitbox.getBottomRight().getX() >= pCurLevel->mLevelX2)
+	{
+		curHitbox.setTopLeftX(pCurLevel->mLevelX2 - curHitbox.getWidth() - pCurEntity->getMovementManager().getMovementVect2().getX());
+		if (isHorizontalPath)
+		{
+			pCurEntity->getMovementManager().collided(EDirection_RIGHT);
+			if (pCurEntity->getMovementManager().getDidSwitchedDir())
+			{
+				pCurEntity->setTrapped();
+			}
+		}
+		if (pCurEntity->getClassType() == EEntityClassTypes_PROJECTILE)
+		{
+			killedCharacter(pCurEntity, instantDeath);
+		}
+	}
+
+	bool isVerticalPath = pCurEntity->getMovementManager().getPath() == EEntityMovementPath_VERTICAL;
+	if (curHitbox.getTopLeft().getY() <= 0)
+	{
+		curHitbox.setTopLeftY(pCurEntity->getMovementManager().getMovementVect2().getY());
+		if (isVerticalPath)
+		{
+			pCurEntity->getMovementManager().collided(EDirection_UP);
+
+		}
+		if (pCurEntity->getClassType() == EEntityClassTypes_PROJECTILE)
+		{
+			killedCharacter(pCurEntity, instantDeath);
+		}
+	}
+	else if (curHitbox.getBottomRight().getY() >= pCurLevel->mLevelY2)
+	{
+		curHitbox.setTopLeftY(pCurLevel->mLevelY2 - curHitbox.getHeight() - pCurEntity->getMovementManager().getMovementVect2().getY());
+		if (isVerticalPath)
+		{
+			pCurEntity->getMovementManager().collided(EDirection_DOWN);
+		}
+		else
+		{
+			//kill character
+			curHitbox.setTopLeftY(pCurEntity->getMovementManager().getMovementVect2().getY());
+			if (pCurEntity->getClassType() == EEntityClassTypes_PROJECTILE)
+			{
+				killedCharacter(pCurEntity, instantDeath);
+			}
+		}
+	}
+
+}
+
+/*
+* Go through all platforms, mark ideal movement. Then run through a loop to test that movement and apply actual movement. Store the movement and whether it was interupted
+* If any are interupted then run through loop again
+*/
+void WorldData::updateNonstaticCollisions(CollisionManager& collisionManager, DamageManager& damageManager)
+{
+	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
+	
+	//get all nonstatic in level
+	std::vector <Entity*> nonstaticEntities;
+	getAllDynamicEntities(nonstaticEntities, pCurLevel->getHitbox());
+
+	bool interrupted = true;
+	int loop = 0;
+	while (loop < 5 && interrupted) // TODO make dynamic based on frame rate
+	{ 
+		interrupted = false;
+		//calculate where all nonstatic can actually move to
+		runNonstaticCollisions(collisionManager, damageManager, nonstaticEntities, interrupted);
+
+		// move everything
+		updateNonstaticMovement(nonstaticEntities);
+		
+		//update effects
+		bool endLoop = updateNonstaticCollisionEffects(collisionManager, damageManager, nonstaticEntities);
+		if (endLoop) { break; }
+		
+		loop++;
+	}
+}
+
+void WorldData::runNonstaticCollisions(CollisionManager& collisionManager, DamageManager& damageManager, std::vector<Entity*> nonstaticEntities, bool& interrupted) 
+{
+	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
+
+	for (Entity* pCurEntity : nonstaticEntities)
+	{
+		MovementManager& curMovementManager	= pCurEntity->getMovementManager();
+		Vect2			 curVect2			= curMovementManager.getMovementVect2();
+		Hitbox& curHitbox					= curMovementManager.getHitbox();
+		AttemptMove& attemptMove			= curMovementManager.getAttemptMove();
+		Hitbox curTestMovement				= Hitbox(attemptMove.mWantToMoveTo, curHitbox.getWidth(), curHitbox.getHeight());
+		attemptMove.mMoveTo					= attemptMove.mWantToMoveTo;
+
+
+		// get all entities in this current entity's hitbox
+		std::vector <Entity*> pOtherEntities;
+		getAllDynamicEntities(pOtherEntities, curTestMovement);
+		getAllStaticEntities(pOtherEntities, curTestMovement);
+
+		// determine how to resolve the collision
+		for (int i = (int)pOtherEntities.size() - 1; i > -1; i--) 
+		{
+			Entity* pOtherEntity = pOtherEntities[i];
+
+			if (!pOtherEntity->getAmAlive() or !pOtherEntity->mIsVisible or pCurEntity == pOtherEntity)
+			{
+				pOtherEntities.erase(pOtherEntities.begin() + i);
+				continue;
+			}
+			MovementManager& otherMovementManager	= pOtherEntity->getMovementManager();
+			Hitbox&			 otherHitbox			= otherMovementManager.getHitbox();
+			AttemptMove&	 otherMove				= otherMovementManager.getAttemptMove();
+			Hitbox			 otherTestMovement		= Hitbox(otherMove.mWantToMoveTo, otherHitbox.getWidth(), otherHitbox.getHeight());
+			
+			if (curTestMovement.overlap(otherTestMovement))
+			{
+				// move based on ratio between this object's movement and colliding object's movement
+				Vect2 movement		= curMovementManager.getMovementVect2();
+				Vect2 otherMovement = otherMovementManager.getMovementVect2();
+
+				//TODO fix this
+				//int xDist = rangeOverlapDistance(curTestMovement.getTopLeft().getX(), curTestMovement.getBottomRight().getX(),
+												 //otherTestMovement.getTopLeft().getX(), otherTestMovement.getBottomRight().getX());
+				//int yDist = rangeOverlapDistance(curTestMovement.getTopLeft().getY(), curTestMovement.getBottomRight().getY(),
+					//otherTestMovement.getTopLeft().getY(), otherTestMovement.getBottomRight().getY());
+				//if (xDist < yDist) 
+				//{
+					////int totalMovementX = movement.getX() * (pCurEntity->getMovementManager().getCurDirection() == EDirection_LEFT ? -1 : 1)
+						////+ otherMovement.getX() * (pOtherEntity->getMovementManager().getCurDirection() == EDirection_LEFT ? -1 : 1);
+					//movement.setX(xDist * ((curTestMovement.getCenter().getX() < otherTestMovement.getCenter().getX()) ? -1 : 1));
+					//movement.setY(0);
+				//}
+				//else 
+				//{
+					////int totalMovementY = movement.getY() * (pCurEntity->getMovementManager().getCurDirectionY() == EDirection_UP ? -1 : 1)
+						////+ otherMovement.getY() * (pOtherEntity->getMovementManager().getCurDirectionY() == EDirection_UP ? -1 : 1);
+					//movement.setY(yDist * ((curTestMovement.getCenter().getY() < otherTestMovement.getCenter().getY()) ? -1 : 1));
+					//movement.setX(0);
+				//}
+
+				
+				//ignore non existent edges
+				bool doSeparate = false;
+				EBoxSide otherSeparationPath	= curTestMovement.separate(otherTestMovement, doSeparate);
+				EEntityEdgeType otherEdgeType	= otherMovementManager.getEdgeType(otherSeparationPath);
+				if (otherEdgeType == EEntityEdgeType_NON_EXISTENT)
+				{
+					if		(curMovementManager.getPath() == EEntityMovementPath_VERTICAL
+						or	 curMovementManager.getPath() == EEntityMovementPath_DIAGONAL)
+					{
+						// resolve collision
+					}
+					else
+					{
+						continue; //pretend there's no collision
+					}
+				}
+				if ((pCurEntity->getClassType()		== EEntityClassTypes_PROJECTILE && pCurEntity->getHostName()	== pOtherEntity->mName) ||
+					(pOtherEntity->getClassType()	== EEntityClassTypes_PROJECTILE && pOtherEntity->getHostName()	== pCurEntity->mName)) {
+					//projectile colliding with its spawner
+					continue; //pretend there's no collision
+				}
+
+				
+				
+				//TODO temp, need to fix
+				curTestMovement.separate(otherTestMovement, true);
+				movement = curTestMovement.getCenter() - curHitbox.getCenter();
+
+				int increment = 0;
+				switch (curMovementManager.getPath())
+				{
+				case EEntityMovementPath_HORIZONTAL:
+					movement.setY(0);
+					break;
+				case EEntityMovementPath_VERTICAL:
+					movement.setX(0);
+					break;
+				case EEntityMovementPath_DIAGONAL:
+					increment = std::max(std::ceil(movement.getX() / curVect2.getX()), std::ceil(movement.getY() / curVect2.getY()));
+					movement.setX(increment * curVect2.getX()); //move in increments of the diagonal path
+					movement.setY(increment * curVect2.getY());
+					break;
+				default:
+					break;
+				}
+
+				collisionManager.addCollision(pCurEntity, pOtherEntity);
+				attemptMove.mInterrupted = true;
+				interrupted = true;
+				attemptMove.mMoveTo = curHitbox.getTopLeft() + movement;
+			}
+		}
+
+	}
+}
+
+void WorldData::updateNonstaticMovement(std::vector<Entity*> nonstaticEntities)
+{
+	for (Entity* pCurEntity : nonstaticEntities)
+	{
+		pCurEntity->getMovementManager().move();
+	}
+}
+
+bool WorldData::updateNonstaticCollisionEffects(CollisionManager& collisionManager, DamageManager& damageManager, std::vector<Entity*> nonstaticEntities)
+{
+	for (Entity* pEntity : nonstaticEntities)
+	{
+		pEntity->getMovementManager().setOnGroundFalse();
+	}
+	mPlayer.mCanWallJump = false;
+
+	bool instantDeath = true;
+	std::vector<Collision> collisions = collisionManager.mThisFrameCollisions;
+	for (Collision& collision : collisions)
+	{
+		
+		if (collision.mpEntity1->getClassType() != EEntityClassTypes_PROJECTILE and collision.mpEntity2->getClassType() != EEntityClassTypes_PROJECTILE) 
+		{
+			bool doSeparate = false;
+			EBoxSide separationPath = collision.mpEntity2->getMovementManager().getHitbox().separate(collision.mpEntity1->getMovementManager().getHitbox(), doSeparate);
+			EBoxSide otherSeparationPath = collision.mpEntity1->getMovementManager().getHitbox().separate(collision.mpEntity2->getMovementManager().getHitbox(), doSeparate);
+			EEntityEdgeType otherEdgeType = collision.mpEntity1->getMovementManager().getEdgeType(separationPath);
+			EEntityEdgeType edgeType = collision.mpEntity2->getMovementManager().getEdgeType(otherSeparationPath);
+
+			damageManager.spreadEdges(collision.mpEntity2, collision.mpEntity1);
+			damageManager.spreadEdges(collision.mpEntity1, collision.mpEntity2);
+			if (damageManager.willKillCharacter(collision.mpEntity1, edgeType))
+			{
+				killedCharacter(collision.mpEntity1);
+			}
+			if (damageManager.willKillCharacter(collision.mpEntity2, otherEdgeType))
+			{
+				killedCharacter(collision.mpEntity2);
+			}
+		}
+		if (!collision.mpEntity1->getAmAlive() or !collision.mpEntity2->getAmAlive())
+		{
+			continue; //one of these entities is dead
+		}
+		bool endLoop = false;
+		switch (collision.mpEntity2->getClassType())
+		{
+		case EEntityClassTypes_PLATFORM:
+			if (collision.mpEntity2->getMovementManager().getMovementData().mCurCharacterMode == ECharacterModes_STATIC) {
+				collideWithPlatform(collisionManager, damageManager, collision);
+			}
+			else
+			{
+				collideWithNonStaticPlatform(collisionManager, damageManager, collision);
+			}
+			break;
+		case EEntityClassTypes_ENEMY:
+			collideWithEnemy(collisionManager, damageManager, collision);
+			
+			break;
+		case EEntityClassTypes_PROJECTILE:
+			collideWithProjectile(collision);
+			break;
+		case EEntityClassTypes_PLAYER:
+			collideWithPlayer(collisionManager, damageManager, collision);
+			break;
+		case EEntityClassTypes_COLLECTIBLE:
+			endLoop = collectedCollectible((Collectible*)collision.mpEntity2);
+			if (endLoop) { return endLoop;  }
+			break;
+		default:
+			SDL_assert(false);
+			break;
+		}
+		Collision reverseCollision = Collision(collision.mpEntity2, collision.mpEntity1);
+
+		switch (reverseCollision.mpEntity2->getClassType())
+		{
+		case EEntityClassTypes_PLATFORM:
+			if (reverseCollision.mpEntity2->getMovementManager().getMovementData().mCurCharacterMode == ECharacterModes_STATIC) {
+				collideWithPlatform(collisionManager, damageManager, reverseCollision);
+			}
+			else
+			{
+				collideWithNonStaticPlatform(collisionManager, damageManager, reverseCollision);
+			}
+			break;
+		case EEntityClassTypes_ENEMY:
+			collideWithEnemy(collisionManager, damageManager, reverseCollision);
+			break;
+		case EEntityClassTypes_PROJECTILE:
+			collideWithProjectile(reverseCollision);
+			break;
+		case EEntityClassTypes_PLAYER:
+			collideWithPlayer(collisionManager, damageManager, reverseCollision);
+			break;
+		case EEntityClassTypes_COLLECTIBLE:
+			
+			break;
+		default:
+			SDL_assert(false);
+			break;
+		}
+	}
+
+	for (Entity* pEntity : nonstaticEntities)
+	{
+		collideWithWorld(pEntity);
+	}
+
+	return false;
+}
+
+//assumes mpEntity2 is a player
+void WorldData::collideWithPlayer(CollisionManager& collisionManager, DamageManager& damageManager, Collision& collision) { return; }
+
+//assumes mpEntity2 is a platform
+void WorldData::collideWithPlatform(CollisionManager& collisionManager, DamageManager& damageManager, Collision& collision)
+{
+	bool instantDeath = true;
+	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
+
+	
+	MovementManager& entity1MovementManager = collision.mpEntity1->getMovementManager();
+	MovementManager& entity2MovementManager = collision.mpEntity2->getMovementManager();
+
+	bool doSeparate = false;
+	EBoxSide separationPath = entity2MovementManager.getHitbox().separate(entity1MovementManager.getHitbox(), doSeparate);
+	EEntityEdgeType edgeType = entity2MovementManager.getEdgeType(separationPath);
+
+
+	switch (separationPath) 
+	{
+		case EBoxSide_TOP:
+			//PLATFORM on ENTITY
+			if (entity1MovementManager.getPath() == EEntityMovementPath_VERTICAL
+				or entity1MovementManager.getPath() == EEntityMovementPath_DIAGONAL)
+			{
+				collisionManager.entitiesCollidedVertical(collision.mpEntity1, collision.mpEntity2);
+			}
+			break;
+
+		case EBoxSide_BOTTOM:
+			
+			//ENTITY on PLATFORM
+			if (entity1MovementManager.getPath() == EEntityMovementPath_HORIZONTAL
+				or entity1MovementManager.getPath() == EEntityMovementPath_HORIZONTAL_CAN_FALL)
+			{
+				JumpingState* jumpState = (JumpingState*)(entity1MovementManager.getMovementStates()[EMovementStateIndex_JUMPING]);
+				if (jumpState->isOver())
+				{
+					//cur platform fallen on
+					entity1MovementManager.setOnGroundTrue(collision.mpEntity2->getMovementEffect(), collision.mpEntity2->getCurCharacteristics(), entity2MovementManager.getHitboxEdges().mTop);
+					jumpState->endJump();
+					jumpState->landed();
+				}
+
+				EEntityEdgeType platformTop = entity2MovementManager.getEdgeType(EBoxSide_TOP);
+
+				if (platformTop == EEntityEdgeType_BOUNCY)
+				{
+					entity1MovementManager.collideWithBouncy();
+				}
+				else if (platformTop == EEntityEdgeType_WEIGHT_SENSITIVE and collision.mpEntity1->getCharacterType() == EEntityCharacterTypes_P_ARMORED_CRATE)
+				{
+					int codeNumber = ((Platform*)collision.mpEntity2)->mCodeNumber;
+					((Platform*)collision.mpEntity2)->activate();
+					for (int countGate = 0; countGate < pCurLevel->mpPlatforms.size(); countGate++)
+					{
+						Platform* curPossibleGate = pCurLevel->mpPlatforms[countGate];
+						if (curPossibleGate->getCharacterType() == EEntityCharacterTypes_P_PRESSURE_OPERATED_GATE and curPossibleGate->mCodeNumber == codeNumber)
+						{
+							curPossibleGate->hide();
+						}
+					}
+				}
+				if (platformTop == EEntityEdgeType_CRUMBLING && collision.mpEntity1->getClassType() == EEntityClassTypes_PLAYER)
+				{
+					((Platform*)collision.mpEntity2)->startCrumble();
+				}
+			}
+			else
+			{
+				collisionManager.entitiesCollidedVertical(collision.mpEntity1, collision.mpEntity2);
+			}
+			break;
+
+		case EBoxSide_LEFT:
+		case EBoxSide_RIGHT:
+			
+			if (collision.mpEntity1->getClassType() == EEntityClassTypes_PLAYER) {
+				if (edgeType == EEntityEdgeType_WALL_JUMPABLE)
+				{
+					if (!mPlayer.getMovementManager().isOnGround())
+					{
+						mPlayer.mCanWallJump = true;
+					}
+				}
+				else if (collision.mpEntity2->getCharacterType() == EEntityCharacterTypes_P_GATE) {
+					{
+						if (mPlayer.mKeys > 0)
+						{
+							((Gate*)collision.mpEntity2)->hide();
+							mPlayer.updateKeys(-1);
+						}
+					}
+				}
+				else if (collision.mpEntity2->getCharacterType() == EEntityCharacterTypes_P_TARGET_GATE)
+				{
+					if (mPlayer.mTargets > 0)
+					{
+						((Gate*)collision.mpEntity2)->hide();
+						mPlayer.updateTargets(-1);
+					}
+				}
+			}
+			if (entity1MovementManager.getPath() == EEntityMovementPath_HORIZONTAL
+				or entity1MovementManager.getPath() == EEntityMovementPath_HORIZONTAL_CAN_FALL
+				or entity1MovementManager.getPath() == EEntityMovementPath_DIAGONAL)
+			{
+				collisionManager.entitiesCollidedHorizontal(collision.mpEntity1, collision.mpEntity2);
+			}
+
+			break;
+		default:
+			break;
+	}
+	// additional player platform collisions
+	//	if (pCurPlatform->getSubClassType() == EEntitySubClassTypes_AREA_EFFECT)
+	//	{
+	//		AreaEffectPlatform * pCurAreaEffectPlatform = (AreaEffectPlatform*) pCurPlatform;
+	//		if (movementManager.getHitbox().overlap(pCurAreaEffectPlatform->mAreaEffectHitbox))
+	//		{
+	//			movementManager.push(pCurAreaEffectPlatform->mAreaEffectMovement, pCurAreaEffectPlatform->mEffectDirection);
+	//		}
+	//	})
+	//if (platformEdgeType == EEntityEdgeType_TELEPORTER)
+	//	{
+	//		//TODO TELEPORT
+	//		return;
+	//	}
+}
+
+//assumes mpEntity2 is a nonstatic platform
+void WorldData::collideWithNonStaticPlatform(CollisionManager& collisionManager, DamageManager& damageManager, Collision& collision)
+{
+	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
+	bool instantDeath = true;
+	bool createdRidingContact = false;
+	
+	MovementManager& entity1MovementManager = collision.mpEntity1->getMovementManager();
+	MovementManager& entity2MovementManager = collision.mpEntity2->getMovementManager();
+
+	bool doSeparate = false;
+	EBoxSide separationPath  = entity2MovementManager.getHitbox().separate(entity1MovementManager.getHitbox(), doSeparate);
+	EEntityEdgeType edgeType = entity2MovementManager.getEdgeType(separationPath);
+
+	switch (separationPath) 
+	{		
+		case EBoxSide_TOP:
+			//ENTITY on NONSTATIC
+			entity1MovementManager.setOnGroundTrue(collision.mpEntity2->getMovementEffect(), collision.mpEntity2->getCurCharacteristics(), entity2MovementManager.getHitboxEdges().mTop);
+			entity1MovementManager.getMovementStates()[EMovementStateIndex_JUMPING]->landed();
+
+			
+			if (collision.mpEntity1->getType() == EEntityType_NON_STATIC)
+			{
+				if (collision.mpEntity1->mRideable)
+				{
+					createdRidingContact = true;
+					collisionManager.addRidingContact(collision.mpEntity1, collision.mpEntity2);
+				}
+				else
+				{
+					killedCharacter(collision.mpEntity1);
+				}
+			}
+			
+			break;
+		case EBoxSide_BOTTOM:
+			entity1MovementManager.setOnGroundTrue(collision.mpEntity2->getMovementEffect(), collision.mpEntity2->getCurCharacteristics(), entity2MovementManager.getHitboxEdges().mTop);
+			entity1MovementManager.getMovementStates()[EMovementStateIndex_JUMPING]->landed();
+
+			if (collision.mpEntity1->getType() == EEntityType_NON_STATIC)
+			{
+				// nonstatic on nonstatic
+				createdRidingContact = true;
+				collisionManager.addRidingContact(collision.mpEntity1, collision.mpEntity2);
+			}
+			break;
+
+		case EBoxSide_LEFT:
+		case EBoxSide_RIGHT:
+			if (collision.mpEntity1->getClassType() == EEntityClassTypes_PLAYER && edgeType == EEntityEdgeType_WALL_JUMPABLE)
+			{
+				if (!mPlayer.getMovementManager().isOnGround())
+				{
+					mPlayer.mCanWallJump = true;
+				}
+			}
+			if (collision.mpEntity1->getSubClassType() == EEntitySubClassTypes_CRATE or collision.mpEntity1->getClassType() == EEntityClassTypes_PLAYER)
+			{
+				//CRATE into CRATE or PLAYER into CRATE
+				collisionManager.mCollisionsToSeparate.push_back(collision);
+				collisionManager.addCrateContact(collision.mpEntity2);
+				if (collision.mpEntity1->getSubClassType() == EEntitySubClassTypes_CRATE) 
+				{
+					collisionManager.addCrateContact(collision.mpEntity1);
+				}
+				break;
+			}
+			if (	entity1MovementManager.getPath() == EEntityMovementPath_HORIZONTAL
+				or  entity1MovementManager.getPath() == EEntityMovementPath_HORIZONTAL_CAN_FALL)
+			{
+				collisionManager.entitiesCollidedHorizontal(collision.mpEntity1, collision.mpEntity2);
+			}
+			break;
+
+		default:
+			break;
+	}
+	
+
+	if ((separationPath == EBoxSide_TOP or separationPath == EBoxSide_BOTTOM) and !createdRidingContact)
+	{
+		collisionManager.entitiesCollidedVertical(collision.mpEntity1, collision.mpEntity2);
+		return;
+	}
+}
+
+//asumes mpEntity2 is an enemy
+void WorldData::collideWithEnemy(CollisionManager& collisionManager, DamageManager& damageManager, Collision& collision)
+{
+	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
+	bool instantDeath = true;
+
+	MovementManager& entity1MovementManager = collision.mpEntity1->getMovementManager();
+	MovementManager& entity2MovementManager = collision.mpEntity2->getMovementManager();
+
+	bool doSeparate = false;	
+	EBoxSide separationPath = entity1MovementManager.getHitbox().separate(entity2MovementManager.getHitbox(), doSeparate);
+	EEntityEdgeType edgeType = entity2MovementManager.getEdgeType(separationPath);
+
+	switch (separationPath) {
+		case EBoxSide_TOP:
+			//ENTITY on ENEMY
+			entity1MovementManager.setOnGroundTrue(collision.mpEntity2->getMovementEffect(), collision.mpEntity2->getCurCharacteristics(), entity2MovementManager.getHitboxEdges().mTop);
+			entity1MovementManager.getMovementStates()[EMovementStateIndex_JUMPING]->landed();
+
+			if (collision.mpEntity1->getType() == EEntityType_NON_STATIC)
+			{
+				if (collision.mpEntity2->mRideable)
+				{
+					collisionManager.addRidingContact(collision.mpEntity1, collision.mpEntity2);
+				}
+				else if (entity2MovementManager.getHitboxEdges().mTop == EEntityEdgeType_BOUNCY)
+				{
+					entity1MovementManager.collideWithBouncy();
+					killedCharacter(collision.mpEntity2, instantDeath);
+				}
+			}
+		
+			if (collision.mpEntity1->getClassType() == EEntityClassTypes_ENEMY)
+			{
+				//ENEMY ON ENEMY
+				if (entity1MovementManager.getPath() != EEntityMovementPath_HORIZONTAL)
+				{
+					collisionManager.entitiesCollidedVertical(collision.mpEntity2, collision.mpEntity1);
+				}
+			}
+		
+			break;
+
+		case EBoxSide_BOTTOM:
+			//ENEMY On ENTITY
+			entity2MovementManager.setOnGroundTrue(collision.mpEntity1->getMovementEffect(), collision.mpEntity1->getCurCharacteristics(), entity1MovementManager.getHitboxEdges().mTop);
+			entity2MovementManager.getMovementStates()[EMovementStateIndex_JUMPING]->landed();
+			if (collision.mpEntity1->getType() == EEntityType_NON_STATIC)
+			{
+				//ENEMY ON NONSTATIC
+				collisionManager.addRidingContact(collision.mpEntity2, collision.mpEntity1);
+			}
+			checkIfOnEdgeOfPlatform(collisionManager, collision);
+
+			break;
+
+		case EBoxSide_LEFT:
+		case EBoxSide_RIGHT:
+			if (collision.mpEntity1->getClassType() == EEntityClassTypes_PLAYER && edgeType == EEntityEdgeType_WALL_JUMPABLE)
+			{
+				if (!mPlayer.getMovementManager().isOnGround())
+				{
+					mPlayer.mCanWallJump = true;
+				}
+			}
+			if (collision.mpEntity1->getType() == EEntityType_NON_STATIC)
+			{
+				//ENEMY ON SIDE OF NONSTATIC
+				EEntityEdgeType enemySideEdgeType = entity2MovementManager.getEdgeType(separationPath);
+				if (enemySideEdgeType == EEntityEdgeType_GRABBING)
+				{
+					if (collision.mpEntity2->mHasAttachmentPoint and collision.mpEntity2->mRideable and collision.mpEntity2->getAmAlive())
+					{
+						EDirection nonstaticDirection = EDirection_RIGHT;
+						if (entity1MovementManager.getHitbox().getCenter().getX() < entity2MovementManager.getHitbox().getCenter().getX())
+						{
+							nonstaticDirection = EDirection_LEFT;
+						}
+
+						if (nonstaticDirection == entity2MovementManager.getCurFacingDirection())
+						{
+							int x = entity2MovementManager.getHitbox().getTopLeft().getX();
+							int attach = collision.mpEntity2->mAttachmentPoint.getX();
+
+							if (entity2MovementManager.getCurDirection() == EDirection_LEFT)
+							{
+								x += attach;
+							}
+							else
+							{
+								x -= attach;
+							}
+							int y = entity2MovementManager.getHitbox().getTopLeft().getY() + collision.mpEntity2->mAttachmentPoint.getY() - entity1MovementManager.getHitbox().getHeight();
+
+							((Enemy*)collision.mpEntity2)->setNextAnimationToPlay(EAnimationType_GRABBING);
+							entity1MovementManager.getHitbox().setTopLeft(Vect2(x, y));
+							collisionManager.addRidingContact(collision.mpEntity1, collision.mpEntity2);
+							return; //else collide
+						}
+					}
+				}
+			}	
+			collisionManager.entitiesCollidedHorizontal(collision.mpEntity1, collision.mpEntity2);
+			break;
+		default:
+			break;
+	}
+}
+
+//assumes mpEntity2 is a projectile
+void WorldData::collideWithProjectile(Collision& collision) 
+{
+	bool instantDeath = true;
+	if (collision.mpEntity1->mName == collision.mpEntity2->getHostName()) {
+		return;
+	}
+	killedCharacter(collision.mpEntity1, instantDeath);
+	killedCharacter(collision.mpEntity2, instantDeath);
+	if (collision.mpEntity1->getCharacterType() == EEntityCharacterTypes_P_TARGET)
+	{
+		if (collision.mpEntity2->getCharacterType() == EEntityCharacterTypes_PJ_PLAYER_PROJECTILE)
+		{
+			((Platform*)collision.mpEntity1)->hide();
+			mPlayer.updateTargets(1);
+		}
+	}
+}
+
+void WorldData::slashCollisions(SlashManager& slashManager) 
+{
+	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
+
+	if (slashManager.mCurSlash)
+	{
+		std::vector<EntityDistance> struckEntities;
+		EntityDistance closestBlockingEntity;
+		std::vector<Entity*> entities = pCurLevel->getAllActiveEntities();
+
+		int hitboxX1 = std::min(mPlayer.getMovementManager().getHitbox().getTopLeft().getX(), slashManager.mHitbox.getTopLeft().getX());
+		int hitboxX2 = std::max(mPlayer.getMovementManager().getHitbox().getBottomRight().getX(), slashManager.mHitbox.getBottomRight().getX());
+		int hitboxY1 = slashManager.mHitbox.getTopLeft().getY();
+		int hitboxY2 = slashManager.mHitbox.getBottomRight().getY();
+		Hitbox approxSlashHitbox = Hitbox(hitboxX1, hitboxX2, hitboxY1, hitboxY2);
+
+		for (Entity* pEntity : entities)
+		{
+			if (pEntity->getAmAlive() and pEntity->getMovementManager().getHitbox().overlap(approxSlashHitbox))
+			{
+				if (pEntity->mVulnerableToProjectiles)
+				{
+					struckEntities.push_back(EntityDistance(pEntity, &mPlayer, approxSlashHitbox, slashManager.mCurRotation));
+				}
+				else
+				{
+					EntityDistance curBlockingEntity = EntityDistance(pEntity, &mPlayer, approxSlashHitbox, slashManager.mCurRotation);
+					if (curBlockingEntity.mDistance < closestBlockingEntity.mDistance)
+					{
+						closestBlockingEntity = curBlockingEntity;
+					}
+				}
+			}
+		}
+
+		for (EntityDistance& curEntityDistance : struckEntities)
+		{
+			if (curEntityDistance.mDistance < closestBlockingEntity.mDistance)
+			{
+				//entity closer, will be hit
+				bool instantDeath = true;
+				killedCharacter(curEntityDistance.mpEntity, instantDeath);
+			}
+		}
+	}
+}
+
+//assumes mpEntity2 is an enemy
+void WorldData::checkIfOnEdgeOfPlatform(CollisionManager& collisionManager, Collision& curCollision)
+{
+	MovementManager& enemyMovementManager = curCollision.mpEntity2->getMovementManager();
+	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
+	if (enemyMovementManager.getPath() == EEntityMovementPath_HORIZONTAL or
+		enemyMovementManager.getPath() == EEntityMovementPath_VERTICAL or
+		enemyMovementManager.getMovementCode() == EEntityMovements_JUMP or
+		curCollision.mpEntity1->getClassType() != EEntityClassTypes_PLATFORM)
+	{
+		return;
+	}
+
+	Platform& curPlatform = *(Platform*)curCollision.mpEntity1;
+	Hitbox& curPlatformHitbox = curPlatform.getMovementManager().getHitbox();
+
+	int curEnemyY2    = enemyMovementManager.getHitbox().getBottomRight().getY();
+	int curPlatformY1 = curPlatformHitbox.getTopLeft().getY();
+	//make sure the enemy is on the platform we are testing against
+	if (std::abs(curPlatformY1 - curEnemyY2) <= 5) 
+	{
+
+		int curHeight = enemyMovementManager.getHitbox().getHeight();
+		Vect2 leftHitboxVect2 = Vect2(curPlatformHitbox.getTopLeft().getX(), curPlatformHitbox.getTopLeft().getY() - curHeight);
+		Hitbox platformHitboxLeft = Hitbox(leftHitboxVect2, enemyMovementManager.getMovementVect2().getX(), curHeight);
+		Vect2 rightHitboxVect2 = Vect2(curPlatformHitbox.getBottomRight().getX() - enemyMovementManager.getMovementVect2().getX(), curPlatformHitbox.getTopLeft().getY() - curHeight);
+		Hitbox platformHitboxRight = Hitbox(rightHitboxVect2, enemyMovementManager.getMovementVect2().getX(), curHeight);
+
+		bool collide = false;
+
+		EDirection curDirection     = EDirection_INVALID;
+		EDirection directionToSetTo = EDirection_INVALID;
+		if (platformHitboxLeft.overlap(enemyMovementManager.getHitbox()))
+		{
+			collide			 = true;
+			curDirection	 = EDirection_LEFT;
+			directionToSetTo = EDirection_RIGHT;
+		}
+		else if (platformHitboxRight.overlap(enemyMovementManager.getHitbox()))
+		{
+			collide			 = true;
+			curDirection	 = EDirection_RIGHT;
+			directionToSetTo = EDirection_LEFT;
+		}
+
+		if (collide)
+		{
+			if (enemyMovementManager.getCurDirection() != directionToSetTo)
+			{
+				enemyMovementManager.collided(curDirection);
+				if (enemyMovementManager.getDidSwitchedDir())
+				{
+					curCollision.mpEntity2->setTrapped();
+				}
+			}
+		}
+	}
+}
+
+bool WorldData::collectedCollectible(Collectible* curCollectible)
+{
+	if (curCollectible->isAmPickedUp())
+	{
+		return false;
+	}
+	curCollectible->setAmPickedUp(true);
+	CanGoToNextLevelResults results = canGoToNextLevel();;
+	switch (curCollectible->getCharacterType())
+	{
+	case EEntityCharacterTypes_C_KEY:
+		mPlayer.updateKeys(1);
+		break;
+	case EEntityCharacterTypes_C_SAVE_POINT:
+		saveInGameStats();
+		break;
+	case EEntityCharacterTypes_C_LOTUS_COLLECTIBLE:
+		mPlayer.addHeldCollectible(curCollectible);
+		break;
+	case EEntityCharacterTypes_C_END_OF_LEVEL:
+		if (results.mCanGoToNextLevel)
+		{
+			mpNextLevelData = results.mpNextLevelData;
+			mGoToNextLevel = true;
+			return true;
+		}
+		else
+		{
+			curCollectible->setAmPickedUp(false);
+		}
+		break;
+	case EEntityCharacterTypes_C_MINI_GAME_LEVEL:
+		mpNextLevelData = &((CMiniGameLevelPreset*)curCollectible->mpsgPreset)->nextLevelData;
+		mGoToNextLevel = true;
+		return true;
+	default:
+		SDL_assert(false);
+		break;
+	}
+	return false;
 	
 }
 
+#endif
 
 void WorldData::playerShootProjectile(EEntityMovementPath path)
 {
@@ -1130,7 +1995,11 @@ void WorldData::playerShootProjectile(EEntityMovementPath path)
 
 			Projectile * pProjectile = new Projectile(Vect2(projectileX1, projectileY1), &preset, projectileDirection, mPlayer.mName);
 			pProjectile->mAnimationManager.setUpAllTextures(mScreen.mpRenderer);
-			pProjectile->setHitboxTexture(AssetManager::getTextureFromSurface(mScreen.mpRenderer, pProjectile->getImageObjectHitbox().getSurface()));
+			if (DEMO == 0)
+			{
+				pProjectile->setHitboxTexture(AssetManager::getTextureFromSurface(mScreen.mpRenderer, pProjectile->getImageObjectHitbox().getSurface()));
+			}
+			pProjectile->mHostName = mPlayer.mName;
 			mpProjectiles.push_back(pProjectile);
 		}
 	}
@@ -1215,7 +2084,7 @@ void WorldData::entityPostTick()
 		pCurProjectile->postTick();
 	}
 
-	if (mPlayer.getAmAlive() == false)
+	if (!mPlayer.getAmAlive())
 	{
 		resetToCheckpoint();
 	}
@@ -1225,7 +2094,7 @@ void WorldData::clearDeadProjectiles()
 {
 	for (int count = (int)mpProjectiles.size() -1; count >= 0; count--)
 	{
-		if (mpProjectiles[count]->isAlive() == false)
+		if (!mpProjectiles[count]->getAmAlive())
 		{
 			delete mpProjectiles[count];
 			mpProjectiles.erase(mpProjectiles.begin() + count);
@@ -1279,7 +2148,6 @@ void WorldData::killedCharacter(Entity* pCharacterKilled, bool instantDeath)
 		}
 		pCharacterKilled->takeDamage();
 	}
-
 }
 
 
@@ -1338,34 +2206,47 @@ void WorldData::resetBaseStats()
 
 CanGoToNextLevelResults WorldData::canGoToNextLevel()
 {
-	int nextWorldNumber = mCurWorldNumber;
-	int nextLevelNumber = mCurLevelNumber;
-	bool canGoToNextLevel = false;
+	bool canGoToNextLevel = true;
 	Level* pCurLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
-	if (mCurLevelNumber != mpWorlds[mCurWorldNumber]->mpLevels.size() - 1)
-	{
-		nextLevelNumber += 1;
-		canGoToNextLevel = true;
-	}
-	else if (mCurWorldNumber != mpWorlds.size() - 1)
-	{
-		nextWorldNumber += 1;
-		nextLevelNumber = 0;
-		canGoToNextLevel = true;
-	}
+	LevelData& nextLevelData = pCurLevel->mNextLevelData;
+	int nextWorldNumber = nextLevelData.mWorldNumber;
+	int nextLevelNumber = nextLevelData.mLevelNumber;
 	if (pCurLevel->mMustKillAllEnemies and pCurLevel->mpActiveEnemies.size() != 0)
 	{
 		canGoToNextLevel = false;
 	}
+	if (nextLevelData.mType == ELevelType_PLATFORMING)
+	{
+		if (nextWorldNumber >= mpWorlds.size() )
+		{
+			canGoToNextLevel = false;
 
-	return CanGoToNextLevelResults(nextWorldNumber, nextLevelNumber, canGoToNextLevel);
+		}
+		else if (nextLevelNumber >= mpWorlds[nextWorldNumber]->mpLevels.size())
+		{
+			canGoToNextLevel = false;
+		}
+
+	}
+	else if (nextLevelData.mType == ELevelType_MINI_GAME)
+	{
+		/*if (nextLevelNumber >= mpMiniGameLevels.size())
+		{
+			canGoToNextLevel = false;
+			nextLevelNumber = mCurLevelNumber;
+		}*/
+	}
+	
+	return canGoToNextLevel ? CanGoToNextLevelResults(&nextLevelData) : CanGoToNextLevelResults();
 }
 
 void WorldData::setNextLevel(int nextWorldNumber, int nextLevelNumber)
 {
 	mCurWorldNumber = nextWorldNumber;
 	mCurLevelNumber = nextLevelNumber;
-	mPlayer.getMovementManager().setStartPosition(&mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber]->mPlayerStartingPosition);
+	mPlayer.getMovementManager().setStartPosition(mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber]->mPlayerStartingPosition);
+	mpNextLevelData = nullptr;
+	mGoToNextLevel = false;
 	resetStats();
 }
 
@@ -1788,7 +2669,7 @@ void WorldData::renderCircleGradient(SDL_Color color, Vect2 center, int radius)
 	{
 		for (int curRadius = 0; curRadius < actualRadius; curRadius++)
 		{
-			float radians = degToRad(degrees);
+			float radians = (float)degToRad(degrees);
 			float curX = actualCenterX + (cos(radians) * curRadius);
 			float curY = actualCenterY + (sin(radians) * curRadius);
 			float alpha = (actualRadius - curRadius) / actualRadius;

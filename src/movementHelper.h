@@ -4,6 +4,7 @@
 #include "hitboxHelper.h"
 #include "entityPresets.h"
 #include "movementHelperClass.h"
+#include "globals.h"
 #include <list>
 #include <array>
 #include <vector>
@@ -27,6 +28,7 @@ private:
 		PositionData		mPositionData;
 		MovementData		mMovementData;
 		JumpingData			mJumpingData;
+		AttemptMove         mAttemptMove;
 
 		int                 mCurHitboxEdgesInterval     = 0;
 		int                 mCurHitboxEdgesIntervalLeft = 0;
@@ -47,13 +49,6 @@ private:
 
 		//helper methods
 		void setUpMovementManagerInternal(Vect2 startPosition, CCharacterPreset* preset);
-
-		/*void setCurMovementVect2(Vect2 movementVect2);
-
-		void updateCurMovementVect2CountDown();
-
-		void resetMovementVect2();*/
-
 
 		void updateCharacterModeCountDown();
 
@@ -91,7 +86,7 @@ private:
 
 		void setMovementState(EMovementStateIndex);
 
-		std::array<MovementState*, numMovementStates> getMovementStates();
+		std::array<MovementState*, numMovementStates>& getMovementStates();
 
 		EMovementStateIndex getCurMovementState();
 
@@ -108,7 +103,13 @@ private:
 		void postTick();
 
 
-		void updateMovement();
+		void calcMovement();
+
+		void move();
+
+#ifdef COLLISION_SYSTEM == 0
+		void moveToWantToMoveTo(); // for old collision system
+#endif
 
 		void updateAccelerationY();
 
@@ -125,23 +126,23 @@ private:
 		void setCurMovementCode(EEntityMovements givenCharacterCode);
 
 
-		void useInput(std::vector <KeyData> & eventVect, bool useHorizontalInput);
+		void useInput(std::vector<KeyData>& eventVect, bool useHorizontalInput, bool canWallJump = false);
 
 		void collided(EDirection direction);
 
 
 		void setOnGroundFalse();
 
-		void setOnGroundTrue(int curGroundMovementEffect, std::vector <EEntityCharacteristicsTypes> curGroundCharacteristics, EEntityEdgeType curGroundTop);
+		void setOnGroundTrue(int curGroundMovementEffect, std::vector<EEntityCharacteristicsTypes> curGroundCharacteristics, EEntityEdgeType curGroundTop);
 
-		bool isOnGround();
+		bool isOnGround() const;
 
-		int getMovementEffect();
+		int getMovementEffect() const;
 		
 
-		bool isAmJump();
+		bool inJump() const;
 
-		bool isAmWallJump();
+		bool inWallJump() const;
 
 		void jump(float jumpMultipler);
 
@@ -155,13 +156,6 @@ private:
 		void left();
 
 		void right();
-
-
-		Vect2 getPosition() const;
-
-		int getX() const;
-
-		int getY() const;
 
 		int getXChange() const;
 
@@ -184,13 +178,18 @@ private:
 
 		EDirection getCurDirectionY() const;
 
+		void setCurDirection(EDirection dir);
+
+
 		EDirection getLastFrameDirection() const;
+		
+		EDirection getLastFrameDirectionY() const;
 
-		bool getSwitchedDir();
+		bool getDidSwitchedDir() const;
 
 
 
-		EEntityMovements getCode() const;
+		EEntityMovements getMovementCode() const;
 
 		EEntityMovementPath getPath() const;
 
@@ -215,19 +214,21 @@ private:
 		void calculateYDirection();
 
 
-		void setStartPosition(Vect2 *newStartingPosition);
+		void setStartPosition(Vect2 newStartingPosition);
 
 		void setCheckpointPosition();
 
 
 
-		JumpingData getJumpingData();
+		JumpingData& getJumpingData();
 
-		MovementData getMovementData();
+		MovementData& getMovementData();
 
-		PositionData getPositionData();
+		PositionData& getPositionData();
 
-		bool receivedInputThisFrame();
+		AttemptMove& getAttemptMove();
+
+		bool receivedInputThisFrame() const;
 
 
 		void setDebugPrint(bool);

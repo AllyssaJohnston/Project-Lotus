@@ -7,3 +7,11 @@ MiniGameWorldData::~MiniGameWorldData()
         delete level;
     }
 }
+
+void MiniGameWorldData::resetLevel() { mpMiniGameLevels[mCurMiniGameLevelNumber]->resetStats(); }
+
+void MiniGameWorldData::setNextLevel(int levelNumber)
+{
+    mCurMiniGameLevelNumber = levelNumber;
+    resetLevel();
+}

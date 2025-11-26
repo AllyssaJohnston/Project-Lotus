@@ -1,6 +1,7 @@
 #include "projectileHelper.h"
 
-Projectile::Projectile(Vect2 positionInput, ProjectilePreset* preset, EDirection curDirection, std::string hostName) : Entity()
+Projectile::Projectile(Vect2 positionInput, ProjectilePreset* preset, EDirection curDirection, 
+        std::string hostName) : Entity()
 {
     setUpBaseStats(preset);
 
@@ -14,8 +15,8 @@ Projectile::Projectile(Vect2 positionInput, ProjectilePreset* preset, EDirection
 
 }
 
-Projectile::Projectile(Vect2 positionInput, Vect2 movementVect, ProjectilePreset* preset, EDirection curDirectionX, EDirection curDirectionY, 
-        std::string hostName) : Entity()
+Projectile::Projectile(Vect2 positionInput, Vect2 movementVect, ProjectilePreset* preset, 
+        EDirection curDirectionX, EDirection curDirectionY, std::string hostName) : Entity()
 {
     setUpBaseStats(preset);
 
@@ -43,8 +44,8 @@ void Projectile::preTick()
 
 void Projectile::tick()
 {
-    //Entity:tick();
-    mMovementManager.updateMovement();
+    Entity::tick();
+    mMovementManager.calcMovement();
 }
 
 void Projectile::postTick()
@@ -60,32 +61,10 @@ void Projectile::updateAnimationManager()
     mAnimationManager.updateAnimation(mAnimationManager.getCurAnimation()->mAnimationType);
 }
 
-bool Projectile::isAlive() const
-{
-    return mAmAlive;
-}
+void Projectile::takeDamage() { died(); }
 
-void Projectile::takeDamage()
-{
-    died();
-}
+void Projectile::died() { mAmAlive = false; }
 
-void Projectile::died()
-{
-    mAmAlive = false;
-}
+ProjectilePreset* Projectile::getPreset() { return mpPreset; }
 
-void Projectile::setCheckpointStats()
-{
-    //No projectile checkpoint
-}
-
-CCharacterPreset* Projectile::getPreset()
-{
-    return mpPreset;
-}
-
-std::string Projectile::getHostName()
-{
-    return mHostName;
-}
+std::string Projectile::getHostName() const { return mHostName; }

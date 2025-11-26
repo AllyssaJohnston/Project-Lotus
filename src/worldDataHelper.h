@@ -1,4 +1,5 @@
 #pragma once
+#include "globals.h"
 #include "playerHelper.h"
 #include "worldHelper.h"
 #include "projectileHelper.h"
@@ -17,18 +18,29 @@ struct WorldData
 {
     Player						mPlayer;
     std::vector <World *>       mpWorlds;
+#if DEMO == 0
     int							mCurWorldNumber = 0;
     int                         mCurLevelNumber = 0;
+#else
+    int							mCurWorldNumber = 0;
+    int                         mCurLevelNumber = 0;
+#endif
     LevelChunk					mCurLevelChunk;
     std::vector <Projectile *>  mpProjectiles;
     int                         mProjectileLimit      = 3;
     const int					mMaxProjectileLimit   = 7;
     int                         mNumLotusCollectibles = 0;
     ScreenObject&               mScreen;
+    bool                        mGoToNextLevel = false;
+    LevelData*                  mpNextLevelData = nullptr;
 
     WorldData(ScreenObject& screen);
 
     ~WorldData();
+
+    void getAllDynamicEntities(std::vector<Entity*>& dynamicEntities, Hitbox hitbox);
+
+    void getAllStaticEntities(std::vector<Entity*>& staticEntities, Hitbox hitbox);
 
     void entityPreTickUpdateMovement(SlashManager& slashManager);
 
@@ -38,23 +50,55 @@ struct WorldData
 
     void updateBackgroundEffects();
 
+#if COLLISION_SYSTEM == 0
+
+    void updateNonstaticMovement(std::vector<Entity*> nonstaticEntities);
+
     void entityCollisions(CollisionManager& collisionManager, DamageManager& damageManager, SlashManager& slashManager, KeyboardData& keyboardData);
 
     void updatePlayerCollisions(CollisionManager& collisionManager, DamageManager& damageManager);
 
-    bool canPlayerWallJump();
+    void collideWithWorld(Entity* pCurEntity);
+
+    void collideWithPlatforms(CollisionManager& collisionManager, DamageManager& damageManager, Entity* pCurEntity);
+
+    void collideWithNonStaticPlatforms(CollisionManager& collisionManager, DamageManager& damageManager, Entity* pCurEntity);
+
+    void collideWithEnemies(CollisionManager& collisionManager, DamageManager& damageManager, Entity* pCurEntity);
+
+    void checkIfOnEdgeOfPlatform(CollisionManager& collisionManager, Enemy* pCurEnemy);
+
+    void collectedCollectible(Collectible* curCollectible);
+
+#elif COLLISION_SYSTEM == 1
+    void entityCollisions(CollisionManager& collisionManager, DamageManager& damageManager, SlashManager& slashManager, KeyboardData& keyboardData);
 
     void collideWithWorld(Entity* curEntity);
 
-    void collideWithPlatforms(CollisionManager& collisionManager, DamageManager& damageManager, Entity* curEntity);
+    void updateNonstaticCollisions(CollisionManager& collisionManager, DamageManager& damageManager);
 
-    void collideWithNonStaticPlatforms(CollisionManager& collisionManager, DamageManager& damageManager, Entity* curEntity);
+    void runNonstaticCollisions(CollisionManager& collisionManager, DamageManager& damageManager, std::vector<Entity*> pNonstaticEntities, bool& interrupted);
 
-    void collideWithEnemies(CollisionManager& collisionManager, DamageManager& damageManager, Entity* curEntity);
+    void updateNonstaticMovement(std::vector<Entity*> pEntitiesToMove);
 
-    void checkIfOnEdgeOfPlatform(CollisionManager& collisionManager, Enemy* curEnemy);
+    bool updateNonstaticCollisionEffects(CollisionManager& collisionManager, DamageManager& damageManager, std::vector<Entity*> pNonstaticEntities);
 
-    void collectedCollectible(Collectible* curCollectible);
+    void collideWithPlayer(CollisionManager& collisionManager, DamageManager& damageManager, Collision& curCollision);
+
+    void collideWithPlatform(CollisionManager& collisionManager, DamageManager& damageManager, Collision& curCollision);
+
+    void collideWithNonStaticPlatform(CollisionManager& collisionManager, DamageManager& damageManager, Collision& curCollision);
+
+    void collideWithEnemy(CollisionManager& collisionManager, DamageManager& damageManager, Collision& curCollision);
+
+    void collideWithProjectile(Collision& curCollision);
+
+    void slashCollisions(SlashManager& slashManager);
+
+    void checkIfOnEdgeOfPlatform(CollisionManager& collisionManager, Collision& curCollision);
+
+    bool collectedCollectible(Collectible* curCollectible);
+#endif
 
     void playerShootProjectile(EEntityMovementPath path);
 
@@ -70,7 +114,7 @@ struct WorldData
 
     void updatePermanentCollectibles();
 
-    void killedCharacter(Entity* pCharacterKilled, bool instantDeath);
+    void killedCharacter(Entity* pCharacterKilled, bool instantDeath = false);
 
     void saveInGameStats();
 

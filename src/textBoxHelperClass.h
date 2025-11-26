@@ -1,4 +1,10 @@
 #pragma once
+#include "helperClass.h"
+#include "hitboxHelper.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_ttf.h>
+#include <string>
+#include <map>
 
 enum ETextBoxFunction
 {
@@ -9,15 +15,14 @@ enum ETextBoxFunction
 	ETextBoxFunction_GO_TO_MAIN_MENU_BOX,
 
 	ETextBoxFunction_NO_FUNCTION,
-	ETextBoxFunction_NON_SELECTABLE,
+	//ETextBoxFunction_NON_SELECTABLE,
 
 	//For mini game
 	ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX,
 	ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX,
 	ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX,
 
-	ETextBoxFunction_ATTACK_STYLE_1_BOX,
-	ETextBoxFunction_ATTACK_STYLE_2_BOX,
+	ETextBoxFunction_ATTACK_STYLE_BOX,
 
 	ETextBoxFunction_ATTACK_DIRECTION_UP_BOX,
 	ETextBoxFunction_ATTACK_DIRECTION_DOWN_BOX,
@@ -37,6 +42,7 @@ enum ETextBoxType
 	//ETextBoxType_SHOP_BOX = 4
 	ETextBoxType_GAME_STAT_BOX,
 	ETextBoxType_MINI_GAME_BOX,
+	ETextBoxType_MINI_GAME_STAT_BOX,
 	ETextBoxType_MINI_GAME_CHARACTER_BOX,
 	ETextBoxType_MINI_GAME_PLAYER_BOX,
 	//ETextBoxType_MINI_GAME_OPTION_BOX,
@@ -63,6 +69,7 @@ enum EGameStatBoxValueToDisplay
 	EGameStatBoxValueToDisplay_DOUBLE_JUMP_KEY,
 	EGameStatBoxValueToDisplay_SLASH_KEY,
 	EGameStatBoxValueToDisplay_TEXT_SIZE_FACTOR,
+	EGameStatBoxValueToDisplay_CUR_KEYBOARD,
 	EGameStatBoxValueToDisplay_MAX
 };
 
@@ -74,14 +81,10 @@ enum ECharacterStatBoxValueToDisplay
 	ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH,
 	ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE,
 	ECharacterStatBoxValueToDisplay_CHARACTER_STUN,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_1_NAME,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_1_TYPE,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_1_DAMAGE,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_1_SPECIAL_EFFECTS_AND_NOTES,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_2_NAME,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_2_TYPE,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_2_DAMAGE,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_2_SPECIAL_EFFECTS_AND_NOTES,
+	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME,
+	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TYPE,
+	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE,
+	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES,
 	ECharacterStatBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME,
 	ECharacterStatBoxValueToDisplay_CHARACTER_MOVE_TYPE,
 	ECharacterStatBoxValueToDisplay_MAX
@@ -116,9 +119,8 @@ enum ETextBoxTextAlign
 	ETextBoxTextAlign_MAX
 };
 
-class TextBoxPositionInfo
+struct TextBoxPositionInfo
 {
-public:
 	Vect2                 mPosition;
 	ETextBoxPositionAlign mPositionAlign; //only affects x coord
 	ETextBoxTextAlign     mTextAlign;
@@ -127,88 +129,48 @@ public:
 	int mMaxHeight;
 	Edges                 mMargins;
 
-	TextBoxPositionInfo(Vect2 position, ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight, Edges margins)
-	{
-		mPosition      = position;
-		mPositionAlign = positionAlign;
-		mTextAlign     = textAlign;
-		mMaxWidth      = maxWidth;
-		mMaxHeight     = maxHeight;
-		mMargins       = margins;
-	}
+	TextBoxPositionInfo(Vect2 position, ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight, Edges margins);
 
-	TextBoxPositionInfo(ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight, Edges margins)
-	{
-		mPositionAlign = positionAlign;
-		if (mPositionAlign == ETextBoxPositionAlign_LEFT)
-		{
-			mPosition = Vect2(0, 0);
-		}
-		else if (mPositionAlign == ETextBoxPositionAlign_CENTER)
-		{
-			mPosition = Vect2(maxWidth, maxHeight);
-		}
-		mTextAlign     = textAlign;
-		mMaxWidth      = maxWidth;
-		mMaxHeight     = maxHeight;
-		mMargins       = margins;
-	}
+	TextBoxPositionInfo(ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight, Edges margins);
 
-	TextBoxPositionInfo(Vect2 position, ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight)
-	{
-		mPosition      = position;
-		mPositionAlign = positionAlign;
-		mTextAlign     = textAlign;
-		mMaxWidth      = maxWidth;
-		mMaxHeight     = maxHeight;
-		mMargins       = Edges();
-	}
+	TextBoxPositionInfo(Vect2 position, ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight);
 };
 
-class TextBoxColorInfo
+struct TextBoxSizeInfo
 {
-public:
+	int	mStandardFontSize;
+	int	mHighlightedFontSize;
+	int	mOutlineWidth = 0;
+
+	TextBoxSizeInfo(int standardSize, int highlightSize, int outlineWidth);
+
+	TextBoxSizeInfo(int standardSize, int highlightSize);
+
+	TextBoxSizeInfo(int standardSize);
+};
+
+struct TextBoxColorInfo
+{
 	SDL_Color mStandardTextColor;
 	SDL_Color mHighlightedTextColor;
 	SDL_Color mStandardTextBoxColor;
 	SDL_Color mHighlightedTextBoxColor;
+	SDL_Color mOutlineColor = { 0, 0, 0, 0 };
+	SDL_Color mHighlightedOutlineColor = { 0, 0, 0, 0 };
 
-	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color highlightedTextColor, SDL_Color standardTextBoxColor, SDL_Color highlightedTextBoxColor)
-	{
-		mStandardTextColor       = standardTextColor;
-		mHighlightedTextColor    = highlightedTextColor;
-		mStandardTextBoxColor    = standardTextBoxColor;
-		mHighlightedTextBoxColor = highlightedTextBoxColor;
-	}
+	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color highlightedTextColor, SDL_Color standardTextBoxColor, SDL_Color highlightedTextBoxColor, SDL_Color outlineColor, SDL_Color highlightedOutlineColor);
 
-	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color standardTextBoxColor, SDL_Color highlightedTextBoxColor)
-	{
-		mStandardTextColor       = standardTextColor;
-		mHighlightedTextColor    = standardTextColor;
-		mStandardTextBoxColor    = standardTextBoxColor;
-		mHighlightedTextBoxColor = highlightedTextBoxColor;
-	}
+	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color highlightedTextColor, SDL_Color standardTextBoxColor, SDL_Color highlightedTextBoxColor);
 
-	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color standardTextBoxColor)
-	{
-		mStandardTextColor       = standardTextColor;
-		mHighlightedTextColor    = standardTextColor;
-		mStandardTextBoxColor    = standardTextBoxColor;
-		mHighlightedTextBoxColor = standardTextBoxColor;
-	}
+	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color standardTextBoxColor, SDL_Color highlightedTextBoxColor);
 
-	TextBoxColorInfo(SDL_Color standardTextColor)
-	{
-		mStandardTextColor       = standardTextColor;
-		mHighlightedTextColor    = standardTextColor;
-		mStandardTextBoxColor    = { 0, 0, 0, 0 };
-		mHighlightedTextBoxColor = { 0, 0, 0, 0 };
-	}
+	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color standardTextBoxColor);
+
+	TextBoxColorInfo(SDL_Color standardTextColor);
 };
 
-class ImageBoxPositionInfo
+struct ImageBoxPositionInfo
 {
-public:
 	Vect2 mPosition;
 	int   mRotation;
 	ETextBoxPositionAlign mPositionAlign;
@@ -217,43 +179,41 @@ public:
 	int mMaxHeight;
 	Edges mMargins;
 
-	ImageBoxPositionInfo(Vect2 position, int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight, Edges margins)
-	{
-		mPosition      = position;
-		mRotation      = rotation;
-		mPositionAlign = positionAlign;
+	ImageBoxPositionInfo(Vect2 position, int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight, Edges margins);
 
-		mMaxWidth      = maxWidth;
-		mMaxHeight     = maxHeight;
-		mMargins       = margins;
-	}
+	ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight, Edges margins);
 
-	ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight, Edges margins)
-	{
-		if (mPositionAlign == ETextBoxPositionAlign_LEFT)
-		{
-			mPosition = Vect2(0, 0);
-		}
-		else if (mPositionAlign == ETextBoxPositionAlign_CENTER)
-		{
-			mPosition = Vect2(maxWidth, maxHeight);
-		}
-		mRotation      = rotation;
-		mPositionAlign = positionAlign;
-
-		mMaxWidth      = maxWidth;
-		mMaxHeight     = maxHeight;
-		mMargins       = margins;
-	}
-
-	ImageBoxPositionInfo(Vect2 position, int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight)
-	{
-		mPosition      = position;
-		mRotation      = rotation;
-		mPositionAlign = positionAlign;
-
-		mMaxWidth      = maxWidth;
-		mMaxHeight     = maxHeight;
-		mMargins       = Edges();
-	}
+	ImageBoxPositionInfo(Vect2 position, int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight);
 };
+
+enum EShapeBoxClass
+{
+	EShapeBoxClass_INVALID = -1,
+	EShapeBoxClass_CIRCLE,
+	EShapeBoxClass_RECT,
+	EShapeBoxClass_MAX
+};
+
+enum EShapeTypeShowType
+{
+	EShapeTypeShowType_INVALID = -1,
+	EShapeTypeShowType_STANDARD,
+	EShapeTypeShowType_MINI_GAME_BOX,
+	EShapeTypeShowType_MINI_GAME_CHARACTER_BOX,
+	EShapeTypeShowType_MINI_GAME_PLAYER_BOX,
+	EShapeTypeShowTypee_MAX
+};
+
+struct FontSizeChart
+{
+	const static int mMinFontSize = 6;
+	const static int mMaxFontSize = 150;
+
+	
+	//can't easily make static, since all values would have to be provided at start
+	//font name maps to a map of font sizes paired with actual sizing details
+	std::map<const char*, std::map<int, SDL_Point>> mFontChart;
+
+	void createFontChart(const char*, SDL_Renderer* pRenderer);
+};
+

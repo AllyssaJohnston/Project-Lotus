@@ -11,6 +11,8 @@ CombatCharacter::CombatCharacter(std::string name, Tile* pCurTile, CombatCharact
     mCurHealth          = preset->mHealthCapacity;
 
     mCurDefenseCapacity = preset->mDefenseCapacity;
+
+    mIconFileName = preset->mIconFileName;
 }
 
 void CombatCharacter::preTick()
@@ -84,10 +86,7 @@ int CombatCharacter::stun()
     return turnsToPassChange;
 }
 
-void CombatCharacter::move(Tile* pTileInput)
-{
-    mCombatMovementManager.setCurTile(pTileInput);
-}
+void CombatCharacter::move(Tile* pTileInput) { mCombatMovementManager.setCurTile(pTileInput); }
 
 void CombatCharacter::postRound()
 {
@@ -98,11 +97,6 @@ void CombatCharacter::postRound()
     }
 }
 
-bool CombatCharacter::returnIsLowLife() const
-{
-    if ((mCurHealth / mCurHealthCapacity) * 100 <= 10)
-    {
-        return true;
-    }
-    return false;
-}
+bool CombatCharacter::returnIsLowLife() const { return ((mCurHealth / mCurHealthCapacity) * 100 <= 10); }
+
+float CombatCharacter::getHealthRatio() const { return (float)mCurHealth / (float)mCurHealthCapacity; }

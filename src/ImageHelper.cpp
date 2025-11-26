@@ -3,8 +3,6 @@
 
 std::list<ImageAsset> AssetManager::mImageAssets;
 
-ImageObject::ImageObject(){}
-
 ImageObject::ImageObject(std::string fileName, int maxWidth, int maxHeight, EHowToDetermineWidthHeight howToDetermineWidthHeight)
 {
 	setupImageObject(fileName, maxWidth, maxHeight, howToDetermineWidthHeight);
@@ -63,12 +61,12 @@ void ImageObject::setupImageObject(std::string fileName, int maxWidth, int maxHe
 
 		if (maxHeight > maxWidth)
 		{
-			mNumChunks = std::ceil(float(maxHeight) / float(mIdealImageHeight));
+			mNumChunks = (int)std::ceil(float(maxHeight) / float(mIdealImageHeight));
 			mChunkDirection = EDirection_DOWN;
 		}
 		else
 		{
-			mNumChunks = std::ceil(float(maxWidth) / float(mIdealImageWidth));
+			mNumChunks = (int)std::ceil(float(maxWidth) / float(mIdealImageWidth));
 			mChunkDirection = EDirection_RIGHT;
 		}
 	}
@@ -94,60 +92,30 @@ void ImageObject::setupImageObject(std::string fileName, float imageRatio)
 	mIdealImageHeight = int(mpSurface->h / imageRatio);
 }
 
-SDL_Surface* ImageObject::getSurface()
-{
-	return mpSurface;
-}
+SDL_Surface* ImageObject::getSurface() { return mpSurface; }
 
-int ImageObject::getIdealImageWidth() const
-{
-	return mIdealImageWidth;
-}
+int ImageObject::getIdealImageWidth() const { return mIdealImageWidth; }
 
-float ImageObject::getHalfIdealImageWidth() const
-{
-	return float(mIdealImageWidth) / 2;
-}
+float ImageObject::getHalfIdealImageWidth() const { return float(mIdealImageWidth) / 2; }
 
-int ImageObject::getIdealImageHeight() const
-{
-	return mIdealImageHeight;
-}
+int ImageObject::getIdealImageHeight() const { return mIdealImageHeight; }
 
-float ImageObject::getHalfIdealImageHeight() const
-{
-	return float(mIdealImageHeight) / 2;
-}
+float ImageObject::getHalfIdealImageHeight() const { return float(mIdealImageHeight) / 2; }
 
-float ImageObject::getImageRatioUsed() const
-{
-	return mImageRatioUsed;
-}
+float ImageObject::getImageRatioUsed() const { return mImageRatioUsed; }
 
-int ImageObject::getImageOffsetX() const
-{
-	return mImageOffsetX;
-}
+int ImageObject::getImageOffsetX() const { return mImageOffsetX; }
 
-int ImageObject::getImageOffsetY() const
-{
-	return mImageOffsetY;
-}
+int ImageObject::getImageOffsetY() const { return mImageOffsetY; }
 
-void ImageObject::setTexture(SDL_Texture* texture)
-{
-	mpTexture = texture;
-}
+void ImageObject::setTexture(SDL_Texture* texture) { mpTexture = texture; }
 
 void ImageObject::setUpTexture(SDL_Renderer* pRenderer)
 {
 	setTexture(AssetManager::getTextureFromSurface(pRenderer, mpSurface));
 }
 
-SDL_Texture* ImageObject::getTexture()
-{
-	return mpTexture;
-}
+SDL_Texture* ImageObject::getTexture() { return mpTexture; }
 
 void ImageObject::setImageOffset(int imageOffsetX, int imageOffsetY)
 {
@@ -207,6 +175,14 @@ SDL_Texture* AssetManager::getTextureFromSurface(SDL_Renderer* pRenderer, const 
 }
 
 
+Outfit::~Outfit()
+{
+	for (ImageObject* frame : mpFrames)
+	{
+		delete frame;
+	}
+}
+
 
 Animation::Animation(EAnimationType animationType, std::vector <Outfit*> outfits, int curFrameNumber, int frameRate, bool mustFinish)
 {
@@ -226,12 +202,9 @@ Animation::~Animation()
 	}
 }
 
-void Animation::resetCountDown()
-{
-	mCountDown = mFrameRate;
-}
+void Animation::resetCountDown() { mCountDown = mFrameRate; }
 
-int Animation::setReturnNextAnimationFrameNumber()
+void Animation::setNextAnimationFrameNumber()
 {
 	if (mCurFrameNumber == -1 or mCurFrameNumber == mpOutfits[0]->mpFrames.size() - 1)
 	{
@@ -241,8 +214,9 @@ int Animation::setReturnNextAnimationFrameNumber()
 	{
 		mCurFrameNumber += 1;
 	}
-	return mCurFrameNumber;
 }
+
+int Animation::getNextAnimationFrameNumber() { return mCurFrameNumber; }
 
 
 
@@ -360,7 +334,7 @@ void AnimationManager::setUpAnimation(const AnimationPreset& animationPreset, in
 		{
 			//splice horizontally
 			int imageWidth   = int(pSurface->w  / imageRatio);
-			numSplices	     = floor(maxImageWidth / imageWidth);
+			numSplices	     = (int)floor((float)maxImageWidth / (float)imageWidth);
 			EDirection spliceDirection = EDirection_RIGHT;
 			int gap			 = maxImageWidth - (numSplices * imageWidth);
 			idealImageWidth  = imageWidth + (gap / numSplices);
@@ -371,7 +345,7 @@ void AnimationManager::setUpAnimation(const AnimationPreset& animationPreset, in
 		{
 			//splice vertically
 			int imageHeight  = int(pSurface->h / imageRatio);
-			numSplices		 = floor(maxImageHeight / imageHeight);
+			numSplices		 = (int)floor((float)maxImageHeight / (float)imageHeight);
 			EDirection spliceDirection = EDirection_DOWN;
 			int gap			 = maxImageHeight - (numSplices * imageHeight);
 			idealImageHeight = imageHeight + (gap / numSplices);
@@ -440,7 +414,8 @@ void AnimationManager::updateAnimation(EAnimationType animationType)
 		}
 		if (mpCurAnimation->mCountDown == 0)
 		{
-			mpCurImage = mpCurAnimation->mpOutfits[mCurOutfitIndex]->mpFrames[mpCurAnimation->setReturnNextAnimationFrameNumber()];
+			mpCurAnimation->setNextAnimationFrameNumber();
+			mpCurImage = mpCurAnimation->mpOutfits[mCurOutfitIndex]->mpFrames[mpCurAnimation->getNextAnimationFrameNumber()];
 			mpCurAnimation->resetCountDown();
 		}
 		else
@@ -511,17 +486,8 @@ bool AnimationManager::isCurAnimationFinished()
 	return false;
 }
 
-Animation* AnimationManager::getCurAnimation()
-{
-	return mpCurAnimation;
-}
+Animation* AnimationManager::getCurAnimation() { return mpCurAnimation; }
 
-std::vector<ImageObject*> AnimationManager::getCurFrames()
-{
-	return mpCurAnimation->mpOutfits[mCurOutfitIndex]->mpFrames;
-}
+std::vector<ImageObject*> AnimationManager::getCurFrames() { return mpCurAnimation->mpOutfits[mCurOutfitIndex]->mpFrames; }
 
-ImageObject* AnimationManager::getCurImage()
-{
-	return mpCurImage;
-}
+ImageObject* AnimationManager::getCurImage() { return mpCurImage; }

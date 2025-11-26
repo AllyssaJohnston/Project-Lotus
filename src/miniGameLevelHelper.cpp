@@ -1,27 +1,9 @@
 #include "miniGameLevelHelper.h"
 
-MiniGameLevel::MiniGameLevel(int levelNumber, Grid * pGrid, CombatManager * pCombatManager)
-{
-    mLevelNumber    = levelNumber;
-    mpGrid          = pGrid;
-    mpCombatManager = pCombatManager;
-}
-
-MiniGameLevel::~MiniGameLevel()
-{
-    if (mpGrid)
-    {
-        delete mpGrid;
-        mpGrid = nullptr;
-    }
-    if (mpCombatManager)
-    {
-        delete mpCombatManager;
-        mpCombatManager = nullptr;
-    }
-}
+MiniGameLevel::MiniGameLevel(int levelNumber, Grid grid, CombatManager combatManager, LevelData nextLevelData) 
+        : mLevelNumber(levelNumber), mGrid(grid), mCombatManager(combatManager), mMainGameNextLevelData(nextLevelData) {}
 
 void MiniGameLevel::resetStats()
 {
-    mpCombatManager->resetStats();
+    mCombatManager.resetStats();
 }

@@ -25,8 +25,11 @@ SlashManager::SlashManager(MovementManager& playerMovementManager) : mPlayerMove
 {
 	mTimeOfLastSlash = std::chrono::high_resolution_clock::now();
 	mAnimationManager.setupAnimationManager(PlayerProjectilePreset(EEntityMovementPath_HORIZONTAL).mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
-	mImageObjectHitbox.setupImageObject("blue.bmp",		 mHitbox.getWidth(), mHitbox.getHeight(), EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
-	mImageObjectImageHitbox.setupImageObject("blue.bmp", mAnimationManager.getCurImage()->getIdealImageWidth(), mAnimationManager.getCurImage()->getIdealImageHeight(), EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
+	if (DEMO == 0)
+	{
+		mImageObjectHitbox.setupImageObject("blue.bmp", mHitbox.getWidth(), mHitbox.getHeight(), EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
+		mImageObjectImageHitbox.setupImageObject("pink.bmp", mAnimationManager.getCurImage()->getIdealImageWidth(), mAnimationManager.getCurImage()->getIdealImageHeight(), EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
+	}
 }
 
 void SlashManager::startSlash()

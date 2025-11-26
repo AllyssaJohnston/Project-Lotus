@@ -4,12 +4,11 @@
 
 class FallingState : public MovementState
 {
-	PositionData& mPositionData;
 	MovementData& mMovementData;
 	JumpingData& mJumpData;
 public:
-	FallingState(PositionData&, MovementData&, JumpingData&);
+	FallingState(PositionData&, MovementData&, JumpingData&, AttemptMove&);
 	virtual void printState();
-	virtual void tickUpdate(bool moveHorizontal);
+	virtual void calcMove(bool moveHorizontal);
 	bool canJump();
 };

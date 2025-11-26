@@ -2,39 +2,24 @@
 
 #include <iostream>
 
-FlyingState::FlyingState(PositionData& pos, MovementData& mov) : mPositionData(pos), mMovementData(mov)
-{
-}
+FlyingState::FlyingState(PositionData& pos, MovementData& movData, AttemptMove& move) : mMovementData(movData) , MovementState(pos, move) {;}
 
-void FlyingState::printState()
-{
-	std::cout << "FlyingState" << "\n";
-}
+void FlyingState::printState() { std::cout << "FlyingState" << "\n"; }
 
-void FlyingState::tickUpdate(bool moveHorizontal)
-{
-	MovementState::tickUpdate(moveHorizontal);
-	//TODO
+void FlyingState::calcMove(bool moveHorizontal) {
+	
 	int curMovementX = 0;
 	int curMovementY = 0;
 	if (mMovementData.mPath == EEntityMovementPath_HORIZONTAL or mMovementData.mPath == EEntityMovementPath_DIAGONAL)
 	{
-		curMovementX = mMovementData.mCurMovementVect2.getX();
-		if (mMovementData.mCurDirection == EDirection_LEFT)
-		{
-			curMovementX *= -1;
-		}
+		int multiplier = mMovementData.mCurDirection == EDirection_LEFT ? -1 : 1;
+		curMovementX = mMovementData.mCurMovementVect2.getX() * multiplier;
 	}
 	if (mMovementData.mPath == EEntityMovementPath_VERTICAL or mMovementData.mPath == EEntityMovementPath_DIAGONAL)
 	{
-		curMovementY = mMovementData.mCurMovementVect2.getY();
-		if (mMovementData.mCurDirectionY == EDirection_UP)
-		{
-			curMovementY *= -1;
-		}
+		int multiplier = mMovementData.mCurDirection == EDirection_UP ? -1 : 1;
+		curMovementY = mMovementData.mCurMovementVect2.getY() * multiplier;
 	}
 
-	mPositionData.mHitbox.updateTopLeft(Vect2(curMovementX, curMovementY));
-
-	return;
+	mAttemptMove.mWantToMoveTo = mPositionData.mHitbox.getTopLeft() + Vect2(curMovementX, curMovementY);
 }

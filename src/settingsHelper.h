@@ -26,5 +26,4 @@ public:
 	bool							mFrameStepInputRequest	= false;
 
 	SettingsManager();
-	
 };

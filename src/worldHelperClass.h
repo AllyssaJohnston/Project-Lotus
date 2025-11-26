@@ -1,15 +1,7 @@
 #pragma once
 #include "hitboxHelper.h"
 
-class CanGoToNextLevelResults
-{
-public:
-	int  mNextWorldNumber   = -1;
-	int  mNextLevelNumber   = -1;
-	bool mCanGoToNextLevel  = false;
-	
-	CanGoToNextLevelResults(int nextWorldNumber, int nextLevelNumber, bool canGoToNextLevel);
-};
+#define GO_TO_MAIN_WORLD -1
 
 class LevelInfo
 {
@@ -22,6 +14,38 @@ public:
 
 	LevelInfo(bool doubleJumpAllowed, bool throwProjectileAllowed, bool throwDownwardProjectileAllowed, bool slashAllowed, 
             bool mustKillAllEnemies);
+};
+
+enum ELevelType
+{
+    ELevelType_INVALID = -1,
+    ELevelType_PLATFORMING,
+    ELevelType_MINI_GAME,
+    ELevelType_MAX
+};
+
+struct LevelData
+{
+    ELevelType mType = ELevelType_INVALID;
+    int mWorldNumber = -1;
+    int mLevelNumber = -1;
+
+    LevelData(ELevelType type, int worldNumber, int levelNumber);
+
+    LevelData(int worldNumber, int levelNumber);
+
+    LevelData(int levelNumber);
+};
+
+class CanGoToNextLevelResults
+{
+public:
+    LevelData* mpNextLevelData = nullptr;
+    bool mCanGoToNextLevel = false;
+
+    CanGoToNextLevelResults() { ; }
+
+    CanGoToNextLevelResults(LevelData* pNextLevelData);
 };
 
 class CircleEffect

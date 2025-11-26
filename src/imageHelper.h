@@ -11,17 +11,17 @@ class ImageObject
 	private:
 		SDL_Surface* mpSurface = nullptr;
 		SDL_Texture* mpTexture = nullptr;
-		int			 mIdealImageWidth;
-		int			 mIdealImageHeight;
-		float        mImageRatioUsed;
-		int			 mImageOffsetX;
-		int          mImageOffsetY;
+		int			 mIdealImageWidth = -1;
+		int			 mIdealImageHeight = -1;
+		float        mImageRatioUsed = -1.0f;
+		int			 mImageOffsetX = 0;
+		int          mImageOffsetY = 0;
 
 	public:
-		EDirection   mChunkDirection;
+		EDirection   mChunkDirection = EDirection_INVALID;
 		int          mNumChunks   = 1;
 
-		ImageObject();
+		ImageObject() { ; }
 
 		ImageObject(std::string fileName, int maxWidth, int maxHeight, EHowToDetermineWidthHeight howToDetermineWidthHeight);
 
@@ -92,6 +92,7 @@ enum EAnimationType
 	EAnimationType_GRABBING,
 	EAnimationType_SHOOTING_PROJECTILE,
 	EAnimationType_PLAY,
+	EAnimationType_WALL_GRIP,
 	EAnimationType_MAX
 
 };
@@ -101,26 +102,18 @@ class Outfit
 public:
 	std::vector <ImageObject *> mpFrames;
 
-	~Outfit()
-	{
-		for (ImageObject* frame : mpFrames)
-		{
-			delete frame;
-		}
-	}
+	~Outfit();
 };
 
 class Animation
 {
-private:
-
 public:
-	EAnimationType				mAnimationType;
+	EAnimationType				mAnimationType  = EAnimationType_INVALID;
 	std::vector <Outfit *>		mpOutfits;
-	int							mCurFrameNumber;
-	int							mFrameRate;
-	int							mCountDown;
-	bool						mMustFinish;
+	int							mCurFrameNumber = 0;
+	int							mFrameRate		= 0;
+	int							mCountDown		= 0;
+	bool						mMustFinish		= false;
 
 	Animation(EAnimationType animationType, std::vector <Outfit*> outfits, int curFrameNumber, int frameRate, bool mustFinish);
 
@@ -128,7 +121,9 @@ public:
 
 	void resetCountDown();
 
-	int setReturnNextAnimationFrameNumber();
+	void setNextAnimationFrameNumber();
+
+	int getNextAnimationFrameNumber();
 };
 
 class AnimationPreset

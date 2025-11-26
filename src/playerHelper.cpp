@@ -1,4 +1,5 @@
 #include "playerHelper.h"
+#include "globals.h"
 
 
 Player::Player() : Entity()
@@ -6,6 +7,7 @@ Player::Player() : Entity()
 	CPlayerPreset* preset = new CPlayerPreset();
 
 	mName				      = "lotus";
+	mEntityType				  = EEntityType_NON_STATIC;
 	mEntityClassType          = EEntityClassTypes_PLAYER;
 	mEntityCharacterType      = EEntityCharacterTypes_C_PLAYER;
 	mOriginalEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_NONE);
@@ -16,13 +18,16 @@ Player::Player() : Entity()
 	mMovementManager.setInputDriven(true);
 
 	mAnimationManager.setupAnimationManager(preset->mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
-	mImageObjectHitbox.setupImageObject("blue.bmp", preset->mWidth, preset->mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
+	if (DEMO == 0)
+	{
+		mImageObjectHitbox.setupImageObject("blue.bmp", preset->mWidth, preset->mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
+	}
 
 	mVulnerableToProjectiles = true;
 	mSwordSlashWidth		 = preset->mSwordSlashWidth;
 	mSwordSlashHeight		 = preset->mSwordSlashHeight;
 
-	mMovementManager.setDebugPrint(true);
+	//mMovementManager.setDebugPrint(true);
 }
 
 Player::~Player()
@@ -57,7 +62,7 @@ void Player::tick()
 	{
 		mMovementManager.getMovementStates()[EMovementStateIndex_WALKING]->autoMove();
 	}
-	mMovementManager.updateMovement();
+	mMovementManager.calcMovement();
 
 }
 
@@ -77,20 +82,20 @@ void Player::postTick()
 }
 
 
-void Player::useInput(std::vector <KeyData>& eventVect)
-{
-	// Right now this just passes it on, but someday you will be state based.
-	mMovementManager.useInput(eventVect, mUseHorizontalInputThisFrame);
-}
+void Player::useInput(std::vector <KeyData>& eventVect) { mMovementManager.useInput(eventVect, mUseHorizontalInputThisFrame, mCanWallJump); }
 
 
 void Player::updateAnimationManager()
 {
-	if (mMovementManager.isAmJump())
+	if (mMovementManager.inJump())
 	{
 		mAnimationManager.updateAnimation(EAnimationType_JUMP);
 	}
-	else if (mMovementManager.isOnGround() == false)
+	else if (mCanWallJump) 
+	{
+		mAnimationManager.updateAnimation(EAnimationType_WALL_GRIP);
+	}
+	else if (!mMovementManager.isOnGround())
 	{
 		mAnimationManager.updateAnimation(EAnimationType_FALL);
 	}
@@ -98,9 +103,13 @@ void Player::updateAnimationManager()
 	{
 		mAnimationManager.updateAnimation(EAnimationType_RUN);
 	}
-	else if (mAnimationManager.getCurAnimation()->mMustFinish and mAnimationManager.isCurAnimationFinished() == false)
+	else if (mAnimationManager.getCurAnimation()->mMustFinish and !mAnimationManager.isCurAnimationFinished())
 	{
 		mAnimationManager.updateAnimation(mAnimationManager.getCurAnimation()->mAnimationType);
+	}
+	else 
+	{
+		mAnimationManager.updateAnimation(EAnimationType_STATIONARY);
 	}
 
 	if (mMovementManager.getJumpingData().mNumCurJumps == 2)
@@ -120,6 +129,7 @@ void Player::resetStats()
 	mKeys	 = mStartingKeys;
 	mTargets = mStartingTargets;
 	mUseHorizontalInputThisFrame = true;
+	mCanWallJump = false;
 }
 
 void Player::resetToCheckpoint()
@@ -129,6 +139,7 @@ void Player::resetToCheckpoint()
 	mTargets = mCheckpointTargets;
 	mAmAlive = true;
 	mUseHorizontalInputThisFrame = true;
+	mCanWallJump = mCheckpointCanWallJump;
 }
 
 void Player::setCheckpointStats()
@@ -136,6 +147,7 @@ void Player::setCheckpointStats()
 	Entity::setCheckpointStats();
 	mCheckpointKeys		= mKeys;
 	mCheckpointTargets  = mTargets;
+	mCheckpointCanWallJump = mCanWallJump;
 }
 
 

@@ -14,21 +14,22 @@ class Collectible;
 class Level
 {
 public:
-	int  mLevelNumber;
-	int  mTrueLevelX2;
-	int  mLevelX2;
-	int  mTrueLevelY2;
-	int  mLevelY2;
+	int  mLevelNumber	= -1;
+	int  mTrueLevelX2	= -1; //x2 of furthest item in level (for the art file)
+	int  mLevelX2		= -1;
+	int  mTrueLevelY2	= -1; //y2 of furthest item in level (for the art file)
+	int  mLevelY2		= -1;
+	Hitbox mHitbox;
 
-	int mArtFileX;
-	int mArtFileY;
-	int mArtFileWidth;
-	int mArtFileHeight;
-	bool mDoubleJumpAllowed;
-	bool mThrowProjectileAllowed;
-	bool mThrowDownwardProjectileAllowed;
-	bool mSlashAllowed;
-	bool mMustKillAllEnemies;
+	int mArtFileX = -1;
+	int mArtFileY = -1;
+	int mArtFileWidth	= -1;
+	int mArtFileHeight	= -1;
+	bool mDoubleJumpAllowed			= false;
+	bool mThrowProjectileAllowed	= false;
+	bool mThrowDownwardProjectileAllowed = false;
+	bool mSlashAllowed				= false;
+	bool mMustKillAllEnemies		= false;
 
 	Vect2 mPlayerStartingPosition;
 
@@ -43,13 +44,15 @@ public:
 	std::vector <CircleEffect*>			mpBackgroundEffects;
 
 	EntityQuadTree mStaticEntities = EntityQuadTree(); //static platforms, area effect platforms
-	EntityQuadTree mDynamicEntities = EntityQuadTree(); //active nonstatic platforms, enemies, collectibles
+	EntityQuadTree mDynamicEntities = EntityQuadTree(); //active nonstatic platforms, enemies, collectibles, projectiles, + player
 
 	std::string  mArtFileName;
-	SDL_Surface* mArtFileSurface;
-	SDL_Texture* mArtFileTexture;
+	SDL_Surface* mArtFileSurface = nullptr;
+	SDL_Texture* mArtFileTexture = nullptr;
 
-	Level(int levelNumber, Vect2 playerStartingPosition, LevelInfo levelInfo);
+	LevelData mNextLevelData;
+
+	Level(int levelNumber, Vect2 playerStartingPosition, LevelInfo levelInfo, LevelData nextLevelData);
 
 	~Level();
 
@@ -69,6 +72,8 @@ public:
 
 	std::vector <Entity*> getAllActiveEntities() const;
 
+	Hitbox getHitbox() const;
+
 	void setUp(SDL_Renderer* pRenderer);
 
 private:
@@ -82,25 +87,13 @@ private:
 public:
 	Hitbox mHitbox;
 
-	LevelChunk(CoordsX1Y1WidthHeight coords)
-	{
-		mHitbox = Hitbox(coords);
-	}
+	LevelChunk(CoordsX1Y1WidthHeight coords);
 
-	LevelChunk()
-	{
-		mHitbox = {};
-	}
+	LevelChunk();
 
-	void updateCoords(Vect2 newVect2)
-	{
-		mHitbox.setTopLeft(newVect2);
-	}
+	void updateCoords(Vect2 newVect2);
 
-	Hitbox getHitbox() const
-	{
-		return mHitbox;
-	}
+	Hitbox getHitbox() const;
 };
 
 class World
@@ -109,8 +102,5 @@ public:
 	int mWorldNumber;
 	std::vector <Level*> mpLevels;
 
-	World(int worldNumber)
-	{
-		mWorldNumber = worldNumber;
-	}
+	World(int worldNumber);
 };

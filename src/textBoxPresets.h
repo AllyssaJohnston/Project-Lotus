@@ -3,87 +3,76 @@
 #include "helperClass.h"
 
 //TEXT BOX
-class TextBoxPreset
+struct TextBoxPreset
 {
-public:
-	EGameStatBoxValueToDisplay		mGameStatToDisplay		= EGameStatBoxValueToDisplay_INVALID;
-	int								mCombatCharacterIndex	= -1;
-	ECharacterStatBoxValueToDisplay mCharacterStatToDisplay = ECharacterStatBoxValueToDisplay_INVALID;
-	ETextBoxType					mType					= ETextBoxType_INVALID;
+	EGameStatBoxValueToDisplay		mGameStatToDisplay			= EGameStatBoxValueToDisplay_INVALID;
+	int								mCombatCharacterIndex		= -1;
+	bool							mShowDuringAllCharacters	= false;
+	ECharacterStatBoxValueToDisplay mCharacterStatToDisplay		= ECharacterStatBoxValueToDisplay_INVALID;
+	int								mAttackNum					= -1;
+	ETextBoxType					mType						= ETextBoxType_INVALID;
 	std::vector <EMiniGameState>	mMiniGameStateWhenToShowList;
-	std::string                     mMessage				= "Invalid";
+	std::string                     mMessage					= "Invalid";
+
+	TextBoxPreset() { ; }
 
 };
 
-class StandardTextBoxPreset : public TextBoxPreset
+struct StandardTextBoxPreset : public TextBoxPreset { StandardTextBoxPreset(std::string message); };
+
+struct MiniGameStatBoxPreset : public TextBoxPreset { MiniGameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay);  };
+
+struct MiniGameCharacterBoxPreset : public TextBoxPreset
 {
-public:
-	StandardTextBoxPreset(std::string message)
-	{
-		mMessage = message;
-	}
+	MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay);
+	MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, int attackNum, std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	
 };
 
-class MiniGameCharacterBoxPreset : public TextBoxPreset
-{
-public: 
-	MiniGameCharacterBoxPreset(int characterIndex, ECharacterStatBoxValueToDisplay characterStatToDisplay) : TextBoxPreset()
-	{
-		mCombatCharacterIndex   = characterIndex;
-		mCharacterStatToDisplay = characterStatToDisplay;
-		mType                   = ETextBoxType_MINI_GAME_CHARACTER_BOX;
-		mMessage                = "Z"; //default
-	}
-};
+struct MiniGamePlayerBoxPreset : public TextBoxPreset {	 MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList); };
 
-class MiniGamePlayerBoxPreset : public TextBoxPreset
-{
-public:
-	MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
-	{
-		mCharacterStatToDisplay		   = characterStatToDisplay;
-		mMiniGameStateWhenToShowList   = miniGameStateWhenToShowList;
-		mType						   = ETextBoxType_MINI_GAME_PLAYER_BOX;
-		mMessage					   = "Z"; //default
-	}
-};
+struct MiniGameBoxPreset : public TextBoxPreset { MiniGameBoxPreset(std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList); };
 
-class MiniGameBoxPreset : public TextBoxPreset
-{
-public:
-	MiniGameBoxPreset(std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
-	{
-		mMiniGameStateWhenToShowList   = miniGameStateWhenToShowList;
-		mType						   = ETextBoxType_MINI_GAME_BOX;
-		mMessage					   = message;
-	}
-};
-
-class GameStatBoxPreset : public TextBoxPreset
-{
-public:
-	GameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay) : TextBoxPreset()
-	{
-		mGameStatToDisplay             = gameStateValueToDisplay;
-		mType						   = ETextBoxType_GAME_STAT_BOX;
-		mMessage					   = "Z"; //default
-	}
-};
+struct GameStatBoxPreset : public TextBoxPreset { GameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay); };
 
 //IMAGE BOXES
-class ImageBoxPreset
+struct ImageBoxPreset
 {
-public:
 	bool       mAutoShow = true;
 	ETextBoxID mID = ETextBoxID_NA;
 };
 
-class DontAutoShowImageBoxPreset : public ImageBoxPreset
+struct DontAutoShowImageBoxPreset : public ImageBoxPreset { DontAutoShowImageBoxPreset(ETextBoxID id); };
+
+
+//SHAPE BOXES
+struct ShapeBoxPreset
 {
-public:
-	DontAutoShowImageBoxPreset(ETextBoxID id) : ImageBoxPreset()
-	{
-		mAutoShow = false;
-		mID = id;
-	}
+	EShapeTypeShowType				mShowType					= EShapeTypeShowType_STANDARD;
+	int								mCombatCharacterIndex		= -1;
+	bool							mShowDuringAllCharacters	= false;
+	int								mAttackNum					= -1;
+	EShapeBoxClass					mType						= EShapeBoxClass_INVALID;
+	std::vector <EMiniGameState>	mMiniGameStateWhenToShowList;
+	
+
+	ShapeBoxPreset(EShapeBoxClass type);
+};
+
+struct MiniGameShapeBoxPreset : public ShapeBoxPreset 
+{
+	MiniGameShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters);
+	MiniGameShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters, std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters, int attackNum, std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameShapeBoxPreset(EShapeBoxClass type, std::vector <EMiniGameState> miniGameStateWhenToShowList);
+};
+
+
+struct HealthBoxPreset
+{
+	int mCombatCharacterIndex = -1;
+
+	HealthBoxPreset(int characterIndex);
 };

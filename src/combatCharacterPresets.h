@@ -4,9 +4,8 @@
 #include "combatHelperClass.h"
 #include <vector>
 
-class CombatCharacterPreset
+struct CombatCharacterPreset
 {
-public:
     EMiniGameCombatCharacterType mType          = EMiniGameCombatCharacterType_INVALID;
     std::vector <Attack> mAttacks;
 
@@ -15,19 +14,18 @@ public:
     int mAttackDamage                           = -1;
     int mHealthCapacity                         = -1;
     int mDefenseCapacity                        = -1;
+
+    std::string mIconFileName;
 };
 
-class PlayerCombatPreset : public CombatCharacterPreset
-{
-public:
-    PlayerCombatPreset();
-};
+struct PlayerCombatPreset : public CombatCharacterPreset { PlayerCombatPreset(); };
 
-class SwordCombatPreset : public CombatCharacterPreset
-{
-public:
-    SwordCombatPreset();
-};
+struct RatCombatPreset : public CombatCharacterPreset { RatCombatPreset(); };
+
+struct FrogCombatPreset : public CombatCharacterPreset { FrogCombatPreset(); };
+
+
+
 
 
 /*

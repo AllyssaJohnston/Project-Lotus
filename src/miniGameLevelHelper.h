@@ -1,18 +1,22 @@
 #pragma once
 #include "gridHelper.h"
 #include "combatHelper.h"
+#include "worldHelperClass.h"
 
 class MiniGameLevel
 {
 public:
     int mLevelNumber;
 
-    Grid * mpGrid;
-    CombatManager * mpCombatManager;
+    Grid mGrid;
+    CombatManager mCombatManager;
 
-    MiniGameLevel(int levelNumber, Grid * pGrid, CombatManager * pCombatManager);
+    // the level in the main game to go back to after finishing some rounds of mini game levels
+    LevelData mMainGameNextLevelData;
 
-    ~MiniGameLevel();
+    MiniGameLevel(int levelNumber, Grid grid, CombatManager combatManager, LevelData nextLevelData);
+
+    ~MiniGameLevel() { ; }
 
     void resetStats();
 };

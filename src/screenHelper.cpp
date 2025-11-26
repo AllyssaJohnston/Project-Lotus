@@ -44,22 +44,22 @@ void ScreenObject::getBestScreenSize()
 	mScreenHeight = desktopWindow.bottom; //1440;// desktopWindow.bottom;
 
 	float gameRatio1 = mScreenWidth / 16.0f;
-	int	  gameWidth1 = mScreenWidth;
-	int   gameHeight1 = gameRatio1 * 9;
+	float gameWidth1 = (float)mScreenWidth;
+	float gameHeight1 = gameRatio1 * 9.0f;
 
 	float gameRatio2 = mScreenHeight / 9.0f;
-	int   gameWidth2 = gameRatio2 * 16;
-	int   gameHeight2 = mScreenHeight;
+	float gameWidth2 = gameRatio2 * 16.0f;
+	float gameHeight2 = (float)mScreenHeight;
 
-	if (gameWidth2 <= mScreenWidth or gameHeight1 <= mScreenHeight)
+	if ((int)gameWidth2 <= mScreenWidth or (int)gameHeight1 <= mScreenHeight)
 	{
-		mGameScreenWidth  = gameWidth1  * 2;
-		mGameScreenHeight = gameHeight1 * 2;
+		mGameScreenWidth  = (int)(gameWidth1  * 2);
+		mGameScreenHeight = (int)(gameHeight1 * 2);
 	}
 	else
 	{
-		mGameScreenWidth  = gameWidth2  * 2;
-		mGameScreenHeight = gameHeight2 * 2;
+		mGameScreenWidth  = (int)(gameWidth2  * 2);
+		mGameScreenHeight = (int)(gameHeight2 * 2);
 	}
 
 	mGameScreenToGameLevelChunkRatio = (float)mGameScreenWidth / (float)mGameLevelChunkWidth;

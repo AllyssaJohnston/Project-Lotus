@@ -14,6 +14,10 @@ public:
     Collision(Entity * entity1, Entity * entity2);
 
     ~Collision();
+
+    bool operator== (const Collision& other) const;
+
+    bool operator!= (const Collision& other) const;
 };
 
 class RidingIsland
@@ -55,6 +59,8 @@ public:
 
     void postTick();
 
+    void addCollision(Entity* pCurEntity1, Entity* pCurEntity2);
+
     void entitiesCollidedHorizontal(Entity* pCurEntity1, Entity* pCurEntity2);
 
     void entitiesCollidedVertical(Entity* pCurEntity1, Entity* pCurEntity2);
@@ -66,6 +72,8 @@ public:
     void moveLastFrameRidingIslands();
 
     void addCrateContact(Entity* crate);
+
+    bool isInCrateContacts(Entity* crate);
 
     void setCrateContactMovementIncrement(int movementIncrementInput);
 

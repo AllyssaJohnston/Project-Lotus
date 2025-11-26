@@ -19,16 +19,18 @@ public:
 
 	~Collectible();
 
+	void tick() override;
+
 	bool isAmPickedUp() const;
 
 	void setAmPickedUp(bool amPickedUp);
 
 	
-	void setCheckpointStats();
+	void setCheckpointStats() override;
 
-	void resetStats();
+	void resetStats() override;
 
-	void resetToCheckpoint();
+	void resetToCheckpoint() override;
 
 
 	bool isPermanentlyPickedUp() const;
@@ -56,6 +58,22 @@ public:
 	~EndOfLevelCollectible();
 };
 
+
+class MiniGameLevelCollectible : public Collectible
+{
+private: 
+	EDirection mImageDirection = EDirection_LEFT;
+public:
+	MiniGameLevelCollectible();
+
+	MiniGameLevelCollectible(Vect2 position, CMiniGameLevelPreset* preset);
+
+	~MiniGameLevelCollectible();
+
+	void tick() override;
+};
+
+
 class PermanentCollectible : public Collectible
 {
 public:
@@ -65,9 +83,9 @@ public:
 
 	~PermanentCollectible();
 
-	void resetStats();
+	void resetStats() override;
 
-	void resetToCheckpoint();
+	void resetToCheckpoint() override;
 };
 
 class LotusCollectible : public PermanentCollectible

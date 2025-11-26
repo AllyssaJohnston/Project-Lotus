@@ -7,7 +7,8 @@
 class StyleManager
 {
 public: 
-	const char * robotoFontName = "fonts/Roboto-Regular.ttf";
+	const char * fontName = "fonts/Roboto-Regular.ttf";
+	const static SDL_Color lightPink;
 	const static SDL_Color pink;
 	const static SDL_Color lightYellow;
 	const static SDL_Color white;

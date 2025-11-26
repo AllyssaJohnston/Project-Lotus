@@ -1,17 +1,22 @@
 #include "collisionHelper.h"
 
-Collision::Collision(Entity * entity1, Entity * entity2)
-{
-    mpEntity1 = entity1;
-    mpEntity2 = entity2;
-}
+Collision::Collision(Entity* entity1, Entity* entity2) : mpEntity1(entity1), mpEntity2(entity2) { ; }
 
-Collision::~Collision()
+Collision::~Collision() 
 {
     mpEntity1 = nullptr;
     mpEntity2 = nullptr;
 }
 
+bool Collision::operator== (const Collision& other) const
+{
+    return (mpEntity1 == other.mpEntity1 && mpEntity2 == other.mpEntity2) or (mpEntity1 == other.mpEntity2 && mpEntity2 == other.mpEntity1);
+}
+
+bool Collision::operator!= (const Collision& other) const
+{
+    return !(*this == other);
+}
 
 
 
@@ -87,14 +92,12 @@ void RidingIsland::separateRidingContacts()
 
 void RidingIsland::addRidingContact(Entity* entity)
 {
-    for (int count = 0; count < mpRidingContacts.size(); count++)
+    if (std::find(mpRidingContacts.begin(), mpRidingContacts.end(), entity) != mpRidingContacts.end()) 
     {
-        Entity& curContact = *(mpRidingContacts[count]);
-        if (&curContact == entity)
-        {
-            return;
-        }
+        //already in
+        return;
     }
+    
     if (entity->getMovementManager().getHitbox().getBottomRight().getY() > mpBase->getMovementManager().getHitbox().getBottomRight().getY())
     {
         mpBase = entity;
@@ -112,7 +115,6 @@ void RidingIsland::addRidingContact(Entity* entity)
         }
     }
     mpRidingContacts.push_back(entity);
-
 }
 
 
@@ -198,11 +200,11 @@ void CollisionManager::entitiesCollidedHorizontal(Entity* pCurEntity1, Entity* p
         return;
     }
 
-    if (isInThisFrameCollisions(pMovingEntity))
+    if (!isInThisFrameCollisions(pMovingEntity))
     {
-        return;
+        mThisFrameCollisions.push_back(Collision(pCurEntity1, pCurEntity2));
     }
-    mThisFrameCollisions.push_back(Collision(pCurEntity1, pCurEntity2));
+    
 
 
     EDirection entity1DirectionToSetTo;
@@ -231,9 +233,9 @@ void CollisionManager::entitiesCollidedHorizontal(Entity* pCurEntity1, Entity* p
         if (pCurEntity1->getMovementManager().getCurDirection() != entity1DirectionToSetTo)
         {
             pCurEntity1->getMovementManager().collided(entity1DirectionOfCollision);
-			if (pCurEntity1->getMovementManager().getSwitchedDir())
+			if (pCurEntity1->getMovementManager().getDidSwitchedDir())
             {
-                pCurEntity1->isPathBlocked();
+                pCurEntity1->setTrapped();
             }
         }
     }
@@ -242,9 +244,9 @@ void CollisionManager::entitiesCollidedHorizontal(Entity* pCurEntity1, Entity* p
         if (pCurEntity2->getMovementManager().getCurDirection() != entity2DirectionToSetTo)
         {
             pCurEntity2->getMovementManager().collided(entity2DirectionOfCollision);
-			if (pCurEntity2->getMovementManager().getSwitchedDir())
+			if (pCurEntity2->getMovementManager().getDidSwitchedDir())
             {
-                pCurEntity2->isPathBlocked();
+                pCurEntity2->setTrapped();
             }
         }
     }
@@ -303,6 +305,15 @@ void CollisionManager::entitiesCollidedVertical(Entity* pCurEntity1, Entity* pCu
     }
 }
 
+void CollisionManager::addCollision(Entity* pCurEntity1, Entity* pCurEntity2) 
+{
+    if (std::find(mThisFrameCollisions.begin(), mThisFrameCollisions.end(), Collision(pCurEntity1, pCurEntity2)) == mThisFrameCollisions.end())
+    {
+        //unique collision
+        mThisFrameCollisions.push_back(Collision(pCurEntity1, pCurEntity2));
+    }
+}
+
 void CollisionManager::moveRidingIslands()
 {
     for (RidingIsland& curRidingIsland : mpRidingIslands)
@@ -331,6 +342,11 @@ void CollisionManager::addCrateContact(Entity* crate)
     mpCrateContacts.push_back(crate);
 }
 
+bool CollisionManager::isInCrateContacts(Entity* crate) 
+{
+    return std::find(mpCrateContacts.begin(), mpCrateContacts.end(), crate) != mpCrateContacts.end();
+}
+
 void CollisionManager::setCrateContactMovementIncrement(int movementIncrementInput)
 {
     mCrateContactMovementIncrement = movementIncrementInput;
@@ -338,6 +354,11 @@ void CollisionManager::setCrateContactMovementIncrement(int movementIncrementInp
 
 void CollisionManager::addRidingContact(Entity* pRidingObject, Entity* pObjectToRide)
 {
+    if (pObjectToRide->getType() != EEntityType_NON_STATIC or pObjectToRide->mRideable == false) 
+    {
+        //can't ride this object
+        return;
+    }
     Hitbox ridingObjectHitbox = pRidingObject->getMovementManager().getHitbox();
     Hitbox objectToRideHitbox = pObjectToRide->getMovementManager().getHitbox();
     int xOverlap = rangeOverlapDistance(ridingObjectHitbox.getTopLeft().getX(), ridingObjectHitbox.getBottomRight().getX(), objectToRideHitbox.getTopLeft().getX(), objectToRideHitbox.getBottomRight().getX());

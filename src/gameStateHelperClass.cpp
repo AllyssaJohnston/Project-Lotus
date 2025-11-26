@@ -11,144 +11,34 @@ MiniGameStateData::~MiniGameStateData()
 	}
 }
 
+CombatCharacter* MiniGameStateData::getCharacter() { return mpCharacter; }
 
-MiniGameStateManagerData::~MiniGameStateManagerData()
+int MiniGameStateData::getCharacterIndex() { return mCharacterIndex;  }
+
+void MiniGameStateData::setCharacter(CombatCharacter* pCharacter, int index) 
 {
-	mpData              = nullptr;
-	mpMiniGameWorldData = nullptr;
+	mpCharacter = pCharacter;
+	mCharacterIndex = index;
 }
 
-void MiniGameStateManagerData::printBoard(ScreenObject& screenObject, StyleManager& styleManager)
+void MiniGameStateData::reset()
 {
-	Grid * pGrid = mpMiniGameWorldData->mpMiniGameLevels[mpMiniGameWorldData->mCurMiniGameLevelNumber]->mpGrid;
-	pGrid->preTick();
-	updateTileColors(styleManager);
-	pGrid->printGrid(screenObject.mpRenderer, screenObject.mGameScreenToGameLevelChunkRatio);
-	printCharacters(screenObject, styleManager);
-	//printObjects
+	mpCharacter = nullptr;
+	mCharacterIndex = -1;
+	mpTileToMoveTo = nullptr;
+	mpTileToAttack = nullptr;
+	mpTilesToAttack.clear();
+	mpCurAttack = nullptr;
+	mCurAttackDirection = EDirection_INVALID;
+	mGoingToAttack = false;
+	mNextMiniGameState = EMiniGameState_INVALID;
+	mPostBufferGameState = EMiniGameState_INVALID;
+
+	mTicks = 0;
+	mTicksBeforeAction = 40;
+
+	mTickYet = false;
 }
-
-void MiniGameStateManagerData::printCharacters(ScreenObject& screenObject, StyleManager& styleManager)
-{
-	Grid * pGrid = mpMiniGameWorldData->mpMiniGameLevels[mpMiniGameWorldData->mCurMiniGameLevelNumber]->mpGrid;
-	CombatManager * pCombatManager = mpMiniGameWorldData->mpMiniGameLevels[mpMiniGameWorldData->mCurMiniGameLevelNumber]->mpCombatManager;
-	for (int count = 0; count < pCombatManager->mpCurCombatCharacters.size(); count++)
-	{
-		CombatCharacter* curCombatCharacter = pCombatManager->mpCurCombatCharacters[count];
-		Tile * curTile = curCombatCharacter->mCombatMovementManager.getCurTile();
-		SDL_Color curColor = styleManager.white;
-		SDL_Renderer * pRenderer = screenObject.mpRenderer;
-		if (curCombatCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
-		{
-			curColor = styleManager.sunYellow;
-		}
-		SDL_SetRenderDrawColor(pRenderer, curColor.r, curColor.g, curColor.b, curColor.a);
-
-		float gameScreenToGameLevelChunkRatio = screenObject.mGameScreenToGameLevelChunkRatio;
-		float width  = float(curTile->mCoords.mWidth)  * .75f;
-		float height = float(curTile->mCoords.mHeight) * .75f;
-		float x      = float(curTile->mCoords.mX1) + (float(curTile->mCoords.mWidth  - width)  / 2.0f);
-		float y      = float(curTile->mCoords.mY1) + (float(curTile->mCoords.mHeight - height) / 2.0f);
-		x *= gameScreenToGameLevelChunkRatio;
-		y *= gameScreenToGameLevelChunkRatio;
-		width  *= gameScreenToGameLevelChunkRatio;
-		height *= gameScreenToGameLevelChunkRatio;
-
-		SDL_FRect curTileRect {x, y, width, height};
-		SDL_RenderFillRect(pRenderer, &curTileRect);
-	}
-
-}
-
-void MiniGameStateManagerData::updateTileColors(StyleManager& styleManager)
-{
-	Grid * pGrid = mpMiniGameWorldData->mpMiniGameLevels[mpMiniGameWorldData->mCurMiniGameLevelNumber]->mpGrid;
-	CombatManager * pCombatManager = mpMiniGameWorldData->mpMiniGameLevels[mpMiniGameWorldData->mCurMiniGameLevelNumber]->mpCombatManager;
-
-	//SELECTED OR HIGHLIGHTED
-	for (int count = 0; count < pGrid->mpTiles.size(); count++)
-	{
-		Tile* curTile = pGrid->mpTiles[count];
-		SDL_Color curColor = curTile->mCurColor;
-		SDL_Color colorToDraw = curColor;
-		float alpha = 0.0f;
-		if (curTile->getMode() == EMiniGameCombatTileMode_SELECTED)
-		{
-			alpha = .1f;
-		}
-		else if (curTile->getMode() == EMiniGameCombatTileMode_HIGHLIGHTED)
-		{
-			alpha = .35f;
-		}
-		SDL_Color curWhite {255, 255, 255, (Uint8)alpha};
-		colorToDraw = blendColors(&curColor, &curWhite, alpha);
-
-		curTile->setCurColor(&colorToDraw);
-	}
-
-	//SHOW MOVE TILES
-	for (int count = 0; count < pCombatManager->mpCurCombatCharacters.size(); count++)
-	{
-		CombatCharacter * curCombatCharacter = pCombatManager->mpCurCombatCharacters[count];
-		if (curCombatCharacter == mpData->mpCharacter)
-		{
-			EMiniGameCombatActionType tileType = EMiniGameCombatActionType_MOVE;
-			std::vector <TileCoords> tileCoordsList;
-			if (mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT or mCurStateEnum == EMiniGameState_ENEMY_MOVE_CHARACTER)
-			{
-				tileCoordsList = curCombatCharacter->mCombatMovementManager.getMoveTiles();
-				tileType = EMiniGameCombatActionType_MOVE;
-			}
-			else if (mCurStateEnum == EMiniGameState_PLAYER_TAKE_ACTION_ATTACK or mCurStateEnum == EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK
-				or mCurStateEnum == EMiniGameState_ENEMY_TAKE_ACTION)
-			{
-				Attack& curAttack = mpData->mCurAttack;
-				EDirection curAttackDirection = mpData->mCurAttackDirection;
-				if (curAttack.mRequiresDirectionInput and curAttackDirection != EDirection_NONE)
-				{
-					tileCoordsList = returnAttackTileCoordsBasedOnAttackAndDirection(curCombatCharacter->mCombatMovementManager.getCurTile(), curAttack, curAttackDirection).mTileCoords;
-				}
-				else
-				{
-					tileCoordsList = returnAttackTileCoordsBasedOnAttack(curCombatCharacter->mCombatMovementManager.getCurTile(), curAttack).mTileCoords;
-				}
-				tileType = EMiniGameCombatActionType_ATTACK;
-
-			}
-			tileCoordsList = removeDuplicateTiles(tileCoordsList);
-
-			for (int countTile = 0; countTile < tileCoordsList.size(); countTile++)
-			{
-				int row = tileCoordsList[countTile].mRow;
-				int col = tileCoordsList[countTile].mCol;
-
-				if (pGrid->isLegalCoords(row, col))
-				{
-					Tile* curTile = pGrid->mpTiles[pGrid->getIndex(row, col)];
-					SDL_Color curColor = curTile->mCurColor;
-					SDL_Color otherColor;
-					if (tileType == EMiniGameCombatActionType_MOVE)
-					{
-						otherColor = styleManager.sunYellow;
-					}
-					else if (tileType == EMiniGameCombatActionType_ATTACK)
-					{
-						otherColor = styleManager.red;
-					}
-					else
-					{
-						SDL_assert(false);
-					}
-					float alpha = .25;
-					SDL_Color updatedColor = blendColors(&curColor, &otherColor, alpha);
-					curTile->setCurColor(&updatedColor);
-				}
-			}
-		}
-	}
-}
-
-
 
 
 std::vector <TileCoords> removeDuplicateTiles(std::vector <TileCoords> givenList)
@@ -156,7 +46,7 @@ std::vector <TileCoords> removeDuplicateTiles(std::vector <TileCoords> givenList
 	std::vector <TileCoords> uniqueList;
 	for (int count = 0; count < givenList.size(); count++)
 	{
-		if (inTileCoordList(uniqueList, &(givenList[count])) == false)
+		if (!inTileCoordList(uniqueList, &(givenList[count])))
 		{
             uniqueList.push_back(givenList[count]);
 		}
@@ -202,24 +92,21 @@ bool checkIfTileInCharacterMoveRange(Tile* pGivenTile, CombatCharacter* pGivenCh
 std::vector <AttackTile> returnAttackTileCoordsWithPlayersOnThem(MiniGameWorldData& worldData, Tile* pReferenceTile, CombatCharacter* pCharacter)
 {
 	std::vector <AttackTile> attackTileCoordsWithPlayers;
-	Grid* pGrid = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mpGrid;
-	CombatManager* pCombatManager = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mpCombatManager;
+	Grid& grid = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mGrid;
+	CombatManager& combatManager = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mCombatManager;
 
-	for (int countList = 0; countList < pCharacter->mCombatMovementManager.getAttacks().size(); countList++)
+	for (Attack curAttack : pCharacter->mCombatMovementManager.getAttacks())
 	{
-		Attack curAttack = pCharacter->mCombatMovementManager.getAttacks()[countList];
 		AttackAndListOfTileCoordsToCorrespondingTilesCoords curListOfAttackTileCoords = returnAttackTileCoordsBasedOnAttack(pReferenceTile, curAttack);
 
-
-		for (int countTile = 0; countTile < curListOfAttackTileCoords.mTileCoords.size(); countTile++)
+		for (TileCoords& curTileCoord : curListOfAttackTileCoords.mTileCoords)
 		{
-			TileCoords* pCurTileCoord = &(curListOfAttackTileCoords.mTileCoords[countTile]);
-			if (pGrid->isLegalCoords(pCurTileCoord->mRow, pCurTileCoord->mCol))
+			if (grid.isLegalCoords(curTileCoord.mRow, curTileCoord.mCol))
 			{
-				Tile* pCurTile = pGrid->mpTiles[pGrid->getIndex(pCurTileCoord->mRow, pCurTileCoord->mCol)];
-				for (int countCharacter = 0; countCharacter < pCombatManager->mpCurCombatCharacters.size(); countCharacter++)
+				Tile* pCurTile = grid.mpTiles[grid.getIndex(curTileCoord.mRow, curTileCoord.mCol)];
+				for (int countCharacter = 0; countCharacter < combatManager.mpCurCombatCharacters.size(); countCharacter++)
 				{
-					CombatCharacter* pCurCharacterToTest = pCombatManager->mpCurCombatCharacters[countCharacter];
+					CombatCharacter* pCurCharacterToTest = combatManager.mpCurCombatCharacters[countCharacter];
 					if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER)
 					{
 						if (pCurCharacterToTest->mCombatMovementManager.getCurTile()->mRow == pCurTile->mRow and pCurCharacterToTest->mCombatMovementManager.getCurTile()->mCol == pCurTile->mCol)
@@ -234,6 +121,124 @@ std::vector <AttackTile> returnAttackTileCoordsWithPlayersOnThem(MiniGameWorldDa
 		}
 	}
 	return attackTileCoordsWithPlayers;
+}
+
+Tile* findTile(Grid& grid, TileCoords& tileCoords)
+{
+	if (grid.isLegalCoords(tileCoords.mRow, tileCoords.mCol))
+	{
+		return grid.mpTiles[grid.getIndex(tileCoords.mRow, tileCoords.mCol)];
+	}
+	return nullptr;
+}
+
+bool isPlayableTile(Tile* pGivenTile)
+{
+	switch (pGivenTile->mType)
+	{
+	case EMiniGameCombatTileType_IMPASSABLE:
+		break;
+	case EMiniGameCombatTileType_TELEPORTER:
+		//TODO
+		break;
+	default:
+		return true;
+		break;
+	}
+	return false;
+}
+
+bool validAttackTile(MiniGameStateData& stateData, MiniGameWorldData& worldData, Tile* pGivenTile, CombatCharacter* pGivenCharacter)
+{
+	std::vector <TileCoords> possibleAttackTileCoords;
+	if (stateData.mpCurAttack->mRequiresDirectionInput)
+	{
+		possibleAttackTileCoords = returnAttackTileCoordsBasedOnAttackAndDirection(pGivenCharacter->mCombatMovementManager.getCurTile(), *stateData.mpCurAttack,
+			stateData.mCurAttackDirection).mTileCoords;
+	}
+	else
+	{
+		possibleAttackTileCoords = returnAttackTileCoordsBasedOnAttack(pGivenCharacter->mCombatMovementManager.getCurTile(), *stateData.mpCurAttack).mTileCoords;
+	}
+
+	for (int count = 0; count < possibleAttackTileCoords.size(); count++)
+	{
+		Tile* pTile = findTile(worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mGrid,
+			possibleAttackTileCoords[count]);
+		if (pTile == pGivenTile)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void attemptAttackMultipleTiles(MiniGameStateData& stateData, MiniGameWorldData& worldData, std::vector <Tile*> tilesToAttack, CombatCharacter* pGivenCharacter)
+{
+	for (int count = 0; count < (int)tilesToAttack.size(); count++)
+	{
+		if (validAttackTile(stateData, worldData, tilesToAttack[count], pGivenCharacter))
+		{
+			Attack* pAttack = stateData.mpCurAttack;
+			CombatManager& combatManager = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mCombatManager;
+			combatManager.attack(pGivenCharacter, tilesToAttack[count], *pAttack);
+			continue;
+			//attackCharacterChanges
+		}
+	}
+}
+
+bool characterOnTile(Tile* pTile, std::vector <CombatCharacter*> characters)
+{
+	for (int countCharacter = 0; countCharacter < characters.size(); countCharacter++)
+	{
+		CombatCharacter* pCurCharacterToTest = characters[countCharacter];
+		if (pCurCharacterToTest->mCombatMovementManager.getCurTile()->mRow == pTile->mRow and pCurCharacterToTest->mCombatMovementManager.getCurTile()->mCol == pTile->mCol)
+		{
+			// someone is on this tile, ignore it
+			return true;
+		}
+
+	}
+	return false;
+}
+
+std::vector <Tile*> returnListWithoutTilesWithCharacters(CombatManager& combatManager, CombatCharacter* pGivenCharacter, std::vector <Tile*> listOfTiles)
+{
+	for (int countTile = (int)listOfTiles.size() - 1; countTile > -1; countTile--)
+	{
+		Tile* pCurTile = listOfTiles[countTile];
+		for (CombatCharacter* pCurCharacter : combatManager.mpCurCombatCharacters)
+		{
+			if (pCurCharacter->mCombatMovementManager.getCurTile()->mRow == pCurTile->mRow
+				and pCurCharacter->mCombatMovementManager.getCurTile()->mCol == pCurTile->mCol)
+			{
+				//std::vector<Tile*>::iterator  it = listOfTiles.begin();
+				listOfTiles.erase(listOfTiles.begin() + countTile);
+			}
+		}
+	}
+	return listOfTiles;
+}
+
+std::vector <TileDistance> returnListOfTileDistances(std::vector <CombatCharacter*> pCurCombatCharacters, std::vector <Tile*> pMoveTiles, CombatCharacter* pCurEnemy)
+{
+	std::vector <TileDistance> tileDistances;
+
+	for (CombatCharacter* pCurCharacter : pCurCombatCharacters)
+	{
+		if (pCurCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
+		{
+			for (Tile* pCurTile : pMoveTiles)
+			{
+				int distanceRow = abs(pCurTile->mRow - pCurCharacter->mCombatMovementManager.getCurTile()->mRow);
+				int distanceCol = abs(pCurTile->mCol - pCurCharacter->mCombatMovementManager.getCurTile()->mCol);
+				float distance = (float)sqrt(pow(distanceRow, 2) + pow(distanceCol, 2));
+				tileDistances.push_back(TileDistance(pCurTile, pCurEnemy, pCurCharacter, distance));
+			}
+		}
+	}
+	return tileDistances;
 }
 
 

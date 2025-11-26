@@ -5,6 +5,7 @@
 #include "imageHelper.h"
 #include "hitboxHelper.h"
 #include "entityPresets.h"
+#include "worldHelperClass.h"
 
 struct CCollectiblePreset : public CCharacterPreset
 {
@@ -32,5 +33,13 @@ struct CEndOfLevelPreset : public CCollectiblePreset
 {
 	CEndOfLevelPreset(int worldType);
 
-	void setUpAnimationPresets(int worldType);
+	virtual void setUpAnimationPresets(int worldType);
+};
+
+struct CMiniGameLevelPreset : public CCollectiblePreset
+{
+	LevelData nextLevelData;
+	CMiniGameLevelPreset(int enemyType, LevelData givenNextLevelData);
+
+	void setUpAnimationPresets(int enemyType);
 };

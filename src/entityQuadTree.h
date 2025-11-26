@@ -22,7 +22,7 @@ public:
 	
 	~EntityQuadTree();
 
-	Hitbox getHitbox();
+	Hitbox getHitbox() const ;
 
 	void SetHitbox(Hitbox hitbox);
 
@@ -30,9 +30,9 @@ public:
 
 	void RemoveItem(Entity* pEntityToRemove);
 
-	void getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox);
+	void getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox) const;
 
-	void getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox, EEntityClassTypes classType);
+	void getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox, EEntityClassTypes classType) const;
 
 private:
 	void createChildrenQuads();

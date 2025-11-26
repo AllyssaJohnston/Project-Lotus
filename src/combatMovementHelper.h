@@ -11,7 +11,7 @@ std::vector <TileCoords> returnTileCoords(Tile* pGivenTile, EMiniGameCombatMoveA
 class CombatMovementManager
 {
 private:
-    std::vector <Attack>           mAttacks;
+    std::vector <Attack>           mAttacks; //attacks for this character remain the same throughout
     EMiniGameCombatMoveAttackTypes mMoveType        = EMiniGameCombatMoveAttackTypes_INVALID;
 	//TODO CHANGE NAME
     std::vector <TileCoords>       mpMoveTileCoords;

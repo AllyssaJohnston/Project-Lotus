@@ -1,11 +1,6 @@
 #include "worldHelperClass.h"
 
-CanGoToNextLevelResults::CanGoToNextLevelResults(int nextWorldNumber, int nextLevelNumber, bool canGoToNextLevel)
-{
-	mNextWorldNumber  = nextWorldNumber;
-	mNextLevelNumber  = nextLevelNumber;
-	mCanGoToNextLevel = canGoToNextLevel;
-}
+CanGoToNextLevelResults::CanGoToNextLevelResults(LevelData* pNextLevelData) : mpNextLevelData(pNextLevelData) {  mCanGoToNextLevel = true; }
 
 LevelInfo::LevelInfo(bool doubleJumpAllowed, bool throwProjectileAllowed, bool throwDownwardProjectileAllowed, bool slashAllowed, 
 		bool mustKillAllEnemies)
@@ -15,6 +10,16 @@ LevelInfo::LevelInfo(bool doubleJumpAllowed, bool throwProjectileAllowed, bool t
 	mThrowDownwardProjectileAllowed = throwDownwardProjectileAllowed;
 	mSlashAllowed					= slashAllowed;
 	mMustKillAllEnemies				= mustKillAllEnemies;
+}
+
+LevelData::LevelData(ELevelType type, int worldNumber, int levelNumber) : mType(type), mWorldNumber(worldNumber), mLevelNumber(levelNumber) { ; }
+
+LevelData::LevelData(int worldNumber, int levelNumber) :  mWorldNumber(worldNumber), mLevelNumber(levelNumber) {  mType = ELevelType_PLATFORMING;  }
+
+LevelData::LevelData(int levelNumber) : mLevelNumber(levelNumber)
+{
+    mType = ELevelType_MINI_GAME;
+    mWorldNumber = -1;
 }
 
 CircleEffect::CircleEffect(Vect2 center, SDL_Color color, int radius, Vect2 limitTopLeft, Vect2 limitBottomRight)

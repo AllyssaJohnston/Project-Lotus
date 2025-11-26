@@ -5,9 +5,8 @@
 #include "combatHelperClass.h"
 #include "combatAttackPreset.h"
 
-class SpecialEffect
+struct SpecialEffect
 {
-public:
     EMiniGameCombatSpecialEffectTypes mType;
     std::string mName;
 
@@ -15,9 +14,8 @@ public:
 };
 
 
-class Attack
+struct Attack
 {
-public:
     EMiniGameCombatMoveAttackTypes   mType                      = EMiniGameCombatMoveAttackTypes_INVALID;
     float                            mDamagePercent             = -1.0f;
     bool                             mDamageDistanceDependent   = false;
@@ -25,11 +23,7 @@ public:
     bool                             mRequiresDirectionInput    = false;
     std::string                      mName;
     std::string                      mDescription;
-
-public:
    
-    Attack(AttackPreset* pPreset);
-
-    Attack() {}
+    Attack() { ; }
 
 };

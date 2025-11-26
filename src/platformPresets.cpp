@@ -688,15 +688,15 @@ void PWindGustPlatformPreset::setUpAnimationPresets()
 	frameRate = 10;
 	mustFinish = true;
 
-	std::vector <std::string> upAreaEffectFileNames		= { "blue.bmp" };
+	std::vector <std::string> upAreaEffectFileNames		= { "pink.bmp" };
 	mAreaEffectUpAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,	upAreaEffectFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
 
-	std::vector <std::string> downAreaEffectFileNames	= { "blue.bmp" };
+	std::vector <std::string> downAreaEffectFileNames	= { "pink.bmp" };
 	mAreaEffectDownAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,	downAreaEffectFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
 
-	std::vector <std::string> leftAreaEffectFileNames	= { "blue.bmp" };
+	std::vector <std::string> leftAreaEffectFileNames	= { "pink.bmp" };
 	mAreaEffectLeftAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,	leftAreaEffectFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
 
-	std::vector <std::string> rightAreaEffectFileNames	= { "blue.bmp" };
+	std::vector <std::string> rightAreaEffectFileNames	= { "pink.bmp" };
 	mAreaEffectRightAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,	rightAreaEffectFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
 }

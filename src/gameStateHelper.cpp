@@ -5,499 +5,25 @@
 
 #include "gameStateHelper.h"
 
+extern const std::map<const SDL_Keycode, const EKeyboardInput> SDLKToKeyboardMap;
+extern const std::map<const EKeyboardInput, const std::string> keyboardToStringMap;
 extern const int numEventsToGrab;
 
-Tile* findTile(Grid* pGrid, TileCoords* pTileCoords)
-{
-	int row = pTileCoords->mRow;
-	int col = pTileCoords->mCol;
-	if (pGrid->isLegalCoords(row, col))
-	{
-		return pGrid->mpTiles[pGrid->getIndex(row, col)];
-	}   
-	return nullptr;
-}
-
-bool isPlayableTile(Tile* pGivenTile)
-{
-	switch (pGivenTile->mType)
-	{
-	case EMiniGameCombatTileType_IMPASSABLE:
-		break;
-	case EMiniGameCombatTileType_TELEPORTER:
-		//TODO
-		break;
-	default:
-		return true;
-		break;
-	}
-	return false;
-}
-
-bool validAttackTile(MiniGameStateManagerData& stateManagerData, Tile* pGivenTile, CombatCharacter* pGivenCharacter)
-{
-	Attack& attack = stateManagerData.mpData->mCurAttack;
-	std::vector <TileCoords> possibleAttackTileCoords;
-	if (attack.mRequiresDirectionInput)
-	{
-		possibleAttackTileCoords = returnAttackTileCoordsBasedOnAttackAndDirection(pGivenCharacter->mCombatMovementManager.getCurTile(), attack, stateManagerData.mpData->mCurAttackDirection).mTileCoords;
-	}
-	else
-	{
-		possibleAttackTileCoords = returnAttackTileCoordsBasedOnAttack(pGivenCharacter->mCombatMovementManager.getCurTile(), attack).mTileCoords;
-	}
-
-	for (int count = 0; count < possibleAttackTileCoords.size(); count++)
-	{
-		Tile* pTile = findTile(stateManagerData.mpMiniGameWorldData->mpMiniGameLevels[stateManagerData.mpMiniGameWorldData->mCurMiniGameLevelNumber]->mpGrid, &(possibleAttackTileCoords[count]));
-		if (pTile == pGivenTile)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-void attemptAttackMultipleTiles(MiniGameStateManagerData& stateManagerData, std::vector <Tile*> tilesToAttack, CombatCharacter* pGivenCharacter)
-{
-	for (int count = 0; count < (int)tilesToAttack.size(); count++)
-	{
-		if (validAttackTile(stateManagerData, tilesToAttack[count], pGivenCharacter))
-		{
-			Attack pAttack = stateManagerData.mpData->mCurAttack;
-			CombatManager * pCombatManager = stateManagerData.mpMiniGameWorldData->mpMiniGameLevels[stateManagerData.mpMiniGameWorldData->mCurMiniGameLevelNumber]->mpCombatManager;
-			pCombatManager->attack(pGivenCharacter, tilesToAttack[count], pAttack);
-			continue;
-			//attackCharacterChanges
-		}
-	}
-}
-
-std::vector <Tile*> returnListWithoutTilesWithCharacters(CombatManager* pCombatManager, CombatCharacter* pGivenCharacter, std::vector <Tile*> listOfTiles)
-{
-	for (int countTile = (int)listOfTiles.size() - 1; countTile > -1; countTile--)
-	{
-		Tile * pCurTile = listOfTiles[countTile];
-		for (CombatCharacter* pCurCharacter : pCombatManager->mpCurCombatCharacters)
-		{
-			if		(pCurCharacter->mCombatMovementManager.getCurTile()->mRow == pCurTile->mRow 
-				and  pCurCharacter->mCombatMovementManager.getCurTile()->mCol == pCurTile->mCol)
-			{
-				//std::vector<Tile*>::iterator  it = listOfTiles.begin();
-				listOfTiles.erase(listOfTiles.begin() + countTile);
-			}
-		}
-	}
-	return listOfTiles;
-}
-
-std::vector <TileDistance> returnListOfTileDistances(std::vector <CombatCharacter*> pCurCombatCharacters, std::vector <Tile*> pMoveTiles, CombatCharacter* pCurEnemy)
-{
-	std::vector <TileDistance> tileDistances;
-
-	for (CombatCharacter* pCurCharacter : pCurCombatCharacters)
-	{
-		if (pCurCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
-		{
-			for (Tile* pCurTile : pMoveTiles)
-			{
-				int distanceRow = abs(pCurTile->mRow - pCurCharacter->mCombatMovementManager.getCurTile()->mRow);
-				int distanceCol = abs(pCurTile->mCol - pCurCharacter->mCombatMovementManager.getCurTile()->mCol);
-				float distance = (float)sqrt( pow(distanceRow, 2) + pow(distanceCol, 2));
-				tileDistances.push_back(TileDistance(pCurTile, pCurEnemy, pCurCharacter, distance));
-			}
-		}
-	}
-	return tileDistances;
-}
-
-
-//MINI GAME STATE
-MiniGameState::MiniGameState(MouseData* pMouseData, MiniGameStateData * pData) : mpMouseData(pMouseData), mpData(pData) {}
-
-MiniGameState::~MiniGameState()
-{
-	mpMouseData = nullptr;
-	mpData      = nullptr;
-}
-
-void MiniGameState::useMouseInput(EMiniGameState curStateEnum, ScreenObject& screenObject, Grid* pGrid) 
-{
-	if (curStateEnum == EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT or curStateEnum == EMiniGameState_PLAYER_TAKE_ACTION_ATTACK)
-	{
-		float x;
-		float y;
-		SDL_GetMouseState(&x, &y);
-		Vect2 pos((int)(x / screenObject.mGameScreenToGameLevelChunkRatio), (int)(y / screenObject.mGameScreenToGameLevelChunkRatio));
-
-		static std::vector <int> eventVect;
-		for (int countEvent = 0; countEvent < mpMouseData->mNumMouseEvents; countEvent++) 
-		{
-			if (mpMouseData->mMouseEventSyms[countEvent] == true) 
-			{
-				eventVect.push_back(countEvent);
-				if (countEvent == int(EMouseInput_LEFT))
-				{
-					selectTile(pGrid, pos);
-				}
-			}
-		}
-		eventVect.clear();
-	}
-};
-
-void MiniGameState::setCharacter(CombatCharacter* pCharacter)
-{
-	mpData->mpCharacter = pCharacter;
-}
-
-void MiniGameState::highlightTile(Grid* pGrid, Vect2 pos)
-{
-	for (Tile* pTile : pGrid->mpTiles)
-	{
-		if (pTile->getMode() == EMiniGameCombatTileMode_HIGHLIGHTED)
-		{
-			pTile->setMode(EMiniGameCombatTileMode_NOT_SELECTED);
-		}
-
-		Tile* pTile = pGrid->getTileFromCoords(pos.getX(), pos.getY());
-
-		if (pTile != nullptr)
-		{
-			if (pTile->getMode() == EMiniGameCombatTileMode_SELECTED)
-			{
-
-			}
-			else
-			{
-				pTile->setMode(EMiniGameCombatTileMode_HIGHLIGHTED);
-			}
-		}
-	}
-}
-
-
-
-//MINI GAME STATE MANAGER
-MiniGameStateManager::MiniGameStateManager(MouseData* pMouseData, MiniGameWorldData& miniGameWorldData)
-{
-	mData = MiniGameStateManagerData();
-	mData.mpMiniGameWorldData = &miniGameWorldData;
-	MiniGameStateData* pMiniGameStateData = mData.mpData;
-	mpStates.push_back(new MiniGamePlayerWaitForMoveInput(			pMouseData, pMiniGameStateData));
-	mpStates.push_back(new MiniGamePlayerMoveCharacter(				pMouseData, pMiniGameStateData));
-	mpStates.push_back(new MiniGamePlayerWaitForActionInput(		pMouseData, pMiniGameStateData));
-	mpStates.push_back(new MiniGamePlayerWaitForAttackInput(		pMouseData, pMiniGameStateData));
-	mpStates.push_back(new MiniGamePlayerWaitForAttackSubInput(		pMouseData, pMiniGameStateData));
-	mpStates.push_back(new MiniGamePlayerCompleteDirectionalAttack(	pMouseData, pMiniGameStateData));
-	mpStates.push_back(new MiniGamePlayerTakeActionAttack(			pMouseData, pMiniGameStateData));
-	mpStates.push_back(new MiniGamePlayerTakeActionDefend(			pMouseData, pMiniGameStateData));
-	mpStates.push_back(new MiniGameEnemyMoveCharacter(				pMouseData, pMiniGameStateData));
-	mpStates.push_back(new MiniGameEnemyTakeAction(					pMouseData, pMiniGameStateData));
-	mpStates.push_back(new MiniGameBuffer(							pMouseData, pMiniGameStateData));
-	mData.mCurStateEnum = EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
-	mpCurState			= mpStates[mData.mCurStateEnum];
-}
-
-MiniGameStateManager::~MiniGameStateManager()
-{
-	mpCurState = nullptr;
-}
-
-void MiniGameStateManager::preTick()
-{
-	mData.mLastFrameStateEnum = mData.mCurStateEnum;
-}
-
-void MiniGameStateManager:: tick()
-{
-	mpCurState->tick(mData);
-	postTick();
-}
-
-void MiniGameStateManager::postTick()
-{
-	updateCurState(mData.mpData->mNextMiniGameState);
-}
-
-void MiniGameStateManager:: updateCurState(EMiniGameState newStateEnum)
-{
-	mData.mCurStateEnum = newStateEnum;
-	mpCurState			= mpStates[newStateEnum];
-}
-
-
-
-
-//GAME STATE
-GameState::GameState(){;}
-
-GameState::~GameState()
-{
-	mpKeyboardData     = nullptr;
-	mpMouseData        = nullptr;
-
-	mpMenuManager      = nullptr;
-
-	mpGameStateData    = nullptr;
-
-	mpSettingsManager  = nullptr;
-	mpStyleManager     = nullptr;
-	mpScreen           = nullptr;
-}
-
-void GameState::getInput()
-{
-	
-	for (int count = 0; count < mpKeyboardData->mNumEvents; count++)
-	{
-		mpKeyboardData->mLastFrameKeyState[count] = mpKeyboardData->mKeyState[count];
-	}
-	for (int count = 0; count < mpMouseData->mNumMouseEvents; count++)
-	{
-		mpMouseData->mLastFrameMouseEventSyms[count] = mpMouseData->mMouseEventSyms[count];
-	}
-
-
-	int numEvents = SDL_PeepEvents(mpKeyboardData->mEvents, numEventsToGrab, SDL_GETEVENT, SDL_EVENT_FIRST, SDL_EVENT_LAST);
-	SDL_assert(numEvents <= numEventsToGrab);
-
-	for (int count = 0; count < numEvents; count++) 
-	{
-		switch (mpKeyboardData->mEvents[count].type)
-		{
-		case SDL_EVENT_KEY_DOWN:
-			switch (mpKeyboardData->mEvents[count].key.keysym.sym)
-			{
-			case SDLK_LEFT:
-			case SDLK_a:
-				if (mpKeyboardData->mKeyState[(int)EKeyboardInput_LEFT] != true)
-				{
-					mpKeyboardData->mKeyState[(int)EKeyboardInput_LEFT] = true;
-					mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_LEFT] = 0;
-				}
-				break;
-			case SDLK_RIGHT:
-			case SDLK_d:
-				if (mpKeyboardData->mKeyState[(int)EKeyboardInput_RIGHT] != true)
-				{
-					mpKeyboardData->mKeyState[(int)EKeyboardInput_RIGHT] = true;
-					mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_RIGHT] = 0;
-				}
-				break;
-			case SDLK_UP:
-			case SDLK_w:
-			case SDLK_SPACE:
-				if (mpKeyboardData->mKeyState[(int)EKeyboardInput_UP] == false)
-				{
-					mpKeyboardData->mKeyState[(int)EKeyboardInput_UP] = true;
-					mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_UP] = 0;
-				}
-				break;
-			case SDLK_DOWN:
-			case SDLK_s:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_DOWN] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_DOWN] = 0;
-				break;
-			case SDLK_j:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_J] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_J] = 0;
-				break;
-			case SDLK_k:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_K] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_K] = 0;
-				break;
-			case SDLK_l:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_L] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_L] = 0;
-				break;
-			case SDLK_1:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_1] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_1] = 0;
-				break;
-			case SDLK_2:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_2] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_2] = 0;
-				break;
-			case SDLK_RETURN:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_ENTER] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_ENTER] = 0;
-				break;
-			case SDLK_r:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_R] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_R] = 0;
-				break;
-			case SDLK_t:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_T] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_T] = 0;
-				break;
-			case SDLK_m:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_M] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_M] = 0;
-				break;
-			case SDLK_n:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_N] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_N] = 0;
-				break;
-			case SDLK_ESCAPE:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_ESC] = true;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_ESC] = 0;
-				//pStateManager->mRunGame = false; //TODO
-				break;
-			default:
-				break;
-			}
-			break;
-		case SDL_EVENT_KEY_UP:
-			switch (mpKeyboardData->mEvents[count].key.keysym.sym)
-			{
-			case SDLK_LEFT:
-			case SDLK_a:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_LEFT] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_LEFT] = 0;
-				break;
-			case SDLK_RIGHT:
-			case SDLK_d:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_RIGHT] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_RIGHT] = 0;
-				break;
-			case SDLK_UP:
-			case SDLK_w:
-			case SDLK_SPACE:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_UP] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_UP] = 0;
-				break;
-			case SDLK_DOWN:
-			case SDLK_s:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_DOWN] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_DOWN] = 0;
-				break;
-			case SDLK_j:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_J] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_J] = 0;
-				break;
-			case SDLK_k:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_K] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_K] = 0;
-				break;
-			case SDLK_l:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_L] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_L] = 0;
-				break;
-			case SDLK_1:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_1] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_1] = 0;
-				break;
-			case SDLK_2:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_2] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_2] = 0;
-				break;
-			case SDLK_RETURN:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_ENTER] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_ENTER] = 0;
-				break;
-			case SDLK_r:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_R] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_R] = 0;
-				break;
-			case SDLK_t:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_T] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_T] = 0;
-				break;
-			case SDLK_m:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_M] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_M] = 0;
-				//gameInstance.mSingleSteppingMode = !gameInstance.mSingleSteppingMode; //TODO
-				break;
-			case SDLK_n:
-				mpKeyboardData->mKeyState[(int)EKeyboardInput_N] = false;
-				mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_N] = 0;
-				//gameInstance.mFrameStepInputRequest = true; //TODO
-				break;
-			default:
-				break;
-			}
-			break;
-		case SDL_EVENT_MOUSE_BUTTON_DOWN:
-			switch (mpMouseData->mMouseEvents[count].button.button)
-			{
-			case SDL_BUTTON_LEFT:
-				mpMouseData->mMouseEventSyms[(int)EMouseInput_LEFT] = true;
-				break;
-			case SDL_BUTTON_MIDDLE:
-				mpMouseData->mMouseEventSyms[(int)EMouseInput_MIDDLE] = true;
-				break;
-			case SDL_BUTTON_RIGHT:
-				mpMouseData->mMouseEventSyms[(int)EMouseInput_RIGHT] = true;
-				break;
-			default:
-				break;
-			}
-			break;
-		case SDL_EVENT_MOUSE_BUTTON_UP:
-			switch (mpMouseData->mMouseEvents[count].button.button)
-			{
-			case SDL_BUTTON_LEFT:
-				mpMouseData->mMouseEventSyms[(int)EMouseInput_LEFT] = false;
-				break;
-			case SDL_BUTTON_MIDDLE:
-				mpMouseData->mMouseEventSyms[(int)EMouseInput_MIDDLE] = false;
-				break;
-			case SDL_BUTTON_RIGHT:
-				mpMouseData->mMouseEventSyms[(int)EMouseInput_RIGHT] = false;
-				break;
-			default:
-				break;
-			}
-			break;
-		case SDL_EVENT_QUIT:
-			mpKeyboardData->mKeyState[(int)EKeyboardInput_ESC] = true;
-			mpKeyboardData->mKeyStateRepeat[(int)EKeyboardInput_ESC] = 0;
-			//pStateManager->mRunGame = false; //TODO
-			break;
-		default:
-			break;
-		}
-	}
-
-	for (int count = 0; count < mpKeyboardData->mNumEvents; count++)
-	{
-		mpKeyboardData->mKeyStateRepeat[count] += 1;
-	}
-}
-
-void GameState::useInput(GameStateManagerData& gameStateManagerData)
-{
-	for (int countEvent = 0; countEvent < mpKeyboardData->mNumEvents; countEvent++) 
-	{
-		if (mpKeyboardData->mKeyState[countEvent] == true)
-		{
-
-			if (countEvent == int(EKeyboardInput_ESC))
-			{
-				gameStateManagerData.mRunGame = false;
-			}
-		}
-	}
-}
-
-
-
 //GAME STATE MANAGER
-GameStateManager::GameStateManager(KeyboardData& keyboardData, MouseData& mouseData, WorldData& worldData, MenuManager& menuManager, 
+GameStateManager::GameStateManager(KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, 
 	SettingsManager& settingsManager, CollisionManager& collisionManager, DamageManager& damageManager, SlashManager& slashManager,
 	StyleManager& styleManager, MiniGameStateManager& miniGameStateManager) : 
 	mMiniGameStateManager(miniGameStateManager), mWorldData(worldData)
 {
-	mpGameStateData = new GameStateData();
-	mStates.push_back(new GameStatePlay(*mpGameStateData, keyboardData, mouseData, worldData, menuManager, settingsManager, collisionManager, 
+	mGameStateData = GameStateData();
+	mStates.push_back(new GameStatePlay(mGameStateData, keyboardData, worldData, menuManager, settingsManager, collisionManager, 
 		damageManager, slashManager, styleManager));
-	mStates.push_back(new GameStatePlayMiniGame(*mpGameStateData, keyboardData, mouseData, miniGameStateManager, menuManager, 
+	mStates.push_back(new GameStatePlayMiniGame(mGameStateData, keyboardData, miniGameStateManager, menuManager, 
 		worldData.mScreen, settingsManager, styleManager));
-	mStates.push_back(new GameStateMenu(*mpGameStateData, keyboardData, mouseData, menuManager, worldData.mScreen, settingsManager,
-		styleManager));
-	mData.mCurStateEnum       = EGameState_PLAY;
-	mData.mLastFrameStateEnum = EGameState_INVALID;
+	mStates.push_back(new GameStateMenu(mGameStateData, keyboardData, menuManager, settingsManager,
+		styleManager, worldData));
+	mData.mCurStateEnum			= EGameState_PLAY;
+	mData.mLastFrameStateEnum	= EGameState_INVALID;
 	mpCurState = mStates[mData.mCurStateEnum];
 }
 
@@ -508,621 +34,388 @@ GameStateManager::~GameStateManager()
 		delete iter;
 	}
 	mStates.clear();
-	mpGameStateData = nullptr;
 	mpCurState		= nullptr;
 }
 
 void GameStateManager::preTick()
 {
 	mData.mLastFrameStateEnum = mData.mCurStateEnum;
-	mpCurState->preTick(mData, mMiniGameStateManager, mWorldData);
+	mpCurState->preTick();
 }
 
-void GameStateManager::tick()
-{
-	mpCurState->tick(mData, mMiniGameStateManager, mWorldData);
-}
+void GameStateManager::tick() { mpCurState->tick(mData, mMiniGameStateManager); }
 
 void GameStateManager::updateCurState(EGameState nextStateEnum)
 {
+	EGameState previousState = mData.mCurStateEnum;
 	mData.mCurStateEnum = nextStateEnum;
 	mpCurState = mStates[nextStateEnum];
+	switch (nextStateEnum) 
+	{
+	case EGameState_PLAY:
+		mpCurState->mMenuManager.setCurMenuPage(mpCurState->mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]);
+		
+		if (previousState == EGameState_PLAY_MINI_GAME)
+		{
+			MiniGameWorldData& miniWorldData = ((GameStatePlayMiniGame*)mStates[EGameState_PLAY_MINI_GAME])->mMiniGameStateManager.mWorldData;
+			if (miniWorldData.mGoToNextLevel)
+			{
+				((GameStatePlay*)mpCurState)->mWorldData.setNextLevel(miniWorldData.mpNextLevelData->mWorldNumber, miniWorldData.mpNextLevelData->mLevelNumber);
+				miniWorldData.mGoToNextLevel = false;
+				miniWorldData.mpNextLevelData = nullptr;
+			}
+		}
+		if (mGameStateData.mCleanNextState)
+		{
+			((GameStatePlay*)mpCurState)->mWorldData.resetStats();
+			mGameStateData.mCleanNextState;
+		}
+		break;
+	case EGameState_PLAY_MINI_GAME:
+		
+		switchToMiniGame();
+		if (previousState == EGameState_PLAY)
+		{
+			WorldData& worldData = ((GameStatePlay*)mStates[EGameState_PLAY])->mWorldData;
+			if (mWorldData.mGoToNextLevel)
+			{
+				((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.mWorldData.setNextLevel(worldData.mpNextLevelData->mLevelNumber);
+				((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.start();
+				mWorldData.mGoToNextLevel = false;
+				mWorldData.mpNextLevelData = nullptr;
+			}
+		}
+		else if (mGameStateData.mCleanNextState)
+		{
+			((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.start();
+			mGameStateData.mCleanNextState = false;
+		}
+		break;
+	case EGameState_MENU:
+		mpCurState->mMenuManager.setCurMenuPage(mpCurState->mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_MENU)]);
+		break;
+	default:
+		break;
+	}
+	mGameStateData.mCleanNextState = false;
 }
 
 void GameStateManager::postTick()
 {
-	mpCurState->postTick(mData, mMiniGameStateManager, mWorldData);
-	if (mpGameStateData->mNextGameState != EGameState_INVALID)
+	mpCurState->postTick(mData, mMiniGameStateManager);
+	if (mGameStateData.mNextGameState != EGameState_INVALID)
 	{
-		updateCurState(mpGameStateData->mNextGameState);
-		mpGameStateData->mNextGameState = EGameState_INVALID;
-	}
-}
-
-
-
-//TYPES MINI GAME STATES
-MiniGamePlayerWaitForMoveInput::MiniGamePlayerWaitForMoveInput(MouseData* pMouseData, MiniGameStateData * pData) : 
-	MiniGameState(pMouseData, pData){;}
-
-MiniGamePlayerWaitForMoveInput::~MiniGamePlayerWaitForMoveInput()
-{
-	MiniGameState::~MiniGameState();
-}
-
-void MiniGamePlayerWaitForMoveInput::selectTile(Grid* pGrid, Vect2 pos)
-{
-	Tile * pCurTile = pGrid->getTileFromCoords(pos.getX(), pos.getY());
-	if (pCurTile != nullptr)
-	{
-		pCurTile->setMode(EMiniGameCombatTileMode_SELECTED);
-		moveToTile(pCurTile, mpData->mpCharacter);
-		return;
-	}
-}
-
-void MiniGamePlayerWaitForMoveInput::moveToTile(Tile* pGivenTile, CombatCharacter* pGivenCharacter)
-{
-	if (checkIfTileInCharacterMoveRange(pGivenTile, pGivenCharacter))
-	{
-		if (isPlayableTile(pGivenTile))
+		if (mGameStateData.mNextGameState != mData.mCurStateEnum) 
 		{
-			postTick(pGivenTile); //+moveChange
+			updateCurState(mGameStateData.mNextGameState);
 		}
+		
+		mGameStateData.mNextGameState = EGameState_INVALID;
+	}
+	if (mMiniGameStateManager.mData.mCurStateEnum == EMiniGameState_BUILD_NEXT_LEVEL)
+	{
+		MiniGameWorldData& worldData = mMiniGameStateManager.mWorldData;
+		int nextLevelNumber = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mMainGameNextLevelData.mLevelNumber;
+		worldData.setNextLevel(nextLevelNumber);
+		switchToMiniGame();
+		mMiniGameStateManager.updateCurState(EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT);
 	}
 }
 
-void MiniGamePlayerWaitForMoveInput::postTick(Tile* pNextTile)
+void GameStateManager::switchToMiniGame()
 {
-	mpData->mNextMiniGameState = EMiniGameState_PLAYER_MOVE_CHARACTER;
-	mpData->mpTileToMoveTo = pNextTile;
-	mpData->mpCharacter->mCombatMovementManager.setCurTile(pNextTile);
+	mpCurState->mMenuManager.setCurMenuPage(mpCurState->mMenuManager.mpMenuPages[int(EMenuPageType_MINI_GAME_MENU)]);
+	createMiniGameCharacterStatsMenu(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager, mpCurState->mSettingsManager);
+	createMiniGameCharacterAttackPanel(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager, mpCurState->mSettingsManager);
+	((GameStatePlayMiniGame*)mpCurState)->setUp();
+	((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.start();
 }
 
 
 
-MiniGamePlayerMoveCharacter::MiniGamePlayerMoveCharacter(MouseData* pMouseData, MiniGameStateData * pData) : MiniGameState(pMouseData, pData){;}
 
-MiniGamePlayerMoveCharacter::~MiniGamePlayerMoveCharacter()
+//GAME STATE
+GameState::GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager,
+	SettingsManager& settingsManager, StyleManager& styleManager, ScreenObject& screen) : mGameStateData(gameStateData), mKeyboardData(keyboardData), 
+	mMenuManager(menuManager), mSettingsManager(settingsManager), mStyleManager(styleManager), mScreen(screen) {;}
+
+void GameState::preTick() 
 {
-	MiniGameState::~MiniGameState();
+	mMenuManager.preTick();
 }
 
-void MiniGamePlayerMoveCharacter::tick(MiniGameStateManagerData& stateManagerData)
+void GameState::getInput()
 {
-	mpData->mpCharacter->move(mpData->mpTileToMoveTo);
-	postTick();
-}
-
-void MiniGamePlayerMoveCharacter::postTick()
-{
-	mpData->mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT;
-	mpData->mpTileToMoveTo = nullptr;
-}
-
-
-
-MiniGamePlayerWaitForActionInput::MiniGamePlayerWaitForActionInput(MouseData* pMouseData, MiniGameStateData * pData) : 
-	MiniGameState(pMouseData, pData){;}
-
-MiniGamePlayerWaitForActionInput::~MiniGamePlayerWaitForActionInput()
-{
-	MiniGameState::~MiniGameState();
-}
-
-void MiniGamePlayerWaitForActionInput::postTick(MiniGameWorldData& worldData, EMiniGameState nextStateEnum)
-{
-	if (nextStateEnum == EMiniGameState_BUFFER)
+	for (int count = 0; count < mKeyboardData.mNumKeys; count++)
 	{
-		CombatCharacter* pNextCharacter = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mpCombatManager->returnNextCharacter(mpData->mpCharacter);
-		mpData->mpCharacter = pNextCharacter;
-		if (mpData->mpCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
+		mKeyboardData.mLastFrameKeyState[count] = mKeyboardData.mKeyState[count];
+	}
+	mKeyboardData.mCurKeysString = "Keys: ";
+
+	int numEvents = SDL_PeepEvents(mKeyboardData.mEvents, numEventsToGrab, SDL_GETEVENT, SDL_EVENT_FIRST, SDL_EVENT_LAST);
+	SDL_assert(numEvents <= numEventsToGrab);
+
+	for (int count = 0; count < numEvents; count++)
+	{
+		EKeyboardInput curKey = EKeyboardInput_INVALID;
+		bool down = false;
+		std::map<const SDL_Keycode, const EKeyboardInput>::const_iterator it;
+		switch (mKeyboardData.mEvents[count].type)
 		{
-			mpData->mPostBufferGameState = EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
-		}
-		else if (mpData->mpCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
-		{
-			mpData->mPostBufferGameState = EMiniGameState_ENEMY_MOVE_CHARACTER;
-		}
-		else
-		{
-			SDL_assert(false);
-		}
-	}
-	mpData->mNextMiniGameState = nextStateEnum;
-}
-
-
-
-MiniGamePlayerWaitForAttackInput::MiniGamePlayerWaitForAttackInput(MouseData* pMouseData, MiniGameStateData * pData) : 
-	MiniGameState(pMouseData, pData){;}
-
-MiniGamePlayerWaitForAttackInput::~MiniGamePlayerWaitForAttackInput()
-{
-	MiniGameState::~MiniGameState();
-}
-
-void MiniGamePlayerWaitForAttackInput::postTick(const Attack& attack)
-{
-	if (attack.mRequiresDirectionInput)
-	{
-		mpData->mCurAttack = attack;
-		mpData->mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT;
-	}
-	else
-	{
-		mpData->mCurAttack = attack;
-		mpData->mNextMiniGameState = EMiniGameState_PLAYER_TAKE_ACTION_ATTACK;
-	}
-}
-
-
-
-MiniGamePlayerWaitForAttackSubInput::MiniGamePlayerWaitForAttackSubInput(MouseData* pMouseData, MiniGameStateData * pData) : 
-	MiniGameState(pMouseData, pData){;}
-
-MiniGamePlayerWaitForAttackSubInput::~MiniGamePlayerWaitForAttackSubInput()
-{
-	MiniGameState::~MiniGameState();
-}
-
-void MiniGamePlayerWaitForAttackSubInput::postTick(EDirection curAttackDirection)
-{
-	mpData->mCurAttackDirection = curAttackDirection;
-	mpData->mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK;
-}
-
-
-
-MiniGamePlayerCompleteDirectionalAttack::MiniGamePlayerCompleteDirectionalAttack(MouseData* pMouseData, MiniGameStateData * pData) : 
-	MiniGameState(pMouseData, pData){;}
-
-MiniGamePlayerCompleteDirectionalAttack::~MiniGamePlayerCompleteDirectionalAttack()
-{
-	MiniGameState::~MiniGameState();
-}
-
-void MiniGamePlayerCompleteDirectionalAttack::tick(MiniGameStateManagerData& stateManagerData)
-{
-	if (mpData->mTicks < mpData->mTicksBeforeAction)
-	{
-		mpData->mTicks += 1;
-	}
-	else
-	{
-		attackTiles(stateManagerData);
-	}
-}
-
-void MiniGamePlayerCompleteDirectionalAttack::attackTiles(MiniGameStateManagerData& stateManagerData)
-{
-	Grid* pGrid = stateManagerData.mpMiniGameWorldData->mpMiniGameLevels[stateManagerData.mpMiniGameWorldData->mCurMiniGameLevelNumber]->mpGrid;
-	AttackAndListOfTileCoordsToCorrespondingTilesCoords attackTileCoords = returnAttackTileCoordsBasedOnAttackAndDirection(mpData->mpCharacter->mCombatMovementManager.getCurTile(), mpData->mCurAttack, mpData->mCurAttackDirection);
-	std::vector <Tile* > tilesToAttack;
-	for (int count = 0; count < attackTileCoords.mTileCoords.size(); count++)
-	{
-		Tile* curTile = pGrid->mpTiles[pGrid->getIndex(attackTileCoords.mTileCoords[count].mRow, attackTileCoords.mTileCoords[count].mCol)];
-		tilesToAttack.push_back(curTile);
-	}
-	attemptAttackMultipleTiles(stateManagerData, tilesToAttack, mpData->mpCharacter);
-	postTick(*stateManagerData.mpMiniGameWorldData);
-}
-
-//attackCharacterChanges
-void MiniGamePlayerCompleteDirectionalAttack::postTick(MiniGameWorldData& worldData)
-{
-	CombatManager * pCombatManager = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mpCombatManager;
-
-	pCombatManager->postTick();
-	mpData->mpCharacter = pCombatManager->returnNextCharacter(mpData->mpCharacter);
-	if		(mpData->mpCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
-	{
-		mpData->mPostBufferGameState = EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
-	}
-	else if (mpData->mpCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
-	{
-		mpData->mPostBufferGameState = EMiniGameState_ENEMY_MOVE_CHARACTER;
-	}
-	else
-	{
-		SDL_assert(false);
-	}
-	mpData->mTicks = 0;
-	mpData->mCurAttackDirection = EDirection_NONE;
-	mpData->mNextMiniGameState = EMiniGameState_BUFFER;
-}
-
-
-
-MiniGamePlayerTakeActionAttack::MiniGamePlayerTakeActionAttack(MouseData* pMouseData, MiniGameStateData * pData) : 
-	MiniGameState(pMouseData, pData){;}
-
-MiniGamePlayerTakeActionAttack::~MiniGamePlayerTakeActionAttack()
-{
-	MiniGameState::~MiniGameState();
-}
-
-void MiniGamePlayerTakeActionAttack::selectTile(MiniGameStateManagerData& stateManagerData, Grid* pGrid, Vect2 pos)
-{
-	Tile * pTile = pGrid->getTileFromCoords(pos.getX(), pos.getY());
-
-	if (pTile != nullptr)
-	{
-		pTile->setMode(EMiniGameCombatTileMode_SELECTED);
-		std::vector <Tile *> tilesToAttack;
-		tilesToAttack.push_back(pTile);
-		attemptAttackMultipleTiles(stateManagerData, tilesToAttack, mpData->mpCharacter);
-		postTick(*stateManagerData.mpMiniGameWorldData);
-		return;
-	}
-}
-
-void MiniGamePlayerTakeActionAttack::postTick(MiniGameWorldData& worldData)
-{
-	CombatManager * pCombatManager = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mpCombatManager;
-
-	pCombatManager->postTick();
-	mpData->mpCharacter = pCombatManager->returnNextCharacter(mpData->mpCharacter);
-	if		(mpData->mpCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
-	{
-		mpData->mPostBufferGameState = EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
-	}
-	else if (mpData->mpCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
-	{
-		mpData->mPostBufferGameState = EMiniGameState_ENEMY_MOVE_CHARACTER;
-	}
-	else
-	{
-		SDL_assert(false);
-	}
-	mpData->mCurAttackDirection = EDirection_NONE;
-	mpData->mNextMiniGameState = EMiniGameState_BUFFER;
-}
-
-
-
-MiniGamePlayerTakeActionDefend::MiniGamePlayerTakeActionDefend(MouseData* pMouseData, MiniGameStateData * pData) : 
-	MiniGameState(pMouseData, pData){;}
-
-MiniGamePlayerTakeActionDefend::~MiniGamePlayerTakeActionDefend()
-{
-	MiniGameState::~MiniGameState();
-}
-
-void MiniGamePlayerTakeActionDefend::tick(MiniGameStateManagerData& stateManagerData)
-{
-	mpData->mpCharacter->defend();
-	postTick(*stateManagerData.mpMiniGameWorldData);
-}
-
-//defense change
-void MiniGamePlayerTakeActionDefend::postTick(MiniGameWorldData& worldData)
-{
-	CombatManager * pCombatManager = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mpCombatManager;
-
-	pCombatManager->postTick();
-	mpData->mpCharacter = pCombatManager->returnNextCharacter(mpData->mpCharacter);
-	if		(mpData->mpCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
-	{
-		mpData->mPostBufferGameState = EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
-	}
-	else if (mpData->mpCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
-	{
-		mpData->mPostBufferGameState = EMiniGameState_ENEMY_MOVE_CHARACTER;
-	}
-	else
-	{
-		SDL_assert(false);
-	}
-}
-
-
-
-MiniGameEnemyMoveCharacter::MiniGameEnemyMoveCharacter(MouseData* pMouseData, MiniGameStateData * pData) : MiniGameState(pMouseData, pData){;}
-
-MiniGameEnemyMoveCharacter::~MiniGameEnemyMoveCharacter()
-{
-	MiniGameState::~MiniGameState();
-}
-
-void MiniGameEnemyMoveCharacter::tick(MiniGameStateManagerData& stateManagerData)
-{
-	if (mpData->mTicks == 0 or mpData->mTicks < 0)
-	{
-		decideTileToMoveTo(stateManagerData);
-	}
-
-	if (mpData->mTicks < mpData->mTicksBeforeAction)
-	{
-		mpData->mTicks += 1;
-	}
-	else
-	{
-		mpData->mpCharacter->move(mpData->mpTileToMoveTo);
-		mpData->mTicks = -1;
-		postTick();
-	}
-}
-
-void MiniGameEnemyMoveCharacter::decideTileToMoveTo(MiniGameStateManagerData& stateManagerData)
-{
-	MiniGameLevel*	pCurLevel		= stateManagerData.mpMiniGameWorldData->mpMiniGameLevels[stateManagerData.mpMiniGameWorldData->mCurMiniGameLevelNumber];
-	Grid*			pGrid			= pCurLevel->mpGrid;
-	CombatManager * pCombatManager	= pCurLevel->mpCombatManager;
-	mpData->mTicks = 0;
-
-	std::vector <Tile*> allPossibleMoveTiles;
-
-	for (TileCoords curTileCoords : mpData->mpCharacter->mCombatMovementManager.getMoveTiles())
-	{
-		int row = curTileCoords.mRow;
-		int col = curTileCoords.mCol;
-		if (pGrid->isLegalCoords(row, col))
-		{
-			Tile *pCurTile = pGrid->mpTiles[pGrid->getIndex(row, col)];
-			if (isPlayableTile(pCurTile))
+		case SDL_EVENT_KEY_DOWN:
+		case SDL_EVENT_KEY_UP:
+			down = mKeyboardData.mEvents[count].type == SDL_EVENT_KEY_DOWN;
+			it = SDLKToKeyboardMap.find(mKeyboardData.mEvents[count].key.keysym.sym);
+			if (it != SDLKToKeyboardMap.end()) 
 			{
-				allPossibleMoveTiles.push_back(pCurTile);
+				curKey = it->second;
 			}
-		}
-	}
-
-	int maxNumberOfCharactersCanAttack = 0;
-	Tile* pBestTileToMoveTo = nullptr;
-
-	for (Tile* pCurTile : allPossibleMoveTiles)
-	{
-		std::vector <AttackTile> allPossibleAttacksFromCurTile = returnAttackTileCoordsWithPlayersOnThem(*stateManagerData.mpMiniGameWorldData, pCurTile, mpData->mpCharacter);
-		if (allPossibleAttacksFromCurTile.size() > maxNumberOfCharactersCanAttack)
-		{
-			pBestTileToMoveTo = pCurTile;
-		}
-	}
-	if (pBestTileToMoveTo != nullptr)
-	{
-		mpData->mpTileToMoveTo = pBestTileToMoveTo;
-		return;
-	}
-
-	//No tiles I can attack from
-	allPossibleMoveTiles = returnListWithoutTilesWithCharacters(pCombatManager, mpData->mpCharacter, allPossibleMoveTiles);
-	std::vector <TileDistance> tileDistances = returnListOfTileDistances(pCombatManager->mpCurCombatCharacters, allPossibleMoveTiles, mpData->mpCharacter);
-	int minDistanceFromPlayer = std::numeric_limits<int>::max();
-	Tile* pCurTile = mpData->mpCharacter->mCombatMovementManager.getCurTile();
-
-	for (TileDistance curTileDistance : tileDistances)
-	{
-		if (minDistanceFromPlayer > curTileDistance.mDistance and curTileDistance.mpTile != mpData->mpCharacter->mCombatMovementManager.getCurTile())
-		{
-			minDistanceFromPlayer = (int)curTileDistance.mDistance;
-			pCurTile = curTileDistance.mpTile;
-		}
-	}
-	mpData->mpTileToMoveTo = pCurTile;
-}
-
-void MiniGameEnemyMoveCharacter::postTick()
-{
-	mpData->mNextMiniGameState	= EMiniGameState_ENEMY_TAKE_ACTION;
-	mpData->mpTileToMoveTo		= nullptr;
-}
-
-
-
-MiniGameEnemyTakeAction:: MiniGameEnemyTakeAction(MouseData* pMouseData, MiniGameStateData * pData) : MiniGameState(pMouseData, pData){;}
-
-MiniGameEnemyTakeAction::~MiniGameEnemyTakeAction()
-{
-	MiniGameState::~MiniGameState();
-}
-
-void MiniGameEnemyTakeAction::tick(MiniGameStateManagerData& stateManagerData)
-{
-	if (mpData->mTicks == int(mpData->mTicksBeforeAction / 2))
-	{
-		shouldAttack(*stateManagerData.mpMiniGameWorldData);
-	}
-
-	if (mpData->mTicks < mpData->mTicksBeforeAction)
-	{
-		mpData->mTicks += 1;
-	}
-	else
-	{
-		if (mpData->mGoingToAttack)
-		{
-			performAttack(stateManagerData);
-		}
-		else if (shouldDefend(*stateManagerData.mpMiniGameWorldData))
-		{
-			postTick(*stateManagerData.mpMiniGameWorldData);
-		}
-		else
-		{
-			postTick(*stateManagerData.mpMiniGameWorldData);
-		}
-	}
-}
-
-bool MiniGameEnemyTakeAction::shouldAttack(MiniGameWorldData& worldData)
-{
-	Tile * refTile = mpData->mpCharacter->mCombatMovementManager.getCurTile();
-	std::vector <AttackTile> attackTilesWithCharacters = returnAttackTileCoordsWithPlayersOnThem(worldData, refTile, mpData->mpCharacter);
-	Grid* pGrid = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mpGrid;
-
-	AttackTile * pCurBestAttackTile = nullptr;
-	AttackAndListOfTileCoordsToCorrespondingTilesCoords curBestAttackTiles;
-	float maxDamageOutput = 0;
-
-
-	for (AttackTile curAttackTile : attackTilesWithCharacters)
-	{
-		if (curAttackTile.mAttack.mRequiresDirectionInput)
-		{
-			EDirection attackDirection = getDirectionBetweenTiles(mpData->mpCharacter->mCombatMovementManager.getCurTile(), curAttackTile.mpTile);
-			AttackAndListOfTileCoordsToCorrespondingTilesCoords allAttackTiles = returnAttackTileCoordsBasedOnAttackAndDirection(mpData->mpCharacter->mCombatMovementManager.getCurTile(), curAttackTile.mAttack, attackDirection);
-			float damageOutput = allAttackTiles.mTileCoords.size() * allAttackTiles.mAttack.mDamagePercent;
-			if (damageOutput > maxDamageOutput)
+		
+			break;
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
+			down = mKeyboardData.mEvents[count].type == SDL_EVENT_MOUSE_BUTTON_DOWN;
+			switch (mKeyboardData.mEvents[count].button.button)
 			{
-				maxDamageOutput = damageOutput;
-				curBestAttackTiles.mTileCoords.clear();
-				curBestAttackTiles = allAttackTiles;
-				pCurBestAttackTile = nullptr;
+			case SDL_BUTTON_LEFT:
+				curKey = EKeyboardInput_MOUSE_LEFT;
+				break;
+			case SDL_BUTTON_MIDDLE:
+				curKey = EKeyboardInput_MOUSE_MIDDLE;
+				break;
+			case SDL_BUTTON_RIGHT:
+				curKey = EKeyboardInput_MOUSE_RIGHT;
+				break;
+
+			default:
+				break;
 			}
+			break;
+		
+		case SDL_EVENT_FINGER_DOWN:
+			down = true;
+			curKey = EKeyboardInput_MOUSE_LEFT;
+			break;
+		case SDL_EVENT_FINGER_UP:
+			down = false;
+			curKey = EKeyboardInput_MOUSE_LEFT;
+			break;
+		case SDL_EVENT_QUIT:
+			down = true;
+			curKey = EKeyboardInput_ESC;
+			break;
+		default:
+			break;
+		}
 
-		}
-		else
+		if (curKey != EKeyboardInput_INVALID)
 		{
-			float damageOutput = curAttackTile.mAttack.mDamagePercent;
-			if (damageOutput > maxDamageOutput)
-			{
-				maxDamageOutput = damageOutput;
-				pCurBestAttackTile = &curAttackTile;
-				curBestAttackTiles.mTileCoords.clear();
-			}
+			mKeyboardData.mKeyState[(int)curKey] = down;
+		}
+	}
+
+	for (int count = 0; count < mKeyboardData.mNumKeys; count++)
+	{
+		if (mKeyboardData.mLastFrameKeyState[count] == mKeyboardData.mKeyState[count])
+		{
+			mKeyboardData.mKeyStateRepeat[count] += 1;
+		}
+		else 
+		{
+			mKeyboardData.mKeyStateRepeat[count] = 0;
 		}
 
-		if (curBestAttackTiles.mTileCoords.size() == 0 and pCurBestAttackTile == nullptr)
+		if (mKeyboardData.mKeyState[count]) 
 		{
-			return false;
+			mKeyboardData.mCurKeysString += keyboardToStringMap.at(EKeyboardInput(count)) + " ";
 		}
-		else
+		
+	}
+}
+
+void GameState::useInput(GameStateManagerData& gameStateManagerData)
+{
+	eventVect.clear();
+	for (int countEvent = 0; countEvent < mKeyboardData.mNumKeys; countEvent++)
+	{	
+		if (mKeyboardData.mKeyState[countEvent] == true)
 		{
-			if (curBestAttackTiles.mTileCoords.size() == 0)
+			KeyData key = KeyData(countEvent, mKeyboardData.mKeyStateRepeat[countEvent]);
+			eventVect.push_back(key);
+
+			switch (key.mKey)
 			{
-				mpData->mpTilesToAttack.push_back(pCurBestAttackTile->mpTile);
-				mpData->mCurAttack = pCurBestAttackTile->mAttack;
-			}
-			else
-			{
-				for (TileCoords coords: curBestAttackTiles.mTileCoords)
+			case EKeyboardInput_1:
+				//mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]);
+				mGameStateData.mNextGameState = EGameState_PLAY;
+				break;
+			case EKeyboardInput_2:
+				//mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_MENU)]);
+				mGameStateData.mNextGameState = EGameState_MENU;
+				break;
+			case EKeyboardInput_UP:
+			case EKeyboardInput_W:
+				if (mTicksSinceInput > mTicksBeforeUseInput)
 				{
-					Tile* pCurTile = pGrid->mpTiles[pGrid->getIndex(coords.mRow, coords.mCol)];
-					mpData->mpTilesToAttack.push_back(pCurTile);
-					mpData->mCurAttack = curBestAttackTiles.mAttack;
+					mMenuManager.mpCurMenuPage->setCurTextBoxIfValid(mMenuManager.mpCurMenuPage->getCurTextBoxIndex() - 1);
+					mTicksSinceInput = 0;
 				}
-			}
+				break;
 
-			if (mpData->mCurAttack.mRequiresDirectionInput)
-			{
-				mpData->mCurAttackDirection = getDirectionBetweenTiles(mpData->mpCharacter->mCombatMovementManager.getCurTile(), mpData->mpTilesToAttack[0]);
-			}
-		}
-	}
-	mpData->mGoingToAttack = true;
-	return true;
-}
-
-bool MiniGameEnemyTakeAction::shouldDefend(MiniGameWorldData& worldData)
-{
-	Grid*			pGrid			= worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mpGrid;
-	CombatManager*	pCombatManager	= worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mpCombatManager;
-	Tile*			pCurTile		= mpData->mpCharacter->mCombatMovementManager.getCurTile();
-
-	for (CombatCharacter* curCombatCharacter : pCombatManager->mpCurCombatCharacters)
-	{
-		std::vector <AttackTile> attackTileListWithCharacters = returnAttackTileCoordsWithPlayersOnThem(worldData, pCurTile, mpData->mpCharacter);
-
-		for (AttackTile attackTile : attackTileListWithCharacters)
-		{
-			Tile* pCurTileWithCharacter = attackTile.mpTile;
-			if (pGrid->isLegalCoords(pCurTileWithCharacter->mRow, pCurTileWithCharacter->mCol))
-			{
-				if (pCurTileWithCharacter->mRow == pCurTile->mRow and pCurTileWithCharacter->mCol and pCurTile->mCol)
+			case EKeyboardInput_DOWN:
+			case EKeyboardInput_S:
+				if (mTicksSinceInput > mTicksBeforeUseInput)
 				{
-					return true;
+					mMenuManager.mpCurMenuPage->setCurTextBoxIfValid(mMenuManager.mpCurMenuPage->getCurTextBoxIndex() + 1);
+					mTicksSinceInput = 0;
 				}
+				break;
+
+			case EKeyboardInput_ENTER:
+				if (mTicksSinceInput > mTicksBeforeUseInput)
+				{
+					mMenuManager.mpCurMenuPage->setCurSelectedTextBox(mMenuManager.mpCurMenuPage->getCurTextBox());
+					mTicksSinceInput = 0;
+				}
+				break;
+
+			case EKeyboardInput_MOUSE_LEFT:
+				if (mTicksSinceInput > mTicksBeforeUseInput)
+				{
+					TextBox* pTextBox = mMenuManager.returnMouseTextBox(mousePos);
+					if (pTextBox != nullptr && pTextBox == mMenuManager.mpCurMenuPage->getCurTextBox())
+					{
+						mMenuManager.mpCurMenuPage->setCurSelectedTextBox(mMenuManager.mpCurMenuPage->getCurTextBox());
+					}
+					mTicksSinceInput = 0;
+				}
+				break;
+
+			case EKeyboardInput_ESC:
+				gameStateManagerData.mRunGame = false;
+				break;
 			}
 		}
 	}
-	return false;
+
+	eventVect.clear();
 }
 
-void MiniGameEnemyTakeAction::performAttack(MiniGameStateManagerData& stateManagerData)
+void GameState::useMouseCursor()
 {
-	attemptAttackMultipleTiles(stateManagerData, mpData->mpTilesToAttack, mpData->mpCharacter);
-	postTick(*stateManagerData.mpMiniGameWorldData);
-	//add attackedCharacterChangesList
-}
+	float x;
+	float y;
+	SDL_GetMouseState(&x, &y);
 
-void MiniGameEnemyTakeAction::postTick(MiniGameWorldData& worldData)
-{
-	CombatManager* pCombatManager = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mpCombatManager;
-	worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mpCombatManager->postTick();
-	mpData->mpCharacter = pCombatManager->returnNextCharacter(mpData->mpCharacter);
-	mpData->mNextMiniGameState = EMiniGameState_BUFFER;
+	mousePos = Vect2(x, y);
 
-	switch (mpData->mpCharacter->mType)
+	TextBox* pTextBox = mMenuManager.returnMouseTextBox(mousePos);
+	if (pTextBox != nullptr)
 	{
-	case EMiniGameCombatCharacterType_PLAYER:
-		mpData->mPostBufferGameState = EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
+		mMenuManager.mpCurMenuPage->setCurTextBox(pTextBox);
+		mMenuManager.mpCurMenuPage->setCurSelectedTextBox(nullptr);
+	}
+	pTextBox = nullptr;
+}
+
+void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
+{
+	TextBox* curSelectedTextBox = mMenuManager.mpCurMenuPage->getCurSelectedTextBox();
+	MiniGameState* pCurState = miniStateManager.mpCurState;
+	if (curSelectedTextBox == nullptr)
+	{
+		return;
+	}
+
+	switch (curSelectedTextBox->mFunction)
+	{
+	case ETextBoxFunction_PLAY_GAME_BOX:
+		mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]);
+		mGameStateData.mNextGameState = EGameState_PLAY;
 		break;
-	case EMiniGameCombatCharacterType_ENEMY:
-		mpData->mPostBufferGameState = EMiniGameState_ENEMY_MOVE_CHARACTER;
+	case ETextBoxFunction_GO_TO_MAIN_MENU_BOX:
+		mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_MENU)]);
+		mGameStateData.mNextGameState = EGameState_MENU;
 		break;
-	default:
-		SDL_assert(false);
+	case ETextBoxFunction_PLAY_MINI_GAME_BOX:
+		mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MINI_GAME_MENU)]);
+		mGameStateData.mNextGameState = EGameState_PLAY_MINI_GAME;
+		break;
+	case ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX:
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
+		{
+			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
+			pSpecificCurState->postTick(EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT);
+		}
+		break;
+	case ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX:
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
+		{
+			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
+			pSpecificCurState->postTick(EMiniGameState_PLAYER_TAKE_ACTION_DEFEND);
+		}
+		break;
+	case ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX:
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
+		{
+			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
+			pSpecificCurState->postTick(EMiniGameState_BUFFER);
+		}
+		break;
+	case ETextBoxFunction_ATTACK_STYLE_BOX:
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT)
+		{
+			MiniGamePlayerWaitForAttackInput* pSpecificCurState = (MiniGamePlayerWaitForAttackInput*)pCurState;
+			pSpecificCurState->postTick(miniStateManager.mData.mStateData.getCharacter()->mCombatMovementManager.getAttacks()[curSelectedTextBox->mDataStorage.mAttackNum]);
+		}
+		break;
+	case ETextBoxFunction_ATTACK_DIRECTION_LEFT_BOX:
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
+		{
+			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
+			pSpecificCurState->postTick(EDirection_LEFT);
+		}
+		break;
+	case ETextBoxFunction_ATTACK_DIRECTION_RIGHT_BOX:
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
+		{
+			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
+			pSpecificCurState->postTick(EDirection_RIGHT);
+		}
+		break;
+	case ETextBoxFunction_ATTACK_DIRECTION_UP_BOX:
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
+		{
+			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
+			pSpecificCurState->postTick(EDirection_UP);
+		}
+		break;
+	case ETextBoxFunction_ATTACK_DIRECTION_DOWN_BOX:
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
+		{
+			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
+			pSpecificCurState->postTick(EDirection_DOWN);
+		}
 		break;
 	}
-	mpData->mGoingToAttack = false;
-	mpData->mpTilesToAttack.clear();
-	//mpData->mCurAttack = NULL;
-	mpData->mCurAttackDirection = EDirection_NONE;
-	mpData->mTicks = 0;
+	mMenuManager.mpCurMenuPage->setCurSelectedTextBox(nullptr);
 }
 
 
-
-MiniGameBuffer:: MiniGameBuffer(MouseData* pMouseData, MiniGameStateData * pData) : MiniGameState(pMouseData, pData){;}
-
-MiniGameBuffer::~MiniGameBuffer()
-{
-	MiniGameState::~MiniGameState();
-}
-
-void MiniGameBuffer::tick(MiniGameStateManagerData& stateManagerData)
-{
-	if (mpData->mTickYet == false)
-	{
-		mpData->mTickYet = true;
-	}
-	else
-	{
-		postTick();
-	}
-}
-
-void MiniGameBuffer::postTick()
-{
-	mpData->mNextMiniGameState = mpData->mPostBufferGameState;
-	mpData->mPostBufferGameState = EMiniGameState_INVALID;
-	mpData->mTickYet = false;
-}
 
 
 
 //TYPES GAME STATES
-GameStatePlay::GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, MouseData& mouseData, 
+GameStatePlay::GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, 
 	WorldData& worldData, MenuManager& menuManager, SettingsManager& settingsManager, CollisionManager& collisionManager, 
-	DamageManager& damageManager, SlashManager& slashManager, StyleManager& styleManager): mWorldData(worldData), mCollisionManager(collisionManager), 
-	mDamageManager(damageManager), mSlashManager(slashManager)
-{
-	mpKeyboardData		= &keyboardData;
-	mpMouseData			= &mouseData;
-	mpMenuManager		= &menuManager;
-	mpSettingsManager	= &settingsManager;
-	mpStyleManager		= &styleManager;
-	mpScreen			= &worldData.mScreen;
-}
+	DamageManager& damageManager, SlashManager& slashManager, StyleManager& styleManager)
+	: GameState(gameStateData, keyboardData, menuManager, settingsManager, styleManager, worldData.mScreen), 
+	mWorldData(worldData), mCollisionManager(collisionManager), 
+	mDamageManager(damageManager), mSlashManager(slashManager) {}
 
-GameStatePlay::~GameStatePlay()
+void GameStatePlay::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager)
 {
-	GameState::~GameState();
-}
-
-void GameStatePlay::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager,
-	WorldData& worldData)
-{
+	mTicksSinceInput += 1;
 	mWorldData.updateCurLevelChunk();
 	Level* curLevel = mWorldData.mpWorlds[mWorldData.mCurWorldNumber]->mpLevels[mWorldData.mCurLevelNumber];
 
@@ -1132,25 +425,41 @@ void GameStatePlay::tick(GameStateManagerData& gameStateManagerData, MiniGameSta
 
 	getInput();
 
-	if (mpSettingsManager->mSingleSteppingMode == false or (mpSettingsManager->mSingleSteppingMode == true 
-		and mpSettingsManager->mFrameStepInputRequest == true))
-	{	// ie do not tick if we have switched single step mode and there is not input request this frame.
+	if (!mSettingsManager.mSingleSteppingMode or (mSettingsManager.mSingleSteppingMode and mSettingsManager.mFrameStepInputRequest))
+	{	// don't tick if in single step mode and there's no input this frame.
 		useMouseCursor();
 		useInput(gameStateManagerData);
 		mWorldData.entityPreTickUpdateMovement(mSlashManager);
 
-		//COLLISIONS
-		mWorldData.entityCollisions(mCollisionManager, mDamageManager, mSlashManager, *mpKeyboardData);
+		// COLLISIONS
+		mWorldData.entityCollisions(mCollisionManager, mDamageManager, mSlashManager, mKeyboardData);
 
-		if (mpSettingsManager->mFrameStepInputRequest)
+		if (mSettingsManager.mFrameStepInputRequest)
 		{
-			// Everytime we skip we reset the variable.
-			mpSettingsManager->mFrameStepInputRequest = false;
+			// Reset
+			mSettingsManager.mFrameStepInputRequest = false;
+		}
+
+		// GO TO NEXT LEVEL
+		if (mWorldData.mGoToNextLevel)
+		{
+			switch (mWorldData.mpNextLevelData->mType)
+			{
+			case ELevelType_PLATFORMING:
+				mWorldData.setNextLevel(mWorldData.mpNextLevelData->mWorldNumber, mWorldData.mpNextLevelData->mLevelNumber);
+				
+				break;
+
+			case ELevelType_MINI_GAME:
+				mGameStateData.mNextGameState = EGameState_PLAY_MINI_GAME;
+				mGameStateData.mCleanNextState = true;
+			}
+			
 		}
 	}
 
 	//RENDERING
-	render(gameStateManagerData, miniGameStateManager.mData, worldData);
+	render(gameStateManagerData.mCurStateEnum);
 
 	mWorldData.entityPostTick();
 	mCollisionManager.postTick();
@@ -1163,82 +472,61 @@ void GameStatePlay::tick(GameStateManagerData& gameStateManagerData, MiniGameSta
 
 void GameStatePlay::useInput(GameStateManagerData& gameStateManagerData)
 {
-	GameState::useInput(gameStateManagerData);
-	static std::vector < KeyData > eventVect;
-	for (int countEvent = 0; countEvent < mpKeyboardData->mNumEvents; countEvent++) 
+
+	eventVect.clear();
+	for (int countEvent = 0; countEvent < mKeyboardData.mNumKeys; countEvent++)
 	{
-		if (mpKeyboardData->mKeyState[countEvent] == true)
+		if (mKeyboardData.mKeyState[countEvent])
 		{
-			KeyData key;
-			key.mKey = countEvent;
-			key.mRepeat = mpKeyboardData->mKeyStateRepeat[countEvent];			
+			eventVect.push_back(KeyData(countEvent, mKeyboardData.mKeyStateRepeat[countEvent]));
 
-			eventVect.push_back(key);
+			const EKeyboardInput resetLevelKey					= mSettingsManager.resetLevel;
+			const EKeyboardInput resetCheckpointKey				= mSettingsManager.resetCheckpoint;
+			const EKeyboardInput throwProjectileHorizontalKey	= mSettingsManager.shootProjectileHorizontal;
+			const EKeyboardInput throwProjectileVerticalKey		= mSettingsManager.shootProjectileVertical;
+			const EKeyboardInput slashKey					    = mSettingsManager.slash;
 
-			const EKeyboardInput resetLevelKey					= mpSettingsManager->resetLevel;
-			const EKeyboardInput resetCheckpointKey				= mpSettingsManager->resetCheckpoint;
-			const EKeyboardInput throwProjectileHorizontalKey	= mpSettingsManager->shootProjectileHorizontal;
-			const EKeyboardInput throwProjectileVerticalKey		= mpSettingsManager->shootProjectileVertical;
-			const EKeyboardInput slashKey					    = mpSettingsManager->slash;     
+			EKeyboardInput curKey = static_cast<EKeyboardInput>(countEvent);
 
-			if (countEvent == int(resetLevelKey))
+			if (countEvent == resetLevelKey)
 			{
 				mWorldData.resetStats();
 			}
-			else if (countEvent == int(resetCheckpointKey))
+			else if (countEvent == resetCheckpointKey)
 			{
 				mWorldData.resetToCheckpoint();
 			}
-			else if (countEvent == int(throwProjectileHorizontalKey) and mpKeyboardData->mLastFrameKeyState[countEvent] == false)
+			else if (countEvent == throwProjectileHorizontalKey and !mKeyboardData.mLastFrameKeyState[countEvent])
 			{
 				mWorldData.playerShootProjectile(EEntityMovementPath_HORIZONTAL);
 			}
-			else if (countEvent == int(throwProjectileVerticalKey) and mpKeyboardData->mLastFrameKeyState[countEvent] == false)
+			else if (countEvent == throwProjectileVerticalKey and !mKeyboardData.mLastFrameKeyState[countEvent])
 			{
 				mWorldData.playerShootProjectile(EEntityMovementPath_VERTICAL);
 			}
-			else if (countEvent == int(slashKey) and mpKeyboardData->mLastFrameKeyState[countEvent] == false)
+			else if (countEvent == slashKey and !mKeyboardData.mLastFrameKeyState[countEvent])
 			{
 				mWorldData.playerSwordSlash(mSlashManager);
 			}
-			else if (countEvent == int(EKeyboardInput_1))
+			else if (countEvent == EKeyboardInput_1)
 			{
-				mpMenuManager->setCurMenuPage(mpMenuManager->mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]);
-				mpGameStateData->mNextGameState = EGameState_PLAY;
+				mGameStateData.mNextGameState = EGameState_PLAY;
 			}
-			else if (countEvent == int(EKeyboardInput_2))
+			else if (countEvent == EKeyboardInput_2)
 			{
-				mpMenuManager->setCurMenuPage(mpMenuManager->mpMenuPages[int(EMenuPageType_MAIN_MENU)]);
-				mpGameStateData->mNextGameState = EGameState_MENU;
+				mGameStateData.mNextGameState = EGameState_MENU;
 			}
-			else if (countEvent == int(EKeyboardInput_ENTER))
+			else if (countEvent == EKeyboardInput_ESC) 
 			{
+				gameStateManagerData.mRunGame = false;
 			}
 		}
 	}
 
 	mWorldData.mPlayer.useInput(eventVect);
-	eventVect.clear();
 }
 
-void GameStatePlay::useMouseCursor()
-{
-	float x;
-	float y;
-	SDL_GetMouseState(&x, &y);
-
-	Vect2 pos((int)x, (int)y);
-	Vect2 adjustedPos( (int)(x / mpScreen->mGameScreenToGameLevelChunkRatio), (int)(y / mpScreen->mGameScreenToGameLevelChunkRatio));
-
-	TextBox* pTextBox = mpMenuManager->returnMouseTextBox(pos, *mpScreen);
-	if (pTextBox != nullptr)
-	{
-		mpMenuManager->mpCurMenuPage->setCurTextBox(pTextBox);
-	}
-}
-
-void GameStatePlay::render(GameStateManagerData& gameStateManagerData, MiniGameStateManagerData& miniGameStateManagerData,
-	WorldData& worldData)
+void GameStatePlay::render(EGameState curState)
 {
 	Level* pCurLevel = mWorldData.mpWorlds[mWorldData.mCurWorldNumber]->mpLevels[mWorldData.mCurLevelNumber];
 	SDL_SetRenderDrawColor(mWorldData.mScreen.mpRenderer, 0, 0, 0, 1);
@@ -1252,11 +540,11 @@ void GameStatePlay::render(GameStateManagerData& gameStateManagerData, MiniGameS
 	//standard platforms
 	for (Platform* pPlatform : pCurLevel->mpPlatforms)
 	{
-		if		(pPlatform->mPrintViaChunk	== true)
+		if		(pPlatform->mPrintViaChunk)
 		{
 			mWorldData.renderEntityViaChunk(pPlatform);
 		}
-		else if (pPlatform->mSplice			== true)
+		else if (pPlatform->mSplice)
 		{
 			mWorldData.renderEntityViaSplice(pPlatform);
 		}
@@ -1268,11 +556,11 @@ void GameStatePlay::render(GameStateManagerData& gameStateManagerData, MiniGameS
 	//non static
 	for (Platform* pPlatform : pCurLevel->mpActiveNonStaticPlatforms)
 	{
-		if		(pPlatform->mPrintViaChunk == true)
+		if		(pPlatform->mPrintViaChunk)
 		{
 			mWorldData.renderEntityViaChunk(pPlatform);
 		}
-		else if (pPlatform->mSplice == true)
+		else if (pPlatform->mSplice)
 		{
 			mWorldData.renderEntityViaSplice(pPlatform);
 		}
@@ -1292,12 +580,12 @@ void GameStatePlay::render(GameStateManagerData& gameStateManagerData, MiniGameS
 			EImageOffset	imageOffsetType = EImageOffset_MIDDLE;
 			Hitbox&			hitbox = pPlatform->mAreaEffectHitbox;
 
-			if      (pPlatform->mPrintViaChunk == true)
+			if      (pPlatform->mPrintViaChunk)
 			{
 				mWorldData.renderEntityViaChunk(pPlatform);
 				mWorldData.renderEntityViaChunk(pCurImageObject, hitbox);
 			}
-			else if (pPlatform->mSplice == true)
+			else if (pPlatform->mSplice)
 			{
 				mWorldData.renderEntityViaSplice(pPlatform);
 				mWorldData.renderEntityViaSplice(animationManager, hitbox);
@@ -1337,7 +625,9 @@ void GameStatePlay::render(GameStateManagerData& gameStateManagerData, MiniGameS
 		EImageOffset offsetType = EImageOffset_LEFT_X_MIDDLE_Y;
 		bool rotating = true;
 		//sword
-		mWorldData.renderEntityWithHitbox(mSlashManager.mAnimationManager.getCurImage(), mSlashManager.mSlashImageHitboxTexture, offsetType, mSlashManager.mCurSlashDirection, slashImageHitbox, rotating, degreesToImageRotationDegrees(mSlashManager.mImageRotation, mSlashManager.mCurRotation));
+		mWorldData.renderEntityWithHitbox(mSlashManager.mAnimationManager.getCurImage(), mSlashManager.mSlashImageHitboxTexture, offsetType, 
+				mSlashManager.mCurSlashDirection, slashImageHitbox, rotating, degreesToImageRotationDegrees(mSlashManager.mImageRotation, 
+				mSlashManager.mCurRotation));
 		//slash hitbox
 		offsetType = EImageOffset_PRINT_TOP_LEFT;
 		rotating = false;
@@ -1349,104 +639,86 @@ void GameStatePlay::render(GameStateManagerData& gameStateManagerData, MiniGameS
 
 	//PLAYER
 	mWorldData.renderEntity(&mWorldData.mPlayer);
-	mpMenuManager->updateUIElements(mWorldData.mScreen, mWorldData);
-	mpMenuManager->setCurMenuPage(mpMenuManager->mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]);
-	mpMenuManager->renderMenus(mWorldData.mScreen, gameStateManagerData, miniGameStateManagerData, mWorldData, *mpSettingsManager);
+	mMenuManager.updateUIElements();
+	mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]); //TODO
+	mMenuManager.renderMenus(curState, false, mKeyboardData.mCurKeysString);
 }
 
 
-GameStatePlayMiniGame::GameStatePlayMiniGame(GameStateData& gameStateData, KeyboardData& keyboardData, MouseData& mouseData, 
+
+
+GameStatePlayMiniGame::GameStatePlayMiniGame(GameStateData& gameStateData, KeyboardData& keyboardData, 
 	MiniGameStateManager& miniGameStateManager, MenuManager& menuManager, ScreenObject& screen, SettingsManager& settingsManager,
-	StyleManager& styleManager) : mMiniGameStateManager(miniGameStateManager)
-{
-	mpKeyboardData		= &keyboardData;
-	mpMouseData			= &mouseData;
-	mpMenuManager		= &menuManager;
-	mpSettingsManager	= &settingsManager;
-	mpStyleManager		= &styleManager;
-	mpScreen			= &screen;
-}
+	StyleManager& styleManager) 
+	: GameState(gameStateData, keyboardData, menuManager, settingsManager, styleManager, screen),
+	mMiniGameStateManager(miniGameStateManager) {}
 
-GameStatePlayMiniGame::~GameStatePlayMiniGame()
-{
-	GameState::~GameState();
-}
+void GameStatePlayMiniGame::setUp() { mTicks = 0; }
 
-void GameStatePlayMiniGame::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager,
-	WorldData& worldData)
+void GameStatePlayMiniGame::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager)
 {
-	MiniGameLevel* pCurLevel = mMiniGameStateManager.mData.mpMiniGameWorldData->mpMiniGameLevels[mMiniGameStateManager.mData.mpMiniGameWorldData->mCurMiniGameLevelNumber];
+	mTicks += 1;
+	mTicksSinceInput += 1;
+	SDL_PumpEvents();
+	MiniGameLevel* pCurLevel = mMiniGameStateManager.mWorldData.mpMiniGameLevels[mMiniGameStateManager.mWorldData.mCurMiniGameLevelNumber];
 
-	if (pCurLevel->mpCombatManager->mpCurCombatCharacters.size() == 0)
+	if (pCurLevel->mCombatManager.mpCurCombatCharacters.size() == 0)
 	{
-		pCurLevel->mpCombatManager->createCurCharacterList();
-		mMiniGameStateManager.mData.mpData->mpCharacter = pCurLevel->mpCombatManager->mpCurCombatCharacters[0];
+		pCurLevel->mCombatManager.createCurCharacterList();
+		mMiniGameStateManager.mData.mStateData.setCharacter(pCurLevel->mCombatManager.mpCurCombatCharacters[0], 0);
 	}
 
 	getInput();
 	useMouseCursor();
-	mMiniGameStateManager.mpCurState->useMouseInput(mMiniGameStateManager.mData.mCurStateEnum, *mpScreen, pCurLevel->mpGrid);
+	useInput(gameStateManagerData);
+	mMiniGameStateManager.mpCurState->useMouseInput(mMiniGameStateManager.mData.mCurStateEnum, mScreen);
+	takeMenuAction(miniGameStateManager);
 
 	mMiniGameStateManager.preTick();
 	mMiniGameStateManager.tick();
-
-	render(gameStateManagerData, mMiniGameStateManager.mData, worldData);
-}
-
-void GameStatePlayMiniGame::useMouseCursor()
-{
-	float x;
-	float y;
-	SDL_GetMouseState(&x, &y);
-
-	Vect2 pos((int)x, (int)y);
-	Vect2 adjustedPos( int(x / mpScreen->mGameScreenToGameLevelChunkRatio), int(y / mpScreen->mGameScreenToGameLevelChunkRatio));
-
-	mMiniGameStateManager.mpCurState->highlightTile(mMiniGameStateManager.mData.mpMiniGameWorldData->mpMiniGameLevels[mMiniGameStateManager.mData.mpMiniGameWorldData->mCurMiniGameLevelNumber]->mpGrid, adjustedPos);
-	TextBox* pTextBox = mpMenuManager->returnMouseTextBox(pos, *mpScreen);
-	if (pTextBox != nullptr)
+	mMiniGameStateManager.postTick();
+	if (mMiniGameStateManager.mData.mCurStateEnum == EMiniGameState_EXIT)
 	{
-		mpMenuManager->mpCurMenuPage->setCurTextBox(pTextBox);
+		//mMiniGameStateManager.start(); //reset state for safety
+		mGameStateData.mNextGameState = EGameState_PLAY; //go back to main game next
 	}
+
+	render(gameStateManagerData.mCurStateEnum);
 }
 
-void GameStatePlayMiniGame::render(GameStateManagerData& gameStateManagerData, MiniGameStateManagerData& miniGameStateManagerData,
-	WorldData& worldData)
+void GameStatePlayMiniGame::render(EGameState curState)
 {
-	SDL_SetRenderDrawColor(mpScreen->mpRenderer, 0, 0, 0, 1);
-	SDL_FRect screenRect {0.0, 0.0, float(mpScreen->mGameScreenWidth), float(mpScreen->mGameScreenHeight)};
-	SDL_RenderFillRect(mpScreen->mpRenderer, &screenRect);
-	mMiniGameStateManager.mData.printBoard(*mpScreen, *mpStyleManager);
-	mpMenuManager->renderMenus(*mpScreen, gameStateManagerData, mMiniGameStateManager.mData, worldData, *mpSettingsManager);
+	SDL_SetRenderDrawColor(mScreen.mpRenderer, 0, 0, 0, 1);
+	SDL_FRect screenRect {0.0f, 0.0f, float(mScreen.mGameScreenWidth), float(mScreen.mGameScreenHeight)};
+	SDL_RenderFillRect(mScreen.mpRenderer, &screenRect);
+	mMiniGameStateManager.printBoard(mScreen, mStyleManager);
+	mMenuManager.renderMenus(curState, mTicks <= 1, mKeyboardData.mCurKeysString);
+
+	SDL_SetRenderDrawColor(mScreen.mpRenderer, 50, 50, 50, 1);
+	SDL_FRect rect{ (mousePos.getX() - 10.0f), (mousePos.getY() - 10.0f), 20.0f, 20.0f};
+	SDL_RenderFillRect(mScreen.mpRenderer, &rect);
+
+	SDL_SetRenderDrawColor(mScreen.mpRenderer, 10, 100, 100, 1);
+	SDL_FRect rect2{ (10.0f/ (mTicksSinceInput + 1)), 700.0f, 20.0f, 20.0f };
+	SDL_RenderFillRect(mScreen.mpRenderer, &rect2);
+
 }
 
 
 
 
-GameStateMenu::GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboardData, MouseData& mouseData, 
-		MenuManager& menuManager, ScreenObject& screen, SettingsManager& settingsManager, StyleManager& styleManager)
-{
-	mpKeyboardData		= &keyboardData;
-	mpMouseData			= &mouseData;
-	mpMenuManager		= &menuManager;
-	mpSettingsManager	= &settingsManager;
-	mpStyleManager		= &styleManager;
-	mpScreen			= &screen;
-}
+GameStateMenu::GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboardData, 
+		MenuManager& menuManager, SettingsManager& settingsManager, StyleManager& styleManager, 
+		WorldData& worldData) 
+	: GameState(gameStateData, keyboardData, menuManager, settingsManager, styleManager, worldData.mScreen), mWorldData(worldData) {;}
 
-GameStateMenu::~GameStateMenu()
-{
-	GameState::~GameState();
-}
-
-void GameStateMenu::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager,
-	WorldData& worldData)
+void GameStateMenu::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager)
 {
 	mTicksSinceInput += 1;
 	// Create the resources for rendering.
 
 	SDL_PumpEvents();
-	mpMenuManager->preTick();
+	mMenuManager.preTick();
 	//PRE TICK
 	getInput();
 	useMouseCursor();
@@ -1454,198 +726,25 @@ void GameStateMenu::tick(GameStateManagerData& gameStateManagerData, MiniGameSta
 	takeMenuAction(miniGameStateManager);
 
 	//RENDERING
-	render(gameStateManagerData, miniGameStateManager.mData, worldData);
-
-	return;
+	render(gameStateManagerData.mCurStateEnum);
 }
 
-void GameStateMenu::useInput(GameStateManagerData& gameStateManagerData)
-{		
-	GameState::useInput(gameStateManagerData);
-	static std::vector <int> eventVect;
-	for (int countEvent = 0; countEvent < mpKeyboardData->mNumEvents; countEvent++)
-	{
-		if (mpKeyboardData->mKeyState[countEvent] == true)
-		{
-			eventVect.push_back(countEvent);
-		}
-	}
-	for (int countEvent = 0; countEvent < mpMouseData->mNumMouseEvents; countEvent++)
-	{
-		if (mpMouseData->mMouseEventSyms[countEvent] == true)
-		{
-			eventVect.push_back(countEvent);
-		}
-	}
-
-	float x;
-	float y;
-	SDL_GetMouseState(&x, &y);
-	Vect2 pos((int)x, (int)y);
-
-	for (int curEventEnum : eventVect)
-	{
-		switch (curEventEnum)
-		{
-		case EKeyboardInput_1:
-			mpMenuManager->setCurMenuPage(mpMenuManager->mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]);
-			mpGameStateData->mNextGameState = EGameState_PLAY;
-			break;
-		case EKeyboardInput_2:
-			mpMenuManager->setCurMenuPage(mpMenuManager->mpMenuPages[int(EMenuPageType_MAIN_MENU)]);
-			mpGameStateData->mNextGameState = EGameState_MENU;
-			break;
-		case EKeyboardInput_UP:
-			if (mTicksSinceInput > mTicksBeforeUseInput)
-			{
-				mpMenuManager->mpCurMenuPage->setCurTextBoxIfValid(mpMenuManager->getCurTextBoxIndex() - 1);
-				mTicksSinceInput = 0;
-			}
-			break;
-
-		case EKeyboardInput_DOWN:
-			if (mTicksSinceInput > mTicksBeforeUseInput)
-			{
-				mpMenuManager->mpCurMenuPage->setCurTextBoxIfValid(mpMenuManager->getCurTextBoxIndex() + 1);
-				mTicksSinceInput = 0;
-			}
-			break;
-
-		case EKeyboardInput_ENTER:
-			if (mTicksSinceInput > mTicksBeforeUseInput)
-			{
-				mpMenuManager->mpCurMenuPage->setCurSelectedTextBox(mpMenuManager->mpCurMenuPage->getCurTextBox());
-				mTicksSinceInput = 0;
-			}
-			break;
-		case EMouseInput_LEFT:
-			if (mTicksSinceInput > mTicksBeforeUseInput)
-			{
-				TextBox* pTextBox = mpMenuManager->returnMouseTextBox(pos, *mpScreen);
-				if (pTextBox)
-				{
-					mpMenuManager->mpCurMenuPage->setCurSelectedTextBox(pTextBox);
-					mpMenuManager->mpCurMenuPage->setCurTextBox(pTextBox);
-					mTicksSinceInput = 0;
-				}
-			}
-			break;
-		}
-			
-	}
-	eventVect.clear();
-}
-
-void GameStateMenu::useMouseCursor()
+void GameStateMenu::render(EGameState curState)
 {
-	float x;
-	float y;
-	SDL_GetMouseState(&x, &y);
+	SDL_Color curTextBoxColor = { 10, 10, 10, 255 };
+	SDL_SetRenderDrawColor(mScreen.mpRenderer, curTextBoxColor.r, curTextBoxColor.g, curTextBoxColor.b, curTextBoxColor.a);
+	SDL_FRect box = { 0.0f, 0.0f, (float)mScreen.mGameScreenWidth, (float)mScreen.mGameScreenHeight };
+	SDL_RenderFillRect(mScreen.mpRenderer, &box);
 
-	Vect2 pos((int)x, (int)y);
-	Vect2 adjustedPos( int(x / mpScreen->mGameScreenToGameLevelChunkRatio), int(y / mpScreen->mGameScreenToGameLevelChunkRatio));
 
-	TextBox* pTextBox = mpMenuManager->returnMouseTextBox(pos, *mpScreen);
-	if (pTextBox != nullptr)
-	{
-		mpMenuManager->mpCurMenuPage->setCurTextBox(pTextBox);
-	}
+	mMenuManager.renderMenus(curState, false, mKeyboardData.mCurKeysString);
+
+	SDL_SetRenderDrawColor(mScreen.mpRenderer, 50, 50, 50, 1);
+	SDL_FRect rect{ (mousePos.getX() - 10.0f), (mousePos.getY() - 10.0f), 20.0f, 20.0f};
+	SDL_RenderFillRect(mScreen.mpRenderer, &rect);
+
 }
 
-void GameStateMenu::render(GameStateManagerData& gameStateManagerData, MiniGameStateManagerData& miniGameStateManagerData,
-	WorldData& worldData)
-{
-	mpMenuManager->renderMenus(*mpScreen, gameStateManagerData, miniGameStateManagerData, worldData, *mpSettingsManager);
-}
 
-void GameStateMenu::takeMenuAction(MiniGameStateManager& miniStateManager)
-{
-	TextBox* curSelectedTextBox = mpMenuManager->mpCurMenuPage->getCurSelectedTextBox();
-	MiniGameState* pCurState = miniStateManager.mpCurState;
-	if (curSelectedTextBox == nullptr)
-	{
-		return;
-	}
-
-
-	switch (curSelectedTextBox->mFunction)
-	{
-	case ETextBoxFunction_PLAY_GAME_BOX:
-		mpMenuManager->setCurMenuPage(mpMenuManager->mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]);
-		mpGameStateData->mNextGameState = EGameState_PLAY;
-		break;
-	case ETextBoxFunction_GO_TO_MAIN_MENU_BOX:
-		mpMenuManager->setCurMenuPage(mpMenuManager->mpMenuPages[int(EMenuPageType_MAIN_MENU)]);
-		mpGameStateData->mNextGameState = EGameState_MENU;
-		break;
-	case ETextBoxFunction_PLAY_MINI_GAME_BOX:
-		mpMenuManager->setCurMenuPage(mpMenuManager->mpMenuPages[int(EMenuPageType_MINI_GAME_MENU)]);
-		mpGameStateData->mNextGameState = EGameState_PLAY_MINI_GAME;
-		break;
-	case ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
-		{
-			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
-			pSpecificCurState->postTick(*miniStateManager.mData.mpMiniGameWorldData, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT);
-		}
-		break;
-	case ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
-		{
-			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
-			pSpecificCurState->postTick(*miniStateManager.mData.mpMiniGameWorldData, EMiniGameState_PLAYER_TAKE_ACTION_DEFEND);
-		}
-		break;
-	case ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
-		{
-			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
-			pSpecificCurState->postTick(*miniStateManager.mData.mpMiniGameWorldData, EMiniGameState_BUFFER);
-		}
-		break;
-	case ETextBoxFunction_ATTACK_STYLE_1_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT)
-		{
-			MiniGamePlayerWaitForAttackInput * pSpecificCurState = (MiniGamePlayerWaitForAttackInput*)pCurState;
-			pSpecificCurState->postTick(miniStateManager.mData.mpData->mpCharacter->mCombatMovementManager.getAttacks()[0]);
-		}
-		break;
-	case ETextBoxFunction_ATTACK_STYLE_2_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT)
-		{
-			MiniGamePlayerWaitForAttackInput * pSpecificCurState = (MiniGamePlayerWaitForAttackInput*)pCurState;
-			pSpecificCurState->postTick(miniStateManager.mData.mpData->mpCharacter->mCombatMovementManager.getAttacks()[1]);
-		}
-		break;
-	case ETextBoxFunction_ATTACK_DIRECTION_LEFT_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
-		{
-			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
-			pSpecificCurState->postTick(EDirection_LEFT);
-		}
-		break;
-	case ETextBoxFunction_ATTACK_DIRECTION_RIGHT_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
-		{
-			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
-			pSpecificCurState->postTick(EDirection_RIGHT);
-		}
-		break;
-	case ETextBoxFunction_ATTACK_DIRECTION_UP_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
-		{
-			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
-			pSpecificCurState->postTick(EDirection_UP);
-		}
-		break;
-	case ETextBoxFunction_ATTACK_DIRECTION_DOWN_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
-		{
-			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
-			pSpecificCurState->postTick(EDirection_DOWN);
-		}
-		break;
-	}
-}
 
 

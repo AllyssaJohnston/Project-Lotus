@@ -1,55 +1,61 @@
 #include "combatAttackHelperClass.h"
 
-AttackTile::AttackTile(Tile* pTile, const Attack& attack) : mpTile(pTile), mAttack(attack) {}
+AttackTile::AttackTile(Tile* pTile, Attack& attack) : mpTile(pTile), mAttack(attack) {}
 
-AttackTile::~AttackTile()
-{
-    mpTile = nullptr;
-}
+AttackTile::~AttackTile() { mpTile = nullptr; }
 
 
-AttackAndListOfTileCoordsToCorrespondingTilesCoords::AttackAndListOfTileCoordsToCorrespondingTilesCoords(std::vector <TileCoords>& tileCoords, Attack& attack)
-        : mTileCoords(tileCoords), mAttack(attack) {}
+AttackAndListOfTileCoordsToCorrespondingTilesCoords::AttackAndListOfTileCoordsToCorrespondingTilesCoords(std::vector <TileCoords>& tileCoords, Attack& attack) : mTileCoords(tileCoords), mAttack(attack) {}
 
 
 std::vector <TileCoords> returnTileCoords(Tile* pGivenTile, EMiniGameCombatMoveAttackTypes moveAttackType)
 {
-    if (pGivenTile != nullptr)
+    if (pGivenTile == nullptr)
     {
-        switch (moveAttackType)
-        {
-        case EMiniGameCombatMoveAttackTypes_CROSS1:
-            return getCross1Tiles(pGivenTile);
-            break;
-        case EMiniGameCombatMoveAttackTypes_CROSS2:
-            return getCross2Tiles(pGivenTile);
-            break;
-        case EMiniGameCombatMoveAttackTypes_SQUARE1:
-            return getSquare1Tiles(pGivenTile);
-            break;
-        case EMiniGameCombatMoveAttackTypes_SQUARE2:
-            return getSquare2Tiles(pGivenTile);
-            break;
-        case EMiniGameCombatMoveAttackTypes_NONE:
-            break;
-        default:
-            SDL_assert(false);
-            break;
-        }
-
+        std::vector <TileCoords> tileCoords;
+        return tileCoords;
     }
-    //if else
-    std::vector <TileCoords> tileCoords;
-    return tileCoords;
+    switch (moveAttackType)
+    {
+    case EMiniGameCombatMoveAttackTypes_CROSS1:
+        return getCross1Tiles(pGivenTile);
+        break;
+    case EMiniGameCombatMoveAttackTypes_CROSS2:
+        return getCross2Tiles(pGivenTile);
+        break;
+    case EMiniGameCombatMoveAttackTypes_CROSS3:
+        return getCross3Tiles(pGivenTile);
+        break;
+    case EMiniGameCombatMoveAttackTypes_CROSS3_1UNIT_OUT:
+        return getCross3_1OutTiles(pGivenTile);
+        break;
+    case EMiniGameCombatMoveAttackTypes_CROSS4:
+        return getCross4Tiles(pGivenTile);
+        break;
+    case EMiniGameCombatMoveAttackTypes_CROSS5:
+        return getCross5Tiles(pGivenTile);
+        break;
+    case EMiniGameCombatMoveAttackTypes_SQUARE1:
+        return getSquare1Tiles(pGivenTile);
+        break;
+    case EMiniGameCombatMoveAttackTypes_SQUARE2:
+        return getSquare2Tiles(pGivenTile);
+        break;
+    case EMiniGameCombatMoveAttackTypes_NONE:
+        break;
+    default:
+        SDL_assert(false);
+        break;
+    }
 }
 
-AttackAndListOfTileCoordsToCorrespondingTilesCoords returnAttackTileCoordsBasedOnAttack(Tile* pGivenTile, Attack& curAttack)
+AttackAndListOfTileCoordsToCorrespondingTilesCoords returnAttackTileCoordsBasedOnAttack(Tile* pGivenTile, Attack curAttack)
 {
     std::vector <TileCoords> tileCoordsList = returnTileCoords(pGivenTile, curAttack.mType);
     return AttackAndListOfTileCoordsToCorrespondingTilesCoords(tileCoordsList, curAttack);
 }
 
-AttackAndListOfTileCoordsToCorrespondingTilesCoords returnAttackTileCoordsBasedOnAttackAndDirection(Tile* pGivenTile, Attack& curAttack, EDirection givenDirection)
+AttackAndListOfTileCoordsToCorrespondingTilesCoords returnAttackTileCoordsBasedOnAttackAndDirection(Tile* pGivenTile, Attack curAttack, EDirection givenDirection)
 {
     std::vector <TileCoords> tileCoordsList;
     switch (curAttack.mType)

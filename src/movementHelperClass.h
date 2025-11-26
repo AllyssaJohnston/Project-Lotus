@@ -6,12 +6,6 @@
 
 class Entity;
 
-struct KeyData
-{
-	int mKey;
-	int mRepeat;
-};
-
 enum EMovementAutoMoveRule
 {
 	EMovementAutoMoveRule_INVALID = -1,
@@ -77,6 +71,15 @@ enum EEntityMovementPath
 	EEntityMovementPath_MAX
 };
 
+struct KeyData 
+{
+	int mKey = -1;
+	int mRepeat = -1;
+
+	KeyData() { ; }
+	KeyData(int key, int repeat);
+};
+
 struct PositionData
 {
 	Hitbox		mHitbox;
@@ -105,22 +108,22 @@ struct MovementData
 	Vect2					mBaseMovementVect2;					// Base velocity of entity
 	Vect2					mCurMovementVect2;					// Current base velocity of entity
 	float					mAccelerationY			= 1.0f;		// Multipler to y velocity
-	bool					mUseMovementEffect;					// is entity immune to ground movement effects
-	EMovementAutoMoveRule	mMovementAutoMoveRule;
+	bool					mUseMovementEffect      = true;		// is entity immune to ground movement effects
+	EMovementAutoMoveRule	mMovementAutoMoveRule	= EMovementAutoMoveRule_INVALID;
 	
-	EEntityMovementPath			  mPath;
+	EEntityMovementPath			  mPath				= EEntityMovementPath_INVALID;
 
 	std::vector<EEntityMovements> mMovementCodes;
-	EEntityMovements			  mCurMovementCode;
-	int							  mCurMovementCodeIndex;
-	int							  mMovementCodeCountDown;		//how long before switching movement codes
-	int							  mMovementCodeInterval;
+	EEntityMovements			  mCurMovementCode	= EEntityMovements_INVALID;
+	int							  mCurMovementCodeIndex		= -1;
+	int							  mMovementCodeCountDown	= -1;		//how long before switching movement codes
+	int							  mMovementCodeInterval		= -1;
 
 	std::vector <ECharacterModes> mCharacterModes;
-	ECharacterModes				  mCurCharacterMode;
-	int							  mCurCharacterModeIndex;
-	int							  mCharacterModeCountDown;
-	int							  mCharacterModeInterval;	//how long before switching character modes
+	ECharacterModes				  mCurCharacterMode			= ECharacterModes_INVALID;
+	int							  mCurCharacterModeIndex	= -1;
+	int							  mCharacterModeCountDown	= -1;
+	int							  mCharacterModeInterval	= -1; // how long before switching character modes
 
 };
 
@@ -128,27 +131,40 @@ struct JumpingData
 {
 	int			mNumCurJumps			= 0;
 	int			mNumMaxJumps			= 1;
-	int			mJumpDistance;
+	int			mJumpDistance			= 0;
 	int			mJumpDistanceLeft		= 0;
 	bool		mAmJump					= false;
 	bool		mAmWallJump				= false;
 	EDirection	mWallJumpDirection		= EDirection_NONE;
-	int			mWallJumpDistanceX;
-	int			mWallJumpDistanceY;
+	int			mWallJumpDistanceX		= 0;
+	int			mWallJumpDistanceY		= 0;
 	int			mWallJumpDistanceXLeft	= 0;
 	int			mWallJumpDistanceYLeft	= 0;
 	void stopJump();
 };
 
+struct AttemptMove
+{
+	Vect2 mWantToMoveTo;
+	Vect2 mMoveTo;
+	bool mInterrupted = false;
+
+	AttemptMove() { ; }
+	AttemptMove(Vect2 wantToMoveTo) : mWantToMoveTo(wantToMoveTo) { ; }
+};
+
 class MovementState
 {
+protected:
+	AttemptMove& mAttemptMove;
+	PositionData& mPositionData;
 public:
 	int mFramesInState = 0;
+	MovementState(PositionData& pos, AttemptMove& move);
 	virtual void printState() = 0;
-	virtual void tickUpdate(bool moveHorizontal)
-	{
-		mFramesInState++;
-	}
+	virtual void calcMove(bool moveHorizontal) = 0;
+	//void move();
+	virtual void tickUpdate(bool moveHorizontal);
 	virtual void left()	{;}
 	virtual void right() {;}
 	virtual void landed() {;}
@@ -158,3 +174,4 @@ public:
 		mFramesInState = 0;
 	}
 };
+

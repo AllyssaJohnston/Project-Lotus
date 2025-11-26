@@ -7,6 +7,7 @@ Collectible::Collectible()
 
 Collectible::Collectible(const Vect2 position, CCollectiblePreset* preset)
 {
+	mEntityType			 = preset->mEntityType;
 	mEntityClassType	 = preset->mEntityClassType;
 	mEntityCharacterType = preset->mEntityCharacterType;
 
@@ -18,18 +19,21 @@ Collectible::Collectible(const Vect2 position, CCollectiblePreset* preset)
 
 Collectible::~Collectible()
 {
-	mpsgPreset = nullptr;
+	if (mpsgPreset != nullptr)
+	{
+		mpsgPreset->~CCollectiblePreset();
+		mpsgPreset = nullptr;
+	}
 	Entity::~Entity();
 }
 
-bool Collectible::isAmPickedUp() const
-{
-	return mAmPickedUp;
-}
+bool Collectible::isAmPickedUp() const { return mAmPickedUp; }
 
-void Collectible::setAmPickedUp(bool amPickedUp)
+void Collectible::setAmPickedUp(bool amPickedUp) { mAmPickedUp = amPickedUp; }
+
+void Collectible::tick() 
 {
-	mAmPickedUp = amPickedUp;
+	mMovementManager.calcMovement();
 }
 
 
@@ -52,15 +56,9 @@ void Collectible::resetToCheckpoint()
 }
 
 
-bool Collectible::isPermanentlyPickedUp() const
-{
-	return mPermanentlyAmPickedUp;
-}
+bool Collectible::isPermanentlyPickedUp() const { return mPermanentlyAmPickedUp; }
 
-void Collectible::setPermanentlyPickedUp(bool amPickedUp)
-{
-	mPermanentlyAmPickedUp = amPickedUp;
-}
+void Collectible::setPermanentlyPickedUp(bool amPickedUp) { mPermanentlyAmPickedUp = amPickedUp; }
 
 
 
@@ -76,13 +74,10 @@ SavePoint::SavePoint(const Vect2 position) : Collectible()
 	mAnimationManager.setupAnimationManager(mpsgPreset->mAnimationPresets, mpsgPreset->mAnimationPresets[0].mMaxImageWidth, mpsgPreset->mAnimationPresets[0].mMaxImageHeight, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
 }
 
-SavePoint::~SavePoint()
-{
-	Collectible::~Collectible();
-}
+SavePoint::~SavePoint() { Collectible::~Collectible(); }
 
 
-EndOfLevelCollectible::EndOfLevelCollectible() : Collectible(){}
+EndOfLevelCollectible::EndOfLevelCollectible() : Collectible() { ; }
 
 EndOfLevelCollectible::EndOfLevelCollectible(Vect2 position, CEndOfLevelPreset* preset) : Collectible()
 {
@@ -94,21 +89,35 @@ EndOfLevelCollectible::EndOfLevelCollectible(Vect2 position, CEndOfLevelPreset* 
 	mAnimationManager.setupAnimationManager(mpsgPreset->mAnimationPresets, mMovementManager.getHitbox().getWidth(), mMovementManager.getHitbox().getHeight(), EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
 }
 
-EndOfLevelCollectible::~EndOfLevelCollectible()
+EndOfLevelCollectible::~EndOfLevelCollectible() { Collectible::~Collectible(); }
+
+
+MiniGameLevelCollectible::MiniGameLevelCollectible() : Collectible() { ; }
+
+MiniGameLevelCollectible::MiniGameLevelCollectible(Vect2 position, CMiniGameLevelPreset* preset) : Collectible()
 {
-	Collectible::~Collectible();
+	mpsgPreset = preset;
+	mEntityClassType = mpsgPreset->mEntityClassType;
+	mEntityCharacterType = mpsgPreset->mEntityCharacterType;
+
+	mMovementManager.setupMovementManager(position, mpsgPreset, mpsgPreset->mWidth, mpsgPreset->mHeight);
+	mAnimationManager.setupAnimationManager(mpsgPreset->mAnimationPresets, mpsgPreset->mAnimationPresets[0].mMaxImageWidth, mpsgPreset->mAnimationPresets[0].mMaxImageWidth, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
+}
+
+MiniGameLevelCollectible::~MiniGameLevelCollectible() { Collectible::~Collectible(); }
+
+void MiniGameLevelCollectible::tick() 
+{
+	mAnimationManager.updateAnimation(EAnimationType_RUN);
+	mMovementManager.setCurDirection(mImageDirection);
 }
 
 
-
-PermanentCollectible::PermanentCollectible() : Collectible(){}
+PermanentCollectible::PermanentCollectible() : Collectible() { ; }
 
 PermanentCollectible::PermanentCollectible(const Vect2 position) : Collectible(position, &gStaticLotusCollectiblePreset){}
 
-PermanentCollectible::~PermanentCollectible()
-{
-	Collectible::~Collectible();
-}
+PermanentCollectible::~PermanentCollectible() { Collectible::~Collectible(); }
 
 void PermanentCollectible::resetStats()
 {
@@ -136,7 +145,4 @@ LotusCollectible::LotusCollectible(Vect2 position) : PermanentCollectible(positi
 	mAnimationManager.setupAnimationManager(mpsgPreset->mAnimationPresets, mpsgPreset->mAnimationPresets[0].mMaxImageWidth, mpsgPreset->mAnimationPresets[0].mMaxImageHeight, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
 }
 
-LotusCollectible::~LotusCollectible()
-{
-	PermanentCollectible::~PermanentCollectible();
-}
+LotusCollectible::~LotusCollectible() { PermanentCollectible::~PermanentCollectible(); }

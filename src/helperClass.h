@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <map>
 #include <SDL3/SDL.h>
 
 
@@ -11,53 +12,107 @@ enum EKeyboardInput
 	EKeyboardInput_RIGHT,
 	EKeyboardInput_UP,
 	EKeyboardInput_DOWN,
-	EKeyboardInput_SPACE_BAR,
-	EKeyboardInput_A,
-	EKeyboardInput_D,
+	EKeyboardInput_Q,
 	EKeyboardInput_W,
+	EKeyboardInput_E,
+	EKeyboardInput_R,
+	EKeyboardInput_T,
+	EKeyboardInput_Y,
+	EKeyboardInput_U,
+	EKeyboardInput_I,
+	EKeyboardInput_O,
+	EKeyboardInput_P,
+	EKeyboardInput_A,
+	EKeyboardInput_S,
+	EKeyboardInput_D,
+	EKeyboardInput_F,
+	EKeyboardInput_G,
+	EKeyboardInput_H,
 	EKeyboardInput_J,
 	EKeyboardInput_K,
 	EKeyboardInput_L,
-	EKeyboardInput_M,
+	EKeyboardInput_Z,
+	EKeyboardInput_X,
+	EKeyboardInput_C,
+	EKeyboardInput_V,
+	EKeyboardInput_B,
 	EKeyboardInput_N,
-	EKeyboardInput_R,
-	EKeyboardInput_T,
+	EKeyboardInput_M,
 	EKeyboardInput_1,
 	EKeyboardInput_2,
+	EKeyboardInput_3,
+	EKeyboardInput_4,
+	EKeyboardInput_5,
+	EKeyboardInput_6,
+	EKeyboardInput_7,
+	EKeyboardInput_8,
+	EKeyboardInput_9,
+	EKeyboardInput_0,
+	EKeyboardInput_SHIFT,
+	EKeyboardInput_CTRL,
+	EKeyboardInput_CAPS,
 	EKeyboardInput_ENTER,
 	EKeyboardInput_ESC,
+	EKeyboardInput_SPACE_BAR,
+	EKeyboardInput_MOUSE_LEFT,
+	EKeyboardInput_MOUSE_MIDDLE,
+	EKeyboardInput_MOUSE_RIGHT,
 	EKeyboardInput_NONE,
 	EKeyboardInput_MAX
 };
 
-enum EMouseInput
+const static int numEventsToGrab = 20;
+
+static const std::map<const SDL_Keycode, const EKeyboardInput> SDLKToKeyboardMap =
 {
-	EMouseInput_INVALID = -1,
-	EMouseInput_LEFT,
-	EMouseInput_MIDDLE,
-	EMouseInput_RIGHT,
-	EMouseInput_MAX
+	{SDLK_LEFT,			EKeyboardInput_LEFT},	{SDLK_RIGHT,		EKeyboardInput_RIGHT},	{SDLK_UP,			EKeyboardInput_UP},
+	{SDLK_DOWN,			EKeyboardInput_DOWN},	{SDLK_q,			EKeyboardInput_Q},		{SDLK_w,			EKeyboardInput_W},
+	{SDLK_e,			EKeyboardInput_E},		{SDLK_r,			EKeyboardInput_R},		{SDLK_t,			EKeyboardInput_T},
+	{SDLK_y,			EKeyboardInput_Y},		{SDLK_u,			EKeyboardInput_U},		{SDLK_i,			EKeyboardInput_I},
+	{SDLK_o,			EKeyboardInput_O},		{SDLK_p,			EKeyboardInput_P},		{SDLK_a,			EKeyboardInput_A},
+	{SDLK_s,			EKeyboardInput_S},		{SDLK_d,			EKeyboardInput_D},		{SDLK_f,			EKeyboardInput_F},
+	{SDLK_g,			EKeyboardInput_G},		{SDLK_h,			EKeyboardInput_H},		{SDLK_j,			EKeyboardInput_J},
+	{SDLK_k,			EKeyboardInput_K},		{SDLK_l,			EKeyboardInput_L},		{SDLK_z,			EKeyboardInput_Z},
+	{SDLK_x,			EKeyboardInput_X},		{SDLK_c,			EKeyboardInput_C},		{SDLK_v,			EKeyboardInput_V},
+	{SDLK_b,			EKeyboardInput_B},		{SDLK_n,			EKeyboardInput_N},		{SDLK_m,			EKeyboardInput_M},
+	{SDLK_1,			EKeyboardInput_1},		{SDLK_2,			EKeyboardInput_2},		{SDLK_3,			EKeyboardInput_3},
+	{SDLK_4,			EKeyboardInput_4},		{SDLK_5,			EKeyboardInput_5},		{SDLK_6,			EKeyboardInput_6},
+	{SDLK_7,			EKeyboardInput_7},		{SDLK_8,			EKeyboardInput_8},		{SDLK_9,			EKeyboardInput_9},
+	{SDLK_0,			EKeyboardInput_0},		{SDLK_LSHIFT,		EKeyboardInput_SHIFT},	{SDLK_CAPSLOCK,		EKeyboardInput_CAPS},
+	{SDLK_LCTRL,		EKeyboardInput_CTRL},	{SDLK_RETURN,		EKeyboardInput_ENTER},	{SDLK_ESCAPE,		EKeyboardInput_ESC},
+	{SDLK_SPACE,		EKeyboardInput_SPACE_BAR}
 };
 
-const static int numEventsToGrab = 10;
+static const std::map<const EKeyboardInput, const std::string> keyboardToStringMap =
+{
+	{EKeyboardInput_LEFT,			"left"},		{EKeyboardInput_RIGHT,			"right"},		{EKeyboardInput_UP, 			"up"},
+	{EKeyboardInput_DOWN, 			"down"},		{EKeyboardInput_Q, 				"Q"},			{EKeyboardInput_W, 				"W"},
+	{EKeyboardInput_E, 				"E"},			{EKeyboardInput_R, 				"R"},			{EKeyboardInput_T, 				"T"},
+	{EKeyboardInput_Y, 				"Y"},			{EKeyboardInput_U, 				"U"},			{EKeyboardInput_I, 				"I"},
+	{EKeyboardInput_O, 				"O"},			{EKeyboardInput_P, 				"P"},			{EKeyboardInput_A, 				"A"},
+	{EKeyboardInput_S, 				"S"},			{EKeyboardInput_D, 				"D"},			{EKeyboardInput_F, 				"F"},
+	{EKeyboardInput_G, 				"G"},			{EKeyboardInput_H, 				"H"},			{EKeyboardInput_J, 				"J"},
+	{EKeyboardInput_K, 				"K"},			{EKeyboardInput_L, 				"L"},			{EKeyboardInput_Z, 				"Z"},
+	{EKeyboardInput_X, 				"X"},			{EKeyboardInput_C, 				"C"},			{EKeyboardInput_V, 				"V"},
+	{EKeyboardInput_B, 				"B"},			{EKeyboardInput_N, 				"N"},			{EKeyboardInput_M, 				"M"},
+	{EKeyboardInput_1, 				"1"},			{EKeyboardInput_2, 				"2"},			{EKeyboardInput_3,				"3"},
+	{EKeyboardInput_4,				"4"},			{EKeyboardInput_5,				"5"},			{EKeyboardInput_6,				"6"},
+	{EKeyboardInput_7,				"7"},			{EKeyboardInput_8,				"8"},			{EKeyboardInput_9,				"9"},
+	{EKeyboardInput_0,				"0"},			{EKeyboardInput_SHIFT,			"shift"},		{EKeyboardInput_CAPS,			"caps"},
+	{EKeyboardInput_CTRL,			"ctrl"},		{EKeyboardInput_ENTER,			"enter"},		{EKeyboardInput_ESC,			"esc"},
+	{EKeyboardInput_SPACE_BAR,		"space"},		{EKeyboardInput_MOUSE_LEFT,		"mouse-left"},	{EKeyboardInput_MOUSE_MIDDLE,	"mouse-middle"},
+	{EKeyboardInput_MOUSE_RIGHT,	"mouse-right"}
+};
+
 
 struct KeyboardData
 {
-	const static int            numEventsToGrab = 10;
-	SDL_Event                   mEvents [numEventsToGrab];
-	const static int            mNumEvents = 19;
-	bool                        mLastFrameKeyState[mNumEvents];
-	bool	                    mKeyState[mNumEvents];
-	int 	                    mKeyStateRepeat[mNumEvents];
-};
-
-struct MouseData
-{
-	SDL_Event                   mMouseEvents[numEventsToGrab];
-	const static int            mNumMouseEvents = 3;
-	bool                        mLastFrameMouseEventSyms[mNumMouseEvents];
-	bool                        mMouseEventSyms[mNumMouseEvents];
-	int 	                    mMouseStateRepeat[mNumMouseEvents];
+	int				mNumKeys = (int)EKeyboardInput_MAX;
+	SDL_Event       mEvents [numEventsToGrab];
+	bool            mLastFrameKeyState[(int)EKeyboardInput_MAX];
+	bool	        mKeyState[(int)EKeyboardInput_MAX];
+	int 	        mKeyStateRepeat[(int)EKeyboardInput_MAX];
+	std::string		mCurKeysString;
 };
 
 enum EDirection 
@@ -68,6 +123,8 @@ enum EDirection
 	EDirection_UP,
 	EDirection_DOWN,
 	EDirection_NONE,
+	EDirection_LEFT_AND_RIGHT,
+	EDirection_UP_AND_DOWN,
 	EDirection_MAX
 };
 
@@ -124,6 +181,8 @@ enum EMiniGameState
 	EMiniGameState_ENEMY_MOVE_CHARACTER,
 	EMiniGameState_ENEMY_TAKE_ACTION,
 	EMiniGameState_BUFFER,
+	EMiniGameState_EXIT,
+	EMiniGameState_BUILD_NEXT_LEVEL,
 	EMiniGameState_MAX
 };
 
@@ -177,6 +236,7 @@ enum EEntityCharacterTypes
 	EEntityCharacterTypes_C_SAVE_POINT,
 	EEntityCharacterTypes_C_KEY,
 	EEntityCharacterTypes_C_END_OF_LEVEL,
+	EEntityCharacterTypes_C_MINI_GAME_LEVEL,
 	EEntityCharacterTypes_C_LOTUS_COLLECTIBLE,
 	EEntityCharacterTypes_MAX
 };
@@ -246,7 +306,7 @@ enum EWorldType
 	EWorldType_MAX
 };
 
-std::string convertKeyboardEnumToString(EKeyboardInput key);
+
 
 std::vector<std::string> tokenize(std::string input, std::string delimiter);
 

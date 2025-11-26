@@ -11,6 +11,7 @@
 #include "worldDataHelper.h"
 #include "miniGameWorldDataHelper.h"
 #include "menuHelperClass.h"
+#include "UIBlockHelper.h"
 
 enum EMenuPageType
 {
@@ -41,39 +42,25 @@ enum EMenuPageType
 class MenuPage
 {
 private:
-	TextBox * mpCurSelectedTextBox  = nullptr;
-	TextBox * mpCurTextBox			= nullptr;
+	TextBox *	mpCurSelectedTextBox	= nullptr;
+	TextBox*	mpLastFrameCurTextBox	= nullptr;
+	TextBox *	mpCurTextBox			= nullptr;
 public:
-	std::vector <TextBox*>  mpAllSelectableTextBoxes;
-	std::vector <TextBox*>  mpCurSelectableTextBoxes;
-	std::vector <TextBox*>  mpAllDisplayOnlyTextBoxes;
-	std::vector <TextBox*>  mpCurDisplayOnlyTextBoxes;
-	std::vector <ImageBox*> mpImageBoxes;
-	std::vector <UIBlock*>  mpBlocks;
+	std::vector <TextBox*>		mpAllSelectableTextBoxes;
+	std::vector <TextBox*>		mpAllDisplayOnlyTextBoxes;
+	std::vector <ImageBox*>		mpImageBoxes;
+	std::vector <ShapeBox*>		mpShapeBoxes;
+	std::vector <HealthBox*>	mpHealthBoxes;
+	std::vector <UIBlock*>		mpBlocks;
 
-	~MenuPage()
-	{
-		mpCurSelectedTextBox = nullptr;
-		mpCurTextBox = nullptr;
-		for (TextBox* box : mpAllSelectableTextBoxes)
-		{
-			delete box;
-		}
-		for (TextBox* box : mpAllDisplayOnlyTextBoxes)
-		{
-			delete box;
-		}
-		for (ImageBox* box : mpImageBoxes)
-		{
-			delete box;
-		}
-		for (UIBlock* box : mpBlocks)
-		{
-			delete box;
-		}
-	}
+	~MenuPage();
 
-	void setCurSelectableAndDisplayOnlyTextBoxes(std::vector <TextBox*> curSelectableTextBoxes, std::vector<TextBox*> curDisplayOnlyTextBoxes);
+	void preTick();
+
+	void addBox(TextBox* pTextBox, bool selectable, UIBlock* pBlock);
+	void addBox(ImageBox* pTextBox, UIBlock* pBlock);
+	void addBox(ShapeBox* pTextBox, UIBlock* pBlock);
+	void addBox(HealthBox* pTextBox, UIBlock* pBlock);
 
 	void useInput(const std::vector <int>& eventVect);
 
@@ -87,13 +74,25 @@ public:
 
 	TextBox* getCurSelectedTextBox();
 
+	bool curTextBoxChange();
+
 	int getCurTextBoxIndex();
 
-	std::vector <TextBox*> returnAllTextBoxes();
+	std::vector<SDL_Texture*> getCurTextBoxTextures() const;
 
-	std::vector <TextBox*> returnAllCurTextBoxes();
+	std::vector <TextBox*> getAllTextBoxes();
 
-	void adjustBlocks(float textSizeFactor);
+	std::vector <TextBox*> getCurTextBoxes();
+
+	std::vector <UIBlock*> getAllBlocks();
+
+	void updateAllTextBoxShowState(MiniGameStateManagerData& data);
+
+	void setDefaultSelectedBox();
+
+	void adjustBlocks();
+
+	void deleteBlock(UIBlock* pBlock);
 };
 
 class MenuManager
@@ -103,36 +102,37 @@ public:
 	MenuPage * mpCurMenuPage		= nullptr;
 	MenuPage * mpLastFrameMenuPage	= nullptr;
 	
-	MenuManager(){}
+	MenuManager(ScreenObject& screen, WorldData& worldData, SettingsManager& settingsManager, FontSizeChart& fontSizeChart, MiniGameStateManagerData& miniGameStateManagerData, 
+			MiniGameWorldData& miniWorldData);
 	
 	~MenuManager();
 
 	void preTick();
 
-	TextBox* returnMouseTextBox(Vect2 gameUnitsMousePos, ScreenObject& screenObject);
+	TextBox* returnMouseTextBox(Vect2 gameUnitsMousePos);
 
-	bool shouldShowTextBox(MiniGameStateManagerData& miniGameStateManagerData, TextBox* pTextBox);
-
-	void setAllTextBoxTextures(SDL_Renderer * pRenderer, int textIncrease);
+	void setAllTextBoxTextures();
 
 	void setUpBlocks();
 
-	std::vector<SDL_Texture*> getCurTextBoxTextures();
-
-	int getCurTextBoxIndex() const;
-
 	void setCurMenuPage(MenuPage* newMenuPage);
 
-	void renderMenus(ScreenObject& screenObject, GameStateManagerData& gameStateManagerData, MiniGameStateManagerData& miniGameStateManagerData,
-				WorldData& worldData, SettingsManager& settingsManager);
+	void renderMenus(EGameState curState, bool forceUpdate, std::string curKeys);
 
-	void shouldSetMenuManagerCurSelectableAndDisplayOnlyTextBoxes(GameStateManagerData& gameStateManagerData, MiniGameStateManagerData& miniGameStateManagerData);
+	bool shouldUpdateTextBoxShowState(EGameState curState, bool forceUpdate);
 
-	void setMenuManagerCurSelectableAndDisplayOnlyTextBoxes(MiniGameStateManagerData& miniGameStateManagerData);
+	void updateUIElements();
 
-	std::string updateGameStatBoxCurTextBoxMessage(WorldData& worldData, SettingsManager& settingsManager, TextBox* pTextBox);
+private:
+	ScreenObject& mScreen;
+	WorldData& mWorldData;
+	SettingsManager& mSettingsManager;
+	FontSizeChart& mFontSizeChart;
+	MiniGameStateManagerData& mMiniGameStateManagerData;
+	MiniGameWorldData& mMiniGameWorldData;
 
-	std::string updateCharacterStatBoxCurTextBoxMessage(MiniGameStateManagerData& miniGameStateManagerData, TextBox* pTextBox);
+	void getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std::string& curKeys);
 
-	void updateUIElements(ScreenObject& screenObject, WorldData& worldData);
+	void printBoxes();
+
 };

@@ -34,15 +34,9 @@ EntityQuadTree::~EntityQuadTree()
 	}
 }
 
-Hitbox EntityQuadTree::getHitbox()
-{
-	return mHitbox;
-}
+Hitbox EntityQuadTree::getHitbox() const { return mHitbox; }
 
-void EntityQuadTree::SetHitbox(Hitbox hitbox)
-{
-	mHitbox = hitbox;
-}
+void EntityQuadTree::SetHitbox(Hitbox hitbox) { mHitbox = hitbox; }
 
 void EntityQuadTree::AddItem(Entity* pEntityToAdd)
 {
@@ -85,18 +79,16 @@ void EntityQuadTree::RemoveItem(Entity* pEntityToRemove)
 	}
 	else
 	{
-		for (int i = (int)mpEntities.size() - 1; i > -1; i--)
+		std::vector<Entity*>::iterator iter = std::find(mpEntities.begin(), mpEntities.end(), pEntityToRemove);
+		if (iter != mpEntities.end())
 		{
-			if (mpEntities[i] == pEntityToRemove)
-			{
-				mpEntities.erase(mpEntities.begin() + i);
-				//delete mpEntities[i];
-			}
+			mpEntities.erase(iter);
 		}
+		
 	}
 }
 
-void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox)
+void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox) const
 {
 	if (mHasChildrenQuads)
 	{
@@ -118,14 +110,14 @@ void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox give
 				AreaEffectPlatform* pAreaEffectPlatform = (AreaEffectPlatform*)pEntityToCheck;
 				if (mHitbox.overlap(pAreaEffectPlatform->mAreaEffectHitbox))
 				{
-					addToListIfUnique(mpEntities, pEntityToCheck);
+					addToListIfUnique(list, pEntityToCheck);
 				}
 			}
 		}
 	}
 }
 
-void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox, EEntityClassTypes classType)
+void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox, EEntityClassTypes classType) const
 {
 	if (mHasChildrenQuads)
 	{
@@ -149,7 +141,7 @@ void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox give
 					AreaEffectPlatform* pAreaEffectPlatform = (AreaEffectPlatform*)pEntityToCheck;
 					if (mHitbox.overlap(pAreaEffectPlatform->mAreaEffectHitbox))
 					{
-						addToListIfUnique(mpEntities, pEntityToCheck);
+						addToListIfUnique(list, pEntityToCheck);
 					}
 				}
 			}

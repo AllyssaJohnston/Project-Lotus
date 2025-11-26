@@ -5,7 +5,7 @@ Brain::Brain()
 	mTimeOfLastDirSwitch = std::chrono::high_resolution_clock::now();
 }
 
-void Brain::isPathBlocked()
+void Brain::setTrapped()
 {
 	const auto deltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - mTimeOfLastDirSwitch);
 	mTimeOfLastDirSwitch = std::chrono::high_resolution_clock::now();
@@ -16,10 +16,7 @@ void Brain::isPathBlocked()
 	}
 }
 
-bool Brain::isMovementPaused()
-{
-	return mTrapped;
-}
+bool Brain::isMovementPaused() { return mTrapped; }
 
 
 void Brain::tick()
@@ -32,20 +29,11 @@ void Brain::tick()
 }
 
 
-void Brain::resetStats()
-{
-	mTrapped = false;
-}
+void Brain::resetStats() { mTrapped = false; }
 
-void Brain::resetToCheckpoint()
-{
-	mTrapped = mCheckpointTrapped;
-}
+void Brain::resetToCheckpoint() { mTrapped = mCheckpointTrapped; }
 
-void Brain::setCheckpointStats()
-{
-	mCheckpointTrapped = mTrapped;
-}
+void Brain::setCheckpointStats() { mCheckpointTrapped = mTrapped; }
 
 
 
@@ -94,12 +82,7 @@ void Enemy::tick()
 	mBrain.tick();
 	if (!mBrain.isMovementPaused() )
 	{
-		mMovementManager.updateMovement();
-	}
-	else
-	{
-		//TODO set global debug variable
-		std::cout << mName<<"Trapped\n";
+		mMovementManager.calcMovement();
 	}
 }
 
@@ -124,15 +107,15 @@ void Enemy::updateAnimationManager()
 	{
 		mAnimationManager.updateAnimation(EAnimationType_STATIONARY);
 	}
-	else if (mMovementManager.getCode() == EEntityMovements_FLY)
+	else if (mMovementManager.getMovementCode() == EEntityMovements_FLY)
 	{
 		mAnimationManager.updateAnimation(EAnimationType_FLY);
 	}
-	else if (mMovementManager.isAmJump())
+	else if (mMovementManager.inJump())
 	{
 		mAnimationManager.updateAnimation(EAnimationType_JUMP);
 	}
-	else if (mMovementManager.isOnGround() == false)
+	else if (!mMovementManager.isOnGround())
 	{
 		mAnimationManager.updateAnimation(EAnimationType_FALL);
 	}
@@ -150,22 +133,13 @@ void Enemy::updateAnimationManager()
 	}
 }
 
-void Enemy::setNextAnimationToPlay(EAnimationType nextAnimation)
-{
-	mNextAnimationToPlay = nextAnimation;
-}
+void Enemy::setNextAnimationToPlay(EAnimationType nextAnimation) { mNextAnimationToPlay = nextAnimation; }
 
 
-void Enemy::isPathBlocked()
-{
-	mBrain.isPathBlocked();
-}
+void Enemy::setTrapped() { mBrain.setTrapped(); }
 
 
-CCharacterPreset* Enemy::getPreset()
-{
-	return mpPreset;
-}
+CCharacterPreset* Enemy::getPreset() { return mpPreset; }
 
 
 void Enemy::updateProjectileCountDown()
@@ -298,10 +272,7 @@ void MultiStagedEnemy::updateDamage()
 	}
 }
 
-void MultiStagedEnemy::died()
-{
-	nextState();
-}
+void MultiStagedEnemy::died() { nextState(); }
 
 
 void MultiStagedEnemy::setCheckpointStats() 

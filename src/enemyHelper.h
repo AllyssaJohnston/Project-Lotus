@@ -24,7 +24,7 @@ public:
 
 	Brain();
 
-	void isPathBlocked();
+	void setTrapped();
 
 	bool isMovementPaused();
 
@@ -65,19 +65,19 @@ public:
 
 	void setUpEnemyBaseStats(const Vect2& positionInput, EEnemyPreset* preset);
 
-	void preTick();
+	void preTick() override;
 
-	void tick();
+	void tick() override;
 
-	void postTick();
+	void postTick() override;
 
 
-	void updateAnimationManager();
+	void updateAnimationManager() override;
 
 	void setNextAnimationToPlay(EAnimationType nextAnimation);
 
 
-	void isPathBlocked();
+	void setTrapped() override;
 
 
 	CCharacterPreset* getPreset();
@@ -91,15 +91,17 @@ public:
 
 	bool shouldShootProjectile();
 
+
 	void updateInvincibilityCountDown();
 
 	bool takeDamageFromProjectile(std::string projectileHostName);
 
-	void resetStats();
 
-	void resetToCheckpoint();
+	void resetStats() override;
 
-	void setCheckpointStats();
+	void resetToCheckpoint() override;
+
+	void setCheckpointStats() override;
 };
 
 class MultiStagedEnemy : public Enemy
@@ -118,17 +120,17 @@ public:
 	~MultiStagedEnemy();
 
 
-	void nextState() ;
+	void nextState();
 
 
-	void updateDamage();
+	void updateDamage() override;
 
-	void died();
+	void died() override;
 	
 
-	void setCheckpointStats();
+	void setCheckpointStats() override;
 
-	void resetStats();
+	void resetStats() override;
 
-	void resetToCheckpoint();
+	void resetToCheckpoint() override;
 };

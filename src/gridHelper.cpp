@@ -1,9 +1,6 @@
 #include "gridHelper.h"
 
-Grid::Grid()
-{
-    createGrid();
-}
+Grid::Grid() { createGrid(); }
 
 void Grid::preTick()
 {
@@ -15,12 +12,9 @@ void Grid::preTick()
     resetAllTilesModes(EMiniGameCombatTileMode_NOT_SELECTED);
 }
 
-int Grid::getIndex(int x, int y) const
-{
-    return x * (mNumCols) + y;
-}
+int Grid::getIndex(int x, int y) const { return x * (mNumCols) + y; }
 
-Tile* Grid::getTileFromCoords(int mouseX, int mouseY)
+Tile* Grid::getTileFromCoords(int mouseX, int mouseY) const
 {
 
     int endX = mStartX + ((mTileWidth  + mSpacing) * mNumCols);
@@ -77,25 +71,13 @@ void Grid::resetAllTilesModes(EMiniGameCombatTileMode tileMode)
     }
 }
 
-bool Grid::isLegalCoords(int row, int col) const
-{
-    if (row < 0 or row >= mNumRows)
-    {
-        return false;
-    }
-    if (col < 0 or col >= mNumCols)
-    {
-        return false;
-    }
-    return true;
-}
+bool Grid::isLegalCoords(int row, int col) const { return (row >= 0 and row < mNumRows and col >= 0 and col < mNumCols); }
 
 void Grid::printGrid(SDL_Renderer* pRenderer, float gameScreenToGameLevelChunkRatio) const
 {
-    for (int count = 0; count < mpTiles.size(); count++)
+    for (Tile* curTile : mpTiles)
     {
-        Tile * curTile = mpTiles[count];
-        SDL_Color & curColor = curTile->mCurColor;
+        SDL_Color& curColor = curTile->mCurColor;
         SDL_FRect curTileRect {float(curTile->mCoords.mX1 * gameScreenToGameLevelChunkRatio), float(curTile->mCoords.mY1 * gameScreenToGameLevelChunkRatio), float(curTile->mCoords.mWidth * gameScreenToGameLevelChunkRatio), float(curTile->mCoords.mHeight * gameScreenToGameLevelChunkRatio)};
         SDL_SetRenderDrawColor(pRenderer, curColor.r, curColor.g, curColor.b, curColor.a);
         SDL_RenderFillRect(pRenderer, &curTileRect);

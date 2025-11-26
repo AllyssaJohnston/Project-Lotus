@@ -4,13 +4,12 @@
 
 class JumpingState : public MovementState
 {
-	PositionData& mPositionData;
 	MovementData& mMovementData;
 	JumpingData& mJumpData;
 public:
-	JumpingState(PositionData&, MovementData&, JumpingData&);
+	JumpingState(PositionData&, MovementData&, JumpingData&, AttemptMove&);
 	virtual void printState();
-	virtual void tickUpdate(bool moveHorizontal);
+	virtual void calcMove(bool moveHorizontal);
 	bool isOver();
 
 	void updateJumpDistanceLeft();

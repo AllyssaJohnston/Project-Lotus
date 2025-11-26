@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <SDL3/SDL.h>
 
 std::string returnDescriptionOfMoveAttackType(int moveAttackType);
 
@@ -17,7 +18,11 @@ enum EMiniGameCombatMoveAttackTypes
     EMiniGameCombatMoveAttackTypes_CROSS1_1UNIT_OUT,
     EMiniGameCombatMoveAttackTypes_CROSS2,
     EMiniGameCombatMoveAttackTypes_CROSS2_1UNIT_OUT,
+    EMiniGameCombatMoveAttackTypes_CROSS2_2UNIT_OUT,
+    EMiniGameCombatMoveAttackTypes_CROSS3,
+    EMiniGameCombatMoveAttackTypes_CROSS3_1UNIT_OUT,
     EMiniGameCombatMoveAttackTypes_CROSS4,
+    EMiniGameCombatMoveAttackTypes_CROSS5,
     EMiniGameCombatMoveAttackTypes_CHECKERBOARD2UNITS,
     EMiniGameCombatMoveAttackTypes_MAX
 };
@@ -68,6 +73,12 @@ enum EMiniGameCombatTileMode
     EMiniGameCombatTileMode_SELECTED,
     EMiniGameCombatTileMode_HIGHLIGHTED,
     EMiniGameCombatTileMode_MAX
+};
+
+struct GameOverStats
+{
+    bool mGameOver = false;
+    bool mWonGame = false;
 };
 
     /*

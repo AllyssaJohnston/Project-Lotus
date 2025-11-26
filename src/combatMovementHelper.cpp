@@ -20,10 +20,7 @@ void CombatMovementManager::resetStats()
     mpCurTile = mpStartingTile;
 }
 
-void CombatMovementManager::setCurTile(Tile* pTileInput)
-{
-    mpCurTile = pTileInput;
-}
+void CombatMovementManager::setCurTile(Tile* pTileInput)  { mpCurTile = pTileInput; }
 
 std::vector <TileCoords> CombatMovementManager::getMoveTiles() 
 {
@@ -32,17 +29,8 @@ std::vector <TileCoords> CombatMovementManager::getMoveTiles()
     return mpMoveTileCoords;
 }
 
-std::vector <Attack> CombatMovementManager::getAttacks() const
-{
-    return mAttacks;
-}
+std::vector <Attack> CombatMovementManager::getAttacks() const { return mAttacks; }
 
-Tile* CombatMovementManager::getCurTile()
-{
-    return mpCurTile;
-}
+Tile* CombatMovementManager::getCurTile() { return mpCurTile; }
 
-EMiniGameCombatMoveAttackTypes CombatMovementManager::getMoveType() const
-{
-    return mMoveType;
-}
+EMiniGameCombatMoveAttackTypes CombatMovementManager::getMoveType() const { return mMoveType; }

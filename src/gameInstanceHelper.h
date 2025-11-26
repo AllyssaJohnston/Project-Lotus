@@ -23,24 +23,25 @@ public:
 	WorldData						mWorldData		= WorldData(mScreen);
 	DamageManager					mDamageManager;
 	CollisionManager				mCollisionManager;
-	MenuManager						mMenuManager;
-	SlashManager					mSlashManager = SlashManager(mWorldData.mPlayer.getMovementManager());
+	
+	SlashManager					mSlashManager   = SlashManager(mWorldData.mPlayer.getMovementManager());
 
 	//INPUT
 	KeyboardData					mKeyboardData	= KeyboardData();
-	MouseData						mMouseData		= MouseData();
 
 	//MINI GAME
 	MiniGameWorldData				mMiniGameWorldData;
-	MiniGameStateManager			mMiniGameStateManager = MiniGameStateManager(&mMouseData, mMiniGameWorldData);
+	MiniGameStateManager			mMiniGameStateManager = MiniGameStateManager(mKeyboardData, mMiniGameWorldData);
 
 	//MANAGERS
 	StyleManager					mStyleManager;
 	SettingsManager					mSettingsManager;
+	FontSizeChart					mFontSizeChart;
 
-	GameStateManager				mGameStateManager = GameStateManager(mKeyboardData, mMouseData, mWorldData, mMenuManager, 
+	GameStateManager				mGameStateManager = GameStateManager(mKeyboardData, mWorldData, mMenuManager, 
 																		mSettingsManager, mCollisionManager, mDamageManager, mSlashManager,
 																		mStyleManager, mMiniGameStateManager);
+	MenuManager						mMenuManager	  = MenuManager(mScreen, mWorldData, mSettingsManager, mFontSizeChart, mMiniGameStateManager.mData, mMiniGameWorldData); 
 
 	//bool							mDebugMode	= true;
 

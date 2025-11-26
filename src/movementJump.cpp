@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-void JumpingData:: stopJump()
+void JumpingData::stopJump()
 {
 	mAmJump					= false;
 	mAmWallJump				= false;
@@ -13,20 +13,16 @@ void JumpingData:: stopJump()
 	mWallJumpDistanceYLeft	= 0;
 }
 
-JumpingState::JumpingState(PositionData& pos, MovementData& mov, JumpingData& jump) : mPositionData(pos), mMovementData(mov), mJumpData(jump)
-{
-}
+JumpingState::JumpingState(PositionData& pos, MovementData& movData, JumpingData& jump, AttemptMove& move) : mMovementData(movData), mJumpData(jump), MovementState(pos, move) {;}
 
-void JumpingState::printState()
-{
-	std::cout << "JumpingState" << "\n";
-}
+void JumpingState::printState() {	std::cout << "JumpingState" << "\n"; }
 
-void JumpingState::tickUpdate(bool moveHorizontal)
+void JumpingState::calcMove(bool moveHorizontal)
 {
-	MovementState::tickUpdate(moveHorizontal);
 	//Update Y
-	mPositionData.mHitbox.updateTopLeftY(-mMovementData.mCurMovementVect2.getY() * 2);
+	Vect2 topLeft = mPositionData.mHitbox.getTopLeft();
+	mAttemptMove.mWantToMoveTo = topLeft;
+	mAttemptMove.mWantToMoveTo.changeY(-mMovementData.mCurMovementVect2.getY() * 2);
 	updateJumpDistanceLeft();
 
 	//Update X
@@ -34,11 +30,11 @@ void JumpingState::tickUpdate(bool moveHorizontal)
 	{
 		if (mMovementData.mCurDirection == EDirection_LEFT)
 		{
-			mPositionData.mHitbox.updateTopLeftX(mMovementData.mCurMovementVect2.getX() * -1);
+			mAttemptMove.mWantToMoveTo.changeX(-mMovementData.mCurMovementVect2.getX());
 		}
-		if (mMovementData.mCurDirection == EDirection_RIGHT)
+		else if (mMovementData.mCurDirection == EDirection_RIGHT)
 		{
-			mPositionData.mHitbox.updateTopLeftX(mMovementData.mCurMovementVect2.getX());
+			mAttemptMove.mWantToMoveTo.changeX(mMovementData.mCurMovementVect2.getX());
 		}
 	}
 }
@@ -63,22 +59,11 @@ void JumpingState::startJump(float jumpMultiplier)
 	}
 }
 
-void JumpingState::endJump()
-{
-	//		mJumpingData.mBreakNextChange = true;
-	//std::cout << "Jump Over" << "\n";
-	mJumpData.stopJump();
-}
+void JumpingState::endJump() { mJumpData.stopJump(); }
 
-void JumpingState::landed()
-{
-	mJumpData.mNumCurJumps = 0;
-}
+void JumpingState::landed() { mJumpData.mNumCurJumps = 0; }
 
-bool JumpingState::isOver()
-{
-	return mJumpData.mAmJump == false;
-}
+bool JumpingState::isOver() { return !mJumpData.mAmJump; }
 
 void JumpingState::startWallJump()
 {
@@ -116,23 +101,15 @@ void JumpingState::continueWallJump()
 		{
 			endJump();
 		}
-
-		int xMovement = mMovementData.mCurMovementVect2.getX();
-		if (mJumpData.mWallJumpDirection == EDirection_LEFT)
+		if (mJumpData.mWallJumpDirection == EDirection_NONE)
 		{
-			xMovement *= -1;
-		}
-		else if (mJumpData.mWallJumpDirection == EDirection_RIGHT)
-		{
-
-		}
-		else
-		{
-			//SDL_assert(false);
 			endJump();
 			return;
 		}
-		mPositionData.mHitbox.updateTopLeftX(xMovement);
+		int multiplier = mJumpData.mWallJumpDirection == EDirection_LEFT ? -1 : 1;
+		int xMovement = mMovementData.mCurMovementVect2.getX();
+		
+		mPositionData.mHitbox.updateTopLeftX(xMovement * multiplier);
 	}
 }
 
@@ -156,11 +133,8 @@ void JumpingState::updateWallJumpDistanceYLeft()
 	}
 }
 
-bool JumpingState::isMostlyDoneWithWallJump()
-{
-	if (mJumpData.mWallJumpDistanceXLeft < mMovementData.mCurMovementVect2.getX() or mJumpData.mWallJumpDistanceYLeft < mMovementData.mCurMovementVect2.getY())
-	{
-		return true;
-	}
-	return false;
+bool JumpingState::isMostlyDoneWithWallJump() 
+{ 
+	return mJumpData.mWallJumpDistanceXLeft < mMovementData.mCurMovementVect2.getX() 
+		or mJumpData.mWallJumpDistanceYLeft < mMovementData.mCurMovementVect2.getY();
 }

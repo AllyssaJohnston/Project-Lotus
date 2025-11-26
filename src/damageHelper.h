@@ -6,9 +6,9 @@ class DamageManager
 public:
 	DamageManager(){}
 
-    bool willKillCharacter(Entity* pEntity, EEntityEdgeType edgeType);
+    bool willKillCharacter(const Entity* pEntity, const EEntityEdgeType edgeType) const;
 
-    bool willProjectileKillCharacter(Entity* projectile, Entity* pEntity);
+    bool willProjectileKillCharacter(const Entity* projectile, const Entity* pEntity) const;
 
-    void spreadEdges(Entity* pSpreadingEntity, Entity* pEntityToSpreadTo);
+    void spreadEdges(Entity* pSpreadingEntity, Entity* pEntityToSpreadTo) const;
 };

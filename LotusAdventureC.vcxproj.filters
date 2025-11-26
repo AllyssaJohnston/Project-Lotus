@@ -37,6 +37,9 @@
     <Filter Include="Source Files\MiniGame\Tile">
       <UniqueIdentifier>{8b4a6e11-5363-411a-b235-3312dc611ead}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{2c092465-a33a-4408-a63c-9435b9584b8e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\movementHelperClass.h">
@@ -129,32 +132,14 @@
     <ClInclude Include="src\ImageHelperClass.h">
       <Filter>Source Files\Structural</Filter>
     </ClInclude>
-    <ClInclude Include="src\menuHelper.h">
-      <Filter>Source Files\Structural</Filter>
-    </ClInclude>
-    <ClInclude Include="src\screenHelper.h">
-      <Filter>Source Files\Structural</Filter>
-    </ClInclude>
     <ClInclude Include="src\settingsHelper.h">
       <Filter>Source Files\Structural</Filter>
     </ClInclude>
     <ClInclude Include="src\styleHelper.h">
       <Filter>Source Files\Structural</Filter>
     </ClInclude>
-    <ClInclude Include="src\textBoxHelper.h">
-      <Filter>Source Files\Structural</Filter>
-    </ClInclude>
-    <ClInclude Include="src\textBoxHelperClass.h">
-      <Filter>Source Files\Structural</Filter>
-    </ClInclude>
-    <ClInclude Include="src\textBoxPresets.h">
-      <Filter>Source Files\Structural</Filter>
-    </ClInclude>
     <ClInclude Include="src\worldHelper.h">
       <Filter>Source Files\Platforming</Filter>
-    </ClInclude>
-    <ClInclude Include="src\menuHelperClass.h">
-      <Filter>Source Files\Structural</Filter>
     </ClInclude>
     <ClInclude Include="src\combatAttackHelper.h">
       <Filter>Source Files\MiniGame\Attack</Filter>
@@ -210,6 +195,45 @@
     <ClInclude Include="src\lotusAdventureLevelsDemo.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\lotusAdventureLevels.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movementStationary.h">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lotusAdventureMenus.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lotusAdventureMiniLevels.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menuHelper.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menuHelperClass.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\screenHelper.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textBoxHelper.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textBoxHelperClass.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\textBoxPresets.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UIBlockHelper.h">
+      <Filter>Source Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\miniGameStateHelper.h">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClInclude>
+    <ClInclude Include="src\globals.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\movementHelper.cpp">
@@ -263,20 +287,11 @@
     <ClCompile Include="src\ImageHelperClass.cpp">
       <Filter>Source Files\Structural</Filter>
     </ClCompile>
-    <ClCompile Include="src\screenHelper.cpp">
-      <Filter>Source Files\Structural</Filter>
-    </ClCompile>
     <ClCompile Include="src\styleHelper.cpp">
       <Filter>Source Files\Structural</Filter>
     </ClCompile>
     <ClCompile Include="src\worldHelper.cpp">
       <Filter>Source Files\Platforming</Filter>
-    </ClCompile>
-    <ClCompile Include="src\menuHelperClass.cpp">
-      <Filter>Source Files\Structural</Filter>
-    </ClCompile>
-    <ClCompile Include="src\combatAttackHelper.cpp">
-      <Filter>Source Files\MiniGame\Attack</Filter>
     </ClCompile>
     <ClCompile Include="src\combatAttackHelperClass.cpp">
       <Filter>Source Files\MiniGame\Attack</Filter>
@@ -317,13 +332,7 @@
     <ClCompile Include="src\tilePresets.cpp">
       <Filter>Source Files\MiniGame\Tile</Filter>
     </ClCompile>
-    <ClCompile Include="src\menuHelper.cpp">
-      <Filter>Source Files\Structural</Filter>
-    </ClCompile>
     <ClCompile Include="src\settingsHelper.cpp">
-      <Filter>Source Files\Structural</Filter>
-    </ClCompile>
-    <ClCompile Include="src\textBoxHelper.cpp">
       <Filter>Source Files\Structural</Filter>
     </ClCompile>
     <ClCompile Include="src\worldHelperClass.cpp">
@@ -373,6 +382,45 @@
     </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lotusAdventureLevels.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movementHelperClass.cpp">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="src\movementStationary.cpp">
+      <Filter>Source Files\Platforming\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lotusAdventureMenus.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lotusAdventureMiniLevels.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menuHelper.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\menuHelperClass.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\screenHelper.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\textBoxHelper.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\textBoxHelperClass.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\textBoxPresets.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UIBlockHelper.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\miniGameStateHelper.cpp">
+      <Filter>Source Files\MiniGame</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

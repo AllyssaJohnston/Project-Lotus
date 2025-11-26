@@ -53,11 +53,7 @@ void Entity::setCheckpointStats()
 }
 
 
-void Entity::takeDamage() 
-{
-	mTookDamageThisFrame = true;
-	//mAmAlive = false;
-}
+void Entity::takeDamage() { mTookDamageThisFrame = true; }
 
 void Entity::updateDamage()
 {
@@ -69,26 +65,18 @@ void Entity::updateDamage()
 	{
 		mFramesTakingDamage = 0;
 	}
+
 	if (mFramesTakingDamage >= mFramesTakingDamageBeforeDeath)
 	{
 		mAmAlive = false;
 	}
 }
 
-bool Entity::takingDamage()
-{
-	return mTookDamageThisFrame;
-}
+bool Entity::takingDamage() { return mTookDamageThisFrame; }
 
-void Entity::died()
-{
-	mAmAlive = false;
-}
+void Entity::died() { mAmAlive = false; }
 
-bool Entity::getAmAlive() const
-{
-	return mAmAlive;
-}
+bool Entity::getAmAlive() const { return mAmAlive; }
 
 
 void Entity::preTick()
@@ -96,10 +84,7 @@ void Entity::preTick()
 	mTookDamageThisFrame = false;
 }
 
-void Entity::tick()
-{
-	return;
-}
+void Entity::tick() { return; }
 
 void Entity::postTick()
 {
@@ -108,68 +93,32 @@ void Entity::postTick()
 }
 
 
-ImageObject& Entity::getImageObjectHitbox() 
-{
-	return mImageObjectHitbox;
-}
+ImageObject& Entity::getImageObjectHitbox() { return mImageObjectHitbox; }
 
 
-SDL_Texture* Entity::getTexture() const
-{
-	return mpTexture;
-}
+SDL_Texture* Entity::getTexture() const { return mpTexture; }
 
-void Entity::setTexture(SDL_Texture* texture)
-{
-	mpTexture = texture;
-}
+void Entity::setTexture(SDL_Texture* texture) { mpTexture = texture; }
 
-SDL_Texture* Entity::getHitboxTexture() const
-{
-	return mpHitboxTexture;
-}
+SDL_Texture* Entity::getHitboxTexture() const { return mpHitboxTexture; }
 
-void Entity::setHitboxTexture(SDL_Texture* texture)
-{
-	mpHitboxTexture = texture;
-}
+void Entity::setHitboxTexture(SDL_Texture* texture) { mpHitboxTexture = texture; }
 
 
-MovementManager& Entity::getMovementManager()
-{
-	return mMovementManager;
-}
+MovementManager& Entity::getMovementManager() { return mMovementManager; }
 
-int Entity::getMovementEffect() const
-{
-	return mMovementEffect;
-}
+int Entity::getMovementEffect() const { return mMovementEffect; }
 
 
-EEntityType Entity::getType() const
-{
-	return mEntityType;
-}
+EEntityType Entity::getType() const { return mEntityType; }
 
-int Entity::getClassType() const
-{
-	return mEntityClassType;
-}
+int Entity::getClassType() const { return mEntityClassType; }
 
-int Entity::getSubClassType() const
-{
-	return mEntitySubClassType;
-}
+int Entity::getSubClassType() const { return mEntitySubClassType; }
 
-EEntityCharacterTypes Entity::getCharacterType()  const
-{
-	return mEntityCharacterType;
-}
+EEntityCharacterTypes Entity::getCharacterType()  const { return mEntityCharacterType; }
 
-std::vector <EEntityCharacteristicsTypes> Entity::getCurCharacteristics() const
-{
-	return mCurrentEntityCharacteristicTypes;
-}
+std::vector <EEntityCharacteristicsTypes> Entity::getCurCharacteristics() const { return mCurrentEntityCharacteristicTypes; }
 
 bool Entity::hasCharacteristic(EEntityCharacteristicsTypes characteristic) const
 {
@@ -183,13 +132,6 @@ bool Entity::hasCharacteristic(EEntityCharacteristicsTypes characteristic) const
 	return false;
 }
 
-//TODO rename to setTrapped
-void Entity::isPathBlocked()
-{
-	return;
-}
+void Entity::setTrapped() { ; }
 
-std::string Entity::getHostName() const
-{
-	return "";
-}
+std::string Entity::getHostName() const { return ""; }

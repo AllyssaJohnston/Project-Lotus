@@ -35,13 +35,16 @@ public:
     }
 };
 
-struct MiniGameStateData
+class MiniGameStateData
 {
+private:
     CombatCharacter *   mpCharacter             = nullptr;
+    int                 mCharacterIndex         = -1;
+public:
     Tile *              mpTileToMoveTo          = nullptr;
     Tile *              mpTileToAttack          = nullptr;
     std::vector <Tile*> mpTilesToAttack;
-    Attack              mCurAttack              = Attack();
+    Attack*             mpCurAttack             = nullptr;
     EDirection          mCurAttackDirection     = EDirection_INVALID;
     bool                mGoingToAttack          = false;
     EMiniGameState      mNextMiniGameState      = EMiniGameState_INVALID;
@@ -53,35 +56,35 @@ struct MiniGameStateData
     bool                mTickYet                = false;
 
     ~MiniGameStateData();
+
+    CombatCharacter* getCharacter();
+
+    int getCharacterIndex();
+
+    void setCharacter(CombatCharacter* pCharacter, int index);
+
+    void reset();
 };
 
 struct MiniGameStateManagerData
 {
-    EMiniGameState                mLastFrameStateEnum = EMiniGameState_INVALID;
-    EMiniGameState		          mCurStateEnum       = EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
-    MiniGameStateData *           mpData = new MiniGameStateData();;
-    MiniGameWorldData *           mpMiniGameWorldData;
+    EMiniGameState      mLastFrameStateEnum  = EMiniGameState_INVALID;
+    EMiniGameState	    mCurStateEnum        = EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
+    MiniGameStateData   mStateData           = MiniGameStateData();
 
-    ~MiniGameStateManagerData();
-
-    void printBoard(ScreenObject& screenObject, StyleManager& styleManager);
-
-    void printCharacters(ScreenObject& screenObject, StyleManager& styleManager);
-
-    void updateTileColors(StyleManager& styleManager);
-    
 };
 
 struct GameStateManagerData
 {
-    EGameState				    mCurStateEnum;
-    EGameState				    mLastFrameStateEnum;
+    EGameState				    mCurStateEnum = EGameState_INVALID;
+    EGameState				    mLastFrameStateEnum = EGameState_INVALID;
     bool                        mRunGame = true;
 };
 
 struct GameStateData
 {
     EGameState mNextGameState = EGameState_INVALID;
+    bool mCleanNextState = false;
 };
 
 
@@ -96,3 +99,18 @@ bool checkIfTileInCharacterMoveRange(Tile* pGivenTile, CombatCharacter* pGivenCh
 //void renderCircleGradient(GameInstance& gameInstance, SDL_Color color, Vect2 center, int radius);
 
 std::vector <AttackTile> returnAttackTileCoordsWithPlayersOnThem(MiniGameWorldData& worldData, Tile* pReferenceTile, CombatCharacter* pCharacter);
+
+Tile* findTile(Grid& grid, TileCoords& tileCoords);
+
+bool isPlayableTile(Tile* pGivenTile);
+
+bool validAttackTile(MiniGameStateData& stateData, MiniGameWorldData& worldData, Tile* pGivenTile, CombatCharacter* pGivenCharacter);
+
+void attemptAttackMultipleTiles(MiniGameStateData& stateData, MiniGameWorldData& worldData, std::vector <Tile*> tilesToAttack, CombatCharacter* pGivenCharacter);
+
+bool characterOnTile(Tile* pTile, std::vector <CombatCharacter*> characters);
+
+std::vector <Tile*> returnListWithoutTilesWithCharacters(CombatManager& pCombatManager, CombatCharacter* pGivenCharacter, std::vector <Tile*> listOfTiles);
+
+std::vector <TileDistance> returnListOfTileDistances(std::vector <CombatCharacter*> pCurCombatCharacters, std::vector <Tile*> pMoveTiles, CombatCharacter* pCurEnemy);
+

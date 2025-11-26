@@ -2,41 +2,29 @@
 
 #include <iostream>
 
-FallingState::FallingState(PositionData& pos, MovementData& mov, JumpingData& jump) : mPositionData(pos), mMovementData(mov), mJumpData(jump)
-{
-}
+FallingState::FallingState(PositionData& pos, MovementData& mov, JumpingData& jump, AttemptMove& move) : mMovementData(mov), mJumpData(jump), MovementState(pos, move) {;}
 
-void FallingState::printState()
-{
-	std::cout << "FallingState" << "\n";
-}
+void FallingState::printState() { std::cout << "FallingState" << "\n"; }
 
-void FallingState::tickUpdate(bool moveHorizontal)
+void FallingState::calcMove(bool moveHorizontal)
 {
-	MovementState::tickUpdate(moveHorizontal);
 	//Fall
-	mPositionData.mHitbox.updateTopLeftY(int(mMovementData.mCurMovementVect2.getY() * mMovementData.mAccelerationY));
+	Vect2 topLeft = mPositionData.mHitbox.getTopLeft();
+	mAttemptMove.mWantToMoveTo = topLeft;
+	mAttemptMove.mWantToMoveTo.changeY(int(mMovementData.mCurMovementVect2.getY() * mMovementData.mAccelerationY));
 	mMovementData.mCurDirectionY = EDirection_DOWN;
 
 	if (moveHorizontal)
 	{
 		if (mMovementData.mCurDirection == EDirection_LEFT)
 		{
-			mPositionData.mHitbox.updateTopLeftX(mMovementData.mCurMovementVect2.getX() * -1);
+			mAttemptMove.mWantToMoveTo.changeX(-mMovementData.mCurMovementVect2.getX());
 		}
-		if (mMovementData.mCurDirection == EDirection_RIGHT)
+		else if (mMovementData.mCurDirection == EDirection_RIGHT)
 		{
-			mPositionData.mHitbox.updateTopLeftX(mMovementData.mCurMovementVect2.getX());
+			mAttemptMove.mWantToMoveTo.changeX(mMovementData.mCurMovementVect2.getX());
 		}
 	}
 }
 
-
-bool FallingState::canJump()
-{
-	if (mJumpData.mNumCurJumps < mJumpData.mNumMaxJumps)
-	{
-		return true;
-	}
-	return false;
-}
+bool FallingState::canJump() { return mJumpData.mNumCurJumps < mJumpData.mNumMaxJumps; }

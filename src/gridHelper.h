@@ -13,8 +13,8 @@ public:
     const int           mNumRows = 16;
     const int           mNumCols = 16;
 
-    const int           mStartX = 40;
-    const int           mStartY = 350;
+    const int           mStartX = 20;
+    const int           mStartY = 375;
     const int           mTileWidth  = 25;
     const int           mTileHeight = 25;
     const int           mSpacing = 5;
@@ -28,7 +28,7 @@ public:
 
     int getIndex(int x, int y) const;
 
-    Tile* getTileFromCoords(int mouseX, int mouseY);
+    Tile* getTileFromCoords(int mouseX, int mouseY) const;
 
     void createGrid();
 

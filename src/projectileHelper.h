@@ -19,23 +19,21 @@ public:
 
     ~Projectile();
 
-	void preTick();
+	void preTick() override;
 
-    void tick();
+    void tick() override;
 
-	void postTick();
+	void postTick() override;
 
-	void updateAnimationManager();
+	void updateAnimationManager() override;
 
-    bool isAlive() const;
+    void takeDamage() override;
 
-    void takeDamage();
+    void died() override;
 
-    void died();
+    void setCheckpointStats() override { ; } //no projectile checkpoint
 
-	void setCheckpointStats();
+	ProjectilePreset* getPreset();
 
-	CCharacterPreset* getPreset();
-
-    std::string getHostName();
+    std::string getHostName() const override;
 };

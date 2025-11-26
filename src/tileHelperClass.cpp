@@ -4,10 +4,7 @@
 #include "helperClass.h"
 
 
-std::string createTileName(int row, int col)
-{
-    return std::to_string(row) + " " + std::to_string(col);
-}
+std::string createTileName(int row, int col) { return std::to_string(row) + " " + std::to_string(col); }
 
 int getDistanceBetweenTiles(Tile* pTile1, Tile* pTile2)
 {
@@ -82,6 +79,7 @@ std::vector <TileCoords> getSquare1DownTiles(Tile* pGivenTile)
     tileCoordList.push_back(TileCoords(curRow + 1, curCol - 1));
     return tileCoordList;
 }
+
 
 std::vector <TileCoords> getSquare2Tiles(Tile* pGivenTile)
 {
@@ -205,6 +203,9 @@ std::vector <TileCoords> getSquare2DownTiles(Tile* pGivenTile)
     return tileCoordList;
 }
 
+
+
+
 std::vector <TileCoords> getCross1Tiles(Tile* pGivenTile)
 {
     int curRow = pGivenTile->mRow;
@@ -235,6 +236,145 @@ std::vector <TileCoords> getCross2Tiles(Tile* pGivenTile)
     tileCoordList.push_back(TileCoords(curRow,     curCol - 2));
     return tileCoordList;
 }
+
+std::vector <TileCoords> getCross2_1Tiles(Tile* pGivenTile)
+{
+    int curRow = pGivenTile->mRow;
+    int curCol = pGivenTile->mCol;
+    std::vector <TileCoords> tileCoordList;
+    tileCoordList.reserve(8);
+    tileCoordList.push_back(TileCoords(curRow - 2, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 2));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 3));
+
+    tileCoordList.push_back(TileCoords(curRow + 2, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 2));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 3));
+    return tileCoordList;
+}
+
+std::vector <TileCoords> getCross2_2Tiles(Tile* pGivenTile)
+{
+    int curRow = pGivenTile->mRow;
+    int curCol = pGivenTile->mCol;
+    std::vector <TileCoords> tileCoordList;
+    tileCoordList.reserve(8);
+    tileCoordList.push_back(TileCoords(curRow - 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 4, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 3));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 4));
+
+    tileCoordList.push_back(TileCoords(curRow + 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 4, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 3));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 4));
+    return tileCoordList;
+}
+
+
+std::vector <TileCoords> getCross3Tiles(Tile* pGivenTile)
+{
+    int curRow = pGivenTile->mRow;
+    int curCol = pGivenTile->mCol;
+    std::vector <TileCoords> tileCoordList;
+    tileCoordList.reserve(8);
+    tileCoordList.push_back(TileCoords(curRow - 1, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 2, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 1));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 2));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 3));
+
+    tileCoordList.push_back(TileCoords(curRow + 1, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 2, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 1));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 2));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 3));
+    return tileCoordList;
+}
+
+std::vector <TileCoords> getCross3_1OutTiles(Tile* pGivenTile)
+{
+    int curRow = pGivenTile->mRow;
+    int curCol = pGivenTile->mCol;
+    std::vector <TileCoords> tileCoordList;
+    tileCoordList.reserve(8);
+    tileCoordList.push_back(TileCoords(curRow - 2, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 4, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 2));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 3));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 4));
+
+    tileCoordList.push_back(TileCoords(curRow + 2, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 4, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 2));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 3));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 4));
+    return tileCoordList;
+}
+
+
+std::vector <TileCoords> getCross4Tiles(Tile* pGivenTile)
+{
+    int curRow = pGivenTile->mRow;
+    int curCol = pGivenTile->mCol;
+    std::vector <TileCoords> tileCoordList;
+    tileCoordList.reserve(8);
+    tileCoordList.push_back(TileCoords(curRow - 1, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 2, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 4, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 1));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 2));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 3));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 4));
+
+    tileCoordList.push_back(TileCoords(curRow + 1, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 2, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 4, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 1));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 2));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 3));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 4));
+    return tileCoordList;
+}
+
+std::vector <TileCoords> getCross5Tiles(Tile* pGivenTile)
+{
+    int curRow = pGivenTile->mRow;
+    int curCol = pGivenTile->mCol;
+    std::vector <TileCoords> tileCoordList;
+    tileCoordList.reserve(8);
+    tileCoordList.push_back(TileCoords(curRow - 1, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 2, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 4, curCol));
+    tileCoordList.push_back(TileCoords(curRow - 5, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 1));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 2));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 3));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 4));
+    tileCoordList.push_back(TileCoords(curRow, curCol + 5));
+
+    tileCoordList.push_back(TileCoords(curRow + 1, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 2, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 3, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 4, curCol));
+    tileCoordList.push_back(TileCoords(curRow + 5, curCol));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 1));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 2));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 3));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 4));
+    tileCoordList.push_back(TileCoords(curRow, curCol - 5));
+    return tileCoordList;
+}
+
 
 EDirection getDirectionBetweenTiles(Tile* tile1, Tile* tile2)
 {

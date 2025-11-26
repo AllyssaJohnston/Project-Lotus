@@ -16,14 +16,14 @@ enum EBoxSide
 
 struct HitboxEdges
 {
-	EEntityEdgeType mTop;
-	EEntityEdgeType mBottom;
-	EEntityEdgeType mLeft;
-	EEntityEdgeType mRight;
+	EEntityEdgeType mTop	= EEntityEdgeType_NEUTRAL;;
+	EEntityEdgeType mBottom = EEntityEdgeType_NEUTRAL;;
+	EEntityEdgeType mLeft	= EEntityEdgeType_NEUTRAL;;
+	EEntityEdgeType mRight	= EEntityEdgeType_NEUTRAL;;
+
+	HitboxEdges() { ; }
 
 	HitboxEdges(EEntityEdgeType top, EEntityEdgeType bottom, EEntityEdgeType left, EEntityEdgeType right);
-
-	HitboxEdges();
 };
 
 //For menus
@@ -36,33 +36,32 @@ struct Edges
 
 	Edges(){}
 
-	Edges(int top, int bottom, int left, int right)
-	{
-		mTop    = top;
-		mBottom = bottom;
-		mLeft   = left;
-		mRight  = right;
-	}
+	Edges(int top, int bottom, int left, int right);
 };
 
 class Vect2
 {
 private:
-	int mX;
-	int mY;
+	int mX = 0;
+	int mY = 0;
 
 public:
-	Vect2();
+	Vect2() { ; }
 	Vect2(int x, int y);
+	Vect2(float x, int y);
+	Vect2(int x, float y);
+	Vect2(float x, float y);
 
 	Vect2& operator+=(const Vect2& vect);
 	Vect2& operator-=(const Vect2& vect);
+	Vect2& operator*=(int);
 	Vect2& operator/=(int);
 
 	Vect2 operator+(const Vect2& vect) const;
 	Vect2 operator-(const Vect2& vect) const;
 
-	bool operator==(Vect2 vect);
+	bool operator==(Vect2& vect);
+	bool operator!=(Vect2& vect);
 
 	int getX() const;
 
@@ -82,26 +81,26 @@ public:
 class CoordsX1Y1WidthHeight
 {
 public:
-	int mX1; //TODO, is there a way to make this 'const' after declaration??
-	int mY1;
-	int mWidth;
-	int mHeight;
+	int mX1 = 0; 
+	int mY1 = 0;
+	int mWidth = 0;
+	int mHeight = 0;
 
 
 public:
 	CoordsX1Y1WidthHeight(int x1Input, int y1Input, int widthInput, int heightInput);
 
-	CoordsX1Y1WidthHeight();
+	CoordsX1Y1WidthHeight() { ; } //TODO, remove
 
 };
 
 class CoordsX1X2Y1Y2
 {
 private:
-	int mX1;
-	int mX2;
-	int mY1;
-	int mY2;
+	int mX1 = 0;
+	int mX2 = 0;
+	int mY1 = 0;
+	int mY2 = 0;
 
 
 public:
@@ -109,7 +108,7 @@ public:
 
 	CoordsX1X2Y1Y2(int x1, int x2, int y1, int y2, int shiftX, int shiftY);
 
-	CoordsX1X2Y1Y2();
+	CoordsX1X2Y1Y2() { ; } //TODO remove
 
 	int getX1() const;
 
@@ -153,7 +152,7 @@ public:
 
 	void checkCoordsValidity();
 
-	bool overlap(Hitbox otherHitbox) const;
+	bool overlap(Hitbox& otherHitbox) const;
 	EBoxSide separate(Hitbox & otherHitbox, bool doSeparate);
 
 	Vect2 getTopLeft() const;
@@ -178,3 +177,4 @@ public:
 };
 
 EDirection returnOppositeDirection(EDirection givenDirection);
+

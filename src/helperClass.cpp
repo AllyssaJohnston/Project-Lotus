@@ -1,40 +1,5 @@
 #include "helperClass.h"
 
-std::string convertKeyboardEnumToString(EKeyboardInput key)
-{
-	switch (key)
-	{
-	case (EKeyboardInput_LEFT):
-		return "left";
-	case (EKeyboardInput_RIGHT):
-		return "right";
-	case (EKeyboardInput_UP):
-		return "up";
-	case (EKeyboardInput_DOWN):
-		return "down";
-	case (EKeyboardInput_SPACE_BAR):
-		return "space";
-	case (EKeyboardInput_A):
-		return "A";
-	case (EKeyboardInput_D):
-		return "D";
-	case (EKeyboardInput_W):
-		return "W";
-	case (EKeyboardInput_R):
-		return "R";
-	case (EKeyboardInput_T):
-		return "T";
-	case (EKeyboardInput_J):
-		return "J";
-	case (EKeyboardInput_K):
-		return "K";
-	case (EKeyboardInput_L):
-		return "L";
-	default:
-		SDL_assert(true);
-	}
-}
-
 std::vector<std::string> tokenize(std::string input, std::string delimiter)
 {
 	std::vector<std::string> tokens;
@@ -90,9 +55,9 @@ std::string createStringFromKeyboardList(std::vector <EKeyboardInput> list)
 	std::string message;
 	for (int count = 0; count < list.size() - 1; count++)
 	{
-		message += convertKeyboardEnumToString(list[count]) + " / ";
+		message += keyboardToStringMap.at(list[count]) + " / ";
 	}
-	message += convertKeyboardEnumToString(list[list.size() - 1]);
+	message += keyboardToStringMap.at(list[list.size() - 1]);
 	return message;
 }
 

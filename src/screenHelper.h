@@ -5,8 +5,6 @@
 
 class ScreenObject
 {
-private:
-
 public:
 	//ACTUAL DESKTOP SIZE IN PIXELS
 	int mScreenWidth;

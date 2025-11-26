@@ -33,28 +33,31 @@ public:
 
 	bool mUseHorizontalInputThisFrame = true;
 
+	bool mCanWallJump = false;
+	bool mCheckpointCanWallJump = false;
+
 	Player();
 
 	~Player();
 
-	void preTick();
+	void preTick() override;
 
-	void tick();
+	void tick() override;
 
-	void postTick();
+	void postTick() override;
 
 
 	void useInput(std::vector <KeyData>& eventVect);
 
 
-	void updateAnimationManager();
+	void updateAnimationManager() override;
 
 
-	void resetStats();
+	void resetStats() override;
 
-	void resetToCheckpoint();
+	void resetToCheckpoint() override;
 
-	void setCheckpointStats();
+	void setCheckpointStats() override;
 
 
 	void updateKeys(int keys);

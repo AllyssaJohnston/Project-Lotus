@@ -4,11 +4,10 @@
 
 class WalkingState : public MovementState
 {
-	PositionData& mPositionData;
 	MovementData& mMovementData;
 public:
-	WalkingState(PositionData&, MovementData&);
+	WalkingState(PositionData&, MovementData&, AttemptMove&);
 	virtual void printState();
-	virtual void tickUpdate(bool moveHorizontal);
+	virtual void calcMove(bool moveHorizontal);
 	void autoMove();
 };

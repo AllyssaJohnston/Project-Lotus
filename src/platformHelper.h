@@ -42,14 +42,16 @@ public:
 	PPlatformPreset* getPreset() const;
 
 
-	virtual void setCheckpointStats();
+	virtual void setCheckpointStats() override;
 
 
-	virtual void preTick();
+	virtual void preTick() override;
 
-	virtual void tick();
+	virtual void tick() override;
 
-	virtual void postTick();
+	virtual void postTick() override;
+
+	virtual void died() override;
 
 };
 
@@ -61,11 +63,11 @@ public:
 
 	~Crate();
 
-	void tick();
+	void tick() override;
 
-	void postTick();
+	void postTick() override;
 
-	void setCheckpointStats();
+	void setCheckpointStats() override;
 };
 
 class Crumbling : public Platform
@@ -82,17 +84,17 @@ public:
 
 	~Crumbling();
 
-	void hide();
+	void hide() override;
 
 	void startCrumble();
 
-	void resetStats();
+	void resetStats() override;
 
-	void resetToCheckpoint();
+	void resetToCheckpoint() override;
 
-	void setCheckpointStats();
+	void setCheckpointStats() override;
 
-	void postTick();
+	void postTick() override;
 };
 
 class Gate : public Platform
@@ -111,15 +113,15 @@ public:
 
 	void setUpGate(CoordsX1X2Y1Y2 coordsInput, PGatePreset* preset);
 
-	void preTick();
+	void preTick() override;
 
-	void hide();
+	void hide() override;
 
-	void resetStats();
+	void resetStats() override;
 
-	void resetToCheckpoint();
+	void resetToCheckpoint() override;
 
-	void setCheckpointStats();
+	void setCheckpointStats() override;
 
 };
 
@@ -135,13 +137,13 @@ public:
 
 	~Target();
 
-	void hide();
+	void hide() override;
 
-	void resetStats();
+	void resetStats() override;
 
-	void resetToCheckpoint();
+	void resetToCheckpoint() override;
 
-	void setCheckpointStats();
+	void setCheckpointStats() override;
 };
 
 class PressurePlate : public Platform
@@ -155,15 +157,15 @@ public:
 	
 	~PressurePlate();
 
-	void preTick();
+	void preTick() override;
 
-	void activate();
+	void activate() override;
 
-	void resetStats();
+	void resetStats() override;
 
-	void resetToCheckpoint();
+	void resetToCheckpoint() override;
 
-	void setCheckpointStats();
+	void setCheckpointStats() override;
 };
 
 class MovingPlatform : public Platform

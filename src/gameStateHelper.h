@@ -11,6 +11,9 @@
 #include "worldDataHelper.h"
 #include "slashHelper.h"
 #include "miniGameWorldDataHelper.h"
+#include "movementHelperClass.h"
+#include "lotusAdventureMenus.h"
+#include "miniGameStateHelper.h"
 
 class Tile;
 class CombatCharacter;
@@ -18,95 +21,47 @@ class Grid;
 class TileCoords;
 
 
-Tile* findTile(Grid* pGrid, TileCoords* pTileCoords);
-
-bool isPlayableTile(Tile* pGivenTile);
-
-bool validAttackTile(MiniGameStateManagerData& stateManagerData, Tile* pGivenTile, CombatCharacter* pGivenCharacter);
-
-void attemptAttackMultipleTiles(MiniGameStateManagerData& stateManagerData, std::vector <Tile*> tilesToAttack, CombatCharacter* pGivenCharacter);
-
-std::vector <Tile*> returnListWithoutTilesWithCharacters(CombatManager* pCombatManager, CombatCharacter* pGivenCharacter, std::vector <Tile*> listOfTiles);
-
-std::vector <TileDistance> returnListOfTileDistances(std::vector <CombatCharacter*> pCurCombatCharacters, std::vector <Tile*> pMoveTiles, CombatCharacter* pCurEnemy);
 
 
-class MiniGameState
-{
-public:
-    MouseData*          mpMouseData = nullptr;
-    MiniGameStateData*  mpData      = nullptr; 
-
-    MiniGameState(MouseData* pMouseData, MiniGameStateData* pData);
-
-    ~MiniGameState();
-
-    virtual void tick(MiniGameStateManagerData& stateManagerData) { ; }
-
-    virtual void setCharacter(CombatCharacter* pCharacter);
-
-    void highlightTile(Grid* pGrid, Vect2 pos);
-
-    void useMouseInput(EMiniGameState curStateEnum, ScreenObject& screenObject, Grid* pGrid);
-
-    virtual void selectTile(Grid* pGrid, Vect2 pos) { ; }
-};
-
-class MiniGameStateManager
-{
-public:
-    std::vector <MiniGameState *> mpStates;
-    MiniGameState *				  mpCurState;
-    MiniGameStateManagerData      mData;
-
-    MiniGameStateManager(MouseData* pMouseData, MiniGameWorldData& miniGameWorldData);
-
-    ~MiniGameStateManager();
-
-    void preTick();
-
-    void tick();
-   
-    void postTick();
-
-    void updateCurState(EMiniGameState newStateEnum);
-
-};
 
 class GameState
 {
 public:
-    KeyboardData*    mpKeyboardData     = nullptr;
-    MouseData*       mpMouseData        = nullptr;
+    std::vector <KeyData> eventVect;
+    KeyboardData&    mKeyboardData;
    
-    MenuManager*     mpMenuManager      = nullptr;
+    MenuManager&     mMenuManager;
    
-    GameStateData*   mpGameStateData    = nullptr;
+    GameStateData&   mGameStateData;
     
-    SettingsManager* mpSettingsManager  = nullptr;
-    StyleManager*    mpStyleManager     = nullptr;
-    ScreenObject*    mpScreen           = nullptr;
+    SettingsManager& mSettingsManager;
+    StyleManager&    mStyleManager;
+    ScreenObject&    mScreen;
 
-	GameState();
-    virtual ~GameState();
+    int mTicksSinceInput = 0;
+    int mTicksBeforeUseInput = 10;
 
-    virtual void preTick(GameStateManagerData& gameStateManagerData,  MiniGameStateManager& miniGameStateManager,
-        WorldData& worldData){;}
+    Vect2 mousePos;
 
-    virtual void tick(GameStateManagerData& gameStateManagerData,  MiniGameStateManager& miniGameStateManager,
-        WorldData& worldData) {;}
+	GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager,
+        SettingsManager& settingsManager, StyleManager& styleManager, ScreenObject& screen);
+    virtual ~GameState() { ; }
+
+    virtual void preTick();
+
+    virtual void tick(GameStateManagerData& gameStateManagerData,  MiniGameStateManager& miniGameStateManager) {;}
 
 	void getInput();
 
-    void useInput(GameStateManagerData& gameStateManagerData);
+    virtual void useInput(GameStateManagerData& gameStateManagerData);
 
-    virtual void useMouseCursor(){;}
+    void useMouseCursor();
 
-    virtual void render(GameStateManagerData& gameStateManagerData, MiniGameStateManagerData& miniGameStateManagerData,
-         WorldData& worldData){;}
+    virtual void render(EGameState curState){;}
 
-    virtual void postTick(GameStateManagerData& gameStateManagerData,  MiniGameStateManager& miniGameStateManager,
-        WorldData& worldData){;}
+    virtual void postTick(GameStateManagerData& gameStateManagerData,  MiniGameStateManager& miniGameStateManager){;}
+
+    virtual void takeMenuAction(MiniGameStateManager& miniGameStateManager);
 
 };
 
@@ -114,15 +69,15 @@ class GameStateManager
 {
 public: 
 
-    GameStateData*              mpGameStateData;
+    GameStateData               mGameStateData;
 	std::vector <GameState*>    mStates;
 	GameState *				    mpCurState;
     GameStateManagerData        mData;
+    WorldData& mWorldData;
 
     MiniGameStateManager&       mMiniGameStateManager;
-    WorldData&                  mWorldData;
 
-    GameStateManager(KeyboardData& keyboardData, MouseData& mouseData, WorldData& worldData, MenuManager& menuManager, 
+    GameStateManager(KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, 
             SettingsManager& settingsManager, CollisionManager& collisionManager, DamageManager& damageManager, 
             SlashManager& slashManager, StyleManager& styleManager, MiniGameStateManager& miniGameStateManager);
     ~GameStateManager();
@@ -134,151 +89,10 @@ public:
 	void updateCurState(EGameState newStateEnum);
 
     void postTick();
+
+private:
+    void switchToMiniGame();
 };
-
-
-
-class MiniGamePlayerWaitForMoveInput : public MiniGameState
-{
-public:
-    MiniGamePlayerWaitForMoveInput(MouseData* pMouseData, MiniGameStateData* pData);
-
-    ~MiniGamePlayerWaitForMoveInput();
-
-    void selectTile(Grid* pGrid, Vect2 pos);
-
-    void moveToTile(Tile* pGivenTile, CombatCharacter* pGivenCharacter);
-
-    void postTick(Tile* pNewTile);
-};
-
-class MiniGamePlayerMoveCharacter : public MiniGameState
-{
-public:
-    MiniGamePlayerMoveCharacter(MouseData* pMouseData, MiniGameStateData* pData);
-
-    ~MiniGamePlayerMoveCharacter();
-
-    void tick(MiniGameStateManagerData& stateManagerData);
-
-    void postTick();
-};
-
-class MiniGamePlayerWaitForActionInput : public MiniGameState
-{
-public:
-    MiniGamePlayerWaitForActionInput(MouseData* pMouseData, MiniGameStateData* pData);
-
-    ~MiniGamePlayerWaitForActionInput();
-
-    void postTick(MiniGameWorldData& worldData, EMiniGameState nextStateEnum);
-};
-
-class MiniGamePlayerWaitForAttackInput : public MiniGameState
-{
-public:
-    MiniGamePlayerWaitForAttackInput(MouseData* pMouseData, MiniGameStateData* pData);
-
-    ~MiniGamePlayerWaitForAttackInput();
-
-    void postTick(const Attack& pAttack);
-};
-
-class MiniGamePlayerWaitForAttackSubInput : public MiniGameState
-{
-public:
-    MiniGamePlayerWaitForAttackSubInput(MouseData* pMouseData, MiniGameStateData* pData);
-
-    ~MiniGamePlayerWaitForAttackSubInput();
-
-    void postTick(EDirection curAttackDirection);
-};
-
-class MiniGamePlayerCompleteDirectionalAttack : public MiniGameState
-{
-public:
-    MiniGamePlayerCompleteDirectionalAttack(MouseData* pMouseData, MiniGameStateData* pData);
-
-    ~MiniGamePlayerCompleteDirectionalAttack();
-
-    void tick(MiniGameStateManagerData& stateManagerData);
-
-    void attackTiles(MiniGameStateManagerData& stateManagerData);
-
-    //attackCharacterChanges
-    void postTick(MiniGameWorldData& worldData);
-};
-
-class MiniGamePlayerTakeActionAttack : public MiniGameState
-{
-public:
-    MiniGamePlayerTakeActionAttack(MouseData* pMouseData, MiniGameStateData* pData);
-
-    ~MiniGamePlayerTakeActionAttack();
-
-    void selectTile(MiniGameStateManagerData& stateManagerData, Grid* pGrid, Vect2 pos);
-
-    void postTick(MiniGameWorldData& worldData);
-};
-
-class MiniGamePlayerTakeActionDefend : public MiniGameState
-{
-public:
-    MiniGamePlayerTakeActionDefend(MouseData* pMouseData, MiniGameStateData* pData);
-
-    ~MiniGamePlayerTakeActionDefend();
-
-    void tick(MiniGameStateManagerData& stateManagerData);
-
-    //defense change
-    void postTick(MiniGameWorldData& worldData);
-};
-
-class MiniGameEnemyMoveCharacter : public MiniGameState
-{
-public:
-    MiniGameEnemyMoveCharacter(MouseData* pMouseData, MiniGameStateData* pData);
-
-    ~MiniGameEnemyMoveCharacter();
-
-    void tick(MiniGameStateManagerData& stateManagerData);
-
-    void decideTileToMoveTo(MiniGameStateManagerData& stateManagerData);
-
-    void postTick();
-};
-
-class MiniGameEnemyTakeAction : public MiniGameState
-{
-public:
-    MiniGameEnemyTakeAction(MouseData* pMouseData, MiniGameStateData* pData);
-
-    ~MiniGameEnemyTakeAction();
-
-    void tick(MiniGameStateManagerData& stateManagerData);
-
-    bool shouldAttack(MiniGameWorldData& worldData);
-
-    bool shouldDefend(MiniGameWorldData& worldData);
-
-    void performAttack(MiniGameStateManagerData& stateManagerData);
-
-    void postTick(MiniGameWorldData& worldData);
-};
-
-class MiniGameBuffer : public MiniGameState
-{
-public:
-    MiniGameBuffer(MouseData* pMouseData, MiniGameStateData* pData);
-    
-    ~MiniGameBuffer();
-
-    void tick(MiniGameStateManagerData& stateManagerData);
-
-    void postTick();
-};
-
-
 
 
 class GameStatePlay : public GameState
@@ -289,66 +103,56 @@ public:
     DamageManager&      mDamageManager;
     SlashManager&       mSlashManager;
 
-	GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, MouseData& mouseData, WorldData& worldData, 
+	GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, WorldData& worldData, 
             MenuManager& menuManager, SettingsManager& settingsManager, CollisionManager& collisionManager, 
             DamageManager& damageManager, SlashManager& slashManager, StyleManager& styleManager);
 
-    ~GameStatePlay();
+    ~GameStatePlay() { ; }
 
-	void tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager,
-        WorldData& worldData);
+	void tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager) override;
 
-	void useInput(GameStateManagerData& gameStateManagerData);
+	void useInput(GameStateManagerData& gameStateManagerData) override;
 
-    void useMouseCursor();
+	void render(EGameState curState) override;
 
-	void render(GameStateManagerData& gameStateManagerData, MiniGameStateManagerData& miniGameStateManagerData,
-        WorldData& worldData);
+    void takeMenuAction(MiniGameStateManager& miniGameStateManager) override { ; }
 
 };
 
 class GameStatePlayMiniGame : public GameState
 {
+    int mTicks = 0;
 public:
     MiniGameStateManager& mMiniGameStateManager;
 
-    GameStatePlayMiniGame(GameStateData& gameStateData, KeyboardData& keyboardData, MouseData& mouseData, 
+    GameStatePlayMiniGame(GameStateData& gameStateData, KeyboardData& keyboardData,
             MiniGameStateManager& miniGameStateManager, MenuManager& menuManager, ScreenObject& screen, 
             SettingsManager& settingsManager, StyleManager& styleManager);
 
-    ~GameStatePlayMiniGame();
+    ~GameStatePlayMiniGame() { ; }
 
-    void tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager,
-        WorldData& worldData);
+    void setUp();
 
-    void render(GameStateManagerData& gameStateManagerData, MiniGameStateManagerData& miniGameStateManagerData,
-        WorldData& worldData);
+    void tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager) override;
 
-    void useMouseCursor();
+    void render(EGameState curState) override;
 };
 
 class GameStateMenu : public GameState
 {
 public:
-    int mTicksSinceInput = 0;
-    int mTicksBeforeUseInput = 10;
-
-	GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboardData, MouseData& mouseData, 
-            MenuManager& menuManager, ScreenObject& screen, SettingsManager& settingsManager, StyleManager& styleManager);
+	GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboardData, 
+            MenuManager& menuManager, SettingsManager& settingsManager, StyleManager& styleManager,
+            WorldData& worldData);
     
-    ~GameStateMenu();
+    ~GameStateMenu() { ; }
 
-	void tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager,
-        WorldData& worldData);
+	void tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager) override;
 
-	void useInput(GameStateManagerData& gameStateManagerData);
+	void render(EGameState curState) override;
 
-    void useMouseCursor();
-
-	void takeMenuAction(MiniGameStateManager& miniGameStateManager);
-
-	void render(GameStateManagerData& gameStateManagerData, MiniGameStateManagerData& miniGameStateManagerData,
-        WorldData& worldData);
+private:
+    WorldData& mWorldData;
 };
 
 

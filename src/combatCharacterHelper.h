@@ -22,6 +22,8 @@ public:
 
     int mTurnsToPass        = 0;
 
+    std::string mIconFileName;
+
     CombatCharacter(std::string name, Tile* pCurTile, CombatCharacterPreset* preset);
 
     ~CombatCharacter() {};
@@ -43,4 +45,6 @@ public:
     void postRound();
 
     bool returnIsLowLife() const;
+
+    float getHealthRatio() const;
 };

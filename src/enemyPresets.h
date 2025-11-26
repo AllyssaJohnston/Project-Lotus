@@ -18,40 +18,22 @@ struct EEnemyPreset : public CCharacterPreset
 //EARTH ENEMIES
 
 //DRAGUAR BLOSSOM
-struct ERatPreset : public EEnemyPreset
-{
-	ERatPreset();
-};
+struct ERatPreset : public EEnemyPreset { ERatPreset(); };
 
 //SEEDLING
-struct EFastRatPreset : public EEnemyPreset
-{
-	EFastRatPreset();
-};
+struct EFastRatPreset : public EEnemyPreset { EFastRatPreset(); };
 
 //SHROOM VIPER
-struct EBouncyRatPreset : public EEnemyPreset
-{
-	EBouncyRatPreset();
-};
+struct EBouncyRatPreset : public EEnemyPreset { EBouncyRatPreset(); };
 
 //FROCODILE
-struct EFrogPreset : public EEnemyPreset
-{
-	EFrogPreset();
-};
+struct EFrogPreset : public EEnemyPreset { EFrogPreset(); };
 
 //FROG SHROOM
-struct EBouncyFrogPreset : public EEnemyPreset
-{
-	EBouncyFrogPreset();
-};
+struct EBouncyFrogPreset : public EEnemyPreset { EBouncyFrogPreset(); };
 
 //SPIDERIG
-struct EHidingRatPreset : public EEnemyPreset
-{
-	EHidingRatPreset();
-};
+struct EHidingRatPreset : public EEnemyPreset { EHidingRatPreset(); };
 
 
 
@@ -59,93 +41,51 @@ struct EHidingRatPreset : public EEnemyPreset
 //FIRE ENEMIES
 
 //FIRMUS
-struct EFireRatPreset : public EEnemyPreset
-{
-	EFireRatPreset();
-};
+struct EFireRatPreset : public EEnemyPreset { EFireRatPreset(); };
 
 //FIERLINE
-struct EFireBatVPreset : public EEnemyPreset
-{
-	EFireBatVPreset();
-};
+struct EFireBatVPreset : public EEnemyPreset { EFireBatVPreset(); };
 
 //FIRIKIN
-struct EFireFrogPreset : public EEnemyPreset
-{
-	EFireFrogPreset();
-};
+struct EFireFrogPreset : public EEnemyPreset { EFireFrogPreset(); };
 
 //SCORPUS
-struct ESnailPreset : public EEnemyPreset
-{
-	ESnailPreset();
-};
+struct ESnailPreset : public EEnemyPreset { ESnailPreset(); };
 
 //GEM BUG
-struct ESpikeySnailPreset : public EEnemyPreset
-{
-	ESpikeySnailPreset();
-};
+struct ESpikeySnailPreset : public EEnemyPreset { ESpikeySnailPreset(); };
 
 //GEM WALKER
-struct ESpikeySnailChameleonPreset : public EEnemyPreset
-{
-	ESpikeySnailChameleonPreset();
-};
+struct ESpikeySnailChameleonPreset : public EEnemyPreset { ESpikeySnailChameleonPreset(); };
 
 
 
 //WATER ENEMIES
 
 //GLATA
-struct EBatHPreset : public EEnemyPreset
-{
-	EBatHPreset();
-};
+struct EBatHPreset : public EEnemyPreset { EBatHPreset(); };
 
 //SERPHISH
-struct EBatVPreset : public EEnemyPreset
-{
-	EBatVPreset();
-};
+struct EBatVPreset : public EEnemyPreset { EBatVPreset(); };
 
 //JELISH
-struct EBatDPreset : public EEnemyPreset
-{
-	EBatDPreset();
-};
+struct EBatDPreset : public EEnemyPreset { EBatDPreset(); };
 
 //SHELL BEAST
-struct EHidingSnailPreset : public EEnemyPreset
-{
-	EHidingSnailPreset();
-};
+struct EHidingSnailPreset : public EEnemyPreset { EHidingSnailPreset(); };
 
 //SPINE SHELL
-struct EGrabbingSnailPreset : public EEnemyPreset
-{
-	EGrabbingSnailPreset();
-};
+struct EGrabbingSnailPreset : public EEnemyPreset { EGrabbingSnailPreset(); };
 
 
 
 //AIR ENEMIES
 
 //MOTHA
-struct EWalkingFrogPreset : public EEnemyPreset
-{
-	EWalkingFrogPreset();
-};
+struct EWalkingFrogPreset : public EEnemyPreset { EWalkingFrogPreset(); };
 
 //SWOOPER
-struct ESlowBatHPreset : public EEnemyPreset
-{
-	ESlowBatHPreset();
-};
+struct ESlowBatHPreset : public EEnemyPreset { ESlowBatHPreset(); };
 
 //FELIGA
-struct EProjectileBatVPreset : public EEnemyPreset
-{
-	EProjectileBatVPreset();
-};
+struct EProjectileBatVPreset : public EEnemyPreset { EProjectileBatVPreset(); };

@@ -6,9 +6,9 @@
 #include "enemyHelper.h"
 #include "imageHelper.h"
 
-Level::Level(int levelNumber, Vect2 playerStartingPosition, LevelInfo levelInfo)
+Level::Level(int levelNumber, Vect2 playerStartingPosition, LevelInfo levelInfo, LevelData nextLevelData) : 
+		mLevelNumber(levelNumber), mPlayerStartingPosition(playerStartingPosition), mNextLevelData(nextLevelData)
 {
-	mLevelNumber					= levelNumber;
 	mDoubleJumpAllowed				= levelInfo.mDoubleJumpAllowed;
 	mThrowProjectileAllowed			= levelInfo.mThrowProjectileAllowed;
 	mThrowDownwardProjectileAllowed = levelInfo.mThrowDownwardProjectileAllowed;
@@ -18,9 +18,7 @@ Level::Level(int levelNumber, Vect2 playerStartingPosition, LevelInfo levelInfo)
 	if (true == mThrowDownwardProjectileAllowed and false == mThrowProjectileAllowed)
 	{
 		SDL_assert(false);
-	}
-
-	mPlayerStartingPosition = playerStartingPosition;
+	}	
 }
 
 Level::~Level()
@@ -244,6 +242,8 @@ std::vector <Entity*> Level::getAllActiveEntities() const
 	return entities;
 }
 
+Hitbox Level::getHitbox() const { return mHitbox; }
+
 void Level::setUp(SDL_Renderer* pRenderer)
 {
 	int x1     = std::numeric_limits<int>::max();
@@ -277,6 +277,7 @@ void Level::setUp(SDL_Renderer* pRenderer)
 	}
 
 	setUpArtFileTexture(pRenderer);
+	mHitbox = Hitbox(Vect2(0, 0), mLevelX2, mLevelY2);
 }
 
 void Level::setUpArtFileTexture(SDL_Renderer* pRenderer)
@@ -291,3 +292,14 @@ void Level::setUpArtFileTexture(SDL_Renderer* pRenderer)
 	}
 }
 
+
+LevelChunk::LevelChunk(CoordsX1Y1WidthHeight coords) { mHitbox = Hitbox(coords); }
+
+LevelChunk::LevelChunk() { mHitbox = {}; }
+
+void LevelChunk::updateCoords(Vect2 newVect2) { mHitbox.setTopLeft(newVect2); }
+
+Hitbox LevelChunk::getHitbox() const { return mHitbox; }
+
+
+World::World(int worldNumber) { mWorldNumber = worldNumber; }

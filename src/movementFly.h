@@ -3,11 +3,10 @@
 #include "movementHelperClass.h"
 
 class FlyingState : public MovementState
-{
-	PositionData& mPositionData;
+{	
 	MovementData& mMovementData;
 public:
-	FlyingState(PositionData&, MovementData&);
+	FlyingState(PositionData&, MovementData&, AttemptMove&);
 	virtual void printState();
-	virtual void tickUpdate(bool moveHorizontal);
+	virtual void calcMove(bool moveHorizontal);
 };

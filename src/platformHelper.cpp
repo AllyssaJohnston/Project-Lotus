@@ -37,6 +37,7 @@ Platform::~Platform()
 void Platform::setUpPlatformBaseStats(CoordsX1X2Y1Y2 coordsInput, PPlatformPreset* preset)
 {
 	setUpBaseStats(preset);
+	mAmAlive = true;
 	mMovementEffect   = preset->mMovementEffect;
 	mCoords		      = coordsInput;
 	mpPreset	      = preset;
@@ -55,32 +56,17 @@ void Platform::setUpPlatformBaseStats(CoordsX1X2Y1Y2 coordsInput, PPlatformPrese
 }
 
 
-bool Platform::isMoveable() const
-{
-	return mIsMoveable;
-}
+bool Platform::isMoveable() const { return mIsMoveable; }
 
 
-void Platform::hide()
-{
-	return;
-}
+void Platform::hide() { ; }
 
-void Platform::activate()
-{
-	return;
-}
+void Platform::activate() { ; }
 
-void Platform::startCrumble()
-{
-	return;
-}
+void Platform::startCrumble() { ; }
 
 
-PPlatformPreset* Platform::getPreset() const
-{
-	return mpPreset;
-}
+PPlatformPreset* Platform::getPreset() const { return mpPreset; }
 
 
 void Platform::setCheckpointStats()
@@ -99,7 +85,7 @@ void Platform::preTick()
 void Platform::tick()
 {
 	Entity::tick();
-	mMovementManager.updateMovement();
+	mMovementManager.calcMovement();
 }
 
 void Platform::postTick()
@@ -116,7 +102,16 @@ void Platform::postTick()
 	}
 }
 
-
+void Platform::died() 
+{ 
+	if (mEntityType == EEntityType_NON_STATIC) {
+		Entity::died();
+	}
+	else 
+	{
+		mAmAlive = true;
+	}
+}
 
 
 
@@ -148,7 +143,8 @@ void Crate::tick()
 			}
 		}
 	}
-	mMovementManager.updateMovement();
+	mMovementManager.calculateXDirection();
+	mMovementManager.calcMovement();
 
 }
 

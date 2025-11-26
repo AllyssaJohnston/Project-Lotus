@@ -1,13 +1,62 @@
 #include "menuHelper.h"
 
-void MenuPage::setCurSelectableAndDisplayOnlyTextBoxes(std::vector <TextBox*> curSelectableTextBoxes, std::vector<TextBox*> curDisplayOnlyTextBoxes)
+MenuPage::~MenuPage()
 {
-	mpCurSelectableTextBoxes  = curSelectableTextBoxes;
-	mpCurDisplayOnlyTextBoxes = curDisplayOnlyTextBoxes;
-	if (curSelectableTextBoxes.size() > 0)
+	mpCurSelectedTextBox = nullptr;
+	mpLastFrameCurTextBox = nullptr;
+	mpCurTextBox = nullptr;
+	for (TextBox* box : mpAllSelectableTextBoxes)
 	{
-		setCurTextBox(curSelectableTextBoxes[0]);
+		delete box;
 	}
+	for (TextBox* box : mpAllDisplayOnlyTextBoxes)
+	{
+		delete box;
+	}
+	for (ImageBox* box : mpImageBoxes)
+	{
+		delete box;
+	}
+	for (UIBlock* box : mpBlocks)
+	{
+		delete box;
+	}
+}
+
+void MenuPage::preTick() 
+{
+	mpLastFrameCurTextBox = mpCurTextBox;
+}
+
+void MenuPage::addBox(TextBox* pTextBox, bool selectable, UIBlock* pBlock) 
+{
+	pBlock->mpAllBoxes.push_back(pTextBox);
+	if (selectable) 
+	{
+		mpAllSelectableTextBoxes.push_back(pTextBox);
+	}
+	else 
+	{
+		mpAllDisplayOnlyTextBoxes.push_back(pTextBox);
+	}
+}
+
+void MenuPage::addBox(ImageBox* pBox, UIBlock* pBlock)
+{
+	pBlock->mpAllBoxes.push_back(pBox);
+	mpImageBoxes.push_back(pBox);
+}
+
+void MenuPage::addBox(ShapeBox* pBox, UIBlock* pBlock)
+{
+	pBlock->mpAllBoxes.push_back(pBox);
+	mpShapeBoxes.push_back(pBox);
+}
+
+void MenuPage::addBox(HealthBox* pBox, UIBlock* pBlock)
+{
+	pBlock->mpAllBoxes.push_back(pBox);
+	mpHealthBoxes.push_back(pBox);
 }
 
 void MenuPage::useInput(const std::vector <int>& eventVect)
@@ -25,19 +74,15 @@ void MenuPage::useInput(const std::vector <int>& eventVect)
 
 			setCurTextBoxIfValid(getCurTextBoxIndex() + 1);
 			break;
-		case EKeyboardInput_ENTER:
-
-			mpCurSelectedTextBox = mpCurTextBox;
-			break;
 		}
 	}
 }
 
 void MenuPage::setCurTextBoxIfValid(int count)
 {
-	if (count >= 0 and count < mpCurSelectableTextBoxes.size())
+	if (count >= 0 and count < mpAllSelectableTextBoxes.size() and mpAllSelectableTextBoxes[count]->mShow)
 	{
-		setCurTextBox(mpCurSelectableTextBoxes[count]);
+		setCurTextBox(mpAllSelectableTextBoxes[count]);
 	}
 }
 
@@ -48,29 +93,25 @@ void MenuPage::setCurTextBox(TextBox * textBox)
 		mpCurTextBox->changeIsHighlighted(false);
 	}
 	mpCurTextBox = textBox;
-	mpCurTextBox->changeIsHighlighted(true);
+	if (mpCurTextBox != nullptr) 
+	{
+		mpCurTextBox->changeIsHighlighted(true);
+	}
 }
 
-void MenuPage::setCurSelectedTextBox(TextBox* textBox)
-{
-	mpCurSelectedTextBox = textBox;
-}
+void MenuPage::setCurSelectedTextBox(TextBox* textBox)  { mpCurSelectedTextBox = textBox; }
 
-TextBox* MenuPage::getCurTextBox()
-{
-	return mpCurTextBox;
-}
+bool MenuPage::curTextBoxChange() { return mpLastFrameCurTextBox != mpCurTextBox; }
 
-TextBox* MenuPage::getCurSelectedTextBox()
-{
-	return mpCurSelectedTextBox;
-}
+TextBox* MenuPage::getCurTextBox() { return mpCurTextBox; }
+
+TextBox* MenuPage::getCurSelectedTextBox() { return mpCurSelectedTextBox; }
 
 int MenuPage::getCurTextBoxIndex()
 {
-	for (int count = 0; count < mpCurSelectableTextBoxes.size(); count++)
+	for (int count = 0; count < mpAllSelectableTextBoxes.size(); count++)
 	{
-		if (mpCurSelectableTextBoxes[count] == mpCurTextBox)
+		if (mpAllSelectableTextBoxes[count] == mpCurTextBox)
 		{
 			return count;
 		}
@@ -78,7 +119,9 @@ int MenuPage::getCurTextBoxIndex()
 	return -1;
 }
 
-std::vector <TextBox*> MenuPage::returnAllTextBoxes()
+std::vector<SDL_Texture*> MenuPage::getCurTextBoxTextures() const { return mpCurTextBox->getTextBoxTexture(); }
+
+std::vector <TextBox*> MenuPage::getAllTextBoxes()
 {
 	std::vector <TextBox*> allTextBoxes;
 	for (TextBox* pTextBox : mpAllSelectableTextBoxes)
@@ -92,31 +135,114 @@ std::vector <TextBox*> MenuPage::returnAllTextBoxes()
 	return allTextBoxes;
 }
 
-std::vector <TextBox*> MenuPage::returnAllCurTextBoxes()
+std::vector <TextBox*> MenuPage::getCurTextBoxes()
 {
 	std::vector <TextBox*> allCurTextBoxes;
-	for (TextBox* pTextBox : mpCurSelectableTextBoxes)
+	for (TextBox* pCurTextBox : mpAllSelectableTextBoxes)
 	{
-		allCurTextBoxes.push_back(pTextBox);
+		if (pCurTextBox->mShow) 
+		{
+			allCurTextBoxes.push_back(pCurTextBox);
+		}
 	}
-	for (TextBox* pTextBox : mpCurDisplayOnlyTextBoxes)
+	
+	for (TextBox* pCurTextBox : mpAllDisplayOnlyTextBoxes)
 	{
-		allCurTextBoxes.push_back(pTextBox);
+		if (pCurTextBox->mShow)
+		{
+			allCurTextBoxes.push_back(pCurTextBox);
+		}
 	}
+
 	return allCurTextBoxes;
 }
 
-void MenuPage::adjustBlocks(float textSizeFactor)
+std::vector <UIBlock*> MenuPage::getAllBlocks() 
 {
-	for (UIBlock* pBlock : mpBlocks)
+	std::vector <UIBlock*> list;
+	for (UIBlock* pBlock : mpBlocks) 
 	{
-		pBlock->updateBlocks((int)textSizeFactor);
+		pBlock->getAllBlocksInternal(list);
 	}
+	return list;
 }
 
 
 
+void MenuPage::updateAllTextBoxShowState(MiniGameStateManagerData& data)
+{
+	//update show state for all textboxes
+	for (TextBox* pCurTextBox : mpAllSelectableTextBoxes)
+	{
+		pCurTextBox->mShow = shouldShowTextBox(pCurTextBox, data);
+	}
 
+	for (TextBox* pCurTextBox : mpAllDisplayOnlyTextBoxes)
+	{
+		pCurTextBox->mShow = shouldShowTextBox(pCurTextBox, data);
+	}
+
+	for (ShapeBox* pShapeBox : mpShapeBoxes)
+	{
+		pShapeBox->mShow = shouldShowTextBox(pShapeBox, data);
+	}
+}
+
+void MenuPage::setDefaultSelectedBox() 
+{
+	for (TextBox* pCurTextBox : mpAllSelectableTextBoxes)
+	{
+		if (pCurTextBox->mShow)
+		{
+			setCurTextBox(pCurTextBox);
+			return;
+		}
+	}
+}
+
+
+void MenuPage::adjustBlocks()
+{
+	for (UIBlock* pBlock : mpBlocks)
+	{
+		pBlock->updateBlocks();
+	}
+}
+
+void MenuPage::deleteBlock(UIBlock* pBlock)
+{
+	std::vector<UIBox*> allBoxes = pBlock->getAllBoxes();
+	for (int i = (int)allBoxes.size() - 1; i > -1; i--) 
+	{
+		UIBox* pBox = allBoxes[i];
+		switch (pBox->mClassType) 
+		{
+		case EUIBoxClass_TEXTBOX:
+			mpAllDisplayOnlyTextBoxes.erase(std::remove(mpAllDisplayOnlyTextBoxes.begin(), mpAllDisplayOnlyTextBoxes.end(), pBox), mpAllDisplayOnlyTextBoxes.end());
+			mpAllSelectableTextBoxes.erase(std::remove(mpAllSelectableTextBoxes.begin(), mpAllSelectableTextBoxes.end(), pBox), mpAllSelectableTextBoxes.end());
+			break;
+		case EUIBoxClass_IMAGEBOX:
+			mpImageBoxes.erase(std::remove(mpImageBoxes.begin(), mpImageBoxes.end(), pBox), mpImageBoxes.end());
+			break;
+		case EUIBoxClass_SHAPEBOX:
+			mpShapeBoxes.erase(std::remove(mpShapeBoxes.begin(), mpShapeBoxes.end(), pBox), mpShapeBoxes.end());
+			break;
+		case EUIBoxClass_HEALTHBOX:
+			mpHealthBoxes.erase(std::remove(mpHealthBoxes.begin(), mpHealthBoxes.end(), pBox), mpHealthBoxes.end());
+			break;
+		}
+		
+		delete pBox;
+	}
+	delete pBlock;
+}
+
+
+
+MenuManager::MenuManager(ScreenObject& screen, WorldData& worldData, SettingsManager& settingsManager, FontSizeChart& fontSizeChart, 
+		MiniGameStateManagerData& miniGameStateManagerData, MiniGameWorldData& miniWorldData) 
+		: mScreen(screen), mWorldData(worldData), mSettingsManager(settingsManager), mFontSizeChart(fontSizeChart),
+		mMiniGameStateManagerData(miniGameStateManagerData), mMiniGameWorldData(miniWorldData) { ; }
 
 MenuManager::~MenuManager()
 {
@@ -131,15 +257,15 @@ MenuManager::~MenuManager()
 void MenuManager::preTick()
 {
 	mpLastFrameMenuPage = mpCurMenuPage;
-	mpCurMenuPage->setCurSelectedTextBox(nullptr);
+	mpCurMenuPage->preTick();
 }
 
-TextBox* MenuManager::returnMouseTextBox(Vect2 gameUnitsMousePos, ScreenObject& screenObject)
+TextBox* MenuManager::returnMouseTextBox(Vect2 gameUnitsMousePos)
 {
-	int  x = int( (gameUnitsMousePos.getX() - 5) / screenObject.mGameScreenToGameLevelChunkRatio);
-	int x2 = int( (gameUnitsMousePos.getX() + 5) / screenObject.mGameScreenToGameLevelChunkRatio);
-	int  y = int( (gameUnitsMousePos.getY() - 5) / screenObject.mGameScreenToGameLevelChunkRatio);
-	int y2 = int( (gameUnitsMousePos.getY() + 5) / screenObject.mGameScreenToGameLevelChunkRatio);
+	int  x = int( (gameUnitsMousePos.getX() - 5) / mScreen.mGameScreenToGameLevelChunkRatio);
+	int x2 = int( (gameUnitsMousePos.getX() + 5) / mScreen.mGameScreenToGameLevelChunkRatio);
+	int  y = int( (gameUnitsMousePos.getY() - 5) / mScreen.mGameScreenToGameLevelChunkRatio);
+	int y2 = int( (gameUnitsMousePos.getY() + 5) / mScreen.mGameScreenToGameLevelChunkRatio);
 
 	if (x < 0)
 	{
@@ -152,9 +278,9 @@ TextBox* MenuManager::returnMouseTextBox(Vect2 gameUnitsMousePos, ScreenObject& 
 
 	Hitbox mouseHitbox(x, x2, y, y2);
 
-	for (TextBox* pTextBox : mpCurMenuPage->mpCurSelectableTextBoxes)
+	for (TextBox* pTextBox : mpCurMenuPage->mpAllSelectableTextBoxes)
 	{
-		if (pTextBox->mHitbox.overlap(mouseHitbox))
+		if (pTextBox->mShow && pTextBox->mpCurHitbox->overlap(mouseHitbox))
 		{
 			return pTextBox;
 		}
@@ -162,53 +288,13 @@ TextBox* MenuManager::returnMouseTextBox(Vect2 gameUnitsMousePos, ScreenObject& 
 	return nullptr;
 }
 
-bool MenuManager::shouldShowTextBox(MiniGameStateManagerData& miniGameStateManagerData, TextBox* pTextBox)
-{
-	switch (pTextBox->mType)
-	{
-	case ETextBoxType_MINI_GAME_PLAYER_BOX:
-	{
-		if (miniGameStateManagerData.mpData->mpCharacter == nullptr)
-		{
-			return false;
-		}
-		if (miniGameStateManagerData.mpData->mpCharacter->mType != EMiniGameCombatCharacterType_PLAYER)
-		{
-			return false;
-		}
-		//NO BREAK!!!
-	}
-	case ETextBoxType_MINI_GAME_BOX: //or ETextBoxType_MINI_GAME_PLAYER_BOX:
-	{
-		std::vector <EMiniGameState> miniGameStateWhenToShowList = pTextBox->mDataStorage.mMiniGameStateWhenToShowList;
-		bool isInWhenToShow = false;
-		for (EMiniGameState eState : miniGameStateWhenToShowList)
-		{
-			if (eState == miniGameStateManagerData.mCurStateEnum)
-			{
-				isInWhenToShow = true;
-			}
-		}
-		if (!isInWhenToShow)
-		{
-			return false;
-		}
-		break;
-	}
-	default:
-		break;
-	}
-	
-	return true;
-}
-
-void MenuManager::setAllTextBoxTextures(SDL_Renderer * pRenderer, int textIncrease)
+void MenuManager::setAllTextBoxTextures()
 {
 	for (MenuPage* pPage : mpMenuPages)
 	{
-		for (TextBox* pTextBox : pPage->returnAllTextBoxes())
+		for (TextBox* pTextBox : pPage->getAllTextBoxes())
 		{
-			pTextBox->updateTexture(pRenderer, textIncrease);
+			pTextBox->updateTexture(mScreen.mpRenderer);
 		}
 	}
 }
@@ -224,315 +310,228 @@ void MenuManager::setUpBlocks()
 	}
 }
 
-std::vector<SDL_Texture*> MenuManager::getCurTextBoxTextures()
-{
-	return mpCurMenuPage->getCurTextBox()->getTextBoxTexture();
-}
-
-int MenuManager::getCurTextBoxIndex() const
-{
-	for (int count = 0; count < mpCurMenuPage->mpCurSelectableTextBoxes.size(); count++)
-	{
-		if (mpCurMenuPage->mpCurSelectableTextBoxes[count] == mpCurMenuPage->getCurTextBox())
-		{
-			return count;
-		}
-	}
-	return -1;
-}
-
 void MenuManager::setCurMenuPage(MenuPage* newMenuPage)
 {
 	mpCurMenuPage->setCurSelectedTextBox(nullptr);
+	mpCurMenuPage->setCurTextBox(nullptr);
 	mpCurMenuPage = newMenuPage;
 }
 
-void MenuManager::renderMenus(ScreenObject& screenObject, GameStateManagerData& gameStateManagerData, MiniGameStateManagerData& miniGameStateManagerData,
-	WorldData& worldData, SettingsManager& settingsManager)
+void MenuManager::renderMenus(EGameState curState, bool forceUpdate, std::string curKeys)
 {
+	getUpdatedMenuBoxes(curState, forceUpdate, curKeys);
+	printBoxes();
+}
 
-	SDL_Renderer  * pRenderer = screenObject.mpRenderer;
+void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std::string& curKeys)
+{
+	SDL_Renderer* pRenderer = mScreen.mpRenderer;
 
-	shouldSetMenuManagerCurSelectableAndDisplayOnlyTextBoxes(gameStateManagerData, miniGameStateManagerData);
-	std::vector<TextBox*> allTextBoxes = mpCurMenuPage->returnAllCurTextBoxes();
-	if (allTextBoxes.size() == 0)
+	bool updated = false;
+	if (shouldUpdateTextBoxShowState(curState, forceUpdate))
 	{
-		setMenuManagerCurSelectableAndDisplayOnlyTextBoxes(miniGameStateManagerData);
+		updated = true;
+		mpCurMenuPage->updateAllTextBoxShowState(mMiniGameStateManagerData);
 	}
+	if (mpCurMenuPage->getCurTextBox() == nullptr) 
+	{
+		mpCurMenuPage->setDefaultSelectedBox();
+	}
+	if (mpCurMenuPage->curTextBoxChange()) 
+	{
+		updated = true;
+	}
+	std::vector<TextBox*> allTextBoxes = mpCurMenuPage->getCurTextBoxes();
 
-	bool changeText = false;
-
+	
 	for (TextBox* pCurTextBox : allTextBoxes)
 	{
-		std::string newMessage = pCurTextBox->mFullString;
+		std::string updatedMessage = pCurTextBox->mDataStorage.mMessage;
 		switch (pCurTextBox->mType)
 		{
 		case ETextBoxType_GAME_STAT_BOX:
-			newMessage = updateGameStatBoxCurTextBoxMessage(worldData, settingsManager, pCurTextBox);
+			updatedMessage = updateGameStatBoxCurTextBoxMessage(pCurTextBox, curKeys, mWorldData, mSettingsManager);
+			break;
+		case ETextBoxType_MINI_GAME_STAT_BOX:
+			updatedMessage = updateMiniGameStatBoxCurTextBoxMessage(pCurTextBox, mMiniGameStateManagerData, mMiniGameWorldData);
 			break;
 		case ETextBoxType_MINI_GAME_PLAYER_BOX:
-			newMessage = updateCharacterStatBoxCurTextBoxMessage(miniGameStateManagerData, pCurTextBox);
-			break;
 		case ETextBoxType_MINI_GAME_CHARACTER_BOX:
-			newMessage = updateCharacterStatBoxCurTextBoxMessage(miniGameStateManagerData, pCurTextBox);
+			updatedMessage = updateCharacterStatBoxCurTextBoxMessage(pCurTextBox, mMiniGameStateManagerData, mMiniGameWorldData);
 			break;
 		default:
 			break;
-
 		}
 
-		if ((pCurTextBox->mFullString != newMessage) or (settingsManager.mTextIncrease != settingsManager.mLastFrameTextIncrease) or (pCurTextBox->mSetUp == false))
+		if ((pCurTextBox->mDataStorage.mMessage != updatedMessage) or (mSettingsManager.mTextIncrease != mSettingsManager.mLastFrameTextIncrease) or !pCurTextBox->mSetUp)
 		{
-			pCurTextBox->updateMessage(pRenderer, newMessage.c_str(), settingsManager.mTextIncrease);
-			changeText = true;
+			pCurTextBox->updateMessage(pRenderer, mFontSizeChart, updatedMessage);
+			updated = true;
+		}
+	}
+	for (HealthBox* pHealthBox : mpCurMenuPage->mpHealthBoxes)
+	{
+		std::string updatedMessage = updateHealthStatBoxCurTextBoxMessage(pHealthBox, mMiniGameWorldData);
+
+		if ((pHealthBox->mHealthText.mDataStorage.mMessage != updatedMessage) or (mSettingsManager.mTextIncrease != mSettingsManager.mLastFrameTextIncrease) or !pHealthBox->mHealthText.mSetUp)
+		{
+			float healthRatio = mMiniGameWorldData.mpMiniGameLevels[mMiniGameWorldData.mCurMiniGameLevelNumber]->mCombatManager.mpAllCombatCharacters[pHealthBox->mCombatCharacterIndex]->getHealthRatio();
+			pHealthBox->updateMessage(pRenderer, mFontSizeChart, updatedMessage, healthRatio);
+			updated = true;
 		}
 	}
 
-	if (changeText)
+	if (updated)
 	{
-		mpCurMenuPage->adjustBlocks(settingsManager.mTextBoxChangeWidthFactor * settingsManager.mTextIncrease);
+		mpCurMenuPage->adjustBlocks();
 	}
-	/*if (settingsManager.mTextIncrease != settingsManager.mLastFrameTextIncrease)
-	{
-	for (int count = 0; count < mpCurMenuPage->mpImageBoxes.size(); count++)
-	{
-	ImageBox* pCurImageBox = mpCurMenuPage->mpImageBoxes[count];
-	pCurImageBox->updateHitbox(settingsManager.mTextIncrease);
-	}
-	}*/
+}
 
-	//Render
+void MenuManager::printBoxes()
+{
+	SDL_Renderer* pRenderer = mScreen.mpRenderer;
+
+	for (UIBlock* pBlock : mpCurMenuPage->getAllBlocks()) 
+	{
+		SDL_Color curTextBoxColor = pBlock->mBackgroundColor;
+		if (curTextBoxColor.a != 0)
+		{
+			SDL_SetRenderDrawColor(pRenderer, curTextBoxColor.r, curTextBoxColor.g, curTextBoxColor.b, curTextBoxColor.a);
+
+			const Hitbox& box = pBlock->mHitbox;
+			SDL_FRect rect = {	box.getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio,
+								box.getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
+								box.getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
+								box.getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
+			SDL_RenderFillRect(pRenderer, &rect);
+		}
+	}
+
+	std::vector<TextBox*> allTextBoxes = mpCurMenuPage->getCurTextBoxes();
 	for (TextBox* pCurTextBox : allTextBoxes)
 	{
 		SDL_Color curTextBoxColor = pCurTextBox->getTextBoxColor();
-		SDL_SetRenderDrawColor(pRenderer, curTextBoxColor.r, curTextBoxColor.g, curTextBoxColor.b, curTextBoxColor.a);
-		Hitbox box = pCurTextBox->mHitbox;
+		SDL_Color curOutlineColor = pCurTextBox->getIsHighlighted() ? pCurTextBox->mHighlightedOutlineColor : pCurTextBox->mOutlineColor;
+		
+		const Hitbox& box = *pCurTextBox->mpCurHitbox;
+		//outline box
+		if (pCurTextBox->mOutlineWidth != 0 && curOutlineColor.a != 0)
+		{
+			SDL_SetRenderDrawColor(pRenderer, curOutlineColor.r, curOutlineColor.g, curOutlineColor.b, curOutlineColor.a);
+			SDL_FRect rect = {	box.getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
+								box.getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
+								box.getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
+								box.getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
+			SDL_RenderFillRect(pRenderer, &rect);
+		}
 
 		//background box
 		if (curTextBoxColor.a != 0)
 		{
-			//TODO TEXT ALIGN
-			SDL_FRect destinationBox;
-			destinationBox.x = (box.getTopLeft().getX() - 10) * screenObject.mGameScreenToGameLevelChunkRatio;
-			destinationBox.y = (box.getTopLeft().getY() - 10) * screenObject.mGameScreenToGameLevelChunkRatio;
-			destinationBox.w = (box.getWidth()  + 20) * screenObject.mGameScreenToGameLevelChunkRatio;
-			destinationBox.h = (box.getHeight() + 20) * screenObject.mGameScreenToGameLevelChunkRatio;
-			SDL_RenderFillRect(pRenderer, &destinationBox);
+			SDL_SetRenderDrawColor(pRenderer, curTextBoxColor.r, curTextBoxColor.g, curTextBoxColor.b, curTextBoxColor.a);
+			SDL_FRect rect = {	(box.getTopLeft().getX() + pCurTextBox->mOutlineWidth) * mScreen.mGameScreenToGameLevelChunkRatio ,
+								(box.getTopLeft().getY() + pCurTextBox->mOutlineWidth) * mScreen.mGameScreenToGameLevelChunkRatio,
+								(box.getWidth()  - 2 * pCurTextBox->mOutlineWidth) * mScreen.mGameScreenToGameLevelChunkRatio,
+								(box.getHeight() - 2 * pCurTextBox->mOutlineWidth) * mScreen.mGameScreenToGameLevelChunkRatio };
+			SDL_RenderFillRect(pRenderer, &rect);
 		}
 
-		for (int i = 0; i < pCurTextBox->mpCurTextures.size(); i++)
+		//text
+		for (int i = 0; i < (*(pCurTextBox->mpCurTextures)).size(); i++)
 		{
-			Hitbox curLineBox = pCurTextBox->mCurLineHitboxes[i];
-			SDL_FRect destinationText;
-			destinationText.x = curLineBox.getTopLeft().getX() * screenObject.mGameScreenToGameLevelChunkRatio;
-			destinationText.y = curLineBox.getTopLeft().getY() * screenObject.mGameScreenToGameLevelChunkRatio;
-			destinationText.w = curLineBox.getWidth()  * screenObject.mGameScreenToGameLevelChunkRatio;
-			destinationText.h = curLineBox.getHeight() * screenObject.mGameScreenToGameLevelChunkRatio;
-
-			SDL_RenderTexture(pRenderer, pCurTextBox->mpCurTextures[i], NULL, &destinationText);
+			const Hitbox& curLineBox = (*(pCurTextBox->mpCurLineHitboxes))[i];
+			SDL_FRect destinationText = {	curLineBox.getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
+											curLineBox.getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
+											curLineBox.getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
+											curLineBox.getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
+			SDL_RenderTexture(pRenderer, (*(pCurTextBox->mpCurTextures))[i], NULL, &destinationText);
 		}
 	}
 
 	//image boxes
 	for (ImageBox* pCurImageBox : mpCurMenuPage->mpImageBoxes)
 	{
-		if (pCurImageBox->mShow == true)
+		if (pCurImageBox->mShow)
 		{
-			float printX = float(pCurImageBox->mHitbox.getTopLeft().getX()) * screenObject.mGameScreenToGameLevelChunkRatio;
-			float printY = float(pCurImageBox->mHitbox.getTopLeft().getY()) * screenObject.mGameScreenToGameLevelChunkRatio;
-			float printWidth  = float(pCurImageBox->mHitbox.getWidth())  * screenObject.mGameScreenToGameLevelChunkRatio;
-			float printHeight = float(pCurImageBox->mHitbox.getHeight()) * screenObject.mGameScreenToGameLevelChunkRatio;
+			SDL_FRect rect = {  pCurImageBox->mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
+								pCurImageBox->mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
+								pCurImageBox->mpCurHitbox->getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
+								pCurImageBox->mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
 			int rotation = pCurImageBox->mRotation;
 
-			SDL_FRect curEntityPositionToPrintTo = { printX, printY, printWidth, printHeight };
-			SDL_RenderTextureRotated(pRenderer, pCurImageBox->mImageObject.getTexture(), NULL, &curEntityPositionToPrintTo, rotation, NULL, SDL_FLIP_NONE);
+			SDL_RenderTextureRotated(pRenderer, pCurImageBox->mImageObject.getTexture(), NULL, &rect, rotation, NULL, SDL_FLIP_NONE);
 		}
 
 	}
+
+	//shape boxes
+	for (ShapeBox* pShapeBox : mpCurMenuPage->mpShapeBoxes)
+	{
+		if (pShapeBox->mShow)
+		{
+			SDL_FRect rect;
+
+			switch (pShapeBox->mShapeType) 
+			{
+			case EShapeBoxClass_CIRCLE:
+				drawCircle(pShapeBox->mColor, pShapeBox->mpCurHitbox->getCenter(), pShapeBox->mpCurHitbox->getWidth() / 2, mScreen);
+				break;
+			case EShapeBoxClass_RECT:
+				rect = {	pShapeBox->mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
+							pShapeBox->mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
+							pShapeBox->mpCurHitbox->getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
+							pShapeBox->mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
+				SDL_RenderFillRect(pRenderer, &rect);
+				break;
+			default:
+				SDL_assert(false);
+			}
+		}
+	}
+
+	//health boxes
+	for (HealthBox* pHealthBox : mpCurMenuPage->mpHealthBoxes)
+	{
+		SDL_SetRenderDrawColor(pRenderer, pHealthBox->mBoundingBox.mColor.r, pHealthBox->mBoundingBox.mColor.g, pHealthBox->mBoundingBox.mColor.b, pHealthBox->mBoundingBox.mColor.a);
+		SDL_FRect boundingRect = {	pHealthBox->mBoundingBox.mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
+									pHealthBox->mBoundingBox.mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
+									pHealthBox->mBoundingBox.mpCurHitbox->getWidth()  * mScreen.mGameScreenToGameLevelChunkRatio,
+									pHealthBox->mBoundingBox.mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
+		SDL_RenderFillRect(pRenderer, &boundingRect);
+
+		SDL_SetRenderDrawColor(pRenderer, pHealthBox->mHealthLeftBox.mColor.r, pHealthBox->mHealthLeftBox.mColor.g, pHealthBox->mHealthLeftBox.mColor.b, pHealthBox->mHealthLeftBox.mColor.a);
+		SDL_FRect healthRect = {	pHealthBox->mHealthLeftBox.mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
+									pHealthBox->mHealthLeftBox.mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
+									pHealthBox->mHealthLeftBox.mpCurHitbox->getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
+									pHealthBox->mHealthLeftBox.mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
+		SDL_RenderFillRect(pRenderer, &healthRect);
+
+		//text
+		for (int i = 0; i < (*(pHealthBox->mHealthText.mpCurTextures)).size(); i++)
+		{
+			const Hitbox& curLineBox = (*(pHealthBox->mHealthText.mpCurLineHitboxes))[i];
+			SDL_FRect destinationText = {	curLineBox.getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
+											curLineBox.getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
+											curLineBox.getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
+											curLineBox.getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
+			SDL_RenderTexture(pRenderer, (*(pHealthBox->mHealthText.mpCurTextures))[i], NULL, &destinationText);
+		}
+	}
 }
 
-void MenuManager::shouldSetMenuManagerCurSelectableAndDisplayOnlyTextBoxes(GameStateManagerData& gameStateManagerData, MiniGameStateManagerData& miniGameStateManagerData)
+bool MenuManager::shouldUpdateTextBoxShowState(EGameState curState, bool forceUpdate)
 {	
 	//Mini Game Option Boxes have a whenToShowList 
-	//bool didCurMenuPageChange   = mpLastFrameMenuPage						 != mpCurMenuPage;	
-	//bool didGameStateChange     = gameInstance.mGameStateManager.mLastFrameStateEnum     != gameInstance.mGameStateManager.mCurStateEnum;
-	bool didMiniGameStateChange = miniGameStateManagerData.mLastFrameStateEnum != miniGameStateManagerData.mCurStateEnum;
-	bool isMiniGame             = gameStateManagerData.mCurStateEnum == EGameState_PLAY_MINI_GAME;
+	//bool didGameStateChange = ()
+	bool didMiniGameStateChange = (mMiniGameStateManagerData.mLastFrameStateEnum != mMiniGameStateManagerData.mCurStateEnum);
+	bool isMiniGame             = (curState == EGameState_PLAY_MINI_GAME);
 
-
-	/*if (didCurMenuPageChange or didGameStateChange or (isMiniGame and didMiniGameStateChange))
-	{
-	setMenuManagerCurSelectableAndDisplayOnlyTextBoxes(gameInstance);
-	}*/
-	if ((isMiniGame and didMiniGameStateChange))
-	{
-		setMenuManagerCurSelectableAndDisplayOnlyTextBoxes(miniGameStateManagerData);
-	}
+	return (isMiniGame and didMiniGameStateChange) or forceUpdate;
 }
 
-void MenuManager::setMenuManagerCurSelectableAndDisplayOnlyTextBoxes(MiniGameStateManagerData& miniGameStateManagerData)
+void MenuManager::updateUIElements()
 {
-	//update menu lists
-	std::vector <TextBox*> updatedCurSelectableTextBoxes;
-	for (TextBox* pCurTextBox : mpCurMenuPage->mpAllSelectableTextBoxes)
-	{
-		if (shouldShowTextBox(miniGameStateManagerData, pCurTextBox))
-		{
-			updatedCurSelectableTextBoxes.push_back(pCurTextBox);
-		}
-	}
-
-	std::vector <TextBox*> updatedCurDisplayOnlyTextBoxes;
-	for (TextBox* pCurTextBox : mpCurMenuPage->mpAllDisplayOnlyTextBoxes)
-	{
-		if (shouldShowTextBox(miniGameStateManagerData, pCurTextBox))
-		{
-			updatedCurDisplayOnlyTextBoxes.push_back(pCurTextBox);
-		}
-	}
-	mpCurMenuPage->setCurSelectableAndDisplayOnlyTextBoxes(updatedCurSelectableTextBoxes, updatedCurDisplayOnlyTextBoxes);
-}
-
-std::string MenuManager::updateGameStatBoxCurTextBoxMessage(WorldData& worldData, SettingsManager& settingsManager, TextBox* pTextBox)
-{
-	std::string message = " ";
-	switch (pTextBox->mDataStorage.mGameStatToDisplay)
-	{
-	case EGameStatBoxValueToDisplay_CUR_LEVEL_NUMBER:
-		message = "CUR LEVEL: " + std::to_string(worldData.mCurWorldNumber) + " - " + std::to_string(worldData.mCurLevelNumber);
-		break;
-	case EGameStatBoxValueToDisplay_CUR_ENEMIES_LEFT:
-		message = std::to_string(worldData.mpWorlds[worldData.mCurWorldNumber]->mpLevels[worldData.mCurLevelNumber]->mpActiveEnemies.size());
-		break;
-	case EGameStatBoxValueToDisplay_CUR_KEYS:
-		message = std::to_string(worldData.mPlayer.mKeys);
-		break;
-	case EGameStatBoxValueToDisplay_CUR_TARGETS:
-		message = std::to_string(worldData.mPlayer.mTargets);
-		break;
-	case EGameStatBoxValueToDisplay_CUR_COLLECTIBLES:
-		message = std::to_string(worldData.mNumLotusCollectibles);
-		break;
-	case EGameStatBoxValueToDisplay_MOVEMENT_LEFT_KEY:
-		message = createStringFromKeyboardList(settingsManager.leftKeys);
-		break;
-	case EGameStatBoxValueToDisplay_MOVEMENT_RIGHT_KEY:
-		message = createStringFromKeyboardList(settingsManager.rightKeys);
-		break;
-	case EGameStatBoxValueToDisplay_MOVEMENT_UP_KEY:
-		message = createStringFromKeyboardList(settingsManager.upKeys);
-		break;
-	case EGameStatBoxValueToDisplay_LEVEL_RESET_KEY:
-		message = convertKeyboardEnumToString(settingsManager.resetLevel);
-		break;
-	case EGameStatBoxValueToDisplay_CHECKPOINT_RESET_KEY:
-		message = convertKeyboardEnumToString(settingsManager.resetCheckpoint);
-		break;
-	case EGameStatBoxValueToDisplay_PROJECTILE_HORIZONTAL_KEY:
-		{
-		if (worldData.mpWorlds[worldData.mCurWorldNumber]->mpLevels[worldData.mCurLevelNumber]->mThrowProjectileAllowed)
-		{
-			message = convertKeyboardEnumToString(settingsManager.shootProjectileHorizontal);
-		}
-		break;
-	}
-	case EGameStatBoxValueToDisplay_PROJECTILE_VERTICAL_KEY:
-		{
-		if (worldData.mpWorlds[worldData.mCurWorldNumber]->mpLevels[worldData.mCurLevelNumber]->mThrowDownwardProjectileAllowed)
-		{
-			message = convertKeyboardEnumToString(settingsManager.shootProjectileVertical);
-		}
-		break;
-	}
-	case EGameStatBoxValueToDisplay_DOUBLE_JUMP_KEY:
-		{
-		if (worldData.mpWorlds[worldData.mCurWorldNumber]->mpLevels[worldData.mCurLevelNumber]->mDoubleJumpAllowed)
-		{
-			message = createStringFromKeyboardList(settingsManager.upKeys);
-		}
-		break;
-	}
-	case EGameStatBoxValueToDisplay_SLASH_KEY:
-		{
-		if (worldData.mpWorlds[worldData.mCurWorldNumber]->mpLevels[worldData.mCurLevelNumber]->mSlashAllowed)
-		{
-			message = convertKeyboardEnumToString(settingsManager.slash);
-		}
-		break;
-	}
-	default:
-		SDL_assert(false);
-		break;
-	}
-
-	return message;
-}
-
-std::string MenuManager::updateCharacterStatBoxCurTextBoxMessage(MiniGameStateManagerData& miniGameStateManagerData, TextBox* pTextBox)
-{
-	CombatCharacter* pCharacter = miniGameStateManagerData.mpData->mpCharacter;
-	std::string message;
-	switch (pTextBox->mDataStorage.mCharacterStatToDisplay)
-	{
-	case ECharacterStatBoxValueToDisplay_CHARACTER_NAME:
-		message = "NAME: " + pCharacter->mName;
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH:
-		message = "HEALTH " + std::to_string(pCharacter->mCurHealth);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE:
-		message = "DEFENSE " + std::to_string(pCharacter->mCurDefense);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK:
-		message = "ATTACK " + std::to_string(pCharacter->mCurAttackDamage);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_STUN:
-		message = "STUNS " + std::to_string(pCharacter->mTurnsToPass);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_1_NAME:
-		message = getAttackName(pCharacter->mCombatMovementManager.getAttacks()[0]);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_1_TYPE:
-		message = getAttackType(pCharacter->mCombatMovementManager.getAttacks()[0]);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_1_DAMAGE:
-		message = getAttackDamage(pCharacter->mCombatMovementManager.getAttacks()[0], pCharacter->mCurAttackDamage);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_1_SPECIAL_EFFECTS_AND_NOTES:
-		message = getSpecialEffect(pCharacter->mCombatMovementManager.getAttacks()[0]);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_2_NAME:
-		message = getAttackName(pCharacter->mCombatMovementManager.getAttacks()[1]);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_2_TYPE:
-		message = getAttackType(pCharacter->mCombatMovementManager.getAttacks()[1]);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_2_DAMAGE:
-		message = getAttackDamage(pCharacter->mCombatMovementManager.getAttacks()[1], pCharacter->mCurAttackDamage);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_2_SPECIAL_EFFECTS_AND_NOTES:
-		message = getSpecialEffect(pCharacter->mCombatMovementManager.getAttacks()[1]);
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME:
-		message = miniGameStateManagerData.mpData->mCurAttack.mName;
-		break;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_MOVE_TYPE:
-		{
-		int moveType = pCharacter->mCombatMovementManager.getMoveType();
-		message = returnDescriptionOfMoveAttackType(moveType);
-		break;
-	}
-	default:
-		SDL_assert(false);
-		break;
-	}
-
-	return message;
-}
-
-void MenuManager::updateUIElements(ScreenObject& screenObject, WorldData& worldData)
-{
-	Level* pCurLevel = worldData.mpWorlds[worldData.mCurWorldNumber]->mpLevels[worldData.mCurLevelNumber];
+	Level* pCurLevel = mWorldData.mpWorlds[mWorldData.mCurWorldNumber]->mpLevels[mWorldData.mCurLevelNumber];
 
 	int curProjectileBoxIndex = -1;
 	for (int count = 0; count < mpCurMenuPage->mpImageBoxes.size(); count++)
@@ -541,17 +540,8 @@ void MenuManager::updateUIElements(ScreenObject& screenObject, WorldData& worldD
 		switch (pCurImageBox->mID)
 		{
 		case ETextBoxID_TAKE_DAMAGE_SCREEN:
-		{
-			if (worldData.mPlayer.takingDamage())
-			{
-				pCurImageBox->mShow = true;
-			}
-			else
-			{
-				pCurImageBox->mShow = false;
-			}
+			pCurImageBox->mShow = mWorldData.mPlayer.takingDamage();
 			break;
-		}
 		case ETextBoxID_PROJECTILE_UI:
 			if (curProjectileBoxIndex == -1)
 			{
@@ -559,29 +549,12 @@ void MenuManager::updateUIElements(ScreenObject& screenObject, WorldData& worldD
 			}
 			break;
 		case ETextBoxID_DOUBLE_JUMP_UI:
-			{
-			if (pCurLevel->mDoubleJumpAllowed)
-			{
-				pCurImageBox->mShow = true;
-			}
-			else
-			{
-				pCurImageBox->mShow = false;
-			}
+			pCurImageBox->mShow = pCurLevel->mDoubleJumpAllowed;
 			break;
-		}
 		case ETextBoxID_SLASH_UI:
-			{
-			if (pCurLevel->mSlashAllowed)
-			{
-				pCurImageBox->mShow = true;
-			}
-			else
-			{
-				pCurImageBox->mShow = false;
-			}
+			
+			pCurImageBox->mShow = pCurLevel->mSlashAllowed;
 			break;
-		}
 		default:
 			break;
 		}
@@ -590,13 +563,13 @@ void MenuManager::updateUIElements(ScreenObject& screenObject, WorldData& worldD
 	//projectiles
 	if (pCurLevel->mThrowProjectileAllowed)
 	{
-		for (int count = 0; count < worldData.mProjectileLimit - worldData.getNumPlayerProjectiles(); count++)
+		for (int count = 0; count < mWorldData.mProjectileLimit - mWorldData.getNumPlayerProjectiles(); count++)
 		{
 			ImageBox* pCurImageBox = mpCurMenuPage->mpImageBoxes[curProjectileBoxIndex];
 			pCurImageBox->mShow = true;
 			curProjectileBoxIndex++;
 		}
-		for (int count = worldData.mProjectileLimit - worldData.getNumPlayerProjectiles(); count < worldData.mMaxProjectileLimit; count++)
+		for (int count = mWorldData.mProjectileLimit - mWorldData.getNumPlayerProjectiles(); count < mWorldData.mMaxProjectileLimit; count++)
 		{
 			ImageBox* pCurImageBox = mpCurMenuPage->mpImageBoxes[curProjectileBoxIndex];
 			pCurImageBox->mShow = false;
@@ -605,7 +578,7 @@ void MenuManager::updateUIElements(ScreenObject& screenObject, WorldData& worldD
 	}
 	else
 	{
-		for (int count = 0; count < worldData.mMaxProjectileLimit; count++)
+		for (int count = 0; count < mWorldData.mMaxProjectileLimit; count++)
 		{
 			ImageBox* pCurImageBox = mpCurMenuPage->mpImageBoxes[curProjectileBoxIndex];
 			pCurImageBox->mShow = false;

@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include "combatCharacterHelper.h"
 #include "combatAttackHelper.h"
+#include "combatHelperClass.h"
 #include "tileHelperClass.h"
 
 class CombatManager
@@ -25,7 +26,9 @@ public:
 
     CombatCharacter* returnNextCharacter(CombatCharacter* pCurCharacter);
 
-    int returnCurCharacterIndex(CombatCharacter* pGivenCharacter) const;
+    CombatCharacter* returnNextCharacter(CombatCharacter* pCurCharacter, int& outIndex);
+
+    int returnCharacterIndex(CombatCharacter* pGivenCharacter) const;
 
     void updateAllCharactersPostTurn();
 
@@ -40,7 +43,7 @@ public:
 
     }*/
 
-    bool checkIfWonGame();
+    GameOverStats getGameOverStats();
 
     void resetStats();
 

@@ -10,26 +10,15 @@ HitboxEdges::HitboxEdges(EEntityEdgeType top, EEntityEdgeType bottom, EEntityEdg
 	mRight	= right;
 }
 
-HitboxEdges::HitboxEdges()
-{
-	mTop	= EEntityEdgeType_NEUTRAL;
-	mBottom = EEntityEdgeType_NEUTRAL;
-	mLeft	= EEntityEdgeType_NEUTRAL;
-	mRight	= EEntityEdgeType_NEUTRAL;
-}
+Edges::Edges(int top, int bottom, int left, int right) :mTop(top), mBottom(bottom), mLeft(left), mRight(right) { ; }
 
+Vect2::Vect2(int x, int y) : mX(x), mY(y) { ; }
 
-Vect2::Vect2()
-{
-	mX = 0;
-	mY = 0;
-}
+Vect2::Vect2(float x, int y) : mX((int)x), mY(y) { ; }
 
-Vect2::Vect2(int x, int y)
-{
-	mX = x;
-	mY = y;
-}
+Vect2::Vect2(int x, float y) : mX(x), mY((int)y) { ; }
+
+Vect2::Vect2(float x, float y) : mX((int)x), mY((int)y) { ; }
 
 //Operators
 Vect2& Vect2::operator+=(const Vect2& vect)
@@ -46,14 +35,15 @@ Vect2& Vect2::operator-=(const Vect2& vect)
 	return *this;
 }
 
-Vect2 Vect2::operator+(const Vect2& vect) const
-{
-	return Vect2(mX + vect.mX, mY + vect.mY);
-}
+Vect2 Vect2::operator+(const Vect2& vect) const { return Vect2(mX + vect.mX, mY + vect.mY); }
 
-Vect2 Vect2::operator-(const Vect2& vect) const
+Vect2 Vect2::operator-(const Vect2& vect) const { return Vect2(mX - vect.mX, mY - vect.mY); }
+
+Vect2& Vect2::operator*=(int a)
 {
-	return Vect2(mX - vect.mX, mY - vect.mY);
+	mX *= a;
+	mY *= a;
+	return *this;
 }
 
 Vect2& Vect2::operator/=(int div)
@@ -64,129 +54,49 @@ Vect2& Vect2::operator/=(int div)
 	return *this;
 }
 
-bool Vect2::operator==(Vect2 vect)
-{
-	if (mX != vect.mX)
-		return false;
-	if (mY != vect.mY)
-		return false;
-	return true;
-}
+bool Vect2::operator==(Vect2& vect) { return (mX == vect.mX) && (mY == vect.mY); }
 
-int Vect2::getX() const
-{
-	return mX;
-}
+bool Vect2::operator!=(Vect2& vect) { return !(*this==vect); }
 
-int Vect2::getY() const
-{
-	return mY;
-}
+int Vect2::getX() const { return mX; }
 
-void Vect2::changeX(int xDelta)
-{
-	mX += xDelta;
-}
+int Vect2::getY() const { return mY; }
 
-void Vect2::changeY(int yDelta)
-{
-	mY += yDelta;
-}
+void Vect2::changeX(int xDelta) { mX += xDelta; }
 
-void Vect2::setX(int x)
-{
-	mX = x;
-}
+void Vect2::changeY(int yDelta) { mY += yDelta; }
 
-void Vect2::setY(int y)
-{
-	mY = y;
-}
+void Vect2::setX(int x) { mX = x; }
+
+void Vect2::setY(int y) { mY = y; }
 
 
-CoordsX1Y1WidthHeight::CoordsX1Y1WidthHeight(int x1Input, int y1Input, int widthInput, int heightInput)
-{
-	mX1 = x1Input;
-	mY1 = y1Input;
-	mWidth = widthInput;
-	mHeight = heightInput;
-}
-
-CoordsX1Y1WidthHeight::CoordsX1Y1WidthHeight()
-{
-	mX1 = 0;
-	mY1 = 0;
-	mWidth = 0;
-	mHeight = 0;
-}
+CoordsX1Y1WidthHeight::CoordsX1Y1WidthHeight(int x1, int y1, int w, int h) : mX1(x1), mY1(y1), mWidth(w), mHeight(h) {}
 
 
 
 
-CoordsX1X2Y1Y2::CoordsX1X2Y1Y2(int x1, int x2, int y1, int y2)
-{
-	mX1 = x1;
-	mX2 = x2;
-	mY1 = y1;
-	mY2 = y2;
-}
 
-CoordsX1X2Y1Y2::CoordsX1X2Y1Y2(int x1, int x2, int y1, int y2, int shiftX, int shiftY)
-{
-	mX1 = x1 + shiftX;
-	mX2 = x2 + shiftX;
-	mY1 = y1 + shiftY;
-	mY2 = y2 + shiftY;
-}
+CoordsX1X2Y1Y2::CoordsX1X2Y1Y2(int x1, int x2, int y1, int y2) : mX1(x1), mX2(x2), mY1(y1), mY2(y2) {}
 
-CoordsX1X2Y1Y2::CoordsX1X2Y1Y2()
-{
-	mX1 = 0;
-	mX2 = 0;
-	mY1 = 0;
-	mY2 = 0;
-}
+CoordsX1X2Y1Y2::CoordsX1X2Y1Y2(int x1, int x2, int y1, int y2, int shiftX, int shiftY) : CoordsX1X2Y1Y2(x1 + shiftX, x2 + shiftX, y1 + shiftY, y2 + shiftY) {}
 
-int CoordsX1X2Y1Y2::getX1() const
-{
-	return mX1;
-}
+int CoordsX1X2Y1Y2::getX1() const { return mX1; }
 
-int CoordsX1X2Y1Y2::getX2() const
-{
-	return mX2;
-}
+int CoordsX1X2Y1Y2::getX2() const { return mX2; }
 
-int CoordsX1X2Y1Y2::getY1() const
-{
-	return mY1;
-}
+int CoordsX1X2Y1Y2::getY1() const { return mY1; }
 
-int CoordsX1X2Y1Y2::getY2() const
-{
-	return mY2;
-}
+int CoordsX1X2Y1Y2::getY2() const { return mY2; }
 
-int CoordsX1X2Y1Y2::getWidth() const
-{
-	return mX2 - mX1;
-}
+int CoordsX1X2Y1Y2::getWidth() const { return mX2 - mX1; }
 
-int CoordsX1X2Y1Y2::getHeight() const
-{
-	return mY2 - mY1;
-}
+int CoordsX1X2Y1Y2::getHeight() const { return mY2 - mY1; }
 
 
-bool rangeOverlap(int start1, int end1, int start2, int end2)
-{
-	if (end1 < start2 or end2 < start1)
-	{
-		return false;
-	}
-	return true;
-}
+bool rangeOverlap(int start1, int end1, int start2, int end2) { return !(end1 < start2 or end2 < start1); }
 
+//TODO this math is wrong, need to fix
 int rangeOverlapDistance(int start1, int end1, int start2, int end2)
 {
 	int extent1 = (end1 - start1) / 2;
@@ -249,10 +159,7 @@ Hitbox::Hitbox(CoordsX1Y1WidthHeight coords)
 	mCenterPos = Vect2(coords.mX1 + mHalfWidthHeight.getX(), coords.mY1 + mHalfWidthHeight.getY());
 }
 
-Hitbox::Hitbox() 
-{
-	checkCoordsValidity();
-}
+Hitbox::Hitbox() { checkCoordsValidity(); }
 
 void Hitbox::checkCoordsValidity() 
 {
@@ -262,7 +169,7 @@ void Hitbox::checkCoordsValidity()
 	}
 }
 
-bool Hitbox::overlap(Hitbox otherHitbox) const
+bool Hitbox::overlap(Hitbox& otherHitbox) const
 {
 	int x1 = getTopLeft().getX();
 	int x2 = getBottomRight().getX();
@@ -284,7 +191,7 @@ bool Hitbox::overlap(Hitbox otherHitbox) const
 	return false;
 }
 
-EBoxSide Hitbox :: separate(Hitbox & otherHitbox, bool doSeparate)
+EBoxSide Hitbox :: separate(Hitbox& otherHitbox, bool doSeparate)
 {
 	int xDelta = rangeOverlapDistance(getTopLeft().getX(), getBottomRight().getX(), otherHitbox.getTopLeft().getX(), otherHitbox.getBottomRight().getX());
 	int yDelta = rangeOverlapDistance(getTopLeft().getY(), getBottomRight().getY(), otherHitbox.getTopLeft().getY(), otherHitbox.getBottomRight().getY());
@@ -329,45 +236,21 @@ EBoxSide Hitbox :: separate(Hitbox & otherHitbox, bool doSeparate)
 	}
 }
 
-Vect2 Hitbox::getTopLeft() const
-{
-	return mCenterPos - mHalfWidthHeight;
-}
+Vect2 Hitbox::getTopLeft() const { return mCenterPos - mHalfWidthHeight; }
 
-Vect2 Hitbox::getCenter() const
-{
-	return mCenterPos;
-}
+Vect2 Hitbox::getCenter() const { return mCenterPos; }
 
-Vect2 Hitbox::getBottomRight() const
-{
-	return mCenterPos + mHalfWidthHeight;
-}
+Vect2 Hitbox::getBottomRight() const { return mCenterPos + mHalfWidthHeight; }
 
-int Hitbox::getWidth() const
-{
-	return mHalfWidthHeight.getX() * 2;
-}
+int Hitbox::getWidth() const { return mHalfWidthHeight.getX() * 2; }
 
-int Hitbox::getHeight() const
-{
-	return mHalfWidthHeight.getY() * 2;
-}
+int Hitbox::getHeight() const { return mHalfWidthHeight.getY() * 2; }
 
-void Hitbox::updateTopLeft(Vect2 newTopLeft) 
-{
-	mCenterPos += newTopLeft;
-}
+void Hitbox::updateTopLeft(Vect2 newTopLeft)  { mCenterPos += newTopLeft; }
 
-void Hitbox::updateTopLeftX(int x)
-{
-	mCenterPos.changeX(x);
-}
+void Hitbox::updateTopLeftX(int x) { mCenterPos.changeX(x); }
 
-void Hitbox::updateTopLeftY(int y)
-{
-	mCenterPos.changeY(y);
-}
+void Hitbox::updateTopLeftY(int y) { mCenterPos.changeY(y); }
 
 void Hitbox::setTopLeft(Vect2 newTopLeft)
 {
@@ -379,22 +262,15 @@ void Hitbox::setTopLeftX(int x)
 {
 	int y = mCenterPos.getY();
 	mCenterPos = Vect2(x + mHalfWidthHeight.getX(), y);
-	//Vect2 curLeft(mCenterPos - mHalfWidthHeight);
-	//mCenterPos.changeX( curLeft.getX() - x);
 }
 
 void Hitbox::setTopLeftY(int y)
 {
 	int x = mCenterPos.getX();
 	mCenterPos = Vect2(x, y + mHalfWidthHeight.getY());
-	//Vect2 curLeft(mCenterPos - mHalfWidthHeight);
-	//mCenterPos.changeY(curLeft.getY() - y);
 }
 
-void Hitbox::setCenter(Vect2 newCenter)
-{
-	mCenterPos = newCenter;
-}
+void Hitbox::setCenter(Vect2 newCenter) { mCenterPos = newCenter; }
 
 void Hitbox::setWidth(int w)
 {
@@ -424,23 +300,26 @@ void Hitbox::setHeight(int h)
 	}
 }
 
+
+
 EDirection returnOppositeDirection(EDirection givenDirection)
 {
-	if (givenDirection == EDirection_LEFT)
-	{
-		return EDirection_RIGHT;
+	switch (givenDirection) {
+		case EDirection_LEFT:
+			return EDirection_RIGHT;
+			break;
+		case EDirection_RIGHT:
+			return EDirection_LEFT;
+			break;
+		case EDirection_UP:
+			return EDirection_DOWN;
+			break;
+		case EDirection_DOWN:
+			return EDirection_UP;
+			break;
+		default:
+			return EDirection_NONE;
 	}
-	else if (givenDirection == EDirection_RIGHT)
-	{
-		return EDirection_LEFT;
-	}
-	else if (givenDirection == EDirection_UP)
-	{
-		return EDirection_DOWN;
-	}
-	else if (givenDirection == EDirection_DOWN)
-	{
-		return EDirection_UP;
-	}
-	return EDirection_NONE;
 }
+
+

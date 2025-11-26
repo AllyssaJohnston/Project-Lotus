@@ -33,7 +33,7 @@ public:
 	int mCurRotation					= 0;
 	int mRotationInterval				= 5;
 	int mRotationTickCountDown			= 0;
-	int mRotationTickCountDownInterval	= 5;
+	int mRotationTickCountDownInterval	= 1;
 	bool mCurSlash						= false;
 	std::chrono::time_point<std::chrono::steady_clock> mTimeOfLastSlash;
 
@@ -42,9 +42,9 @@ public:
 	Hitbox mHitbox = Hitbox(Vect2(0,0), 10, 10);
 	AnimationManager mAnimationManager;
 	ImageObject mImageObjectHitbox;
-	SDL_Texture* mHitboxTexture; //actual slash hitbox
+	SDL_Texture* mHitboxTexture = nullptr; //actual slash hitbox
 	ImageObject mImageObjectImageHitbox;
-	SDL_Texture* mSlashImageHitboxTexture; //sword hitbox
+	SDL_Texture* mSlashImageHitboxTexture = nullptr; //sword hitbox
 	int mImageRotation = 180;
 
 	SlashManager(MovementManager& playerMovementManager);

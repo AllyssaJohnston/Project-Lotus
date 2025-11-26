@@ -1,46 +1,18 @@
 #pragma once
+#include <SDL3/SDL.h>
 #include "combatHelperClass.h"
 
-class SpecialEffectPreset
+struct SpecialEffectPreset
 {
-public:
-    EMiniGameCombatSpecialEffectTypes mType;
-    std::string mName;
+    EMiniGameCombatSpecialEffectTypes mType = EMiniGameCombatSpecialEffectTypes_INVALID;
+    std::string mName = "";
+
+    SpecialEffectPreset() {}
 };
 
-class SpecialEffectStun : public SpecialEffectPreset
-{
-public:
-    SpecialEffectStun();
-};
+struct SpecialEffectStun : public SpecialEffectPreset { SpecialEffectStun(); };
 
 
-
-
-class AttackPreset
-{
-public:
-    EMiniGameCombatMoveAttackTypes      mType;
-    float                               mDamagePercent;
-    bool                                mDamageDistanceDependent;
-    std::vector <SpecialEffectPreset>   mSpecialEffectPresets;
-    bool                                mRequiresDirectionInput;
-    std::string                         mName;
-    std::string                         mDescription;
-};
-
-class AttackSwordOverheadStrike : public AttackPreset
-{
-public:
-    AttackSwordOverheadStrike();
-};
-
-
-class AttackSwordSwipe : public AttackPreset
-{
-public:
-    AttackSwordSwipe();
-};
 
 
 /*

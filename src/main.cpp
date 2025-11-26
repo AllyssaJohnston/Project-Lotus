@@ -7,12 +7,21 @@
 #include <thread>
 #include <chrono>
 
+#include "globals.h"
 #include "playerHelper.h"
 #include "imageHelper.h"
 #include "platformHelper.h"
 #include "screenHelper.h"
 #include "gameInstanceHelper.h"
+
+#if DEMO == 0
+#include "lotusAdventureLevels.h"
+#include "lotusAdventureMiniLevels.h"
+#else 
 #include "lotusAdventureLevelsDemo.h"
+#include "lotusAdventureMiniLevels.h"
+#endif
+#include "lotusAdventureMenus.h"
 #include "hitboxHelper.h"
 #include "worldHelper.h"
 #include "gameStateHelper.h"
@@ -25,7 +34,11 @@ LevelChunk& curLevelChunk = gameInstance.mWorldData.mCurLevelChunk;
 void setUpAllTextures()
 {
 	//Player
-	player.setHitboxTexture(AssetManager::getTextureFromSurface(screen.mpRenderer, player.getImageObjectHitbox().getSurface()));
+	if (DEMO == 0)
+	{
+		player.setHitboxTexture(AssetManager::getTextureFromSurface(screen.mpRenderer, player.getImageObjectHitbox().getSurface()));
+	}
+	
 
 	player.setUpAllTextures(screen.mpRenderer);
 
@@ -57,7 +70,11 @@ void setUpAllTextures()
 			{
 				Enemy& curEnemy = *(curLevel->mpAllEnemies[count]);
 				curEnemy.mAnimationManager.setUpAllTextures(screen.mpRenderer);
-				curEnemy.setHitboxTexture(AssetManager::getTextureFromSurface(screen.mpRenderer, curEnemy.getImageObjectHitbox().getSurface()));
+				if (DEMO == 0)
+				{
+					curEnemy.setHitboxTexture(AssetManager::getTextureFromSurface(screen.mpRenderer, curEnemy.getImageObjectHitbox().getSurface()));
+
+				}
 			}
 
 			//collectibles
@@ -70,13 +87,11 @@ void setUpAllTextures()
 	}
 
 	MenuManager& menuManager = gameInstance.mMenuManager;
-	for (int countMenuPage = 0; countMenuPage < menuManager.mpMenuPages.size(); countMenuPage++)
+	for (MenuPage* pMenuPage : menuManager.mpMenuPages)
 	{
-		MenuPage* pCurMenuPage = menuManager.mpMenuPages[countMenuPage];
-		for (int countBox = 0; countBox < pCurMenuPage->mpImageBoxes.size(); countBox++)
+		for (UIBlock* pBlock : pMenuPage->mpBlocks)
 		{
-			ImageBox* pImageBox = pCurMenuPage->mpImageBoxes[countBox];
-			pImageBox->mImageObject.setUpTexture(screen.mpRenderer);
+			pBlock->setAllTextures(screen.mpRenderer);
 		}
 	}
 }
@@ -93,13 +108,15 @@ int main(int argc, char* args[])
 		return -1;
 	}
 
-	createLevels(gameInstance);
-	createMiniGameLevels(gameInstance);
-	createMenus(gameInstance);
+	createLevels(gameInstance.mWorldData, gameInstance.mScreen);
+	createMiniGameLevels(gameInstance.mMiniGameWorldData);
+	setUpFontSizeChart(gameInstance.mFontSizeChart, gameInstance.mStyleManager, gameInstance.mScreen.mpRenderer);
+	createMenus(gameInstance.mMenuManager, gameInstance.mScreen, gameInstance.mMiniGameWorldData, gameInstance.mStyleManager, gameInstance.mSettingsManager);
 	setUpAllTextures();
 
-	player.getMovementManager().setStartPosition(&gameInstance.mWorldData.mpWorlds[gameInstance.mWorldData.mCurWorldNumber]->mpLevels[gameInstance.mWorldData.mCurLevelNumber]->mPlayerStartingPosition);
+	player.getMovementManager().setStartPosition(gameInstance.mWorldData.mpWorlds[gameInstance.mWorldData.mCurWorldNumber]->mpLevels[gameInstance.mWorldData.mCurLevelNumber]->mPlayerStartingPosition);
 	gameInstance.mWorldData.resetStats();
+	
 
 
 	static std::chrono::time_point<std::chrono::steady_clock> frameStart;
@@ -120,7 +137,7 @@ int main(int argc, char* args[])
 		frameEnd = std::chrono::high_resolution_clock::now();
 
 		const auto deltaTime = std::chrono::duration_cast<std::chrono::nanoseconds>(frameEnd - frameStart);
-		
+		//std::cout << deltaTime.count() << '\n';
 		if ((int)deltaTime.count() / (1000 * 1000) < 16)
 		{
 			//We running faster than 60fps, sleep till we hit 16ms.
