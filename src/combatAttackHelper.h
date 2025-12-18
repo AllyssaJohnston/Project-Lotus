@@ -9,8 +9,9 @@ struct SpecialEffect
 {
     EMiniGameCombatSpecialEffectTypes mType;
     std::string mName;
+    int mAmount;
 
-    SpecialEffect(SpecialEffectPreset* pPreset) : mType(pPreset->mType), mName(pPreset->mName) {}
+    SpecialEffect(const SpecialEffectPreset& preset) : mType(preset.mType), mName(preset.mName), mAmount(preset.mAmount) {}
 };
 
 
@@ -25,5 +26,4 @@ struct Attack
     std::string                      mDescription;
    
     Attack() { ; }
-
 };

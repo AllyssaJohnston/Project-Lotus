@@ -6,8 +6,8 @@ UIBox::~UIBox()
 	mpCurHitbox = nullptr;
 }
 
-TextBox::TextBox(TextBoxPreset dataStorage, ETextBoxFunction textBoxFunction, TextBoxPositionInfo positionInfo, const char* fileName, TextBoxSizeInfo sizeInfo,
-		TextBoxColorInfo colorInfo) : mDataStorage(dataStorage), mType(dataStorage.mType), mFunction(textBoxFunction), 
+TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, TextBoxPositionInfo positionInfo, const char* fileName, TextBoxSizeInfo sizeInfo,
+		TextBoxColorInfo colorInfo) : mData(preset.mData), mFunction(textBoxFunction), mMessage(preset.mMessage),
 		mMaxWidth(positionInfo.mMaxWidth), mMaxHeight(positionInfo.mMaxHeight), mFontFile(fileName), mStandardFontSize(sizeInfo.mStandardFontSize), 
 		mHighlightedFontSize(sizeInfo.mHighlightedFontSize), mOutlineWidth(sizeInfo.mOutlineWidth), 
 		mStandardTextBoxColor(colorInfo.mStandardTextBoxColor), mHighlightedTextBoxColor(colorInfo.mHighlightedTextBoxColor), 
@@ -16,7 +16,7 @@ TextBox::TextBox(TextBoxPreset dataStorage, ETextBoxFunction textBoxFunction, Te
 	mClassType		= EUIBoxClass_TEXTBOX;
 	mPositionAlign	= positionInfo.mPositionAlign;
 	
-	//hitbox
+	// create hitbox
 	int x = 0;
 	int y = 0;
 	switch (mPositionAlign)
@@ -30,7 +30,6 @@ TextBox::TextBox(TextBoxPreset dataStorage, ETextBoxFunction textBoxFunction, Te
 		y = positionInfo.mPosition.getY() - (positionInfo.mMaxHeight / 2);
 		break;
 	case ETextBoxPositionAlign_RIGHT:
-		//TODO check validity
 		x = positionInfo.mPosition.getX() - positionInfo.mMaxWidth;
 		y = positionInfo.mPosition.getY();
 		break;
@@ -39,8 +38,7 @@ TextBox::TextBox(TextBoxPreset dataStorage, ETextBoxFunction textBoxFunction, Te
 		break;
 	}
 
-	mAutoShow = (mDataStorage.mType == ETextBoxType_MINI_GAME_BOX or mDataStorage.mType == ETextBoxType_MINI_GAME_PLAYER_BOX or
-			mDataStorage.mType == ETextBoxType_MINI_GAME_CHARACTER_BOX) ? false : true;
+	mAutoShow = (mData.mType == ETextBoxType_MINI_GAME_BOX or mData.mType == ETextBoxType_MINI_GAME_PLAYER_BOX or mData.mType == ETextBoxType_MINI_GAME_CHARACTER_BOX) ? false : true;
 
 	mStandardHitbox			= Hitbox(x, positionInfo.mMaxWidth + x, y, positionInfo.mMaxHeight + y);
 	mHighlightedHitbox		= Hitbox(x, positionInfo.mMaxWidth + x, y, positionInfo.mMaxHeight + y);
@@ -53,8 +51,7 @@ TextBox::TextBox(TextBoxPreset dataStorage, ETextBoxFunction textBoxFunction, Te
 	mStandardTextColor		 = { colorInfo.mStandardTextColor.r, colorInfo.mStandardTextColor.g, colorInfo.mStandardTextColor.b };
 	mHighlightedTextColor	 = { colorInfo.mHighlightedTextColor.r, colorInfo.mHighlightedTextColor.g, colorInfo.mHighlightedTextColor.b };
 	
-	mTextLines.push_back(mDataStorage.mMessage);
-
+	mTextLines.push_back(mMessage);
 }
 
 TextBox::~TextBox()
@@ -79,9 +76,9 @@ TextBox::~TextBox()
 	mpCurHitbox = nullptr;
 }
 
-void TextBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, std::string textMessage)
+void TextBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, const std::string textMessage)
 {
-	mDataStorage.mMessage = textMessage;
+	mMessage = textMessage;
 	calcMaxFontSizeGivenText(fontSizeChart);
 	SDL_assert(!mSetUp || (mMaxFontSizeGivenText >= mHighlightedFontSize));
 	updateTextLines(textMessage, fontSizeChart);
@@ -93,7 +90,7 @@ void TextBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChar
 
 void TextBox::calcMaxFontSizeGivenText(FontSizeChart& fontSizeChart)
 {
-	int totalChars = (int)mDataStorage.mMessage.length();
+	int totalChars = (int)mMessage.length();
 	
 	mMaxFontSizeGivenText = fontSizeChart.mMinFontSize;
 	std::map<int, SDL_Point>& fontChart = fontSizeChart.mFontChart[mFontFile];
@@ -106,12 +103,12 @@ void TextBox::calcMaxFontSizeGivenText(FontSizeChart& fontSizeChart)
 		int numLinesNeeded = (int)ceil(totalChars / numCharsPerLine);
 		if ((numLinesNeeded * curFontHeight) <= mMaxHeight)
 		{
-			//good font size
+			// good font size
 			mMaxFontSizeGivenText = iter->first;
 		}
 		else 
 		{
-			//too big
+			// too big, leave as is
 			break;
 		}
 	}
@@ -119,7 +116,7 @@ void TextBox::calcMaxFontSizeGivenText(FontSizeChart& fontSizeChart)
 
 int TextBox::getMaxFontSizeGivenText() const { return mMaxFontSizeGivenText; }
 
-void TextBox::updateTextLines(std::string text, FontSizeChart& fontSizeChart)
+void TextBox::updateTextLines(const std::string text, FontSizeChart& fontSizeChart)
 {
 	int curFontSize = mIsHighlighted ? mHighlightedFontSize : mStandardFontSize;
 	int numCharsPerLine = mMaxWidth / fontSizeChart.mFontChart[mFontFile][curFontSize].x;
@@ -152,7 +149,7 @@ void TextBox::setTextBoxTexture(SDL_Renderer* pRenderer)
 
 	for (int countLine = 0; countLine < mTextLines.size(); countLine++)
 	{
-		std::string curLine = mTextLines[countLine] + " "; //spacing to fix aligning issues
+		std::string curLine = mTextLines[countLine] + " "; // spacing to fix aligning issues
 		SDL_Surface* standardSurface = TTF_RenderUTF8_Blended(mpStandardFont, curLine.c_str(), mStandardTextColor);
 		mpStandardTextures.push_back(SDL_CreateTextureFromSurface(pRenderer, standardSurface));
 		SDL_DestroySurface(standardSurface);
@@ -264,8 +261,8 @@ void TextBox::updateHitboxesInternal(bool isHighlighted, Hitbox& hitbox, std::ve
 			lineSizes.push_back(size);
 			totalHeight += size.y;
 		}
-		int x = hitbox.getCenter().getX() - (maxWidth / 2); //left
-		int y = hitbox.getCenter().getY() - (totalHeight / 2); //top
+		int x = hitbox.getCenter().getX() - (maxWidth / 2); // left
+		int y = hitbox.getCenter().getY() - (totalHeight / 2); // top
 
 		int curY = y;
 		for (int count = 0; count < (int)mTextLines.size(); count++)
@@ -283,13 +280,11 @@ void TextBox::updateHitboxesInternal(bool isHighlighted, Hitbox& hitbox, std::ve
 	}
 	case ETextBoxPositionAlign_RIGHT:
 	{
-		//TODO check validity
 		int y = hitbox.getTopLeft().getY() - mOutlineWidth;
 		int x2 = hitbox.getBottomRight().getX() + mOutlineWidth;
 		int maxWidth = 0;
 		int totalHeight = y;
 
-		//int curX;
 		int curY = hitbox.getTopLeft().getY();
 		hitboxes.clear();
 		for (int count = 0; count < (int)mTextLines.size(); count++)
@@ -317,7 +312,7 @@ void TextBox::updateHitboxesInternal(bool isHighlighted, Hitbox& hitbox, std::ve
 
 }
 
-void TextBox::shiftHitbox(Vect2 shiftTopLeft)
+void TextBox::shiftHitbox(const Vect2 shiftTopLeft)
 {
 	mStandardHitbox.updateTopLeft(shiftTopLeft);
 	mHighlightedHitbox.updateTopLeft(shiftTopLeft);
@@ -330,13 +325,14 @@ void TextBox::shiftHitbox(Vect2 shiftTopLeft)
 }
 
 
-ImageBox::ImageBox(ImageBoxPreset preset, ImageBoxPositionInfo positionInfo, std::string fileName) 
+
+ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo positionInfo, const std::string fileName) 
 {
 	mClassType		= EUIBoxClass_IMAGEBOX;
 	mImageObject	= ImageObject(fileName, positionInfo.mMaxWidth, positionInfo.mMaxHeight, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
 	mPositionAlign	= positionInfo.mPositionAlign;
 
-	//hitbox
+	// create hitbox
 	int x = 0;
 	int y = 0;
 	switch (mPositionAlign)
@@ -346,12 +342,11 @@ ImageBox::ImageBox(ImageBoxPreset preset, ImageBoxPositionInfo positionInfo, std
 		y = positionInfo.mPosition.getY();
 		break;
 	case ETextBoxPositionAlign_CENTER:
-		x = positionInfo.mPosition.getX() - (mImageObject.getIdealImageWidth() / 2);
-		y = positionInfo.mPosition.getY() - (mImageObject.getIdealImageHeight() / 2);
+		x = positionInfo.mPosition.getX() - int(mImageObject.getHalfIdealImageWidth());
+		y = positionInfo.mPosition.getY() - int(mImageObject.getHalfIdealImageHeight());
 		break;
 	case ETextBoxPositionAlign_RIGHT:
-		//check validity
-		x = positionInfo.mPosition.getX() - mImageObject.getIdealImageWidth();
+		x = positionInfo.mPosition.getX() - mImageObject.mIdealImageWidth;
 		y = positionInfo.mPosition.getY();
 		break;
 	default:
@@ -359,7 +354,7 @@ ImageBox::ImageBox(ImageBoxPreset preset, ImageBoxPositionInfo positionInfo, std
 		break;
 	}
 
-	mpCurHitbox    = new Hitbox(x, mImageObject.getIdealImageWidth() + x, y, mImageObject.getIdealImageHeight() + y);
+	mpCurHitbox    = new Hitbox(x, mImageObject.mIdealImageWidth + x, y, mImageObject.mIdealImageHeight + y);
 	mMargins       = positionInfo.mMargins;
 
 	mRotation      = positionInfo.mRotation;
@@ -367,62 +362,17 @@ ImageBox::ImageBox(ImageBoxPreset preset, ImageBoxPositionInfo positionInfo, std
 	mID            = preset.mID;
 }
 
-void ImageBox::shiftHitbox(Vect2 shiftTopLeft)
-{
-	mpCurHitbox->updateTopLeft(shiftTopLeft);
-}
-
-//void ImageBox::updateHitbox(float ratio)
-//{
-//	int width  = (int)(mpCurHitbox->getWidth()  * ratio);
-//	int height = (int)(mpCurHitbox->getHeight() * ratio);
-//	switch (mPositionAlign)
-//	{
-//	case ETextBoxPositionAlign_LEFT:
-//	{
-//		int x = mpCurHitbox->getTopLeft().getX();
-//		int y = mpCurHitbox->getTopLeft().getY();
-//
-//		delete mpCurHitbox;
-//		mpCurHitbox = new Hitbox(x, x + width, y, y + height);
-//		break;
-//	}
-//	case ETextBoxPositionAlign_CENTER:
-//	{
-//		int x = mpCurHitbox->getCenter().getX() - (width / 2);
-//		int y = mpCurHitbox->getCenter().getY() - (height / 2);
-//
-//		delete mpCurHitbox;
-//		mpCurHitbox = new Hitbox(x, x + width, y, y + height);
-//		break;
-//	}
-//	case ETextBoxPositionAlign_RIGHT:
-//	{
-//		//TODO check validity
-//		int y = mpCurHitbox->getTopLeft().getY();
-//		int x2 = mpCurHitbox->getBottomRight().getX();
-//
-//		if (y < 0)
-//		{
-//			y = 0;
-//		}
-//
-//		delete mpCurHitbox;
-//		mpCurHitbox = new Hitbox(x2 - width, x2, y, y + height);
-//		break;
-//	}
-//	default:
-//		break;
-//	}
-//}
+void ImageBox::shiftHitbox(const Vect2 shiftTopLeft) { mpCurHitbox->updateTopLeft(shiftTopLeft); }
 
 
-ShapeBox::ShapeBox(ShapeBoxPreset preset, TextBoxPositionInfo positionInfo, SDL_Color color) : mShapeType(preset.mType), mDataStorage(preset), mColor(color) 
+
+
+ShapeBox::ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positionInfo, const SDL_Color color) : mShapeType(preset.mType), mDataStorage(preset), mColor(color) 
 {
 	mClassType = EUIBoxClass_SHAPEBOX;
 	mPositionAlign = positionInfo.mPositionAlign;
 
-	//hitbox
+	// create hitbox
 	int x = 0;
 	int y = 0;
 	switch (mPositionAlign)
@@ -436,7 +386,6 @@ ShapeBox::ShapeBox(ShapeBoxPreset preset, TextBoxPositionInfo positionInfo, SDL_
 		y = positionInfo.mPosition.getY() - (positionInfo.mMaxHeight / 2);
 		break;
 	case ETextBoxPositionAlign_RIGHT:
-		//TODO check validity
 		x = positionInfo.mPosition.getX() - positionInfo.mMaxWidth;
 		y = positionInfo.mPosition.getY();
 		break;
@@ -452,11 +401,11 @@ ShapeBox::ShapeBox(ShapeBoxPreset preset, TextBoxPositionInfo positionInfo, SDL_
 	mMargins = positionInfo.mMargins;
 }
 
-void ShapeBox::shiftHitbox(Vect2 shiftTopLeft) { mpCurHitbox->updateTopLeft(shiftTopLeft); }
+void ShapeBox::shiftHitbox(const Vect2 shiftTopLeft) { mpCurHitbox->updateTopLeft(shiftTopLeft); }
 
 
-HealthBox::HealthBox(HealthBoxPreset preset, TextBoxPositionInfo positionInfo, const char* font, int healthSize, 
-		SDL_Color healthColor, SDL_Color backgroundColor, SDL_Color textColor) : UIBox(), 
+HealthBox::HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int healthSize, 
+		const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor) : UIBox(), 
 		mBoundingBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, backgroundColor)), mHealthLeftBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, healthColor)),
 		mHealthText(TextBox(StandardTextBoxPreset("temp"), ETextBoxFunction_NO_FUNCTION, positionInfo, font, healthSize, textColor)), mMaxWidth(positionInfo.mMaxWidth), 
 		mCombatCharacterIndex(preset.mCombatCharacterIndex)
@@ -468,23 +417,21 @@ HealthBox::HealthBox(HealthBoxPreset preset, TextBoxPositionInfo positionInfo, c
 	mMargins = positionInfo.mMargins;
 }
 
-void HealthBox::shiftHitbox(Vect2 shiftTopLeft) 
+void HealthBox::shiftHitbox(const Vect2 shiftTopLeft) 
 {
 	mBoundingBox.shiftHitbox(shiftTopLeft);
 	mHealthLeftBox.shiftHitbox(shiftTopLeft);
 	mHealthText.shiftHitbox(shiftTopLeft);
 }
 
-void HealthBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, std::string updatedMessage, float curRatio)
+void HealthBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, const std::string updatedMessage, float curRatio)
 {
 	bool haveSetUp = mHealthText.mSetUp;
 	mHealthText.updateMessage(pRenderer, fontSizeChart, updatedMessage);
-	mHealthLeftBox.mpCurHitbox->setWidth(std::max(mMaxWidth * curRatio, 1.0f));
+	mHealthLeftBox.mpCurHitbox->setWidth((int)std::max(mMaxWidth * curRatio, 1.0f));
 	if (!haveSetUp)
 	{
 		mHealthLeftBox.mpCurHitbox->setHeight(mHealthText.mpCurHitbox->getHeight());
 		mBoundingBox.mpCurHitbox->setHeight(mHealthText.mpCurHitbox->getHeight());
 	}
-
-	
 }

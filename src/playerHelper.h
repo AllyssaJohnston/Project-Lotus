@@ -11,6 +11,8 @@
 #include "movementHelper.h"
 #include "playerPreset.h"
 #include "collectibleHelper.h"
+#include "globals.h"
+
 
 class Player : public Entity
 {
@@ -26,7 +28,7 @@ public:
 	int mCheckpointTargets	= 0;
 	int mTargets			= 0;
 
-	std::vector <Collectible *> mpCurHeldCollectibles;
+	std::vector <Collectible*> mpCurHeldCollectibles;
 
 	int mSwordSlashWidth;
 	int mSwordSlashHeight;
@@ -64,8 +66,9 @@ public:
 
 	void updateTargets(int targets);
 
-	void addHeldCollectible(Collectible* curCollectible);
+	void addHeldCollectible(Collectible* pCurCollectible);
 
 
 	void setUpAllTextures(SDL_Renderer* pRenderer);
+
 };

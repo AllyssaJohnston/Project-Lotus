@@ -23,6 +23,7 @@ enum EMovementStateIndex {
 	EMovementStateIndex_JUMPING, 
 	EMovementStateIndex_FLYING, 
 	EMovementStateIndex_FALLING,
+	EMovementStateIndex_STATIONARY,
 	EMovementStateIndex_MAX
 };
 
@@ -38,7 +39,6 @@ enum ECharacterModes{
 
 	ECharacterModes_INVALID = -1,
 	ECharacterModes_STATIC,
-	ECharacterModes_STATIONARY,
 	ECharacterModes_MOVING,
 	ECharacterModes_MAX
 };
@@ -71,35 +71,26 @@ enum EEntityMovementPath
 	EEntityMovementPath_MAX
 };
 
-struct KeyData 
-{
-	int mKey = -1;
-	int mRepeat = -1;
-
-	KeyData() { ; }
-	KeyData(int key, int repeat);
-};
-
 struct PositionData
 {
 	Hitbox		mHitbox;
 	HitboxEdges mOriginalHitboxEdges;
 	HitboxEdges	mCurHitboxEdges;
-	bool		mOnGround				 = false;
+	bool		mOnGround = false;
 	
-	//cur ground
-	std::vector <EEntityCharacteristicsTypes> mCurGroundCharacteristics;
-	int			    mCurGroundMovementEffect = 0;  // Addition to X velocity
-	EEntityEdgeType mCurGroundTop			 = EEntityEdgeType_INVALID;
+	std::vector <EEntityCharacteristicsTypes>	mCurGroundCharacteristics;
+	int											mCurGroundMovementEffect	= 0;  // Addition to X velocity
+	EEntityEdgeType								mCurGroundTop				= EEntityEdgeType_INVALID;
 	
-	EDirection  mFacing				     = EDirection_RIGHT;
+	EDirection  mFacing = EDirection_RIGHT;
 
-	Vect2		mCurPosition;
-	Vect2		mLastFramePosition;
+	Vect2 mCurPosition;
+	Vect2 mLastFramePosition;
 };
 
-struct MovementData
+class MovementData
 {
+public:
 	EDirection				mCurDirection			= EDirection_NONE;
 	EDirection				mCurDirectionY			= EDirection_NONE;
 
@@ -111,20 +102,38 @@ struct MovementData
 	bool					mUseMovementEffect      = true;		// is entity immune to ground movement effects
 	EMovementAutoMoveRule	mMovementAutoMoveRule	= EMovementAutoMoveRule_INVALID;
 	
-	EEntityMovementPath			  mPath				= EEntityMovementPath_INVALID;
+	EEntityMovementPath mPath = EEntityMovementPath_INVALID;
 
+	void setUp(	const std::vector<EEntityMovements>& movementCodes,  const EEntityMovements& curMovementCode, const int& movementCodeInterval, 
+				const ECharacterModes& characterMode);
+
+	void setCurCharacterMode(ECharacterModes newMode);
+
+
+
+	ECharacterModes getCurCharacterMode() const;
+
+	void updateMovementCodeCountDown(bool onGround);
+
+	void resetMovementCodeCountDown();
+
+	void updateCurMovementCode();
+
+	void setCurMovementCode(EEntityMovements newCode);
+
+	EEntityMovements getCurMovementCode() const;
+
+	void reset();
+
+
+private:
 	std::vector<EEntityMovements> mMovementCodes;
 	EEntityMovements			  mCurMovementCode	= EEntityMovements_INVALID;
-	int							  mCurMovementCodeIndex		= -1;
-	int							  mMovementCodeCountDown	= -1;		//how long before switching movement codes
+	int							  mCurMovementCodeIndex		= 0;
+	int							  mMovementCodeCountDown	= -1; //how long before switching movement codes
 	int							  mMovementCodeInterval		= -1;
 
-	std::vector <ECharacterModes> mCharacterModes;
 	ECharacterModes				  mCurCharacterMode			= ECharacterModes_INVALID;
-	int							  mCurCharacterModeIndex	= -1;
-	int							  mCharacterModeCountDown	= -1;
-	int							  mCharacterModeInterval	= -1; // how long before switching character modes
-
 };
 
 struct JumpingData
@@ -136,10 +145,6 @@ struct JumpingData
 	bool		mAmJump					= false;
 	bool		mAmWallJump				= false;
 	EDirection	mWallJumpDirection		= EDirection_NONE;
-	int			mWallJumpDistanceX		= 0;
-	int			mWallJumpDistanceY		= 0;
-	int			mWallJumpDistanceXLeft	= 0;
-	int			mWallJumpDistanceYLeft	= 0;
 	void stopJump();
 };
 
@@ -163,7 +168,6 @@ public:
 	MovementState(PositionData& pos, AttemptMove& move);
 	virtual void printState() = 0;
 	virtual void calcMove(bool moveHorizontal) = 0;
-	//void move();
 	virtual void tickUpdate(bool moveHorizontal);
 	virtual void left()	{;}
 	virtual void right() {;}

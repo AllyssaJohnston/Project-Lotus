@@ -26,7 +26,7 @@ struct HitboxEdges
 	HitboxEdges(EEntityEdgeType top, EEntityEdgeType bottom, EEntityEdgeType left, EEntityEdgeType right);
 };
 
-//For menus
+// For menus
 struct Edges
 {
 	int mTop    = 0;
@@ -64,63 +64,37 @@ public:
 	bool operator!=(Vect2& vect);
 
 	int getX() const;
-
 	int getY() const;
 
 	void changeX(int xDelta);
-
 	void changeY(int yDelta);
 
 	void setX(int x);
-
 	void setY(int y);
-
 };
 
 
-class CoordsX1Y1WidthHeight
+struct CoordsX1Y1WidthHeight
 {
-public:
 	int mX1 = 0; 
 	int mY1 = 0;
 	int mWidth = 0;
 	int mHeight = 0;
 
-
-public:
 	CoordsX1Y1WidthHeight(int x1Input, int y1Input, int widthInput, int heightInput);
-
-	CoordsX1Y1WidthHeight() { ; } //TODO, remove
-
+	CoordsX1Y1WidthHeight() { ; }
 };
 
-class CoordsX1X2Y1Y2
+struct CoordsX1X2Y1Y2
 {
-private:
 	int mX1 = 0;
 	int mX2 = 0;
 	int mY1 = 0;
 	int mY2 = 0;
 
-
-public:
 	CoordsX1X2Y1Y2(int x1, int x2, int y1, int y2);
-
 	CoordsX1X2Y1Y2(int x1, int x2, int y1, int y2, int shiftX, int shiftY);
-
-	CoordsX1X2Y1Y2() { ; } //TODO remove
-
-	int getX1() const;
-
-	int getX2() const;
-	
-	int getY1() const;
-
-	int getY2() const;
-
-	int getWidth() const;
-
-	int getHeight() const;
+	CoordsX1X2Y1Y2() { ; }
 };
 
 
@@ -141,18 +115,14 @@ private:
 
 public:
 	Hitbox(int x1, int x2, int y1, int y2);
-
 	Hitbox(Vect2 topLeftInput, int widthInput, int heightInput);
-
 	Hitbox(Vect2 topLeftInput, Vect2 bottomRightInput);
-
 	Hitbox(CoordsX1Y1WidthHeight coords);
-
 	Hitbox();
 
 	void checkCoordsValidity();
 
-	bool overlap(Hitbox& otherHitbox) const;
+	bool overlap(const Hitbox& otherHitbox) const;
 	EBoxSide separate(Hitbox & otherHitbox, bool doSeparate);
 
 	Vect2 getTopLeft() const;

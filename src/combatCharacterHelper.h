@@ -3,6 +3,7 @@
 #include "tileHelper.h"
 #include "combatCharacterPresets.h"
 #include "combatMovementHelper.h"
+#include "imageHelper.h"
 
 class CombatCharacter
 {
@@ -22,11 +23,14 @@ public:
 
     int mTurnsToPass        = 0;
 
+    std::string mModelFileName;
     std::string mIconFileName;
 
-    CombatCharacter(std::string name, Tile* pCurTile, CombatCharacterPreset* preset);
+    ImageObject mModel = ImageObject();
 
-    ~CombatCharacter() {};
+    CombatCharacter(const std::string name, Tile* pCurTile, const CombatCharacterPreset& preset);
+
+    ~CombatCharacter() { ; }
 
     void preTick();
 
@@ -36,15 +40,14 @@ public:
 
     void updateAmAlive();
 
-    int defend();
+    void defend();
 
-    int stun();
+    void stun(int numTurnsStunned);
 
     void move(Tile* pTileInput);
-
-    void postRound();
 
     bool returnIsLowLife() const;
 
     float getHealthRatio() const;
+
 };

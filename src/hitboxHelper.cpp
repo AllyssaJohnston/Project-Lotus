@@ -20,7 +20,7 @@ Vect2::Vect2(int x, float y) : mX(x), mY((int)y) { ; }
 
 Vect2::Vect2(float x, float y) : mX((int)x), mY((int)y) { ; }
 
-//Operators
+
 Vect2& Vect2::operator+=(const Vect2& vect)
 {
 	mX += vect.mX;
@@ -58,6 +58,7 @@ bool Vect2::operator==(Vect2& vect) { return (mX == vect.mX) && (mY == vect.mY);
 
 bool Vect2::operator!=(Vect2& vect) { return !(*this==vect); }
 
+
 int Vect2::getX() const { return mX; }
 
 int Vect2::getY() const { return mY; }
@@ -71,9 +72,8 @@ void Vect2::setX(int x) { mX = x; }
 void Vect2::setY(int y) { mY = y; }
 
 
+
 CoordsX1Y1WidthHeight::CoordsX1Y1WidthHeight(int x1, int y1, int w, int h) : mX1(x1), mY1(y1), mWidth(w), mHeight(h) {}
-
-
 
 
 
@@ -81,22 +81,10 @@ CoordsX1X2Y1Y2::CoordsX1X2Y1Y2(int x1, int x2, int y1, int y2) : mX1(x1), mX2(x2
 
 CoordsX1X2Y1Y2::CoordsX1X2Y1Y2(int x1, int x2, int y1, int y2, int shiftX, int shiftY) : CoordsX1X2Y1Y2(x1 + shiftX, x2 + shiftX, y1 + shiftY, y2 + shiftY) {}
 
-int CoordsX1X2Y1Y2::getX1() const { return mX1; }
-
-int CoordsX1X2Y1Y2::getX2() const { return mX2; }
-
-int CoordsX1X2Y1Y2::getY1() const { return mY1; }
-
-int CoordsX1X2Y1Y2::getY2() const { return mY2; }
-
-int CoordsX1X2Y1Y2::getWidth() const { return mX2 - mX1; }
-
-int CoordsX1X2Y1Y2::getHeight() const { return mY2 - mY1; }
 
 
 bool rangeOverlap(int start1, int end1, int start2, int end2) { return !(end1 < start2 or end2 < start1); }
 
-//TODO this math is wrong, need to fix
 int rangeOverlapDistance(int start1, int end1, int start2, int end2)
 {
 	int extent1 = (end1 - start1) / 2;
@@ -121,7 +109,6 @@ int getDistanceBetweenPoints(Vect2 point1, Vect2 point2)
 	int overallDistance = (int)pow(pow(distanceX, 2) + pow(distanceY, 2), .5f);
 	return overallDistance;
 }
-
 
 
 
@@ -169,7 +156,7 @@ void Hitbox::checkCoordsValidity()
 	}
 }
 
-bool Hitbox::overlap(Hitbox& otherHitbox) const
+bool Hitbox::overlap(const Hitbox& otherHitbox) const
 {
 	int x1 = getTopLeft().getX();
 	int x2 = getBottomRight().getX();
@@ -184,14 +171,10 @@ bool Hitbox::overlap(Hitbox& otherHitbox) const
 	bool xOverlap = rangeOverlap(x1, x2, otherX1, otherX2);
 	bool yOverlap = rangeOverlap(y1, y2, otherY1, otherY2);
 
-	if (xOverlap and yOverlap)
-	{
-		return true;
-	}
-	return false;
+	return (xOverlap and yOverlap);
 }
 
-EBoxSide Hitbox :: separate(Hitbox& otherHitbox, bool doSeparate)
+EBoxSide Hitbox::separate(Hitbox& otherHitbox, bool doSeparate)
 {
 	int xDelta = rangeOverlapDistance(getTopLeft().getX(), getBottomRight().getX(), otherHitbox.getTopLeft().getX(), otherHitbox.getBottomRight().getX());
 	int yDelta = rangeOverlapDistance(getTopLeft().getY(), getBottomRight().getY(), otherHitbox.getTopLeft().getY(), otherHitbox.getBottomRight().getY());
@@ -201,7 +184,6 @@ EBoxSide Hitbox :: separate(Hitbox& otherHitbox, bool doSeparate)
 		{
 			if (doSeparate)
 			{
-				//Move by -xDelta
 				updateTopLeftX(-xDelta);
 			}
 			return EBoxSide_LEFT;

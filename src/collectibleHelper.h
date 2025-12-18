@@ -12,10 +12,7 @@ protected:
 	bool mPermanentlyAmPickedUp = false;
 
 public:
-	CCollectiblePreset* mpsgPreset = nullptr;
-
-	Collectible();
-	Collectible(const Vect2 position, CCollectiblePreset* preset);
+	Collectible(const Vect2 position, const CCollectiblePreset& preset);
 
 	~Collectible();
 
@@ -36,13 +33,12 @@ public:
 	bool isPermanentlyPickedUp() const;
 
 	void setPermanentlyPickedUp(bool amPickedUp);
+
 };
 
 class SavePoint : public Collectible
 {
 public:
-	SavePoint();
-
 	SavePoint(const Vect2 position);
 	
 	~SavePoint();
@@ -51,9 +47,7 @@ public:
 class EndOfLevelCollectible : public Collectible
 {
 public:
-	EndOfLevelCollectible();
-
-	EndOfLevelCollectible(Vect2 position, CEndOfLevelPreset* preset);
+	EndOfLevelCollectible(const Vect2 position, const CEndOfLevelPreset& preset);
 	
 	~EndOfLevelCollectible();
 };
@@ -64,9 +58,9 @@ class MiniGameLevelCollectible : public Collectible
 private: 
 	EDirection mImageDirection = EDirection_LEFT;
 public:
-	MiniGameLevelCollectible();
+	LevelData mNextLevelData;
 
-	MiniGameLevelCollectible(Vect2 position, CMiniGameLevelPreset* preset);
+	MiniGameLevelCollectible(const Vect2 position, const CMiniGameLevelPreset preset);
 
 	~MiniGameLevelCollectible();
 
@@ -77,8 +71,6 @@ public:
 class PermanentCollectible : public Collectible
 {
 public:
-	PermanentCollectible();
-
 	PermanentCollectible(const Vect2 position);
 
 	~PermanentCollectible();
@@ -91,9 +83,7 @@ public:
 class LotusCollectible : public PermanentCollectible
 {
 public:
-	LotusCollectible();
-
-	LotusCollectible(Vect2 position);
+	LotusCollectible(const Vect2 position);
 
 	~LotusCollectible();
 };

@@ -1,63 +1,66 @@
 #include "textBoxPresets.h"
 
-
-StandardTextBoxPreset::StandardTextBoxPreset(std::string message) : TextBoxPreset() { mMessage = message; }
-
-MiniGameStatBoxPreset::MiniGameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay) 
+// TEXT BOXES
+StandardTextBoxPreset::StandardTextBoxPreset(std::string message) : TextBoxPreset()
 { 
-	mGameStatToDisplay = gameStateValueToDisplay; 
-	mType = ETextBoxType_MINI_GAME_STAT_BOX;
+	mMessage = message; 
+	mData = TextBoxData();
+}
+
+MiniGameStatBoxPreset::MiniGameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay): TextBoxPreset()
+{ 
+	mData.mGameStatToDisplay = gameStateValueToDisplay; 
+	mData.mType = ETextBoxType_MINI_GAME_STAT_BOX;
 }
 
 MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay) : TextBoxPreset()
 {
-	mCombatCharacterIndex			= characterIndex;
-	mShowDuringAllCharacters		= showDuringAllCharacters;
-	mCharacterStatToDisplay			= characterStatToDisplay;
-	mMiniGameStateWhenToShowList	= { EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT, EMiniGameState_PLAYER_MOVE_CHARACTER, EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT,
-										EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT,
-										EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK, EMiniGameState_PLAYER_TAKE_ACTION_ATTACK, EMiniGameState_PLAYER_TAKE_ACTION_DEFEND,
-										EMiniGameState_ENEMY_MOVE_CHARACTER, EMiniGameState_ENEMY_TAKE_ACTION, EMiniGameState_BUFFER, };
-	mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
-	mMessage						= "Z"; //default
+	mData.mCombatCharacterIndex			= characterIndex;
+	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
+	mData.mCharacterStatToDisplay		= characterStatToDisplay;
+	mData.mMiniGameStateWhenToShowList	= { EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT, EMiniGameState_PLAYER_MOVE_CHARACTER, EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT,
+											EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT,
+											EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK, EMiniGameState_PLAYER_TAKE_ACTION_ATTACK, EMiniGameState_PLAYER_TAKE_ACTION_DEFEND,
+											EMiniGameState_ENEMY_MOVE_CHARACTER, EMiniGameState_ENEMY_TAKE_ACTION, EMiniGameState_BUFFER, };
+	mData.mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
 }
 
-MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
+MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, 
+		std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
 {
-	mCombatCharacterIndex			= characterIndex;
-	mShowDuringAllCharacters		= showDuringAllCharacters;
-	mCharacterStatToDisplay			= characterStatToDisplay;
-	mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
-	mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
-	mMessage						= "Z"; //default
+	mData.mCombatCharacterIndex			= characterIndex;
+	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
+	mData.mCharacterStatToDisplay		= characterStatToDisplay;
+	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
+	mData.mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
 }
 
-MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, int attackNum, std::vector <EMiniGameState> miniGameStateWhenToShowList) 
+MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, int attackNum,
+	std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
 {
-	mCombatCharacterIndex = characterIndex;
-	mCharacterStatToDisplay			= characterStatToDisplay;
-	mShowDuringAllCharacters		= showDuringAllCharacters;
-	mAttackNum						= attackNum;
-	mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
-	mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
-	mMessage						= "Z"; //default
+	mData.mCombatCharacterIndex			= characterIndex;
+	mData.mCharacterStatToDisplay		= characterStatToDisplay;
+	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
+	mData.mAttackNum					= attackNum;
+	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
+	mData.mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
 }
 
-MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList)
+MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList) 
+	: TextBoxPreset()
 {
-	mCombatCharacterIndex = characterIndex;
-	mShowDuringAllCharacters		= showDuringAllCharacters;
-	mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
-	mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
-	mMessage						= message;
+	mData.mCombatCharacterIndex			= characterIndex;
+	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
+	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
+	mData.mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
+	mMessage							= message;
 }
 
 MiniGamePlayerBoxPreset::MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
 {
-	mCharacterStatToDisplay			= characterStatToDisplay;
-	mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
-	mType							= ETextBoxType_MINI_GAME_PLAYER_BOX;
-	mMessage						= "Z"; //default
+	mData.mCharacterStatToDisplay		= characterStatToDisplay;
+	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
+	mData.mType							= ETextBoxType_MINI_GAME_PLAYER_BOX;
 }
 
 
@@ -66,19 +69,18 @@ MiniGamePlayerBoxPreset::MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay
 
 MiniGameBoxPreset::MiniGameBoxPreset(std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
 {
-	mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
-	mType							= ETextBoxType_MINI_GAME_BOX;
-	mMessage						= message;
+	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
+	mData.mType							= ETextBoxType_MINI_GAME_BOX;
+	mMessage							= message;
 }
 
 GameStatBoxPreset::GameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay) : TextBoxPreset()
 {
-	mGameStatToDisplay		= gameStateValueToDisplay;
-	mType					= ETextBoxType_GAME_STAT_BOX;
-	mMessage				= "Z"; //default
+	mData.mGameStatToDisplay	= gameStateValueToDisplay;
+	mData.mType					= ETextBoxType_GAME_STAT_BOX;
 }
 
-//IMAGE BOXES
+// IMAGE BOXES
 DontAutoShowImageBoxPreset::DontAutoShowImageBoxPreset(ETextBoxID id) : ImageBoxPreset()
 {
 	mAutoShow	= false;
@@ -86,7 +88,7 @@ DontAutoShowImageBoxPreset::DontAutoShowImageBoxPreset(ETextBoxID id) : ImageBox
 }
 
 
-//SHAPE BOXES
+// SHAPE BOXES
 
 ShapeBoxPreset::ShapeBoxPreset(EShapeBoxClass type) : mType(type) { ; }
 

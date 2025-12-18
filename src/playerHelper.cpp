@@ -1,11 +1,8 @@
 #include "playerHelper.h"
-#include "globals.h"
-
 
 Player::Player() : Entity()
 {
-	CPlayerPreset* preset = new CPlayerPreset();
-
+	CPlayerPreset gStaticPlayerPreset = CPlayerPreset();
 	mName				      = "lotus";
 	mEntityType				  = EEntityType_NON_STATIC;
 	mEntityClassType          = EEntityClassTypes_PLAYER;
@@ -14,27 +11,25 @@ Player::Player() : Entity()
 
 	mFramesTakingDamageBeforeDeath = 7;
 
-	mMovementManager.setupMovementManager(Vect2(0, 0), preset);
+	mMovementManager.setupMovementManager(Vect2(0, 0), gStaticPlayerPreset);
 	mMovementManager.setInputDriven(true);
 
-	mAnimationManager.setupAnimationManager(preset->mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
+	mAnimationManager.setupAnimationManager(gStaticPlayerPreset.mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
 	if (DEMO == 0)
 	{
-		mImageObjectHitbox.setupImageObject("blue.bmp", preset->mWidth, preset->mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
+		mImageObjectHitbox.setupImageObject("blue.bmp", gStaticPlayerPreset.mWidth, gStaticPlayerPreset.mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
 	}
 
 	mVulnerableToProjectiles = true;
-	mSwordSlashWidth		 = preset->mSwordSlashWidth;
-	mSwordSlashHeight		 = preset->mSwordSlashHeight;
-
-	//mMovementManager.setDebugPrint(true);
+	mSwordSlashWidth		 = gStaticPlayerPreset.mSwordSlashWidth;
+	mSwordSlashHeight		 = gStaticPlayerPreset.mSwordSlashHeight;
 }
 
 Player::~Player()
 {
-	for (Collectible* collectible : mpCurHeldCollectibles)
+	for (Collectible* pCollectible : mpCurHeldCollectibles)
 	{
-		delete collectible;
+		pCollectible = nullptr;
 	}
 	Entity::~Entity();
 }
@@ -63,7 +58,6 @@ void Player::tick()
 		mMovementManager.getMovementStates()[EMovementStateIndex_WALKING]->autoMove();
 	}
 	mMovementManager.calcMovement();
-
 }
 
 void Player::postTick()
@@ -99,7 +93,7 @@ void Player::updateAnimationManager()
 	{
 		mAnimationManager.updateAnimation(EAnimationType_FALL);
 	}
-	else if (mMovementManager.receivedInputThisFrame())
+	else if (mMovementManager.getReceivedInputThisFrame())
 	{
 		mAnimationManager.updateAnimation(EAnimationType_RUN);
 	}
@@ -151,23 +145,11 @@ void Player::setCheckpointStats()
 }
 
 
-void Player::updateKeys(int keys)
-{
-	mKeys += keys;
-}
+void Player::updateKeys(int keys) { mKeys += keys; }
 
-void Player::updateTargets(int targets)
-{
-	mTargets += targets;
-}
+void Player::updateTargets(int targets) { mTargets += targets; }
 
-void Player::addHeldCollectible(Collectible* curCollectible)
-{
-	mpCurHeldCollectibles.push_back(curCollectible);
-}
+void Player::addHeldCollectible(Collectible* pCurCollectible) { mpCurHeldCollectibles.push_back(pCurCollectible); }
 
 
-void Player::setUpAllTextures(SDL_Renderer* pRenderer)
-{
-	mAnimationManager.setUpAllTextures(pRenderer);
-}
+void Player::setUpAllTextures(SDL_Renderer* pRenderer) { mAnimationManager.setUpAllTextures(pRenderer); }

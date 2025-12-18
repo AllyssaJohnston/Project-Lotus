@@ -1,26 +1,24 @@
 #pragma once
+#include "gameStateHelperClass.h"
 #include "hitboxHelper.h"
-#include "combatAttackHelper.h"
-#include "combatAttackHelperClass.h"
 #include "helperClass.h"
 #include "menuHelper.h"
 #include "textBoxHelper.h"
-#include "settingsHelper.h"
-#include "miniGameLevelHelper.h"
-#include "gameStateHelperClass.h"
-#include "worldDataHelper.h"
-#include "slashHelper.h"
 #include "miniGameWorldDataHelper.h"
-#include "movementHelperClass.h"
-#include "lotusAdventureMenus.h"
+#include "miniGameLevelHelper.h"
 #include "miniGameStateHelper.h"
+#include "worldDataHelper.h"
+#include "settingsHelper.h"
+#include "slashHelper.h"
+#include "styleHelper.h"
+#include "screenHelper.h"
+#include "movementHelperClass.h"
+
 
 class Tile;
 class CombatCharacter;
 class Grid;
-class TileCoords;
-
-
+struct TileCoords;
 
 
 
@@ -71,15 +69,15 @@ public:
 
     GameStateData               mGameStateData;
 	std::vector <GameState*>    mStates;
-	GameState *				    mpCurState;
+	GameState*				    mpCurState;
     GameStateManagerData        mData;
-    WorldData& mWorldData;
+    WorldData&                  mWorldData;
 
     MiniGameStateManager&       mMiniGameStateManager;
 
     GameStateManager(KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, 
-            SettingsManager& settingsManager, CollisionManager& collisionManager, DamageManager& damageManager, 
-            SlashManager& slashManager, StyleManager& styleManager, MiniGameStateManager& miniGameStateManager);
+            SettingsManager& settingsManager, CollisionManager& collisionManager, SlashManager& slashManager, 
+            StyleManager& styleManager, MiniGameStateManager& miniGameStateManager);
     ~GameStateManager();
 
     void preTick();
@@ -100,12 +98,11 @@ class GameStatePlay : public GameState
 public:
     WorldData&          mWorldData;
     CollisionManager&   mCollisionManager;
-    DamageManager&      mDamageManager;
     SlashManager&       mSlashManager;
 
 	GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, WorldData& worldData, 
             MenuManager& menuManager, SettingsManager& settingsManager, CollisionManager& collisionManager, 
-            DamageManager& damageManager, SlashManager& slashManager, StyleManager& styleManager);
+            SlashManager& slashManager, StyleManager& styleManager);
 
     ~GameStatePlay() { ; }
 
@@ -121,7 +118,6 @@ public:
 
 class GameStatePlayMiniGame : public GameState
 {
-    int mTicks = 0;
 public:
     MiniGameStateManager& mMiniGameStateManager;
 
@@ -136,6 +132,9 @@ public:
     void tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager) override;
 
     void render(EGameState curState) override;
+
+private:
+    int mTicks = 0;
 };
 
 class GameStateMenu : public GameState

@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include "screenHelper.h"
-#include "damageHelper.h"
 #include "collisionHelper.h"
 #include "styleHelper.h"
 #include "settingsHelper.h"
@@ -13,45 +12,38 @@
 #include "gameStateHelperClass.h"
 
 
-class GameInstance 
+struct GameInstance 
 {
-public:
 
 	ScreenObject					mScreen;
 
-	//MAIN GAME
-	WorldData						mWorldData		= WorldData(mScreen);
-	DamageManager					mDamageManager;
-	CollisionManager				mCollisionManager;
+	// MAIN GAME
+	CollisionManager				mCollisionManager   = CollisionManager();
+	SlashManager					mSlashManager		= SlashManager();
+	WorldData						mWorldData			= WorldData(mScreen, mSlashManager, mCollisionManager);
 	
-	SlashManager					mSlashManager   = SlashManager(mWorldData.mPlayer.getMovementManager());
 
-	//INPUT
+	// INPUT
 	KeyboardData					mKeyboardData	= KeyboardData();
 
-	//MINI GAME
+	// MINI GAME
 	MiniGameWorldData				mMiniGameWorldData;
 	MiniGameStateManager			mMiniGameStateManager = MiniGameStateManager(mKeyboardData, mMiniGameWorldData);
 
-	//MANAGERS
+	// MANAGERS
 	StyleManager					mStyleManager;
 	SettingsManager					mSettingsManager;
 	FontSizeChart					mFontSizeChart;
 
 	GameStateManager				mGameStateManager = GameStateManager(mKeyboardData, mWorldData, mMenuManager, 
-																		mSettingsManager, mCollisionManager, mDamageManager, mSlashManager,
+																		mSettingsManager, mCollisionManager, mSlashManager,
 																		mStyleManager, mMiniGameStateManager);
 	MenuManager						mMenuManager	  = MenuManager(mScreen, mWorldData, mSettingsManager, mFontSizeChart, mMiniGameStateManager.mData, mMiniGameWorldData); 
 
-	//bool							mDebugMode	= true;
-
 	GameInstance();
-	
 	~GameInstance();
 
 	void preTick();
-
 	void tick();
-
 	void postTick();
 };

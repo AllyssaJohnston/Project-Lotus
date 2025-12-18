@@ -3,26 +3,25 @@
 #include "wtypes.h"
 #include <SDL3/SDL.h>
 
-class ScreenObject
+struct ScreenObject
 {
-public:
-	//ACTUAL DESKTOP SIZE IN PIXELS
+	// ACTUAL DESKTOP SIZE IN PIXELS
 	int mScreenWidth;
 	int mScreenHeight;
 
-	//GAME WINDOW SIZE IN PIXELS
+	// GAME WINDOW SIZE IN PIXELS
 	int mGameScreenWidth;
 	int mGameScreenHeight;
 
-	//GAME WINDOW SIZE IN GAME UNITS
+	// GAME WINDOW SIZE IN GAME UNITS
 	int mGameLevelChunkWidth  = 1600;
 	int mGameLevelChunkHeight = 900;
 
 	float mGameScreenToGameLevelChunkRatio;
 
-	//with toolbar
+	//w ith toolbar
 	SDL_Window* mpWindow = NULL;
-	//render space
+	// render space
 	SDL_Surface* mpScreenSurface = NULL;
 
 	SDL_Renderer* mpRenderer = NULL;

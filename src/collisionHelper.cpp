@@ -1,31 +1,19 @@
 #include "collisionHelper.h"
 
-Collision::Collision(Entity* entity1, Entity* entity2) : mpEntity1(entity1), mpEntity2(entity2) { ; }
+Collision::Collision(Entity& entity1, Entity& entity2) : mEntity1(entity1), mEntity2(entity2) { ; }
 
-Collision::~Collision() 
+bool Collision::operator== (const Collision& other) const { return (&mEntity1 == &other.mEntity1 && &mEntity2 == &other.mEntity2) or (&mEntity1 == &other.mEntity2 && &mEntity2 == &other.mEntity1); }
+
+bool Collision::operator!= (const Collision& other) const { return !(*this == other); }
+
+
+
+RidingIsland::RidingIsland(Entity& ridingObject, Entity& objectToRide)
 {
-    mpEntity1 = nullptr;
-    mpEntity2 = nullptr;
-}
-
-bool Collision::operator== (const Collision& other) const
-{
-    return (mpEntity1 == other.mpEntity1 && mpEntity2 == other.mpEntity2) or (mpEntity1 == other.mpEntity2 && mpEntity2 == other.mpEntity1);
-}
-
-bool Collision::operator!= (const Collision& other) const
-{
-    return !(*this == other);
-}
-
-
-
-RidingIsland::RidingIsland(Entity* pRidingObject, Entity* pObjectToRide)
-{
-    mpTop  = pRidingObject;
-    mpBase = pObjectToRide;
-    mpRidingContacts.push_back(pRidingObject);
-    mpRidingContacts.push_back(pObjectToRide);
+    mpTop  = &ridingObject;
+    mpBase = &objectToRide;
+    mpRidingContacts.push_back(&ridingObject);
+    mpRidingContacts.push_back(&objectToRide);
 }
 
 RidingIsland::~RidingIsland()
@@ -90,31 +78,31 @@ void RidingIsland::separateRidingContacts()
     }
 }
 
-void RidingIsland::addRidingContact(Entity* entity)
+void RidingIsland::addRidingContact(Entity& entity)
 {
-    if (std::find(mpRidingContacts.begin(), mpRidingContacts.end(), entity) != mpRidingContacts.end()) 
+    if (std::find(mpRidingContacts.begin(), mpRidingContacts.end(), &entity) != mpRidingContacts.end())
     {
-        //already in
+        // already in list
         return;
     }
     
-    if (entity->getMovementManager().getHitbox().getBottomRight().getY() > mpBase->getMovementManager().getHitbox().getBottomRight().getY())
+    if (entity.getMovementManager().getHitbox().getBottomRight().getY() > mpBase->getMovementManager().getHitbox().getBottomRight().getY())
     {
-        mpBase = entity;
+        mpBase = &entity;
     }
-    if (entity->getMovementManager().getHitbox().getTopLeft().getY() < mpTop->getMovementManager().getHitbox().getTopLeft().getY())
+    if (entity.getMovementManager().getHitbox().getTopLeft().getY() < mpTop->getMovementManager().getHitbox().getTopLeft().getY())
     {
-        mpTop = entity;
+        mpTop = &entity;
     }
     for (int count = 0; count < mpRidingContacts.size(); count++)
     {
-        if (entity->getMovementManager().getHitbox().getCenter().getY() <= mpRidingContacts[count]->getMovementManager().getHitbox().getCenter().getY())
+        if (entity.getMovementManager().getHitbox().getCenter().getY() <= mpRidingContacts[count]->getMovementManager().getHitbox().getCenter().getY())
         {
-            mpRidingContacts.insert(mpRidingContacts.cbegin() + count, entity);
+            mpRidingContacts.insert(mpRidingContacts.cbegin() + count, &entity);
             return;
         }
     }
-    mpRidingContacts.push_back(entity);
+    mpRidingContacts.push_back(&entity);
 }
 
 
@@ -133,11 +121,10 @@ CollisionManager::~CollisionManager()
 void CollisionManager::postTick()
 {   
     bool moveCrates = true;
-    for (int count = 0; count < mCollisionsToSeparate.size(); count++)
+    for (Collision& curCollision : mCollisionsToSeparate)
     {
-        Collision & curCollision = mCollisionsToSeparate[count];
         bool doSeparate = true;
-        EBoxSide separationPath = curCollision.mpEntity1->getMovementManager().getHitbox().separate(curCollision.mpEntity2->getMovementManager().getHitbox(), doSeparate);
+        EBoxSide separationPath = curCollision.mEntity1.getMovementManager().getHitbox().separate(curCollision.mEntity2.getMovementManager().getHitbox(), doSeparate);
         if (separationPath == EBoxSide_TOP or separationPath == EBoxSide_BOTTOM)
         {
             moveCrates = false;
@@ -167,16 +154,19 @@ void CollisionManager::postTick()
     mCrateContactMovementIncrement = 0;
     moveRidingIslands();
     updateLastFrameRidingIslands();
-    mpRidingIslands.clear();
-    mLastFrameCollisions = mThisFrameCollisions;
+    mRidingIslands.clear();
+    mLastFrameCollisions.clear();
+    for (Collision collision : mThisFrameCollisions) {
+        mLastFrameCollisions.push_back(collision);
+    }
     mThisFrameCollisions.clear();
 }
 
-bool CollisionManager::isInThisFrameCollisions(Entity* pCurEntity) const
+bool CollisionManager::isInThisFrameCollisions(const Entity& curEntity) const
 {
     for (const Collision& curCollision : mThisFrameCollisions)
     {
-        if (curCollision.mpEntity1 == pCurEntity or curCollision.mpEntity2 == pCurEntity)
+        if (&curCollision.mEntity1 == &curEntity or &curCollision.mEntity2 == &curEntity)
         {
             return true;
         }
@@ -184,36 +174,37 @@ bool CollisionManager::isInThisFrameCollisions(Entity* pCurEntity) const
     return false;
 }
 
-void CollisionManager::entitiesCollidedHorizontal(Entity* pCurEntity1, Entity* pCurEntity2)
+void CollisionManager::entitiesCollidedHorizontal(Entity& curEntity1, Entity& curEntity2)
 {
-    Entity* pMovingEntity;
-    if      (pCurEntity1->getClassType() == EEntityClassTypes_ENEMY or pCurEntity1->getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
+    Entity* pMovingEntity = nullptr;
+    if      (curEntity1.getClassType() == EEntityClassTypes_ENEMY or curEntity1.getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
     {
-        pMovingEntity = pCurEntity1;
+        pMovingEntity = &curEntity1;
     }
-    else if (pCurEntity2->getClassType() == EEntityClassTypes_ENEMY or pCurEntity2->getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
+    else if (curEntity2.getClassType() == EEntityClassTypes_ENEMY or curEntity2.getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
     {
-        pMovingEntity = pCurEntity2;
+        pMovingEntity = &curEntity2;
     }
     else
     {
         return;
     }
 
-    if (!isInThisFrameCollisions(pMovingEntity))
+    if (!isInThisFrameCollisions(*pMovingEntity))
     {
-        mThisFrameCollisions.push_back(Collision(pCurEntity1, pCurEntity2));
+        mThisFrameCollisions.push_back(Collision(curEntity1, curEntity2));
     }
     
+    pMovingEntity = nullptr;
 
 
     EDirection entity1DirectionToSetTo;
     EDirection entity2DirectionToSetTo;
     EDirection entity1DirectionOfCollision;
     EDirection entity2DirectionOfCollision;
-    if (pCurEntity1->getMovementManager().getHitbox().getTopLeft().getX() < pCurEntity2->getMovementManager().getHitbox().getTopLeft().getX())
+    if (curEntity1.getMovementManager().getHitbox().getTopLeft().getX() < curEntity2.getMovementManager().getHitbox().getTopLeft().getX())
     {
-        //1 is to the left of 2
+        // 1 is to the left of 2
         entity1DirectionOfCollision = EDirection_RIGHT;
         entity2DirectionOfCollision = EDirection_LEFT;
         entity1DirectionToSetTo = EDirection_LEFT;
@@ -221,53 +212,53 @@ void CollisionManager::entitiesCollidedHorizontal(Entity* pCurEntity1, Entity* p
     }
     else
     {
-        //2 is to the left of 1
+        // 2 is to the left of 1
         entity1DirectionOfCollision = EDirection_LEFT;
         entity2DirectionOfCollision = EDirection_RIGHT;
         entity1DirectionToSetTo = EDirection_RIGHT;
         entity2DirectionToSetTo = EDirection_LEFT;
     }
 
-    if (pCurEntity1->getClassType() == EEntityClassTypes_ENEMY  or pCurEntity1->getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
+    if (curEntity1.getClassType() == EEntityClassTypes_ENEMY  or curEntity1.getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
     {
-        if (pCurEntity1->getMovementManager().getCurDirection() != entity1DirectionToSetTo)
+        if (curEntity1.getMovementManager().getCurDirection() != entity1DirectionToSetTo)
         {
-            pCurEntity1->getMovementManager().collided(entity1DirectionOfCollision);
-			if (pCurEntity1->getMovementManager().getDidSwitchedDir())
+            curEntity1.getMovementManager().collided(entity1DirectionOfCollision);
+			if (curEntity1.getMovementManager().getDidSwitchedDir())
             {
-                pCurEntity1->setTrapped();
+                curEntity1.setTrapped();
             }
         }
     }
-    if (pCurEntity2->getClassType() == EEntityClassTypes_ENEMY  or pCurEntity2->getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
+    if (curEntity2.getClassType() == EEntityClassTypes_ENEMY  or curEntity2.getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
     {
-        if (pCurEntity2->getMovementManager().getCurDirection() != entity2DirectionToSetTo)
+        if (curEntity2.getMovementManager().getCurDirection() != entity2DirectionToSetTo)
         {
-            pCurEntity2->getMovementManager().collided(entity2DirectionOfCollision);
-			if (pCurEntity2->getMovementManager().getDidSwitchedDir())
+            curEntity2.getMovementManager().collided(entity2DirectionOfCollision);
+			if (curEntity2.getMovementManager().getDidSwitchedDir())
             {
-                pCurEntity2->setTrapped();
+                curEntity2.setTrapped();
             }
         }
     }
 }
 
-void CollisionManager::entitiesCollidedVertical(Entity* pCurEntity1, Entity* pCurEntity2)
+void CollisionManager::entitiesCollidedVertical(Entity& curEntity1, Entity& curEntity2)
 {
     EDirection entity1DirectionToSetTo;
     EDirection entity2DirectionToSetTo;
     EDirection entity1DirectionOfCollision;
     EDirection entity2DirectionOfCollision;
-    if (pCurEntity1->getMovementManager().getHitbox().getTopLeft().getY() < pCurEntity2->getMovementManager().getHitbox().getTopLeft().getY())
+    if (curEntity1.getMovementManager().getHitbox().getTopLeft().getY() < curEntity2.getMovementManager().getHitbox().getTopLeft().getY())
     {
-        RidingIsland* pEntity1Island = returnLastFrameRidingIsland(pCurEntity1);
-        RidingIsland* pEntity2Island = returnLastFrameRidingIsland(pCurEntity2);
+        RidingIsland* pEntity1Island = returnLastFrameRidingIsland(curEntity1);
+        RidingIsland* pEntity2Island = returnLastFrameRidingIsland(curEntity2);
         if (pEntity2Island != nullptr and (pEntity1Island == pEntity2Island))
         {
-            //in riding island don't collide
+            // in riding island don't collide
             return;
         }
-        //1 is above 2
+        // 1 is above 2
         entity1DirectionOfCollision = EDirection_DOWN;
         entity2DirectionOfCollision = EDirection_UP;
         entity1DirectionToSetTo = EDirection_UP;
@@ -275,48 +266,49 @@ void CollisionManager::entitiesCollidedVertical(Entity* pCurEntity1, Entity* pCu
     }
     else
     {
-        RidingIsland* pEntity1Island = returnLastFrameRidingIsland(pCurEntity1);
-        RidingIsland* pEntity2Island = returnLastFrameRidingIsland(pCurEntity2);
+        RidingIsland* pEntity1Island = returnLastFrameRidingIsland(curEntity1);
+        RidingIsland* pEntity2Island = returnLastFrameRidingIsland(curEntity2);
         if (pEntity1Island != nullptr and (pEntity1Island == pEntity2Island))
         {
-            //in riding island don't collide
+            // in riding island don't collide
             return;
         }
-        //2 is above 1
+        // 2 is above 1
         entity1DirectionOfCollision = EDirection_UP;
         entity2DirectionOfCollision = EDirection_DOWN;
         entity1DirectionToSetTo = EDirection_DOWN;
         entity2DirectionToSetTo = EDirection_UP;
     }
 
-    if (pCurEntity1->getClassType() == EEntityClassTypes_ENEMY or pCurEntity1->getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
+    if (curEntity1.getClassType() == EEntityClassTypes_ENEMY or curEntity1.getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
     {
-        if (pCurEntity1->getMovementManager().getCurDirectionY() != entity1DirectionToSetTo)
+        if (curEntity1.getMovementManager().getCurDirectionY() != entity1DirectionToSetTo)
         {
-            pCurEntity1->getMovementManager().collided(entity1DirectionOfCollision);
+            curEntity1.getMovementManager().collided(entity1DirectionOfCollision);
         }
     }
-    if (pCurEntity2->getClassType() == EEntityClassTypes_ENEMY or pCurEntity2->getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
+    if (curEntity2.getClassType() == EEntityClassTypes_ENEMY or curEntity2.getCharacterType() == EEntityCharacterTypes_P_MOVING_PLATFORM)
     {
-        if (pCurEntity2->getMovementManager().getCurDirectionY() != entity2DirectionToSetTo)
+        if (curEntity2.getMovementManager().getCurDirectionY() != entity2DirectionToSetTo)
         {
-            pCurEntity2->getMovementManager().collided(entity2DirectionOfCollision);
+           curEntity2.getMovementManager().collided(entity2DirectionOfCollision);
         }
     }
 }
 
-void CollisionManager::addCollision(Entity* pCurEntity1, Entity* pCurEntity2) 
+void CollisionManager::addCollision(Entity& curEntity1, Entity& curEntity2) 
 {
-    if (std::find(mThisFrameCollisions.begin(), mThisFrameCollisions.end(), Collision(pCurEntity1, pCurEntity2)) == mThisFrameCollisions.end())
+    Collision collisionToAdd = Collision(curEntity1, curEntity2);
+    if (std::find(mThisFrameCollisions.begin(), mThisFrameCollisions.end(), collisionToAdd) == mThisFrameCollisions.end())
     {
-        //unique collision
-        mThisFrameCollisions.push_back(Collision(pCurEntity1, pCurEntity2));
+        // unique collision
+        mThisFrameCollisions.push_back(collisionToAdd);
     }
 }
 
 void CollisionManager::moveRidingIslands()
 {
-    for (RidingIsland& curRidingIsland : mpRidingIslands)
+    for (RidingIsland& curRidingIsland : mRidingIslands)
     {
         curRidingIsland.moveRidingContacts();
     }
@@ -324,73 +316,63 @@ void CollisionManager::moveRidingIslands()
 
 void CollisionManager::moveLastFrameRidingIslands()
 {
-    for (RidingIsland& curRidingIsland : mpLastFrameRidingIslands)
+    for (RidingIsland& curRidingIsland : mLastFrameRidingIslands)
     {
         curRidingIsland.moveRidingContacts();
     }
 }
 
-void CollisionManager::addCrateContact(Entity* crate)
+void CollisionManager::addCrateContact(Entity& crate)
 {
-    for (Entity* curCrateContact : mpCrateContacts)
+    if (std::find(mpCrateContacts.begin(), mpCrateContacts.end(), &crate) == mpCrateContacts.end())
     {
-        if (curCrateContact == crate)
-        {
-            return;
-        }
+        // not already in the list
+        mpCrateContacts.push_back(&crate);
     }
-    mpCrateContacts.push_back(crate);
 }
 
-bool CollisionManager::isInCrateContacts(Entity* crate) 
-{
-    return std::find(mpCrateContacts.begin(), mpCrateContacts.end(), crate) != mpCrateContacts.end();
-}
+bool CollisionManager::isInCrateContacts(const Entity& crate) const { return std::find(mpCrateContacts.begin(), mpCrateContacts.end(), &crate) != mpCrateContacts.end(); }
 
-void CollisionManager::setCrateContactMovementIncrement(int movementIncrementInput)
-{
-    mCrateContactMovementIncrement = movementIncrementInput;
-}
+void CollisionManager::setCrateContactMovementIncrement(int movementIncrementInput) { mCrateContactMovementIncrement = movementIncrementInput; }
 
-void CollisionManager::addRidingContact(Entity* pRidingObject, Entity* pObjectToRide)
+void CollisionManager::addRidingContact(Entity& ridingObject, Entity& objectToRide)
 {
-    if (pObjectToRide->getType() != EEntityType_NON_STATIC or pObjectToRide->mRideable == false) 
+    if (objectToRide.getType() != EEntityType_NON_STATIC or !objectToRide.mRideable) 
     {
-        //can't ride this object
+        // can't ride this object
         return;
     }
-    Hitbox ridingObjectHitbox = pRidingObject->getMovementManager().getHitbox();
-    Hitbox objectToRideHitbox = pObjectToRide->getMovementManager().getHitbox();
+    Hitbox ridingObjectHitbox = ridingObject.getMovementManager().getHitbox();
+    Hitbox objectToRideHitbox = objectToRide.getMovementManager().getHitbox();
     int xOverlap = rangeOverlapDistance(ridingObjectHitbox.getTopLeft().getX(), ridingObjectHitbox.getBottomRight().getX(), objectToRideHitbox.getTopLeft().getX(), objectToRideHitbox.getBottomRight().getX());
-    int ridingObjectMovement = pRidingObject->getMovementManager().getMovementVect2().getX();
-    int objectToRideMovement = pObjectToRide->getMovementManager().getMovementVect2().getX();
+    int ridingObjectMovement = ridingObject.getMovementManager().getMovementVect2().getX();
+    int objectToRideMovement = objectToRide.getMovementManager().getMovementVect2().getX();
     int greatestMovementIncrement = std::max(ridingObjectMovement, objectToRideMovement);
     if (xOverlap >= greatestMovementIncrement)
     {
-        RidingIsland* ridingIsland = returnRidingIslandEntityIn(pRidingObject);
+        RidingIsland* ridingIsland = returnRidingIslandEntityIn(ridingObject);
         if (ridingIsland != nullptr)
         {
-            ridingIsland->addRidingContact(pObjectToRide);
+            ridingIsland->addRidingContact(objectToRide);
             return;
         }
-        ridingIsland = returnRidingIslandEntityIn(pObjectToRide);
+        ridingIsland = returnRidingIslandEntityIn(objectToRide);
         if (ridingIsland != nullptr)
         {
-            ridingIsland->addRidingContact(pRidingObject);
+            ridingIsland->addRidingContact(ridingObject);
             return;
         }
-        mpRidingIslands.push_back(RidingIsland(pRidingObject, pObjectToRide));
+        mRidingIslands.push_back(RidingIsland(ridingObject, objectToRide));
     }
 }
 
-RidingIsland* CollisionManager::returnRidingIslandEntityIn(Entity* entity)
+RidingIsland* CollisionManager::returnRidingIslandEntityIn(const Entity& entity)
 {
-    for (RidingIsland& curIsland : mpRidingIslands)
+    for (RidingIsland& curIsland : mRidingIslands)
     {      
-        for (int countContact = 0; countContact < curIsland.mpRidingContacts.size(); countContact++)
+        for (Entity* pCurContact : curIsland.mpRidingContacts)
         {
-            Entity& curContact = *(curIsland.mpRidingContacts[countContact]);
-            if (entity == &curContact)
+            if (&entity == pCurContact)
             {
                 return &curIsland;
             }
@@ -399,14 +381,13 @@ RidingIsland* CollisionManager::returnRidingIslandEntityIn(Entity* entity)
     return nullptr;
 }
 
-RidingIsland* CollisionManager::returnLastFrameRidingIsland(Entity* entity)
+RidingIsland* CollisionManager::returnLastFrameRidingIsland(const Entity& entity)
 {
-    for (RidingIsland& curIsland : mpLastFrameRidingIslands)
+    for (RidingIsland& curIsland : mLastFrameRidingIslands)
     {
-        for (int countContact = 0; countContact < curIsland.mpRidingContacts.size(); countContact++)
+        for (Entity* pCurContact : curIsland.mpRidingContacts)
         {
-            Entity & curContact = *(curIsland.mpRidingContacts[countContact]);
-            if (entity == &curContact)
+            if (&entity == pCurContact)
             {
                 return &curIsland;
             }
@@ -415,7 +396,4 @@ RidingIsland* CollisionManager::returnLastFrameRidingIsland(Entity* entity)
     return nullptr;
 }
 
-void CollisionManager::updateLastFrameRidingIslands()
-{
-    mpLastFrameRidingIslands = mpRidingIslands;
-}
+void CollisionManager::updateLastFrameRidingIslands() { mLastFrameRidingIslands = mRidingIslands; }

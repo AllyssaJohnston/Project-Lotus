@@ -1,17 +1,8 @@
 #pragma once
 #include "entityPresets.h"
 
-struct ProjectilePreset : public CCharacterPreset
-{
-	ProjectilePreset();
-};
+struct ProjectilePreset : public EntityPreset { ProjectilePreset(); };
 
-struct PlayerProjectilePreset : public ProjectilePreset
-{
-	PlayerProjectilePreset(EEntityMovementPath movementPath);
-};
+struct PlayerProjectilePreset : public ProjectilePreset { PlayerProjectilePreset(EEntityMovementPath movementPath); };
 
-struct EnemyProjectilePreset : public ProjectilePreset
-{
-	EnemyProjectilePreset();
-};
+struct EnemyProjectilePreset : public ProjectilePreset { EnemyProjectilePreset(); };

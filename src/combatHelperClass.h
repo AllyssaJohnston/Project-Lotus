@@ -80,13 +80,3 @@ struct GameOverStats
     bool mGameOver = false;
     bool mWonGame = false;
 };
-
-    /*
-class AttackedCharacterChanges():
-    def __init__(self, character, healthChange, defenseChange, turnsToPassChange, statusChange):
-    self.character         = character
-    self.healthChange      = healthChange
-    self.defenseChange     = defenseChange
-    self.turnsToPassChange = turnsToPassChange
-    self.statusChange      = statusChange
-    self.movementChange    = None*/

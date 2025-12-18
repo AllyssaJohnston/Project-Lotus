@@ -18,33 +18,34 @@ MovementManager::MovementManager()
 	mMovementStates[EMovementStateIndex_STANDING]	=	new StandingState(mPositionData, mMovementData,					mAttemptMove);
 	mMovementStates[EMovementStateIndex_WALKING]	=	new WalkingState( mPositionData, mMovementData,					mAttemptMove);
 	mMovementStates[EMovementStateIndex_JUMPING]	=	new JumpingState( mPositionData, mMovementData, mJumpingData,	mAttemptMove);
-	mMovementStates[EMovementStateIndex_FALLING]	=	new FallingState( mPositionData, mMovementData, mJumpingData,	mAttemptMove);
 	mMovementStates[EMovementStateIndex_FLYING]		=	new FlyingState(  mPositionData, mMovementData,					mAttemptMove);
+	mMovementStates[EMovementStateIndex_FALLING]	=	new FallingState( mPositionData, mMovementData, mJumpingData,	mAttemptMove);
+	mMovementStates[EMovementStateIndex_STATIONARY] =	new FlyingState(  mPositionData, mMovementData,					mAttemptMove);
 }
 
-void MovementManager::setupMovementManager(Vect2 startPosition, CCharacterPreset* preset)
+void MovementManager::setupMovementManager(const Vect2 startPosition, const EntityPreset& preset)
 {
 	setUpMovementManagerInternal(startPosition, preset);
-	mPositionData.mHitbox = Hitbox(mStartPosition, preset->mWidth, preset->mHeight);
+	mPositionData.mHitbox = Hitbox(mStartPosition, preset.mWidth, preset.mHeight);
 	mAttemptMove.mWantToMoveTo = mPositionData.mHitbox.getTopLeft();
 }
 
-void MovementManager::setupMovementManager(Vect2 startPosition, CCharacterPreset* preset, EDirection curDirection)
+void MovementManager::setupMovementManager(const Vect2 startPosition, const EntityPreset& preset, const EDirection curDirection)
 {
 	setUpMovementManagerInternal(startPosition, preset);
-	mPositionData.mHitbox = Hitbox(mStartPosition, preset->mWidth, preset->mHeight);
+	mPositionData.mHitbox = Hitbox(mStartPosition, preset.mWidth, preset.mHeight);
 	mMovementData.mCurDirection = curDirection;
 	mAttemptMove.mWantToMoveTo = mPositionData.mHitbox.getTopLeft();
 }
 
-void MovementManager::setupMovementManager(Vect2 startPosition, CCharacterPreset* preset, int widthInput, int heightInput)
+void MovementManager::setupMovementManager(const Vect2 startPosition, const EntityPreset& preset, const int widthInput, const int heightInput)
 {
 	setUpMovementManagerInternal(startPosition, preset);
 	mPositionData.mHitbox = Hitbox(mStartPosition, widthInput, heightInput);
 	mAttemptMove.mWantToMoveTo = mPositionData.mHitbox.getTopLeft();
 }
 
-void MovementManager::setupMovementManager(Vect2 startPosition, CCharacterPreset* preset, EEntityMovementPath path, EDirection curDirection, int widthInput, int heightInput)
+void MovementManager::setupMovementManager(const Vect2 startPosition, const EntityPreset& preset, const EEntityMovementPath path, const EDirection curDirection, const int widthInput, const int heightInput)
 {
 	setUpMovementManagerInternal(startPosition, preset);
 	mPositionData.mHitbox = Hitbox(mStartPosition, widthInput, heightInput);
@@ -53,10 +54,10 @@ void MovementManager::setupMovementManager(Vect2 startPosition, CCharacterPreset
 	mAttemptMove.mWantToMoveTo = mPositionData.mHitbox.getTopLeft();
 }
 
-void MovementManager::setupMovementManager(Vect2 startPosition, Vect2 movementVect, CCharacterPreset* preset, EDirection curDirectionX, EDirection curDirectionY)
+void MovementManager::setupMovementManager(const Vect2 startPosition, const Vect2 movementVect, const EntityPreset& preset, const EDirection curDirectionX, const EDirection curDirectionY)
 {
 	setUpMovementManagerInternal(startPosition, preset);
-	mPositionData.mHitbox = Hitbox(mStartPosition, preset->mWidth, preset->mHeight);
+	mPositionData.mHitbox = Hitbox(mStartPosition, preset.mWidth, preset.mHeight);
 	mMovementData.mCurDirection = curDirectionX;
 	mMovementData.mCurDirectionY = curDirectionY;
 	mMovementData.mBaseMovementVect2 = movementVect;
@@ -64,42 +65,28 @@ void MovementManager::setupMovementManager(Vect2 startPosition, Vect2 movementVe
 	mAttemptMove.mWantToMoveTo = mPositionData.mHitbox.getTopLeft();
 }
 
-void MovementManager::setUpMovementManagerInternal(Vect2 startPosition, CCharacterPreset* preset)
+void MovementManager::setUpMovementManagerInternal(const Vect2 startPosition, const EntityPreset& preset)
 {
 	mStartPosition							=	startPosition;
 	mCheckpointPosition						=	startPosition;
 	mPositionData.mLastFramePosition		=	startPosition;
 
-	mMovementData.mCharacterModes			=	preset->mCharacterModes;
-	mMovementData.mCurCharacterMode			=	preset->mCharacterModes[0];
-	mMovementData.mCurCharacterModeIndex	=	0;
-	mMovementData.mCharacterModeInterval	=	preset->mCharacterModeInterval;
-	mMovementData.mMovementAutoMoveRule     =   preset->mAutoMoveRule;
-
-	mMovementData.mBaseMovementVect2		=	preset->mMovementVect2;
-	mMovementData.mCurMovementVect2			=	preset->mMovementVect2;
-	mJumpingData.mJumpDistance				=	preset->mJumpDistance;
-	mJumpingData.mWallJumpDistanceX			=	preset->mWallJumpDistanceX;
-	mJumpingData.mWallJumpDistanceY			=	preset->mWallJumpDistanceY;
+	mMovementData.setUp(preset.mMovementCodes, preset.mMovementCodes[0], preset.mMovementCodeInterval, preset.mCharacterMode);
+	mMovementData.mMovementAutoMoveRule     =	preset.mAutoMoveRule;
+	mMovementData.mBaseMovementVect2		=	preset.mMovementVect2;
+	mMovementData.mCurMovementVect2			=	preset.mMovementVect2;
+	mJumpingData.mJumpDistance				=	preset.mJumpDistance;
 	mJumpingData.mNumCurJumps				=	0;
 	mJumpingData.mNumMaxJumps				=	1;
-	mMovementData.mUseMovementEffect		=   preset->mUseMovementEffect;
-	mMovementData.mMovementCodes            =   preset->mMovementCodes;
-	mMovementData.mCurMovementCode			=   preset->mMovementCodes[0];
-	mMovementData.mCurMovementCodeIndex     =   0;
-	mMovementData.mMovementCodeInterval     =	preset->mMovementCodeInterval;
+	mMovementData.mUseMovementEffect		=	preset.mUseMovementEffect;
 
-	mMovementData.mPath						=	preset->mMovementPath;
-	mPositionData.mOriginalHitboxEdges		=	preset->mHitboxEdges;
-	mPositionData.mCurHitboxEdges			=	preset->mHitboxEdges;
-
+	mMovementData.mPath						=	preset.mMovementPath;
+	mPositionData.mOriginalHitboxEdges		=	preset.mHitboxEdges;
+	mPositionData.mCurHitboxEdges			=	preset.mHitboxEdges;
 }
 
-MovementManager::~MovementManager() { ;  }
 
 void MovementManager::setInputDriven(bool input) { mInputDriven = input; }
-
-
 
 void MovementManager::setMovementState(EMovementStateIndex newState)
 {
@@ -115,9 +102,9 @@ void MovementManager::setMovementState(EMovementStateIndex newState)
 	}
 }
 
-std::array<MovementState*, numMovementStates>& MovementManager::getMovementStates() { return mMovementStates; }
+std::array<MovementState*, numMovementStates> MovementManager::getMovementStates() const { return mMovementStates; }
 
-EMovementStateIndex MovementManager:: getCurMovementState() { return mCurMovementState; }
+EMovementStateIndex MovementManager::getCurMovementState() const { return mCurMovementState; }
 
 void MovementManager::setMovementStateToCharacterMode()
 {
@@ -125,32 +112,30 @@ void MovementManager::setMovementStateToCharacterMode()
 	switch (getMovementCode())
 	{
 	case EEntityMovements_FLY:
-	{
 		setMovementState(EMovementStateIndex_FLYING);
 		mMoveHorizontal = false;
 		break;
-	}
 	case EEntityMovements_JUMP:
-	{
 		if (mPositionData.mOnGround)
 		{
 			jump(1.0f);
 		}
-		else if (mJumpingData.mAmJump == false)
+		else if (!mJumpingData.mAmJump)
 		{
 			setMovementState(EMovementStateIndex_FALLING);
 		}
 		break;
-	}
 	case EEntityMovements_WALK:
 		setMovementState(EMovementStateIndex_WALKING);
 		break;
 	case EEntityMovements_FALL:
-	{
 		setMovementState(EMovementStateIndex_STANDING);
 		mMoveHorizontal = false;
 		break;
-	}
+	case EEntityMovements_NONE:
+		setMovementState(EMovementStateIndex_STATIONARY);
+		mMoveHorizontal = false;
+		break;
 	default:
 		break;
 	}
@@ -175,12 +160,8 @@ void MovementManager::resetStats()
 
 	mCollidedThisFrame						=	false;
 	mReceivedInputThisFrame					=	false;
-	resetCharacterModeCountDown();
-	setCurCharacterMode(mMovementData.mCharacterModes[0]);
-	resetMovementCodeCountDown();
-	setCurMovementCode(mMovementData.mMovementCodes[0]);
-	//resetMovementVect2();
-
+	
+	mMovementData.reset();
 }
 
 void MovementManager::resetToCheckpoint()
@@ -199,11 +180,7 @@ void MovementManager::resetToCheckpoint()
 
 	mCollidedThisFrame							=	false;
 	mReceivedInputThisFrame						=	false;
-	resetCharacterModeCountDown();
-	setCurCharacterMode(mMovementData.mCharacterModes[0]);
-	resetMovementCodeCountDown();
-	setCurMovementCode(mMovementData.mMovementCodes[0]);
-	//resetMovementVect2();
+	mMovementData.reset();
 }
 
 
@@ -214,7 +191,7 @@ void MovementManager::preTick()
 	mSwappedDirThisFrame				= false;
 	mPositionData.mLastFramePosition	= mPositionData.mHitbox.getTopLeft();
 
-	if (mPositionData.mOnGround == true and mJumpingData.mAmJump == false)
+	if (mPositionData.mOnGround and !mJumpingData.mAmJump)
 	{
 		mJumpingData.mNumCurJumps = 0;
 	}
@@ -224,12 +201,11 @@ void MovementManager::preTick()
 	{
 		resetCurHitboxEdges();
 	}
-	//updateCurMovementVect2CountDown();
 }
 
 void MovementManager::postTick()
 {
-	switch (mMovementData.mCurMovementCode)
+	switch (mMovementData.getCurMovementCode())
 	{
 	case EEntityMovements_NONE:
 	case EEntityMovements_FLY:
@@ -241,7 +217,7 @@ void MovementManager::postTick()
 		break;
 	}
 
-	if (mPositionData.mOnGround == false)
+	if (!mPositionData.mOnGround)
 	{
 		mPositionData.mCurGroundMovementEffect = 0;
 		mPositionData.mCurGroundCharacteristics.clear();
@@ -257,19 +233,17 @@ void MovementManager::postTick()
 	{
 		mFramesInState = 0;
 	}
-	mLastMovementState      = mCurMovementState;
+	mLastMovementState = mCurMovementState;
 }
 
 
 
 void MovementManager::calcMovement()
 {
+	mMovementData.updateMovementCodeCountDown(mPositionData.mOnGround);
 
-	updateCharacterModeCountDown();
-	updateMovementCodeCountDown();
-
-	//There is nothing to update, exit early.  Could make a state that just returned
-	if (mMovementData.mCurCharacterMode == ECharacterModes_STATIC)
+	// There is nothing to update, exit early.  Could make a state that just returned
+	if (mMovementData.getCurCharacterMode() == ECharacterModes_STATIC)
 	{
 		mAttemptMove.mWantToMoveTo = mPositionData.mHitbox.getTopLeft();
 		mAttemptMove.mMoveTo = mPositionData.mHitbox.getTopLeft();
@@ -290,42 +264,31 @@ void MovementManager::calcMovement()
 			setMovementState(EMovementStateIndex_FALLING);
 		}
 	}
-	else if (!mPositionData.mOnGround)
+	else if (!mPositionData.mOnGround) // falling
 	{
-		//falling
 		setMovementState(EMovementStateIndex_FALLING);
 	}
-
 }
 
-void MovementManager::move() 
-{
-	mPositionData.mHitbox.setTopLeft(mAttemptMove.mMoveTo);
-}
+void MovementManager::move() { mPositionData.mHitbox.setTopLeft(mAttemptMove.mMoveTo); }
 
-#ifdef COLLISION_SYSTEM == 0
-void MovementManager::moveToWantToMoveTo() 
-{
-	mPositionData.mHitbox.setTopLeft(mAttemptMove.mWantToMoveTo);
-}
+#if COLLISION_SYSTEM == 0
+void MovementManager::moveToWantToMoveTo()  { mPositionData.mHitbox.setTopLeft(mAttemptMove.mWantToMoveTo); }
 #endif
 
 void MovementManager::updateAccelerationY()
 {
-	int mMinFramesToAccelerate = 120; //TODO move magic number
 	if (mFramesInState >= mMinFramesToAccelerate) 
 	{
 		if (mCurMovementState == EMovementStateIndex_FALLING)
 		{
 			int timeSinceAccelerating = mFramesInState - mMinFramesToAccelerate;
 			mMovementData.mAccelerationY = 1.0f + (float(timeSinceAccelerating) / 60);
-			//std::cout << mMovementData.mAccelerationY;
 			if (ceil(mMovementData.mCurMovementVect2.getY() * mMovementData.mAccelerationY) > 12)
 			{
 				mMovementData.mAccelerationY = 12.0f / (float)mMovementData.mCurMovementVect2.getY();
 			}
 		}
-
 	}
 	else
 	{
@@ -361,114 +324,9 @@ void MovementManager::push(int changeMovement, EDirection newDirection)
 }
 
 
-void MovementManager::updateCharacterModeCountDown()
-{
-	if (mMovementData.mCharacterModes.size() > 1)
-	{
-		mMovementData.mCharacterModeCountDown -= 1;
-		if (mMovementData.mCharacterModeCountDown < 0)
-		{
-			updateCurCharacterMode();
-		}
-	}
-}
-
-void MovementManager::resetCharacterModeCountDown() { mMovementData.mCharacterModeCountDown = mMovementData.mCharacterModeInterval; }
-
-void MovementManager::updateCurCharacterMode()
-{
-	if (mPositionData.mOnGround == true)
-	{
-		resetCharacterModeCountDown();
-		mMovementData.mCurCharacterModeIndex += 1;
-		if (mMovementData.mCurCharacterModeIndex >= mMovementData.mCharacterModes.size())
-		{
-			mMovementData.mCurCharacterModeIndex = 0;
-		}
-		mMovementData.mCurCharacterMode = mMovementData.mCharacterModes[mMovementData.mCurCharacterModeIndex];
-	}
-	else
-	{
-		mMovementData.mCharacterModeCountDown -= 1;
-	}
-}
-
-void MovementManager::changeCharacterModes(std::vector<ECharacterModes> givenCharacterModes)
-{
-	mMovementData.mCharacterModes.clear();
-	resetCharacterModeCountDown();
-
-	for (ECharacterModes mode : givenCharacterModes)
-	{
-		mMovementData.mCharacterModes.push_back(mode);
-	}
-}
-
-void MovementManager::setCurCharacterMode(ECharacterModes newMode)
-{
-	for (int count = 0; count < mMovementData.mCharacterModes.size(); count++)
-	{
-		if (mMovementData.mCharacterModes[count] == newMode)
-		{
-			mMovementData.mCurCharacterMode = newMode;
-			mMovementData.mCurCharacterModeIndex = count;
-			return;
-		}
-	}
-}
-
-
-
-
-void MovementManager::updateMovementCodeCountDown()
-{
-	if (mMovementData.mMovementCodes.size() > 1)
-	{
-		mMovementData.mMovementCodeCountDown -= 1;
-		if (mMovementData.mMovementCodeCountDown < 0)
-		{
-			updateCurMovementCode();
-		}
-	}
-}
-
-void MovementManager::resetMovementCodeCountDown() { mMovementData.mMovementCodeCountDown = mMovementData.mMovementCodeInterval; }
-
-void MovementManager::updateCurMovementCode()
-{
-	if (mPositionData.mOnGround == true)
-	{
-		resetMovementCodeCountDown();
-		mMovementData.mCurMovementCodeIndex += 1;
-		if (mMovementData.mCurMovementCodeIndex >= mMovementData.mMovementCodes.size())
-		{
-			mMovementData.mCurMovementCodeIndex = 0;
-		}
-		mMovementData.mCurMovementCode = mMovementData.mMovementCodes[mMovementData.mCurMovementCodeIndex];
-	}
-	else
-	{
-		mMovementData.mCharacterModeCountDown -= 1;
-	}
-}
-
-void MovementManager::setCurMovementCode(EEntityMovements newCode)
-{
-	for (int count = 0; count < mMovementData.mMovementCodes.size(); count++)
-	{
-		if (mMovementData.mMovementCodes[count] == newCode)
-		{
-			mMovementData.mCurMovementCode = newCode;
-			mMovementData.mCurMovementCodeIndex = count;
-			return;
-		}
-	}
-}
-
-
 void MovementManager::useInput(std::vector <KeyData> & eventVect, bool useHorizontalInput, bool canWallJump)
 {
-	//Ignore input while in the walljump
+	// Ignore input while in the walljump
 	if (mCurMovementState == EMovementStateIndex_JUMPING and mJumpingData.mAmWallJump) 
 	{
 		return;
@@ -504,7 +362,7 @@ void MovementManager::useInput(std::vector <KeyData> & eventVect, bool useHorizo
 			case EKeyboardInput_UP:
 			case EKeyboardInput_W:
 			case EKeyboardInput_SPACE_BAR:
-				if (eventVect[count].mRepeat == 2)  //Only jump when key pressed down for at least 2 frames.
+				if (eventVect[count].mRepeat == 2)  // Only jump when key pressed down for at least 2 frames.
 				{
 					if (canWallJump) 
 					{
@@ -533,7 +391,7 @@ void MovementManager::useInput(std::vector <KeyData> & eventVect, bool useHorizo
 
 void MovementManager::collided(EDirection directionOfCollision)
 {
-	if (mMovementData.mCurMovementCode != EEntityMovements_FALL && !mCollidedThisFrame)
+	if (mMovementData.getCurMovementCode() != EEntityMovements_FALL && !mCollidedThisFrame)
 	{
 		mCollidedThisFrame = true;
 		switch (mMovementData.mPath) 
@@ -574,6 +432,10 @@ void MovementManager::collided(EDirection directionOfCollision)
 	}
 }
 
+
+void MovementManager::setCurCharacterMode(ECharacterModes givenCharacterMode) { mMovementData.setCurCharacterMode(givenCharacterMode); }
+
+void MovementManager::setCurMovementCode(EEntityMovements givenCharacterCode) { mMovementData.setCurMovementCode(givenCharacterCode); }
 
 
 void MovementManager::setOnGroundFalse()
@@ -640,15 +502,6 @@ void MovementManager::jump(float jumpMultiplier)
 				setMovementState(EMovementStateIndex_JUMPING);
 			}
 			break;
-		/*
-		* case EMovementStateIndex_AUTO_MOVE:
-		* if (((AutoMoveState*)mMovementStates[mCurMovementState])->canJump())
-		* {
-		* 	jump = true;
-		* 	setMovementState(EMovementStateIndex_JUMPING);
-		* }
-		* break;
-		*/
 		default:
 			break;
 	}
@@ -695,7 +548,7 @@ void MovementManager::left()
 		return;
 	}
 	
-	//Second frame on, start moving.
+	// Second frame on, start moving.
 	if (mCurMovementState == EMovementStateIndex_STANDING)
 	{
 		setMovementState(EMovementStateIndex_WALKING);
@@ -715,7 +568,7 @@ void MovementManager::right()
 		return;
 	}
 
-	//Second frame on, start moving.
+	// Second frame on, start moving.
 	if (mCurMovementState == EMovementStateIndex_STANDING)
 	{
 		setMovementState(EMovementStateIndex_WALKING);
@@ -731,7 +584,7 @@ int MovementManager::getYChange() const { return mPositionData.mHitbox.getTopLef
 
 Vect2 MovementManager::getMovementVect2() const { return mMovementData.mCurMovementVect2; }
 
-Hitbox& MovementManager::getHitbox()  { return mPositionData.mHitbox; }
+Hitbox& MovementManager::getHitbox() { return mPositionData.mHitbox; }
 
 
 EDirection MovementManager::getCurFacingDirection() const { return mPositionData.mFacing; }
@@ -751,11 +604,11 @@ EDirection MovementManager::getLastFrameDirectionY() const { return mMovementDat
 bool MovementManager::getDidSwitchedDir() const { return mSwappedDirThisFrame; }
 
 
-EEntityMovements MovementManager::getMovementCode() const { return mMovementData.mCurMovementCode; }
+EEntityMovements MovementManager::getMovementCode() const { return mMovementData.getCurMovementCode(); }
 
 EEntityMovementPath MovementManager::getPath() const { return mMovementData.mPath; }
 
-ECharacterModes MovementManager::getCurMode() const { return mMovementData.mCurCharacterMode; }
+ECharacterModes MovementManager::getCurMode() const { return mMovementData.getCurCharacterMode(); }
 
 
 HitboxEdges MovementManager::getHitboxEdges() const { return mPositionData.mCurHitboxEdges; }
@@ -782,18 +635,15 @@ void MovementManager::resetCurHitboxEdges()
 
 EEntityEdgeType MovementManager::getEdgeType(EBoxSide boxSide) const
 {
-	switch (boxSide) {
-		case EBoxSide_TOP:
-			return mPositionData.mCurHitboxEdges.mTop;
-		case EBoxSide_BOTTOM:
-			return mPositionData.mCurHitboxEdges.mBottom;
-		case EBoxSide_LEFT:
-			return mPositionData.mCurHitboxEdges.mLeft;
-		case EBoxSide_RIGHT:
-			return mPositionData.mCurHitboxEdges.mRight;
-		default:
-			SDL_assert(false);
-			return EEntityEdgeType_INVALID;
+	switch (boxSide) 
+	{
+	case EBoxSide_TOP:		return mPositionData.mCurHitboxEdges.mTop;
+	case EBoxSide_BOTTOM:	return mPositionData.mCurHitboxEdges.mBottom;
+	case EBoxSide_LEFT:		return mPositionData.mCurHitboxEdges.mLeft;
+	case EBoxSide_RIGHT:	return mPositionData.mCurHitboxEdges.mRight;
+	default:
+		SDL_assert(false);
+		return EEntityEdgeType_INVALID;
 	}
 }
 
@@ -830,7 +680,7 @@ void MovementManager::calculateYDirection()
 	{
 		if (mMovementData.mPath == EEntityMovementPath_VERTICAL)
 		{
-			//pass
+			// pass
 		}
 		else
 		{
@@ -857,7 +707,7 @@ PositionData& MovementManager::getPositionData() { return mPositionData; }
 
 AttemptMove& MovementManager::getAttemptMove() { return mAttemptMove; }
 
-bool MovementManager::receivedInputThisFrame() const { return mReceivedInputThisFrame; }
 
+bool MovementManager::getReceivedInputThisFrame() const { return mReceivedInputThisFrame; }
 
 void MovementManager::setDebugPrint(bool onOff) { mDebugPrint = onOff; }

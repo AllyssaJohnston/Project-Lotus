@@ -4,9 +4,8 @@
 #include <string>
 #include <vector>
 
-class StyleManager
+struct StyleManager
 {
-public: 
 	const char * fontName = "fonts/Roboto-Regular.ttf";
 	const static SDL_Color lightPink;
 	const static SDL_Color pink;
@@ -21,8 +20,9 @@ public:
 	const static SDL_Color hintBlue;
 	const static SDL_Color clear;
 
-
 	StyleManager(){}
 
 	~StyleManager();
 };
+
+SDL_Color blendColors(SDL_Color* pColor1, SDL_Color* pColor2, float blendPercent);

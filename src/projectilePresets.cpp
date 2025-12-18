@@ -1,15 +1,15 @@
 #include "projectilePresets.h"
 
-ProjectilePreset::ProjectilePreset() : CCharacterPreset()
+ProjectilePreset::ProjectilePreset() : EntityPreset()
 {
-	mEntityClassType          = EEntityClassTypes_PROJECTILE;
+	mEntityClassType			= EEntityClassTypes_PROJECTILE;
 
-	mHitboxEdges			  = HitboxEdges(EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS);
-	mEntityType               = EEntityType_NON_STATIC;
+	mHitboxEdges				= HitboxEdges(EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS);
+	mEntityType					= EEntityType_NON_STATIC;
 
-	mCharacterModes.push_back(ECharacterModes_MOVING);
-	mMovementCodes			  = {EEntityMovements_FLY};
-	mMovementPath             = EEntityMovementPath_DIAGONAL;
+	mCharacterMode				= ECharacterModes_MOVING;
+	mMovementCodes				= {EEntityMovements_FLY};
+	mMovementPath				= EEntityMovementPath_DIAGONAL;
 
 	mImageOffsetX = 0;
 	mImageOffsetY = 0;
@@ -31,26 +31,26 @@ PlayerProjectilePreset::PlayerProjectilePreset(EEntityMovementPath movementPath)
 	std::vector <std::string> animationStationaryFileNames;
 	if (mMovementPath == EEntityMovementPath_HORIZONTAL)
 	{
-		mWidth                    = 30;
-		mHeight                   = 13;
-		animationStationaryFileNames.push_back("Projectiles/sword.bmp");
+		mWidth  = 30;
+		mHeight = 13;
+		animationStationaryFileNames = { "Projectiles/sword.bmp" };
 	}
 	else
 	{
-		mWidth                    = 13;
-		mHeight                   = 30;
-		animationStationaryFileNames.push_back("Projectiles/SwordV.bmp");
+		mWidth  = 13;
+		mHeight = 30;
+		animationStationaryFileNames = { "Projectiles/SwordV.bmp" };
 	}
 
-	int maxImageWidth            = 80;
-	int maxImageHeight           = 80;
+	int maxImageWidth  = 80;
+	int maxImageHeight = 80;
 
 	mTypeName = "PLAYER PROJECTILE";
 
 
 	int  stationaryFrameRate = 0;
 	bool stationaryMustFinish = false;
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish));
+	mAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish) };
 }
 
 EnemyProjectilePreset::EnemyProjectilePreset() : ProjectilePreset()
@@ -70,7 +70,6 @@ EnemyProjectilePreset::EnemyProjectilePreset() : ProjectilePreset()
 
 	int  stationaryFrameRate = 0;
 	bool stationaryMustFinish = false;
-	std::vector <std::string> animationStationaryFileNames;
-	animationStationaryFileNames.push_back("Projectiles/Fireball.bmp");
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish));
+	std::vector <std::string> animationStationaryFileNames = { "Projectiles/Fireball.bmp" };
+	mAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish) };
 }

@@ -8,14 +8,11 @@
 class Projectile : public Entity
 {
 private:
-    ProjectilePreset* mpPreset  = nullptr;
-public:
     std::string mHostName = "";
+public:
+    Projectile(const Vect2 positionInput, const ProjectilePreset& preset, EDirection curDirection, std::string hostName);
 
-    Projectile(Vect2 positionInput, ProjectilePreset* preset, EDirection curDirection, std::string hostName);
-
-    Projectile(Vect2 positionInput, Vect2 movementVect, ProjectilePreset* preset, EDirection curDirectionX, EDirection curDirectionY, 
-            std::string hostName);
+    Projectile(const Vect2 positionInput, const Vect2 movementVect, const ProjectilePreset& preset, EDirection curDirectionX, EDirection curDirectionY, const std::string hostName);
 
     ~Projectile();
 
@@ -31,9 +28,7 @@ public:
 
     void died() override;
 
-    void setCheckpointStats() override { ; } //no projectile checkpoint
+    void setCheckpointStats() override { ; } // no projectile checkpoint
 
-	ProjectilePreset* getPreset();
-
-    std::string getHostName() const override;
+    std::string getHostName() const;
 };

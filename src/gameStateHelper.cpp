@@ -9,19 +9,19 @@ extern const std::map<const SDL_Keycode, const EKeyboardInput> SDLKToKeyboardMap
 extern const std::map<const EKeyboardInput, const std::string> keyboardToStringMap;
 extern const int numEventsToGrab;
 
-//GAME STATE MANAGER
+// GAME STATE MANAGER
 GameStateManager::GameStateManager(KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, 
-	SettingsManager& settingsManager, CollisionManager& collisionManager, DamageManager& damageManager, SlashManager& slashManager,
+	SettingsManager& settingsManager, CollisionManager& collisionManager, SlashManager& slashManager,
 	StyleManager& styleManager, MiniGameStateManager& miniGameStateManager) : 
 	mMiniGameStateManager(miniGameStateManager), mWorldData(worldData)
 {
 	mGameStateData = GameStateData();
 	mStates.push_back(new GameStatePlay(mGameStateData, keyboardData, worldData, menuManager, settingsManager, collisionManager, 
-		damageManager, slashManager, styleManager));
+			slashManager, styleManager));
 	mStates.push_back(new GameStatePlayMiniGame(mGameStateData, keyboardData, miniGameStateManager, menuManager, 
-		worldData.mScreen, settingsManager, styleManager));
+			worldData.mScreen, settingsManager, styleManager));
 	mStates.push_back(new GameStateMenu(mGameStateData, keyboardData, menuManager, settingsManager,
-		styleManager, worldData));
+			styleManager, worldData));
 	mData.mCurStateEnum			= EGameState_PLAY;
 	mData.mLastFrameStateEnum	= EGameState_INVALID;
 	mpCurState = mStates[mData.mCurStateEnum];
@@ -115,7 +115,7 @@ void GameStateManager::postTick()
 	if (mMiniGameStateManager.mData.mCurStateEnum == EMiniGameState_BUILD_NEXT_LEVEL)
 	{
 		MiniGameWorldData& worldData = mMiniGameStateManager.mWorldData;
-		int nextLevelNumber = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mMainGameNextLevelData.mLevelNumber;
+		int nextLevelNumber = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mNextLevelData.mLevelNumber;
 		worldData.setNextLevel(nextLevelNumber);
 		switchToMiniGame();
 		mMiniGameStateManager.updateCurState(EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT);
@@ -134,7 +134,7 @@ void GameStateManager::switchToMiniGame()
 
 
 
-//GAME STATE
+// GAME STATE
 GameState::GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager,
 	SettingsManager& settingsManager, StyleManager& styleManager, ScreenObject& screen) : mGameStateData(gameStateData), mKeyboardData(keyboardData), 
 	mMenuManager(menuManager), mSettingsManager(settingsManager), mStyleManager(styleManager), mScreen(screen) {;}
@@ -246,11 +246,9 @@ void GameState::useInput(GameStateManagerData& gameStateManagerData)
 			switch (key.mKey)
 			{
 			case EKeyboardInput_1:
-				//mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]);
 				mGameStateData.mNextGameState = EGameState_PLAY;
 				break;
 			case EKeyboardInput_2:
-				//mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_MENU)]);
 				mGameStateData.mNextGameState = EGameState_MENU;
 				break;
 			case EKeyboardInput_UP:
@@ -366,7 +364,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT)
 		{
 			MiniGamePlayerWaitForAttackInput* pSpecificCurState = (MiniGamePlayerWaitForAttackInput*)pCurState;
-			pSpecificCurState->postTick(miniStateManager.mData.mStateData.getCharacter()->mCombatMovementManager.getAttacks()[curSelectedTextBox->mDataStorage.mAttackNum]);
+			pSpecificCurState->postTick(miniStateManager.mData.mStateData.getCharacter()->mCombatMovementManager.getAttacks()[curSelectedTextBox->mData.mAttackNum]);
 		}
 		break;
 	case ETextBoxFunction_ATTACK_DIRECTION_LEFT_BOX:
@@ -405,13 +403,12 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 
 
 
-//TYPES GAME STATES
+// TYPES GAME STATES
 GameStatePlay::GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, 
-	WorldData& worldData, MenuManager& menuManager, SettingsManager& settingsManager, CollisionManager& collisionManager, 
-	DamageManager& damageManager, SlashManager& slashManager, StyleManager& styleManager)
-	: GameState(gameStateData, keyboardData, menuManager, settingsManager, styleManager, worldData.mScreen), 
-	mWorldData(worldData), mCollisionManager(collisionManager), 
-	mDamageManager(damageManager), mSlashManager(slashManager) {}
+		WorldData& worldData, MenuManager& menuManager, SettingsManager& settingsManager, CollisionManager& collisionManager, 
+		SlashManager& slashManager, StyleManager& styleManager)
+		: GameState(gameStateData, keyboardData, menuManager, settingsManager, styleManager, worldData.mScreen), 
+		mWorldData(worldData), mCollisionManager(collisionManager), mSlashManager(slashManager) {}
 
 void GameStatePlay::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager)
 {
@@ -429,10 +426,10 @@ void GameStatePlay::tick(GameStateManagerData& gameStateManagerData, MiniGameSta
 	{	// don't tick if in single step mode and there's no input this frame.
 		useMouseCursor();
 		useInput(gameStateManagerData);
-		mWorldData.entityPreTickUpdateMovement(mSlashManager);
+		mWorldData.entityPreTickCalcMovement();
 
 		// COLLISIONS
-		mWorldData.entityCollisions(mCollisionManager, mDamageManager, mSlashManager, mKeyboardData);
+		mWorldData.entityCollisions();
 
 		if (mSettingsManager.mFrameStepInputRequest)
 		{
@@ -458,7 +455,7 @@ void GameStatePlay::tick(GameStateManagerData& gameStateManagerData, MiniGameSta
 		}
 	}
 
-	//RENDERING
+	// RENDERING
 	render(gameStateManagerData.mCurStateEnum);
 
 	mWorldData.entityPostTick();
@@ -506,7 +503,7 @@ void GameStatePlay::useInput(GameStateManagerData& gameStateManagerData)
 			}
 			else if (countEvent == slashKey and !mKeyboardData.mLastFrameKeyState[countEvent])
 			{
-				mWorldData.playerSwordSlash(mSlashManager);
+				mWorldData.playerSwordSlash();
 			}
 			else if (countEvent == EKeyboardInput_1)
 			{
@@ -536,111 +533,113 @@ void GameStatePlay::render(EGameState curState)
 	mWorldData.renderBackgroundEffects();
 
 
-	//platforms
-	//standard platforms
+	// platforms
+	// standard platforms
 	for (Platform* pPlatform : pCurLevel->mpPlatforms)
 	{
 		if		(pPlatform->mPrintViaChunk)
 		{
-			mWorldData.renderEntityViaChunk(pPlatform);
+			mWorldData.renderEntityViaChunk(*pPlatform);
 		}
 		else if (pPlatform->mSplice)
 		{
-			mWorldData.renderEntityViaSplice(pPlatform);
+			mWorldData.renderEntityViaSplice(*pPlatform);
 		}
 		else
 		{
-			mWorldData.renderEntity(pPlatform);
+			mWorldData.renderEntity(*pPlatform);
 		}
 	}
-	//non static
+	// non static
 	for (Platform* pPlatform : pCurLevel->mpActiveNonStaticPlatforms)
 	{
 		if		(pPlatform->mPrintViaChunk)
 		{
-			mWorldData.renderEntityViaChunk(pPlatform);
+			mWorldData.renderEntityViaChunk(*pPlatform);
 		}
 		else if (pPlatform->mSplice)
 		{
-			mWorldData.renderEntityViaSplice(pPlatform);
+			mWorldData.renderEntityViaSplice(*pPlatform);
 		}
 		else
 		{
-			mWorldData.renderEntity(pPlatform);
+			mWorldData.renderEntity(*pPlatform);
 		}
 	}
-	//area effect
+	// area effect
 	for (AreaEffectPlatform* pPlatform : pCurLevel->mpAreaEffectPlatforms)
 	{
 		if (pPlatform->mIsVisible)
 		{
-			AnimationManager& animationManager = pPlatform->mAreaEffectAnimationManager;
-			ImageObject*	pCurImageObject = pPlatform->mAreaEffectAnimationManager.getCurImage();
-			EDirection		imageDirection	= pPlatform->getMovementManager().getCurFacingDirection();
-			EImageOffset	imageOffsetType = EImageOffset_MIDDLE;
-			Hitbox&			hitbox = pPlatform->mAreaEffectHitbox;
+			AnimationManager& animationManager		= pPlatform->mAreaEffectAnimationManager;
+			ImageObject& curImageObject				= *pPlatform->mAreaEffectAnimationManager.getCurImage();
+			EDirection imageDirection				= pPlatform->getMovementManager().getCurFacingDirection();
+			EImageOffset imageOffsetType			= EImageOffset_MIDDLE;
+			Hitbox& hitbox							= pPlatform->mAreaEffectHitbox;
 
 			if      (pPlatform->mPrintViaChunk)
 			{
-				mWorldData.renderEntityViaChunk(pPlatform);
-				mWorldData.renderEntityViaChunk(pCurImageObject, hitbox);
+				mWorldData.renderEntityViaChunk(*pPlatform);
+				mWorldData.renderEntityViaChunk(curImageObject, hitbox);
 			}
 			else if (pPlatform->mSplice)
 			{
-				mWorldData.renderEntityViaSplice(pPlatform);
+				mWorldData.renderEntityViaSplice(*pPlatform);
 				mWorldData.renderEntityViaSplice(animationManager, hitbox);
 			}
 			else
 			{
-				mWorldData.renderEntity(pPlatform);
-				mWorldData.renderEntity(pCurImageObject, imageOffsetType, imageDirection, hitbox);
+				mWorldData.renderEntity(*pPlatform);
+				mWorldData.renderEntity(curImageObject, imageOffsetType, imageDirection, hitbox);
 			}
 		}
 	}
 
-	//collectibles
+	// collectibles
 	for (Collectible* pCollectible : pCurLevel->mpActiveCollectibles)
 	{
-		mWorldData.renderEntity(pCollectible);
+		mWorldData.renderEntity(*pCollectible);
 	}
 
-	//enemies
+	// enemies
 	for (Enemy* pEnemy : pCurLevel->mpActiveEnemies)
 	{
-		mWorldData.renderEntity(pEnemy);
-		//mWorldData.renderEntityWithHitbox(pEnemy);
+		mWorldData.renderEntity(*pEnemy);
 	}
 
-	//projectiles
+	// projectiles
 	for (Projectile* pProjectile : mWorldData.mpProjectiles)
 	{
-		mWorldData.renderEntity(pProjectile);
+		mWorldData.renderEntity(*pProjectile);
 	}
 	
-	//slash
+	// slash
 	if (mSlashManager.mCurSlash)
 	{
 		Vect2 topLeft = mSlashManager.mCenterOfRotation - Vect2(mSlashManager.mHitbox.getWidth() / 2, mSlashManager.mHitbox.getHeight() / 2);
-		Hitbox slashImageHitbox = Hitbox(topLeft, mSlashManager.mAnimationManager.getCurImage()->getIdealImageWidth(), mSlashManager.mAnimationManager.getCurImage()->getIdealImageHeight());
+		Hitbox slashImageHitbox = Hitbox(topLeft, mSlashManager.mAnimationManager.getCurImage()->mIdealImageWidth, mSlashManager.mAnimationManager.getCurImage()->mIdealImageHeight);
 		EImageOffset offsetType = EImageOffset_LEFT_X_MIDDLE_Y;
 		bool rotating = true;
-		//sword
-		mWorldData.renderEntityWithHitbox(mSlashManager.mAnimationManager.getCurImage(), mSlashManager.mSlashImageHitboxTexture, offsetType, 
+		// sword
+		mWorldData.renderEntityWithHitbox(*mSlashManager.mAnimationManager.getCurImage(), mSlashManager.mpSlashImageHitboxTexture, offsetType, 
 				mSlashManager.mCurSlashDirection, slashImageHitbox, rotating, degreesToImageRotationDegrees(mSlashManager.mImageRotation, 
 				mSlashManager.mCurRotation));
-		//slash hitbox
-		offsetType = EImageOffset_PRINT_TOP_LEFT;
-		rotating = false;
-		float rotation = 0;
-		Vect2 hitboxOffset = Vect2(0, slashImageHitbox.getHeight() / 2);
-		mWorldData.renderTexture(mSlashManager.mHitboxTexture, mSlashManager.mHitbox, offsetType, hitboxOffset, mSlashManager.mCurSlashDirection, rotating, 0.0);
+		if (DEMO == 0)
+		{
+			// slash hitbox
+			offsetType = EImageOffset_PRINT_TOP_LEFT;
+			rotating = false;
+			float rotation = 0;
+			Vect2 hitboxOffset = Vect2(0, slashImageHitbox.getHeight() / 2);
+			mWorldData.renderTexture(mSlashManager.mpHitboxTexture, mSlashManager.mHitbox, offsetType, hitboxOffset, mSlashManager.mCurSlashDirection, rotating, 0.0);
+		}
 	}
 	
 
-	//PLAYER
-	mWorldData.renderEntity(&mWorldData.mPlayer);
+	// PLAYER
+	mWorldData.renderEntity(mWorldData.mPlayer);
 	mMenuManager.updateUIElements();
-	mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]); //TODO
+	mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]);
 	mMenuManager.renderMenus(curState, false, mKeyboardData.mCurKeysString);
 }
 
@@ -679,8 +678,7 @@ void GameStatePlayMiniGame::tick(GameStateManagerData& gameStateManagerData, Min
 	mMiniGameStateManager.postTick();
 	if (mMiniGameStateManager.mData.mCurStateEnum == EMiniGameState_EXIT)
 	{
-		//mMiniGameStateManager.start(); //reset state for safety
-		mGameStateData.mNextGameState = EGameState_PLAY; //go back to main game next
+		mGameStateData.mNextGameState = EGameState_PLAY; // go back to main game next
 	}
 
 	render(gameStateManagerData.mCurStateEnum);
@@ -715,17 +713,16 @@ GameStateMenu::GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboar
 void GameStateMenu::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager)
 {
 	mTicksSinceInput += 1;
-	// Create the resources for rendering.
 
 	SDL_PumpEvents();
 	mMenuManager.preTick();
-	//PRE TICK
+	// PRE TICK
 	getInput();
 	useMouseCursor();
 	useInput(gameStateManagerData);
 	takeMenuAction(miniGameStateManager);
 
-	//RENDERING
+	// RENDERING
 	render(gameStateManagerData.mCurStateEnum);
 }
 

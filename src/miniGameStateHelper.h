@@ -2,19 +2,20 @@
 #include "hitboxHelper.h"
 #include "combatAttackHelper.h"
 #include "combatAttackHelperClass.h"
+#include "tileCoordsHelper.h"
+#include "tileCoordsHelperClass.h"
 #include "helperClass.h"
 #include "menuHelper.h"
 #include "settingsHelper.h"
 #include "miniGameLevelHelper.h"
-#include "gameStateHelperClass.h"
+#include "miniGameStateHelperClass.h"
 #include "miniGameWorldDataHelper.h"
 #include "lotusAdventureMenus.h"
-
 
 class Tile;
 class CombatCharacter;
 class Grid;
-class TileCoords;
+struct TileCoords;
 
 
 struct MiniGameState
@@ -28,22 +29,23 @@ struct MiniGameState
 
     virtual void tick() { ; }
 
-    void highlightTile(Vect2 pos);
+    void highlightTile(const Vect2 pos);
 
     void useMouseInput(EMiniGameState curStateEnum, ScreenObject& screenObject);
 
-    virtual void selectTile(Vect2 pos) { ; }
+    virtual void selectTile(const Vect2 pos) { ; }
 };
 
 struct MiniGamePlayerWaitForMoveInput : public MiniGameState
 {
     MiniGamePlayerWaitForMoveInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
 
-    void selectTile(Vect2 pos) override;
-    void moveToTile(Tile* pGivenTile);
+    void selectTile(const Vect2 pos) override;
+    void moveToTile(Tile& givenTile);
 
-    void postTick(Tile* pNewTile);
+    void postTick(Tile& tileToMoveTo);
 };
+
 
 struct MiniGamePlayerMoveCharacter : public MiniGameState
 {
@@ -64,7 +66,7 @@ struct MiniGamePlayerWaitForAttackInput : public MiniGameState
 {
     MiniGamePlayerWaitForAttackInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
 
-    void postTick(Attack pAttack);
+    void postTick(Attack attack);
 };
 
 struct MiniGamePlayerWaitForAttackSubInput : public MiniGameState
@@ -82,7 +84,6 @@ struct MiniGamePlayerCompleteDirectionalAttack : public MiniGameState
 
     void attackTiles();
 
-    //attackCharacterChanges
     void postTick();
 };
 
@@ -90,7 +91,7 @@ struct MiniGamePlayerTakeActionAttack : public MiniGameState
 {
     MiniGamePlayerTakeActionAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
 
-    void selectTile(Vect2 pos) override;
+    void selectTile(const Vect2 pos) override;
 
     void postTick();
 };
@@ -101,7 +102,6 @@ struct MiniGamePlayerTakeActionDefend : public MiniGameState
 
     void tick() override;
 
-    //defense change
     void postTick();
 };
 
@@ -138,15 +138,9 @@ struct MiniGameBuffer : public MiniGameState
     void postTick();
 };
 
-struct MiniGameBuildNextLevel : public MiniGameState
-{
-    MiniGameBuildNextLevel(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
-};
+struct MiniGameBuildNextLevel : public MiniGameState { MiniGameBuildNextLevel(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData); };
 
-struct MiniGameExit : public MiniGameState
-{
-    MiniGameExit(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
-};
+struct MiniGameExit : public MiniGameState { MiniGameExit(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData); };
 
 
 
@@ -154,7 +148,7 @@ class MiniGameStateManager
 {
 public:
     std::vector <MiniGameState *> mpStates;
-    MiniGameState * mpCurState              = nullptr;
+    MiniGameState* mpCurState               = nullptr;
     MiniGameStateManagerData mData          = MiniGameStateManagerData();
     MiniGameWorldData& mWorldData;
     bool setUp                              = false;
@@ -169,12 +163,14 @@ public:
     virtual void tick();
     virtual void postTick();
 
-    void printBoard(ScreenObject& screenObject, StyleManager& styleManager);
+    void printBoard(ScreenObject& screenObject, const StyleManager& styleManager);
 
-    void printCharacters(ScreenObject& screenObject, StyleManager& styleManager);
+    void printCharacters(ScreenObject& screenObject, const StyleManager& styleManager);
 
-    void updateTileColors(StyleManager& styleManager);
+    void updateTileColors(const StyleManager& styleManager);
 
     void updateCurState(EMiniGameState state);
+
+    void createDebugLog();
 };
 

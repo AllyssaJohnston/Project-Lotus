@@ -18,21 +18,23 @@ private:
 public:
 	EntityQuadTree(){}
 
-	EntityQuadTree(Hitbox givenHitbox, std::vector<Entity*> pParentEntities);
+	EntityQuadTree(const Hitbox& givenHitbox, std::vector<Entity*>& pParentEntities);
 	
 	~EntityQuadTree();
 
-	Hitbox getHitbox() const ;
+	Hitbox getHitbox() const;
 
-	void SetHitbox(Hitbox hitbox);
+	void SetHitbox(const Hitbox& hitbox);
 
+	void AddItem(Entity& entityToAdd);
 	void AddItem(Entity* pEntityToAdd);
 
-	void RemoveItem(Entity* pEntityToRemove);
+	void RemoveItem(const Entity& entityToRemove);
+	void RemoveItem(const Entity* const pEntityToRemove);
 
-	void getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox) const;
+	void getEntitiesInHitbox(std::vector<Entity*>& pList, const Hitbox& givenHitbox) const;
 
-	void getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox, EEntityClassTypes classType) const;
+	void getEntitiesInHitbox(std::vector<Entity*>& pList, const Hitbox& givenHitbox, EEntityClassTypes classType) const;
 
 private:
 	void createChildrenQuads();

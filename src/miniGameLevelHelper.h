@@ -11,12 +11,14 @@ public:
     Grid mGrid;
     CombatManager mCombatManager;
 
-    // the level in the main game to go back to after finishing some rounds of mini game levels
-    LevelData mMainGameNextLevelData;
+    // either mini game level or main game level
+    LevelData mNextLevelData;
 
-    MiniGameLevel(int levelNumber, Grid grid, CombatManager combatManager, LevelData nextLevelData);
+    MiniGameLevel(int levelNumber, LevelData nextLevelData);
 
     ~MiniGameLevel() { ; }
+
+    void preTick();
 
     void resetStats();
 };

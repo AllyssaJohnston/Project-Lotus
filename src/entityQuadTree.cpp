@@ -3,7 +3,7 @@
 #include "helperClass.h"
 #include "platformHelper.h"
 
-EntityQuadTree::EntityQuadTree(Hitbox givenHitbox, std::vector<Entity*> pParentEntities)
+EntityQuadTree::EntityQuadTree(const Hitbox& givenHitbox, std::vector<Entity*>& pParentEntities)
 {
 	mHitbox = givenHitbox;
 	for (Entity* pEntity : pParentEntities)
@@ -27,6 +27,7 @@ EntityQuadTree::~EntityQuadTree()
 	}
 	else
 	{
+		mpEntities.clear(); // don't delete them
 		mpQuadTopLeft		= nullptr;
 		mpQuadTopRight		= nullptr;
 		mpQuadBottomLeft	= nullptr;
@@ -36,7 +37,37 @@ EntityQuadTree::~EntityQuadTree()
 
 Hitbox EntityQuadTree::getHitbox() const { return mHitbox; }
 
-void EntityQuadTree::SetHitbox(Hitbox hitbox) { mHitbox = hitbox; }
+void EntityQuadTree::SetHitbox(const Hitbox& hitbox) { mHitbox = hitbox; }
+
+void EntityQuadTree::AddItem(Entity& entityToAdd)
+{
+	if (mHasChildrenQuads)
+	{
+		mpQuadTopLeft->AddItem(entityToAdd);
+		mpQuadTopRight->AddItem(entityToAdd);
+		mpQuadBottomLeft->AddItem(entityToAdd);
+		mpQuadBottomRight->AddItem(entityToAdd);
+		return;
+	}
+
+	if (mHitbox.overlap(entityToAdd.getMovementManager().getHitbox()))
+	{
+		addToListIfUnique(mpEntities, &entityToAdd);
+	}
+	if (entityToAdd.getSubClassType() == EEntitySubClassTypes_AREA_EFFECT)
+	{
+		AreaEffectPlatform& areaEffectPlatform = (AreaEffectPlatform&)(entityToAdd);
+		if (mHitbox.overlap(areaEffectPlatform.mAreaEffectHitbox))
+		{
+			addToListIfUnique(mpEntities, &entityToAdd);
+		}
+	}
+
+	if (mpEntities.size() > mNumPrefferedItems)
+	{
+		createChildrenQuads();
+	}
+}
 
 void EntityQuadTree::AddItem(Entity* pEntityToAdd)
 {
@@ -68,7 +99,28 @@ void EntityQuadTree::AddItem(Entity* pEntityToAdd)
 	}
 }
 
-void EntityQuadTree::RemoveItem(Entity* pEntityToRemove)
+
+void EntityQuadTree::RemoveItem(const Entity& entityToRemove)
+{
+	if (mHasChildrenQuads)
+	{
+		mpQuadTopLeft->RemoveItem(entityToRemove);
+		mpQuadTopRight->RemoveItem(entityToRemove);
+		mpQuadBottomLeft->RemoveItem(entityToRemove);
+		mpQuadBottomRight->RemoveItem(entityToRemove);
+	}
+	else
+	{
+		std::vector<Entity*>::iterator iter = std::find(mpEntities.begin(), mpEntities.end(), &entityToRemove);
+		if (iter != mpEntities.end())
+		{
+			mpEntities.erase(iter);
+		}
+		
+	}
+}
+
+void EntityQuadTree::RemoveItem(const Entity* const pEntityToRemove)
 {
 	if (mHasChildrenQuads)
 	{
@@ -84,18 +136,18 @@ void EntityQuadTree::RemoveItem(Entity* pEntityToRemove)
 		{
 			mpEntities.erase(iter);
 		}
-		
+
 	}
 }
 
-void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox) const
+void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& pList, const Hitbox& givenHitbox) const
 {
 	if (mHasChildrenQuads)
 	{
-		mpQuadTopLeft->getEntitiesInHitbox(list, givenHitbox);
-		mpQuadTopRight->getEntitiesInHitbox(list, givenHitbox);
-		mpQuadBottomLeft->getEntitiesInHitbox(list, givenHitbox);
-		mpQuadBottomRight->getEntitiesInHitbox(list, givenHitbox);
+		mpQuadTopLeft->getEntitiesInHitbox(pList, givenHitbox);
+		mpQuadTopRight->getEntitiesInHitbox(pList, givenHitbox);
+		mpQuadBottomLeft->getEntitiesInHitbox(pList, givenHitbox);
+		mpQuadBottomRight->getEntitiesInHitbox(pList, givenHitbox);
 	}
 	else
 	{
@@ -103,28 +155,28 @@ void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox give
 		{
 			if (pEntityToCheck->getMovementManager().getHitbox().overlap(givenHitbox))
 			{
-				addToListIfUnique(list, pEntityToCheck);
+				addToListIfUnique(pList, pEntityToCheck);
 			}
 			if (pEntityToCheck->getSubClassType() == EEntitySubClassTypes_AREA_EFFECT)
 			{
 				AreaEffectPlatform* pAreaEffectPlatform = (AreaEffectPlatform*)pEntityToCheck;
 				if (mHitbox.overlap(pAreaEffectPlatform->mAreaEffectHitbox))
 				{
-					addToListIfUnique(list, pEntityToCheck);
+					addToListIfUnique(pList, pEntityToCheck);
 				}
 			}
 		}
 	}
 }
 
-void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox givenHitbox, EEntityClassTypes classType) const
+void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& pList, const Hitbox& givenHitbox, EEntityClassTypes classType) const
 {
 	if (mHasChildrenQuads)
 	{
-		mpQuadTopLeft->getEntitiesInHitbox(list, givenHitbox, classType);
-		mpQuadTopRight->getEntitiesInHitbox(list, givenHitbox, classType);
-		mpQuadBottomLeft->getEntitiesInHitbox(list, givenHitbox, classType);
-		mpQuadBottomRight->getEntitiesInHitbox(list, givenHitbox, classType);
+		mpQuadTopLeft->getEntitiesInHitbox(pList, givenHitbox, classType);
+		mpQuadTopRight->getEntitiesInHitbox(pList, givenHitbox, classType);
+		mpQuadBottomLeft->getEntitiesInHitbox(pList, givenHitbox, classType);
+		mpQuadBottomRight->getEntitiesInHitbox(pList, givenHitbox, classType);
 	}
 	else
 	{
@@ -134,14 +186,14 @@ void EntityQuadTree::getEntitiesInHitbox(std::vector<Entity*>& list, Hitbox give
 			{
 				if (pEntityToCheck->getMovementManager().getHitbox().overlap(givenHitbox))
 				{
-					addToListIfUnique(list, pEntityToCheck);
+					addToListIfUnique(pList, pEntityToCheck);
 				}
-				if (pEntityToCheck->getSubClassType() == EEntitySubClassTypes_AREA_EFFECT)
+				if (classType == EEntitySubClassTypes_AREA_EFFECT && pEntityToCheck->getSubClassType() == EEntitySubClassTypes_AREA_EFFECT)
 				{
 					AreaEffectPlatform* pAreaEffectPlatform = (AreaEffectPlatform*)pEntityToCheck;
 					if (mHitbox.overlap(pAreaEffectPlatform->mAreaEffectHitbox))
 					{
-						addToListIfUnique(list, pEntityToCheck);
+						addToListIfUnique(pList, pEntityToCheck);
 					}
 				}
 			}

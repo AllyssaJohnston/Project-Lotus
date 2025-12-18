@@ -15,7 +15,11 @@ struct CombatCharacterPreset
     int mHealthCapacity                         = -1;
     int mDefenseCapacity                        = -1;
 
+    std::string mModelFileName;
     std::string mIconFileName;
+
+    int mMaxWidth  = 30;
+    int mMaxHeight = 75;
 };
 
 struct PlayerCombatPreset : public CombatCharacterPreset { PlayerCombatPreset(); };
@@ -23,44 +27,3 @@ struct PlayerCombatPreset : public CombatCharacterPreset { PlayerCombatPreset();
 struct RatCombatPreset : public CombatCharacterPreset { RatCombatPreset(); };
 
 struct FrogCombatPreset : public CombatCharacterPreset { FrogCombatPreset(); };
-
-
-
-
-
-/*
-class SpearCombatEnemyPreset():
-    def __init__(self):
-        self.type          = EMiniGameCombatCharacterType.ENEMY.value
-        self.attackTypes   = list()
-        self.attackTypes.append(AttackSpearStrike())
-        self.attackTypes.append(AttackSpearToss())
-        self.moveType      = EMiniGameCombatMoveAttackTypes.CROSS2.value
-
-        self.attack  = 10
-        self.health  = 36
-        self.defense = 6
-
-class BowCombatEnemyPreset():
-    def __init__(self):
-        self.type          = EMiniGameCombatCharacterType.ENEMY.value
-        self.attackTypes   = list()
-        self.attackTypes.append(AttackBowClose())
-        self.attackTypes.append(AttackBowFar())
-        self.moveType      = EMiniGameCombatMoveAttackTypes.CROSS2.value
-
-        self.attack  = 10
-        self.health  = 36
-        self.defense = 6
-
-class SpellCombatEnemyPreset():
-    def __init__(self):
-        self.type          = EMiniGameCombatCharacterType.ENEMY.value
-        self.attackTypes   = list()
-        self.attackTypes.append(AttackSpell())
-        self.attackTypes.append(AttackSpell())
-        self.moveType      = EMiniGameCombatMoveAttackTypes.CROSS2.value
-
-        self.attack  = 10
-        self.health  = 36
-        self.defense = 6*/

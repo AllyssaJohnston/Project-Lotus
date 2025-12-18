@@ -1,31 +1,29 @@
 #pragma once
 #include "tileHelper.h"
 #include "tileHelperClass.h"
+#include "tileCoordsHelper.h"
 #include "combatHelperClass.h"
 #include "combatAttackHelper.h"
 
 struct AttackTile
 {
-    Tile*  mpTile = nullptr;
+    Tile&  mTile;
     Attack mAttack;
 
-    AttackTile(Tile* pTile, Attack& attack);
-
-    ~AttackTile();
-
+    AttackTile(Tile& tile, Attack& attack);
 };
 
-struct AttackAndListOfTileCoordsToCorrespondingTilesCoords
+struct AttackAndCorrespondingTilesCoords
 {
     std::vector <TileCoords> mTileCoords;
     Attack mAttack;
 
-    AttackAndListOfTileCoordsToCorrespondingTilesCoords() {}
-    AttackAndListOfTileCoordsToCorrespondingTilesCoords(std::vector <TileCoords> & tileCoords, Attack& attack);
+    AttackAndCorrespondingTilesCoords() {}
+    AttackAndCorrespondingTilesCoords(std::vector <TileCoords>& tileCoords, const Attack& attack);
 };
 
-AttackAndListOfTileCoordsToCorrespondingTilesCoords returnAttackTileCoordsBasedOnAttack(Tile* pGivenTile, Attack curAttack);
+AttackAndCorrespondingTilesCoords returnAttackTileCoordsBasedOnAttack(const Tile& givenTile, const Attack& curAttack);
 
-AttackAndListOfTileCoordsToCorrespondingTilesCoords returnAttackTileCoordsBasedOnAttackAndDirection(Tile* pGivenTile, Attack curAttack, EDirection givenDirection);
+AttackAndCorrespondingTilesCoords returnAttackTileCoordsBasedOnAttackAndDirection(const Tile& givenTile, const Attack& curAttack, EDirection givenDirection);
 
-std::vector <TileCoords> returnTileCoords(Tile* pGivenTile, EMiniGameCombatMoveAttackTypes moveAttackType);
+std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombatMoveAttackTypes moveAttackType);

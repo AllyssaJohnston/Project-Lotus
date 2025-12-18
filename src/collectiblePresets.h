@@ -7,26 +7,14 @@
 #include "entityPresets.h"
 #include "worldHelperClass.h"
 
-struct CCollectiblePreset : public CCharacterPreset
-{
-	CCollectiblePreset();
-};
+struct CCollectiblePreset : public EntityPreset { CCollectiblePreset(); };
 
-struct CKeyPreset : public CCollectiblePreset
-{
-	CKeyPreset();
-};
+struct CKeyPreset : public CCollectiblePreset { CKeyPreset(); };
 
-struct CSavePointPreset : public CCollectiblePreset
-{
-	CSavePointPreset();
-};
+struct CSavePointPreset : public CCollectiblePreset { CSavePointPreset(); };
 static CSavePointPreset gStaticSavePointPreset;
 
-struct CLotusCollectiblePreset : public CCollectiblePreset
-{
-	CLotusCollectiblePreset();
-};
+struct CLotusCollectiblePreset : public CCollectiblePreset { CLotusCollectiblePreset(); };
 static CLotusCollectiblePreset gStaticLotusCollectiblePreset;
 
 struct CEndOfLevelPreset : public CCollectiblePreset

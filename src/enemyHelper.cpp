@@ -16,7 +16,7 @@ void Brain::setTrapped()
 	}
 }
 
-bool Brain::isMovementPaused() { return mTrapped; }
+bool Brain::isMovementPaused() const { return mTrapped; }
 
 
 void Brain::tick()
@@ -39,33 +39,23 @@ void Brain::setCheckpointStats() { mCheckpointTrapped = mTrapped; }
 
 
 
-Enemy::Enemy(const Vect2 & positionInput, EEnemyPreset* preset)
-{
-	setUpEnemyBaseStats(positionInput, preset);
-}
+Enemy::Enemy(const Vect2& positionInput, const EEnemyPreset& preset) { setUpEnemyBaseStats(positionInput, preset); }
 
-Enemy::Enemy()
-{
-	mName = "Invalid";
-}
+Enemy::~Enemy() { Entity::~Entity(); }
 
-Enemy::~Enemy()
-{
-	Entity::~Entity();
-	mpPreset = nullptr;
-}
-
-void Enemy::setUpEnemyBaseStats(const Vect2& positionInput, EEnemyPreset* preset)
+void Enemy::setUpEnemyBaseStats(const Vect2& positionInput, const EEnemyPreset& preset)
 {
 	setUpBaseStats(preset);
-	mAnimationManager.setupAnimationManager(preset->mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
+	mAnimationManager.setupAnimationManager(preset.mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
 	mMovementManager.setupMovementManager(positionInput, preset);
 	mMovementManager.setInputDriven(false);
 
-	mImageObjectHitbox.setupImageObject("blue.bmp", preset->mWidth, preset->mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
-	mpPreset = preset;
+	if (DEMO == 0)
+	{
+		mImageObjectHitbox.setupImageObject("blue.bmp", preset.mWidth, preset.mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
+	}
 
-	mProjectileInterval  = preset->mProjectileInterval;
+	mProjectileInterval  = preset.mProjectileInterval;
 	mProjectileCountDown = mProjectileInterval;
 }
 
@@ -123,7 +113,7 @@ void Enemy::updateAnimationManager()
 	{
 		mAnimationManager.updateAnimation(mAnimationManager.getCurAnimation()->mAnimationType);
 	}
-	else if (mMovementManager.getCurMode() == ECharacterModes_STATIONARY or mMovementManager.getCurMode() == ECharacterModes_STATIC)
+	else if (mMovementManager.getMovementCode() == EEntityMovements_NONE or mMovementManager.getCurMode() == ECharacterModes_STATIC)
 	{
 		mAnimationManager.updateAnimation(EAnimationType_STATIONARY);
 	}
@@ -137,9 +127,6 @@ void Enemy::setNextAnimationToPlay(EAnimationType nextAnimation) { mNextAnimatio
 
 
 void Enemy::setTrapped() { mBrain.setTrapped(); }
-
-
-CCharacterPreset* Enemy::getPreset() { return mpPreset; }
 
 
 void Enemy::updateProjectileCountDown()
@@ -165,35 +152,15 @@ void Enemy::shootProjectile()
 	mInvincibleToOwnProjectile = true;
 }
 
-bool Enemy::shouldShootProjectile()
-{
-	return mShouldShootProjectile;
-}
+bool Enemy::shouldShootProjectile() const { return mShouldShootProjectile; }
 
 void Enemy::updateInvincibilityCountDown()
 {
 	mShotProjectileInvincibilityCountDown -= 1;
-	if (mShotProjectileInvincibilityCountDown <= 0)
-	{
-		mInvincibleToOwnProjectile = false;
-	}
-	else
-	{
-		mInvincibleToOwnProjectile = true;
-	}
+	mInvincibleToOwnProjectile = mShotProjectileInvincibilityCountDown > 0;
 }
 
-bool Enemy::takeDamageFromProjectile(std::string projectileHostName)
-{
-	if (projectileHostName == mName and mInvincibleToOwnProjectile)
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
+bool Enemy::shouldTakeDamageFromProjectile(std::string& projectileHostName) { return !(projectileHostName == mName and mInvincibleToOwnProjectile); }
 
 void Enemy::resetStats()
 {
@@ -220,24 +187,13 @@ void Enemy::setCheckpointStats()
 
 
 
-MultiStagedEnemy::MultiStagedEnemy(const Vect2 & positionInput, EEnemyPreset* preset)
+MultiStagedEnemy::MultiStagedEnemy(const Vect2& positionInput, const EEnemyPreset& preset) : Enemy(positionInput, preset), mStages(preset.mStages)
 {
 	setUpEnemyBaseStats(positionInput, preset);
-	mStages    = preset->mStages;
-	mEnemyType = EEnemyType_MULTISTAGED;
-
-}
-
-MultiStagedEnemy::MultiStagedEnemy()
-{
-	mName = "Invalid";
 	mEnemyType = EEnemyType_MULTISTAGED;
 }
 
-MultiStagedEnemy::~MultiStagedEnemy()
-{
-	Enemy::~Enemy();
-}
+MultiStagedEnemy::~MultiStagedEnemy() { Enemy::~Enemy(); }
 
 
 void MultiStagedEnemy::nextState() 
@@ -250,7 +206,6 @@ void MultiStagedEnemy::nextState()
 	}
 	else
 	{
-		mMovementManager.changeCharacterModes(std::vector<ECharacterModes>{mStages[mCurStage]});
 		mMovementManager.setCurCharacterMode(mStages[mCurStage]);
 	}
 }
@@ -287,7 +242,6 @@ void MultiStagedEnemy::resetStats()
 {
 	Entity::resetStats();
 	mCurStage = 0;
-	mMovementManager.changeCharacterModes(std::vector<ECharacterModes>{mStages[mCurStage]});
 	mMovementManager.setCurCharacterMode(mStages[mCurStage]);
 }
 
@@ -295,6 +249,5 @@ void MultiStagedEnemy::resetToCheckpoint()
 {
 	Entity::resetToCheckpoint();
 	mCurStage = mCheckpointCurStage;
-	mMovementManager.changeCharacterModes(std::vector<ECharacterModes>{mStages[mCurStage]});
 	mMovementManager.setCurCharacterMode(mStages[mCurStage]);
 }

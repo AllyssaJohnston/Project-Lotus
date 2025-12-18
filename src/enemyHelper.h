@@ -26,7 +26,7 @@ public:
 
 	void setTrapped();
 
-	bool isMovementPaused();
+	bool isMovementPaused() const;
 
 
 	void tick();
@@ -41,29 +41,25 @@ public:
 
 class Enemy : public Entity
 {
-private:
-	EAnimationType mNextAnimationToPlay = EAnimationType_INVALID;
 protected:
-	EEnemyPreset*  mpPreset   = nullptr;
+	EAnimationType mNextAnimationToPlay = EAnimationType_INVALID;
 	EEnemyType     mEnemyType = EEnemyType_STANDARD;
 	Brain		   mBrain;
 
-	int				mProjectileCountDown					= 0;
-	int				mProjectileInterval						= 0;
-	bool			mShouldShootProjectile					= false;
-	int				mShotProjectileInvincibilityCountDown	= 0;
-	const int		mShotProjectileInvincibilityInterval	= 5;
-	bool			mInvincibleToOwnProjectile				= false;
+	int  mProjectileCountDown					= 0;
+	int  mProjectileInterval					= 0;
+	bool mShouldShootProjectile					= false;
+	int  mShotProjectileInvincibilityCountDown	= 0;
+	int  mShotProjectileInvincibilityInterval	= 5;
+	bool mInvincibleToOwnProjectile				= false;
 	
 public:
 	
-	Enemy(const Vect2 & positionInput, EEnemyPreset* preset);
-
-	Enemy();
+	Enemy(const Vect2& positionInput, const EEnemyPreset& preset);
 
 	~Enemy();
 
-	void setUpEnemyBaseStats(const Vect2& positionInput, EEnemyPreset* preset);
+	void setUpEnemyBaseStats(const Vect2& positionInput, const EEnemyPreset& preset);
 
 	void preTick() override;
 
@@ -80,21 +76,18 @@ public:
 	void setTrapped() override;
 
 
-	CCharacterPreset* getPreset();
-
-
 	void updateProjectileCountDown();
 
 	void resetProjectileCountDown();
 
 	void shootProjectile();
 
-	bool shouldShootProjectile();
+	bool shouldShootProjectile() const;
 
 
 	void updateInvincibilityCountDown();
 
-	bool takeDamageFromProjectile(std::string projectileHostName);
+	bool shouldTakeDamageFromProjectile(std::string& projectileHostName);
 
 
 	void resetStats() override;
@@ -113,9 +106,7 @@ protected:
 
 public:
 
-	MultiStagedEnemy(const Vect2 & positionInput, EEnemyPreset* preset);
-
-	MultiStagedEnemy();
+	MultiStagedEnemy(const Vect2& positionInput, const EEnemyPreset& pPreset);
 
 	~MultiStagedEnemy();
 

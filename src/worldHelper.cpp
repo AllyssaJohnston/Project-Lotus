@@ -15,7 +15,7 @@ Level::Level(int levelNumber, Vect2 playerStartingPosition, LevelInfo levelInfo,
 	mSlashAllowed					= levelInfo.mSlashAllowed;
 	mMustKillAllEnemies		        = levelInfo.mMustKillAllEnemies;
 
-	if (true == mThrowDownwardProjectileAllowed and false == mThrowProjectileAllowed)
+	if (mThrowDownwardProjectileAllowed and !mThrowProjectileAllowed)
 	{
 		SDL_assert(false);
 	}	
@@ -23,83 +23,100 @@ Level::Level(int levelNumber, Vect2 playerStartingPosition, LevelInfo levelInfo,
 
 Level::~Level()
 {
-	for (Platform* plat : mpPlatforms)
-	{
-		if (plat)
-			delete plat;
-	}
+	mpArtFileSurface = nullptr;
+	mpArtFileTexture = nullptr;
 
-	for (Platform* plat : mpAllNonStaticPlatforms)
+	for (Platform* pPlatform : mpPlatforms)
 	{
-		if (plat)
-			delete plat;
+		if (pPlatform)
+		{
+			delete pPlatform;
+		}
 	}
+	mpPlatforms.clear();
 
-	for (Platform* plat : mpAreaEffectPlatforms)
+	mpActiveNonStaticPlatforms.clear();
+	for (Platform* pPlatform : mpAllNonStaticPlatforms)
 	{
-		if (plat)
-			delete plat;
+		if (pPlatform)
+		{
+			delete pPlatform;
+		}
 	}
+	mpAllNonStaticPlatforms.clear();
 
-	for (Enemy* enemy : mpAllEnemies)
+	for (Platform* pPlatform : mpAreaEffectPlatforms)
 	{
-		if (enemy)
-			delete enemy;
+		if (pPlatform)
+		{
+			delete pPlatform;
+		}
 	}
+	mpAreaEffectPlatforms.clear();
 
-	for (Collectible* collect : mpAllCollectibles)
+	mpActiveEnemies.clear();
+	for (Enemy* pEnemy : mpAllEnemies)
 	{
-		if (collect)
-			delete collect;
+		if (pEnemy)
+		{
+			delete pEnemy;
+		}
 	}
+	mpAllEnemies.clear();
 
-	for (CircleEffect* circle : mpBackgroundEffects)
+	mpActiveCollectibles.clear();
+	for (Collectible* pCollectible : mpAllCollectibles)
 	{
-		if (circle)
-			delete circle;
+		pCollectible = nullptr;
 	}
+	mpAllCollectibles.clear();
+
+	for (CircleEffect* pBackgroundEffect : mpBackgroundEffects)
+	{
+		pBackgroundEffect = nullptr;
+	}
+	mpAllCollectibles.clear();
 }
 
 void Level::resetStats()
 {
-	for (Platform* platform : mpPlatforms)
+	for (Platform* pPlatform : mpPlatforms)
 	{
-		platform->resetStats();
+		pPlatform->resetStats();
 	}
-	for (Platform* platform : mpAllNonStaticPlatforms)
+	for (Platform* pPlatform : mpAllNonStaticPlatforms)
 	{
-		platform->resetStats();
+		pPlatform->resetStats();
 	}
-	for (Enemy* enemy : mpAllEnemies)
+	for (Enemy* pEnemy : mpAllEnemies)
 	{
-		enemy->resetStats();
+		pEnemy->resetStats();
 	}
-	for (Collectible* collectible : mpAllCollectibles)
+	for (Collectible* pCollectible : mpAllCollectibles)
 	{
-		collectible->resetStats();
+		pCollectible->resetStats();
 	}
 	setUpActiveEntitiesVectors();
-
 	resetDynamicQuadTree();
 }
 
 void Level::resetToCheckpoint()
 {
-	for (int count = 0; count < mpPlatforms.size(); count++)
+	for (Platform* pPlatform : mpPlatforms)
 	{
-		mpPlatforms[count]->resetToCheckpoint();
+		pPlatform->resetToCheckpoint();
 	}
-	for (int count = 0; count < mpAllNonStaticPlatforms.size(); count++)
+	for (Platform* pPlatform : mpAllNonStaticPlatforms)
 	{
-		mpAllNonStaticPlatforms[count]->resetToCheckpoint();
+		pPlatform->resetToCheckpoint();
 	}
-	for (int count = 0; count < mpAllEnemies.size(); count++)
+	for (Enemy* pEnemy : mpAllEnemies)
 	{
-		mpAllEnemies[count]->resetToCheckpoint();
+		pEnemy->resetToCheckpoint();
 	}
-	for (int count = 0; count < mpAllCollectibles.size(); count++)
+	for (Collectible* pCollectible : mpAllCollectibles)
 	{
-		mpAllCollectibles[count]->resetToCheckpoint();
+		pCollectible->resetToCheckpoint();
 	}
 	setUpActiveEntitiesVectors();
 
@@ -109,52 +126,52 @@ void Level::resetToCheckpoint()
 void Level::setUpActiveEntitiesVectors()
 {
 	mpActiveNonStaticPlatforms.clear();
-	for (int count = 0; count < mpAllNonStaticPlatforms.size(); count++)
+	for (Platform* pNonStatic : mpAllNonStaticPlatforms)
 	{
-		if (mpAllNonStaticPlatforms[count]->getAmAlive())
+		if (pNonStatic->getAmAlive())
 		{
-			mpActiveNonStaticPlatforms.push_back(mpAllNonStaticPlatforms[count]);
+			mpActiveNonStaticPlatforms.push_back(pNonStatic);
 		}
 	}
 	mpActiveEnemies.clear();
-	for (int count = 0; count < mpAllEnemies.size(); count++)
+	for (Enemy* pEnemy : mpAllEnemies)
 	{
-		if (mpAllEnemies[count]->getAmAlive())
+		if (pEnemy->getAmAlive())
 		{
-			mpActiveEnemies.push_back(mpAllEnemies[count]);
+			mpActiveEnemies.push_back(pEnemy);
 		}
 	}
 	mpActiveCollectibles.clear();
-	for (int count = 0; count < mpAllCollectibles.size(); count++)
+	for (Collectible* pCollectible : mpAllCollectibles)
 	{
-		if (mpAllCollectibles[count]->isAmPickedUp() == false)
+		if (!pCollectible->isAmPickedUp())
 		{
-			mpActiveCollectibles.push_back(mpAllCollectibles[count]);
+			mpActiveCollectibles.push_back(pCollectible);
 		}
 	}
 }
 
 void Level::resetDynamicQuadTree()
 {
-	for (Platform* platform : mpAllNonStaticPlatforms)
+	for (Platform* pPlatform : mpAllNonStaticPlatforms)
 	{
-		if (platform->getAmAlive())
+		if (pPlatform->getAmAlive())
 		{
-			mDynamicEntities.AddItem(platform);
+			mDynamicEntities.AddItem(pPlatform);
 		}
 	}
-	for (Enemy* enemy : mpAllEnemies)
+	for (Enemy* pEnemy : mpAllEnemies)
 	{
-		if (enemy->getAmAlive())
+		if (pEnemy->getAmAlive())
 		{
-			mDynamicEntities.AddItem(enemy);
+			mDynamicEntities.AddItem(pEnemy);
 		}
 	}
-	for (Collectible* collectible : mpAllCollectibles)
+	for (Collectible* pCollectible : mpAllCollectibles)
 	{
-		if (!collectible->isAmPickedUp())
+		if (!pCollectible->isAmPickedUp())
 		{
-			mDynamicEntities.AddItem(collectible);
+			mDynamicEntities.AddItem(pCollectible);
 		}
 	}
 }
@@ -163,7 +180,7 @@ void Level::removeInactiveEntitiesFromActiveEntitiesVector()
 {
 	for (int count = (int)mpActiveNonStaticPlatforms.size() - 1; count >= 0; count--)
 	{
-		if (mpActiveNonStaticPlatforms[count]->getAmAlive() == false)
+		if (!mpActiveNonStaticPlatforms[count]->getAmAlive())
 		{
 			mDynamicEntities.RemoveItem(mpActiveNonStaticPlatforms[count]);
 			mpActiveNonStaticPlatforms.erase(mpActiveNonStaticPlatforms.begin() + count);
@@ -171,7 +188,7 @@ void Level::removeInactiveEntitiesFromActiveEntitiesVector()
 	}
 	for (int count = (int)mpActiveEnemies.size() - 1; count >= 0; count--)
 	{
-		if (mpActiveEnemies[count]->getAmAlive() == false)
+		if (!mpActiveEnemies[count]->getAmAlive())
 		{
 			mDynamicEntities.RemoveItem(mpActiveEnemies[count]);
 			mpActiveEnemies.erase(mpActiveEnemies.begin() + count);
@@ -179,7 +196,7 @@ void Level::removeInactiveEntitiesFromActiveEntitiesVector()
 	}
 	for (int count = (int)mpActiveCollectibles.size() - 1; count >= 0; count--)
 	{
-		if (mpActiveCollectibles[count]->isAmPickedUp() == true)
+		if (mpActiveCollectibles[count]->isAmPickedUp())
 		{
 			mDynamicEntities.RemoveItem(mpActiveCollectibles[count]);
 			mpActiveCollectibles.erase(mpActiveCollectibles.begin() + count);
@@ -190,59 +207,65 @@ void Level::removeInactiveEntitiesFromActiveEntitiesVector()
 
 std::vector <Platform*> Level::getAllPlatforms() const
 {
-	std::vector <Platform* > platforms;
-	for (int count = 0; count < mpPlatforms.size(); count++)
+	std::vector <Platform*> pPlatforms;
+	for (Platform* pPlatform : mpPlatforms)
 	{
-		platforms.push_back(mpPlatforms[count]);
+		pPlatforms.push_back(pPlatform);
 	}
-	for (int count = 0; count < mpAllNonStaticPlatforms.size(); count++)
+	for (Platform* pPlatform : mpAllNonStaticPlatforms)
 	{
-		platforms.push_back(mpAllNonStaticPlatforms[count]);
+		pPlatforms.push_back(pPlatform);
 	}
-	for (int count = 0; count < mpAreaEffectPlatforms.size(); count++)
+	for (Platform* pPlatform : mpAreaEffectPlatforms)
 	{
-		platforms.push_back(mpAreaEffectPlatforms[count]);
+		pPlatforms.push_back(pPlatform);
 	}
-	return platforms;
+	return pPlatforms;
 }
 
 std::vector <Platform*> Level::getAllActivePlatforms() const
 {
-	std::vector <Platform* > platforms;
-	for (int count = 0; count < mpPlatforms.size(); count++)
+	std::vector <Platform*> pPlatforms;
+	for (Platform* pPlatform : mpPlatforms)
 	{
-		platforms.push_back(mpPlatforms[count]);
+		pPlatforms.push_back(pPlatform);
 	}
-	for (int count = 0; count < mpActiveNonStaticPlatforms.size(); count++)
+	for (Platform* pPlatform : mpActiveNonStaticPlatforms)
 	{
-		platforms.push_back(mpActiveNonStaticPlatforms[count]);
+		pPlatforms.push_back(pPlatform);
 	}
-	for (int count = 0; count < mpAreaEffectPlatforms.size(); count++)
+	for (Platform* pPlatform : mpAreaEffectPlatforms)
 	{
-		platforms.push_back(mpAreaEffectPlatforms[count]);
+		pPlatforms.push_back(pPlatform);
 	}
-
-	return platforms;
+	return pPlatforms;
 }
 
-//PLATFORMS + ENEMIES
+// PLATFORMS + ENEMIES
 std::vector <Entity*> Level::getAllActiveEntities() const
 {
-	std::vector <Entity* > entities;
-	for (int count = 0; count < mpActiveEnemies.size(); count++)
+	std::vector <Entity*> entities;
+	for (Entity* pEnemy : mpActiveEnemies)
 	{
-		entities.push_back(mpActiveEnemies[count]);
+		entities.push_back(pEnemy);
 	}
-	std::vector <Platform*> platforms = getAllActivePlatforms();
-	for (int count = 0; count < platforms.size(); count++)
+	for (Platform* pPlatform : mpPlatforms)
 	{
-		entities.push_back(platforms[count]);
+		entities.push_back(pPlatform);
+	}
+	for (Platform* pPlatform : mpActiveNonStaticPlatforms)
+	{
+		entities.push_back(pPlatform);
+	}
+	for (Platform* pPlatform : mpAreaEffectPlatforms)
+	{
+		entities.push_back(pPlatform);
 	}
 
 	return entities;
 }
 
-Hitbox Level::getHitbox() const { return mHitbox; }
+Hitbox& Level::getHitbox() { return mHitbox; }
 
 void Level::setUp(SDL_Renderer* pRenderer)
 {
@@ -250,12 +273,12 @@ void Level::setUp(SDL_Renderer* pRenderer)
 	int y1     = std::numeric_limits<int>::max();
 	int x2 = 0;
 	int y2 = 0;
-	for (int count = 0; count < mpPlatforms.size(); count++)
+	for (Platform* pPlatform : getAllPlatforms())
 	{
-		x1 = std::min( x1, mpPlatforms[count]->getMovementManager().getHitbox().getTopLeft().getX() );
-		x2 = std::max( x2, mpPlatforms[count]->getMovementManager().getHitbox().getBottomRight().getX() );
-		y1 = std::min( y1, mpPlatforms[count]->getMovementManager().getHitbox().getTopLeft().getY() );
-		y2 = std::max( y2, mpPlatforms[count]->getMovementManager().getHitbox().getBottomRight().getY() );
+		x1 = std::min( x1, pPlatform->getMovementManager().getHitbox().getTopLeft().getX() );
+		x2 = std::max( x2, pPlatform->getMovementManager().getHitbox().getBottomRight().getX() );
+		y1 = std::min( y1, pPlatform->getMovementManager().getHitbox().getTopLeft().getY() );
+		y2 = std::max( y2, pPlatform->getMovementManager().getHitbox().getBottomRight().getY() );
 	}
 
 	mArtFileX = x1;
@@ -270,10 +293,10 @@ void Level::setUp(SDL_Renderer* pRenderer)
 	mStaticEntities.SetHitbox(	Hitbox(x1, mTrueLevelX2, y1, mTrueLevelY2));
 	mDynamicEntities.SetHitbox(	Hitbox(x1, mTrueLevelX2, y1, mTrueLevelY2));
 
-	//set up static quad tree
-	for (Platform* platform : mpPlatforms)
+	// set up static quad tree
+	for (Platform* pPlatform : mpPlatforms)
 	{
-		mStaticEntities.AddItem(platform);
+		mStaticEntities.AddItem(pPlatform);
 	}
 
 	setUpArtFileTexture(pRenderer);
@@ -286,20 +309,20 @@ void Level::setUpArtFileTexture(SDL_Renderer* pRenderer)
 	{
 		std::string curName = "./ArtFiles/" + mArtFileName;
 		SDL_Surface* curSurface = AssetManager::getSurfaceFromFile(curName);
-		SDL_Texture* curTexture = AssetManager::getTextureFromSurface(pRenderer, curSurface);
-		mArtFileSurface = curSurface;
-		mArtFileTexture = curTexture;
+		mpArtFileSurface = curSurface;
+		mpArtFileTexture = AssetManager::getTextureFromSurface(pRenderer, curSurface);
+		curSurface = nullptr;
 	}
 }
 
 
-LevelChunk::LevelChunk(CoordsX1Y1WidthHeight coords) { mHitbox = Hitbox(coords); }
+LevelChunk::LevelChunk(const CoordsX1Y1WidthHeight& coords) { mHitbox = Hitbox(coords); }
 
 LevelChunk::LevelChunk() { mHitbox = {}; }
 
-void LevelChunk::updateCoords(Vect2 newVect2) { mHitbox.setTopLeft(newVect2); }
+void LevelChunk::updateCoords(const Vect2& newVect2) { mHitbox.setTopLeft(newVect2); }
 
-Hitbox LevelChunk::getHitbox() const { return mHitbox; }
+Hitbox& LevelChunk::getHitbox() { return mHitbox; }
 
 
 World::World(int worldNumber) { mWorldNumber = worldNumber; }

@@ -6,23 +6,24 @@ Entity::~Entity()
 	mpHitboxTexture = nullptr;
 }
 
-void Entity::setUpBaseStats(CCharacterPreset* preset)
+void Entity::setUpBaseStats(const EntityPreset& preset)
 {
-	mEntityClassType				   = preset->mEntityClassType;
-	mEntitySubClassType 			   = preset->mEntitySubClassType;
-	mEntityCharacterType			   = preset->mEntityCharacterType;
-	mOriginalEntityCharacteristicTypes = preset->mEntityCharacteristicTypes;
-	mCurrentEntityCharacteristicTypes  = preset->mEntityCharacteristicTypes;
-	mEntityType						   = preset->mEntityType;
+	mTypeName						   = preset.mTypeName;
+	mEntityClassType				   = preset.mEntityClassType;
+	mEntitySubClassType 			   = preset.mEntitySubClassType;
+	mEntityCharacterType			   = preset.mEntityCharacterType;
+	mOriginalEntityCharacteristicTypes = preset.mEntityCharacteristicTypes;
+	mCurrentEntityCharacteristicTypes  = preset.mEntityCharacteristicTypes;
+	mEntityType						   = preset.mEntityType;
 
-	mVulnerableToProjectiles		   = preset->mVulnerableToProjectiles;
-	mRideable						   = preset->mRideable;
-	mHasAttachmentPoint			       = preset->mHasAttachmentPoint;
-	mAttachmentPoint				   = preset->mAttachmentPoint;
+	mVulnerableToProjectiles		   = preset.mVulnerableToProjectiles;
+	mRideable						   = preset.mRideable;
+	mHasAttachmentPoint			       = preset.mHasAttachmentPoint;
+	mAttachmentPoint				   = preset.mAttachmentPoint;
 
-	mSpreadEdges					   = preset->mSpreadEdges;
-	mSpreadEdgesInterval			   = preset->mSpreadEdgesInterval;
-	mImmuneToStatusEffects             = preset->mImmuneToStatusEffects;
+	mSpreadEdges					   = preset.mSpreadEdges;
+	mSpreadEdgesInterval			   = preset.mSpreadEdgesInterval;
+	mImmuneToStatusEffects             = preset.mImmuneToStatusEffects;
 }
 
 void Entity::resetStats()
@@ -131,7 +132,3 @@ bool Entity::hasCharacteristic(EEntityCharacteristicsTypes characteristic) const
 	}
 	return false;
 }
-
-void Entity::setTrapped() { ; }
-
-std::string Entity::getHostName() const { return ""; }

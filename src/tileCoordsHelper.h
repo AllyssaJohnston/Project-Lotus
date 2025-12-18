@@ -1,9 +1,11 @@
 #pragma once
-class TileCoords
+#include <vector>
+
+struct TileCoords
 {
-public:
     int mRow = -1;
     int mCol = -1;
 
     TileCoords(int row, int col);
 };
+
