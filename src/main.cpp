@@ -81,14 +81,18 @@ void setUpAllTextures()
 	}
 
 	//MiniGame Levels
-	for (int countLevel = 0; countLevel < gameInstance.mMiniGameWorldData.mpMiniGameLevels.size(); countLevel++)
+	for (MiniGameWorld* pWorld : gameInstance.mMiniGameWorldData.mpMiniGameWorlds)
 	{
-		MiniGameLevel* pCurLevel = gameInstance.mMiniGameWorldData.mpMiniGameLevels[countLevel];
-		//Characters
-		for (int count = 0; count < pCurLevel->mCombatManager.mpAllCombatCharacters.size(); count++)
+		for (MiniGameLevel* pLevel : pWorld->mpLevels)
 		{
-			CombatCharacter& curChar = *(pCurLevel->mCombatManager.mpAllCombatCharacters[count]);
-			curChar.mModel.setUpTexture(screen.mpRenderer);
+			for (MiniGameStage* pStage : pLevel->mpStages)
+			{
+				//Characters
+				for (CombatCharacter* pCharacter : pStage->mCombatManager.mpAllCombatCharacters)
+				{
+					pCharacter->mModel.setUpTexture(screen.mpRenderer);
+				}
+			}
 		}
 	}
 

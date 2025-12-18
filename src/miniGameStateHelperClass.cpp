@@ -76,8 +76,9 @@ void MiniGameStateData::reset()
 std::vector <AttackTile> returnAttackTileCoordsWithPlayersOnThem(MiniGameWorldData& worldData, Tile* pReferenceTile, CombatCharacter* pCharacter)
 {
 	std::vector <AttackTile> attackTileCoordsWithPlayers;
-	Grid& grid = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mGrid;
-	CombatManager& combatManager = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mCombatManager;
+	MiniGameStage* pStage = worldData.getStage();
+	Grid& grid = pStage->mGrid;
+	CombatManager& combatManager = pStage->mCombatManager;
 
 	for (Attack& curAttack : pCharacter->mCombatMovementManager.getAttacks())
 	{
@@ -130,12 +131,14 @@ bool tileInAttackRange(const Attack& attack, EDirection attackDirection, Grid& g
 
 bool attackMultipleTiles(const Attack& attack, EDirection attackDirection, MiniGameWorldData& worldData, std::vector <Tile*>& pTilesToAttack, CombatCharacter* pGivenCharacter)
 {
+	MiniGameStage* pStage = worldData.getStage();
+	Grid& grid = pStage->mGrid;
+	CombatManager& combatManager = pStage->mCombatManager;
 	bool attacked = false;
 	for (Tile* pTile : pTilesToAttack)
 	{
-		if (tileInAttackRange(attack, attackDirection, worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mGrid, pTile, pGivenCharacter))
+		if (tileInAttackRange(attack, attackDirection, grid, pTile, pGivenCharacter))
 		{
-			CombatManager& combatManager = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mCombatManager;
 			combatManager.attack(*pGivenCharacter, *pTile, attack);
 			attacked = true;
 		}

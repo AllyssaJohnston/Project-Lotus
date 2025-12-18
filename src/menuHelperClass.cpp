@@ -164,7 +164,7 @@ std::string updateMiniGameStatBoxCurTextBoxMessage(const TextBox& textBox, const
 	switch (textBox.mData.mGameStatToDisplay)
 	{
 	case EGameStatBoxValueToDisplay_CUR_LEVEL_NUMBER:
-		return "CUR LEVEL: " + std::to_string(worldData.mCurMiniGameLevelNumber);
+		return "CUR LEVEL: " + std::to_string(worldData.mCurWorldNumber) + " - " + std::to_string(worldData.mCurLevelNumber) + " - " + std::to_string(worldData.mCurStageNumber);
 	case EGameStatBoxValueToDisplay_MINI_GAME_DEBUG_LINE:
 		return managerData.mStateData.mDebugLine;
 	default:
@@ -175,9 +175,10 @@ std::string updateMiniGameStatBoxCurTextBoxMessage(const TextBox& textBox, const
 
 std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, const MiniGameStateManagerData& managerData, const MiniGameWorldData& worldData)
 {
-	CombatCharacter* pCharacter = managerData.mStateData.getCharacter();
-	if (textBox.mData.mCombatCharacterIndex != -1) {
-		pCharacter = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mCombatManager.mpAllCombatCharacters[textBox.mData.mCombatCharacterIndex];
+	CombatCharacter* pCharacter = managerData.mStateData.getCharacter(); // default to the cur character
+	if (textBox.mData.mCombatCharacterIndex != -1) // requested a specific character
+	{
+		pCharacter = worldData.getStage()->mCombatManager.mpAllCombatCharacters[textBox.mData.mCombatCharacterIndex];
 	}
 	if (pCharacter == nullptr) 
 	{
@@ -217,5 +218,4 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 	return "error";
 }
 
-std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const MiniGameWorldData& worldData)
-		{ return std::to_string(worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->mCurHealth); }
+std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const MiniGameWorldData& worldData) { return std::to_string(worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->mCurHealth); }

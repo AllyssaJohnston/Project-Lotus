@@ -375,7 +375,7 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 
 		if ((pHealthBox->mHealthText.mMessage != updatedMessage) or (mSettingsManager.mTextIncrease != mSettingsManager.mLastFrameTextIncrease) or !pHealthBox->mHealthText.mSetUp)
 		{
-			float healthRatio = mMiniGameWorldData.mpMiniGameLevels[mMiniGameWorldData.mCurMiniGameLevelNumber]->mCombatManager.mpAllCombatCharacters[pHealthBox->mCombatCharacterIndex]->getHealthRatio();
+			float healthRatio = mMiniGameWorldData.getStage()->mCombatManager.mpAllCombatCharacters[pHealthBox->mCombatCharacterIndex]->getHealthRatio();
 			pHealthBox->updateMessage(pRenderer, mFontSizeChart, updatedMessage, healthRatio);
 			updated = true;
 		}

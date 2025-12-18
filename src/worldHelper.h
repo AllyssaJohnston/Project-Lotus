@@ -5,6 +5,7 @@
 #include "hitboxHelper.h"
 #include "worldHelperClass.h"
 #include "entityQuadTree.h"
+#include "levelEffects.h"
 
 class Platform;
 class AreaEffectPlatform;

@@ -46,6 +46,7 @@
     <ClInclude Include="src\entityHelper.h" />
     <ClInclude Include="src\globals.h" />
     <ClInclude Include="src\ImageHelperClass.h" />
+    <ClInclude Include="src\levelEffects.h" />
     <ClInclude Include="src\lotusAdventureLevels.h" />
     <ClInclude Include="src\lotusAdventureLevelsDemo.h" />
     <ClInclude Include="src\lotusAdventureMenus.h" />
@@ -119,6 +120,7 @@
     <ClCompile Include="src\hitboxHelper.cpp" />
     <ClCompile Include="src\ImageHelper.cpp" />
     <ClCompile Include="src\ImageHelperClass.cpp" />
+    <ClCompile Include="src\levelEffects.cpp" />
     <ClCompile Include="src\lotusAdventureLevels.cpp" />
     <ClCompile Include="src\lotusAdventureLevelsDemo.cpp" />
     <ClCompile Include="src\lotusAdventureMenus.cpp" />

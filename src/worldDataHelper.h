@@ -9,6 +9,7 @@
 #include "platformHelper.h"
 #include "entityHelper.h"
 #include "enemyHelper.h"
+#include "levelEffects.h"
 #include "movementHelper.h"
 #include "movementHelperClass.h"
 #include "movementJump.h"
@@ -22,7 +23,7 @@ public:
     std::vector <World *>       mpWorlds;
 #if DEMO == 0
     int							mCurWorldNumber = 0;
-    int                         mCurLevelNumber = 0;
+    int                         mCurLevelNumber = 2;
 #else
     int							mCurWorldNumber = 0;
     int                         mCurLevelNumber = 0;

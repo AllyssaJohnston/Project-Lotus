@@ -8,18 +8,30 @@
 
 struct MiniGameWorldData
 {
-    std::vector <MiniGameLevel *>	mpMiniGameLevels;
+    std::vector <MiniGameWorld*>	mpMiniGameWorlds;
 #if DEMO == 0
-    int								mCurMiniGameLevelNumber = 0;
+    int                             mCurWorldNumber = 0;
+    int								mCurLevelNumber = 0;
+    int                             mCurStageNumber = 0;
 #else
-    int								mCurMiniGameLevelNumber = 0;
+    int                             mCurWorldNumber = 0;
+    int								mCurLevelNumber = 0;
+    int                             mCurStageNumber = 0;
 #endif
     bool                            mGoToNextLevel = false;
     LevelData*                      mpNextLevelData = nullptr;
 
     ~MiniGameWorldData();
 
-    void resetLevel();
+    void resetStage();
 
-    void setNextLevel(int levelNumber);
+    void setNextLevel(int worldNumber, int levelNumber, int stageNumber);
+
+    void goToNextLevel();
+
+    bool onLastStage() const;
+
+    MiniGameLevel* getLevel() const;
+
+    MiniGameStage* getStage() const;
 };

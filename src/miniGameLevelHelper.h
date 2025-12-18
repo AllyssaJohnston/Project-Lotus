@@ -3,22 +3,47 @@
 #include "combatHelper.h"
 #include "worldHelperClass.h"
 
+class MiniGameStage
+{
+public:
+    int mStageNumber;
+
+    Grid mGrid;
+    CombatManager mCombatManager;
+
+
+    MiniGameStage(int stageNumber);
+
+    ~MiniGameStage() { ; }
+
+    void preTick();
+
+    void resetStats();
+};
+
 class MiniGameLevel
 {
 public:
     int mLevelNumber;
 
-    Grid mGrid;
-    CombatManager mCombatManager;
+    std::vector<MiniGameStage*> mpStages;
 
     // either mini game level or main game level
     LevelData mNextLevelData;
 
     MiniGameLevel(int levelNumber, LevelData nextLevelData);
 
-    ~MiniGameLevel() { ; }
+    ~MiniGameLevel();
+};
 
-    void preTick();
+class MiniGameWorld
+{
+public:
+    int mWorldNumber;
 
-    void resetStats();
+    std::vector<MiniGameLevel*> mpLevels;
+
+    MiniGameWorld(int worldNumber);
+
+    ~MiniGameWorld();
 };

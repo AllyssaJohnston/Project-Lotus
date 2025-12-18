@@ -29,12 +29,15 @@ struct LevelData
     ELevelType mType = ELevelType_INVALID;
     int mWorldNumber = -1;
     int mLevelNumber = -1;
+    int mStageNumber = -1;
 
-    LevelData(ELevelType type, int worldNumber, int levelNumber);
+    LevelData(ELevelType type, int worldNumber, int levelNumber, int stageNumber);
 
+    // platforming
     LevelData(int worldNumber, int levelNumber);
 
-    LevelData(int levelNumber);
+    // mini game
+    LevelData(int worldNumber, int levelNumber, int stageNumber);
 };
 
 class CanGoToNextLevelResults
@@ -48,30 +51,4 @@ public:
     CanGoToNextLevelResults(LevelData* pNextLevelData);
 };
 
-class CircleEffect
-{
 
-private:
-    Vect2     mCenter;
-    Vect2     mLimitTopLeft;
-    Vect2     mLimitBottomRight;
-public:
- 
-    Vect2     mCurCenter;
-    SDL_Color mColor;
-    int       mRadius               = -1;
-
-    int       mNumTicks             = 5;
-    int const mSpaceBetweenTicks    = 5;
-    int       mCurSpaceBetweenTicks = mSpaceBetweenTicks;
-
-    int        mCurXMove            = 5;
-    EDirection mCurDirectionX       = EDirection_LEFT;
-    int        mCurYMove            = 5;
-    EDirection mCurDirectionY       = EDirection_DOWN;
-
-
-    CircleEffect(Vect2 center, SDL_Color color, int radius, Vect2 limitTopLeft, Vect2 limitBottomRight);
-
-    void move();
-};

@@ -1,5 +1,4 @@
 #include "worldDataHelper.h"
-#include "globals.h"
 
 #include <corecrt_math_defines.h>
 #define degToRad(angleDegrees) ((float)(angleDegrees) * M_PI / 180.0f)
@@ -24,6 +23,9 @@ WorldData::~WorldData()
 	{
 		delete projectile;
 	}
+
+	delete mpNextLevelData; 
+	mpNextLevelData = nullptr;
 }
 
 
@@ -44,7 +46,8 @@ void WorldData::getAllDynamicEntities(std::vector<Entity*>& pDynamicEntities, co
 	}
 }
 
-void WorldData::getAllStaticEntities(std::vector<Entity*>& pStaticEntities, const Hitbox& hitbox) {
+void WorldData::getAllStaticEntities(std::vector<Entity*>& pStaticEntities, const Hitbox& hitbox) 
+{
 	Level* pLevel = mpWorlds[mCurWorldNumber]->mpLevels[mCurLevelNumber];
 	pLevel->mStaticEntities.getEntitiesInHitbox(pStaticEntities, hitbox);
 }

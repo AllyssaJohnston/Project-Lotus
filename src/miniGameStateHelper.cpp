@@ -23,33 +23,32 @@ void MiniGameState::useMouseInput(EMiniGameState curStateEnum, ScreenObject& scr
 
 void MiniGameState::highlightTile(Vect2 pos)
 {
-	Grid& grid = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mGrid;
+	Grid& grid = mWorldData.getStage()->mGrid;
 	for (Tile* pTile : grid.mpTiles)
 	{
 		if (pTile->getMode() == EMiniGameCombatTileMode_HIGHLIGHTED)
 		{
 			pTile->setMode(EMiniGameCombatTileMode_NOT_SELECTED);
 		}
+	}
 
-		Tile* pTile = grid.getTileFromCoords(pos.getX(), pos.getY());
+	Tile* pTile = grid.getTileFromCoords(pos.getX(), pos.getY());
 
-		if (pTile != nullptr)
+	if (pTile != nullptr)
+	{
+		if (pTile->getMode() != EMiniGameCombatTileMode_SELECTED)
 		{
-			if (pTile->getMode() != EMiniGameCombatTileMode_SELECTED)
-			{
-				pTile->setMode(EMiniGameCombatTileMode_HIGHLIGHTED);
-			}
+			pTile->setMode(EMiniGameCombatTileMode_HIGHLIGHTED);
 		}
 	}
 }
 
 
-MiniGamePlayerWaitForMoveInput::MiniGamePlayerWaitForMoveInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) :
-	MiniGameState(keyboardData, data, worldData){;}
+MiniGamePlayerWaitForMoveInput::MiniGamePlayerWaitForMoveInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
 void MiniGamePlayerWaitForMoveInput::selectTile(const Vect2 pos)
 {
-	Tile* pCurTile = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mGrid.getTileFromCoords(pos.getX(), pos.getY());
+	Tile* pCurTile = mWorldData.getStage()->mGrid.getTileFromCoords(pos.getX(), pos.getY());
 	if (pCurTile != nullptr && isPlayableTile(*pCurTile))
 	{
 		pCurTile->setMode(EMiniGameCombatTileMode_SELECTED);
@@ -60,7 +59,7 @@ void MiniGamePlayerWaitForMoveInput::selectTile(const Vect2 pos)
 void MiniGamePlayerWaitForMoveInput::moveToTile(Tile& givenTile)
 {
 	mData.getCharacter()->mCombatMovementManager.setMoveTiles();
-	if (mData.getCharacter()->mCombatMovementManager.isTileInMoveRange(givenTile) && !characterOnTile(givenTile, mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager.mpCurCombatCharacters))
+	if (mData.getCharacter()->mCombatMovementManager.isTileInMoveRange(givenTile) && !characterOnTile(givenTile, mWorldData.getStage()->mCombatManager.mpCurCombatCharacters))
 	{
 		if (isPlayableTile(givenTile))
 		{
@@ -77,8 +76,7 @@ void MiniGamePlayerWaitForMoveInput::postTick(Tile& tileToMoveTo)
 }
 
 
-MiniGamePlayerMoveCharacter::MiniGamePlayerMoveCharacter(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData)
-	: MiniGameState(keyboardData, data, worldData){;}
+MiniGamePlayerMoveCharacter::MiniGamePlayerMoveCharacter(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
 void MiniGamePlayerMoveCharacter::tick()
 {
@@ -94,15 +92,14 @@ void MiniGamePlayerMoveCharacter::postTick()
 
 
 
-MiniGamePlayerWaitForActionInput::MiniGamePlayerWaitForActionInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData)
-	: MiniGameState(keyboardData, data, worldData){;}
+MiniGamePlayerWaitForActionInput::MiniGamePlayerWaitForActionInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
 void MiniGamePlayerWaitForActionInput::postTick(EMiniGameState nextStateEnum)
 {
 	if (nextStateEnum == EMiniGameState_BUFFER)
 	{
 		int index = -1;
-		CombatCharacter* pNextCharacter = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager.returnNextCharacter(*mData.getCharacter(), index);
+		CombatCharacter* pNextCharacter = mWorldData.getStage()->mCombatManager.returnNextCharacter(*mData.getCharacter(), index);
 		if (pNextCharacter == nullptr)
 		{
 			// all players stunned, must stall for rounds
@@ -119,8 +116,7 @@ void MiniGamePlayerWaitForActionInput::postTick(EMiniGameState nextStateEnum)
 
 
 
-MiniGamePlayerWaitForAttackInput::MiniGamePlayerWaitForAttackInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData)
-	: MiniGameState(keyboardData, data, worldData){;}
+MiniGamePlayerWaitForAttackInput::MiniGamePlayerWaitForAttackInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
 void MiniGamePlayerWaitForAttackInput::postTick(Attack attack)
 {
@@ -130,8 +126,7 @@ void MiniGamePlayerWaitForAttackInput::postTick(Attack attack)
 
 
 
-MiniGamePlayerWaitForAttackSubInput::MiniGamePlayerWaitForAttackSubInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData)
-	: MiniGameState(keyboardData, data, worldData){;}
+MiniGamePlayerWaitForAttackSubInput::MiniGamePlayerWaitForAttackSubInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
 void MiniGamePlayerWaitForAttackSubInput::postTick(EDirection curAttackDirection)
 {
@@ -141,8 +136,7 @@ void MiniGamePlayerWaitForAttackSubInput::postTick(EDirection curAttackDirection
 
 
 
-MiniGamePlayerCompleteDirectionalAttack::MiniGamePlayerCompleteDirectionalAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData)
-	: MiniGameState(keyboardData, data, worldData){;}
+MiniGamePlayerCompleteDirectionalAttack::MiniGamePlayerCompleteDirectionalAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
 void MiniGamePlayerCompleteDirectionalAttack::tick()
 {
@@ -158,9 +152,8 @@ void MiniGamePlayerCompleteDirectionalAttack::tick()
 
 void MiniGamePlayerCompleteDirectionalAttack::attackTiles()
 {
-	Grid& grid = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mGrid;
-	AttackAndCorrespondingTilesCoords attackTileCoords =
-			returnAttackTileCoordsBasedOnAttackAndDirection(*mData.getCharacter()->mCombatMovementManager.getCurTile(), *mData.mpCurAttack, mData.mCurAttackDirection);
+	Grid& grid = mWorldData.getStage()->mGrid;
+	AttackAndCorrespondingTilesCoords attackTileCoords = returnAttackTileCoordsBasedOnAttackAndDirection(*mData.getCharacter()->mCombatMovementManager.getCurTile(), *mData.mpCurAttack, mData.mCurAttackDirection);
 	std::vector <Tile* > tilesToAttack;
 	for (const TileCoords& curTileCoord : attackTileCoords.mTileCoords)
 	{
@@ -173,7 +166,7 @@ void MiniGamePlayerCompleteDirectionalAttack::attackTiles()
 
 void MiniGamePlayerCompleteDirectionalAttack::postTick()
 {
-	CombatManager& combatManager = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager;
+	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
 
 	combatManager.postTick();
 	int index = -1;
@@ -197,12 +190,11 @@ void MiniGamePlayerCompleteDirectionalAttack::postTick()
 
 
 
-MiniGamePlayerTakeActionAttack::MiniGamePlayerTakeActionAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) :
-	MiniGameState(keyboardData, data, worldData){;}
+MiniGamePlayerTakeActionAttack::MiniGamePlayerTakeActionAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
 void MiniGamePlayerTakeActionAttack::selectTile(const Vect2 pos)
 {
-	Tile* pTile = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mGrid.getTileFromCoords(pos.getX(), pos.getY());
+	Tile* pTile = mWorldData.getStage()->mGrid.getTileFromCoords(pos.getX(), pos.getY());
 
 	if (pTile != nullptr)
 	{
@@ -217,7 +209,7 @@ void MiniGamePlayerTakeActionAttack::selectTile(const Vect2 pos)
 
 void MiniGamePlayerTakeActionAttack::postTick()
 {
-	CombatManager& combatManager = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager;
+	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
 	combatManager.postTick();
 	int index = -1;
 	CombatCharacter* pNextCharacter = combatManager.returnNextCharacter(*mData.getCharacter(), index);
@@ -240,8 +232,7 @@ void MiniGamePlayerTakeActionAttack::postTick()
 
 
 
-MiniGamePlayerTakeActionDefend::MiniGamePlayerTakeActionDefend(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData)
-		: MiniGameState(keyboardData, data, worldData){;}
+MiniGamePlayerTakeActionDefend::MiniGamePlayerTakeActionDefend(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
 void MiniGamePlayerTakeActionDefend::tick()
 {
@@ -251,7 +242,7 @@ void MiniGamePlayerTakeActionDefend::tick()
 
 void MiniGamePlayerTakeActionDefend::postTick()
 {
-	CombatManager& combatManager = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager;
+	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
 
 	combatManager.postTick();
 	int index = -1;
@@ -273,8 +264,7 @@ void MiniGamePlayerTakeActionDefend::postTick()
 
 
 
-MiniGameEnemyMoveCharacter::MiniGameEnemyMoveCharacter(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData)
-		: MiniGameState(keyboardData, data, worldData){;}
+MiniGameEnemyMoveCharacter::MiniGameEnemyMoveCharacter(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
 void MiniGameEnemyMoveCharacter::tick()
 {
@@ -297,9 +287,9 @@ void MiniGameEnemyMoveCharacter::tick()
 
 void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 {
-	MiniGameLevel*	pCurLevel		= mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber];
-	Grid&			grid			= pCurLevel->mGrid;
-	CombatManager&  combatManager	= pCurLevel->mCombatManager;
+	MiniGameStage*	pCurStage		= mWorldData.getStage();
+	Grid&			grid			= pCurStage->mGrid;
+	CombatManager&  combatManager	= pCurStage->mCombatManager;
 	mData.mTicks = 0;
 
 	// get all tiles that enemy can actually move to
@@ -361,8 +351,7 @@ void MiniGameEnemyMoveCharacter::postTick()
 
 
 
-MiniGameEnemyTakeAction:: MiniGameEnemyTakeAction(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData)
-		: MiniGameState(keyboardData, data, worldData){;}
+MiniGameEnemyTakeAction:: MiniGameEnemyTakeAction(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
 void MiniGameEnemyTakeAction::tick()
 {
@@ -397,7 +386,7 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 	std::vector <AttackTile> attackTilesWithCharacters = returnAttackTileCoordsWithPlayersOnThem(mWorldData, pRefTile, mData.getCharacter());
 	pRefTile = nullptr;
 
-	Grid& grid = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mGrid;
+	Grid& grid = mWorldData.getStage()->mGrid;
 
 	AttackTile *pCurBestAttackTile = nullptr;
 	AttackAndCorrespondingTilesCoords curBestAttackTiles;
@@ -464,24 +453,18 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 
 bool MiniGameEnemyTakeAction::shouldDefend()
 {
-	Grid&			grid			= mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mGrid;
-	CombatManager&	combatManager	= mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager;
+	MiniGameStage*	pStage			= mWorldData.getStage();
+	Grid&			grid			= pStage->mGrid;
+	CombatManager&	combatManager	= pStage->mCombatManager;
 	Tile*			pCurTile		= mData.getCharacter()->mCombatMovementManager.getCurTile();
 
-	for (CombatCharacter* curCombatCharacter : combatManager.mpCurCombatCharacters)
+	std::vector <AttackTile> attackTileListWithCharacters = returnAttackTileCoordsWithPlayersOnThem(mWorldData, pCurTile, mData.getCharacter());
+	for (AttackTile& attackTile : attackTileListWithCharacters)
 	{
-		std::vector <AttackTile> attackTileListWithCharacters = returnAttackTileCoordsWithPlayersOnThem(mWorldData, pCurTile, mData.getCharacter());
-
-		for (AttackTile& attackTile : attackTileListWithCharacters)
+		Tile& curTileWithCharacter = attackTile.mTile;
+		if (grid.isLegalCoords(curTileWithCharacter.mRow, curTileWithCharacter.mCol) and curTileWithCharacter.mRow == pCurTile->mRow and curTileWithCharacter.mCol and pCurTile->mCol)
 		{
-			Tile& curTileWithCharacter = attackTile.mTile;
-			if (grid.isLegalCoords(curTileWithCharacter.mRow, curTileWithCharacter.mCol))
-			{
-				if (curTileWithCharacter.mRow == pCurTile->mRow and curTileWithCharacter.mCol and pCurTile->mCol)
-				{
-					return true;
-				}
-			}
+			return true;
 		}
 	}
 	return false;
@@ -492,8 +475,8 @@ void MiniGameEnemyTakeAction::performAttack() { attackMultipleTiles(*mData.mpCur
 void MiniGameEnemyTakeAction::postTick()
 {
 	mData.mpTileLastMovedTo = nullptr;
-	CombatManager& combatManager = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager;
-	mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager.postTick();
+	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
+	combatManager.postTick();
 	int index = -1;
 	CombatCharacter* pNextCharacter = combatManager.returnNextCharacter(*mData.getCharacter(), index);
 	if (pNextCharacter == nullptr)
@@ -516,8 +499,7 @@ void MiniGameEnemyTakeAction::postTick()
 
 
 
-MiniGameBuffer:: MiniGameBuffer(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData)
-		: MiniGameState(keyboardData, data, worldData){;}
+MiniGameBuffer:: MiniGameBuffer(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
 void MiniGameBuffer::tick()
 {
@@ -548,10 +530,12 @@ void MiniGameBuffer::postTick()
 	mData.mCurAttackDirection = EDirection_NONE;
 
 	// check if game is over
-	GameOverStats stats = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager.getGameOverStats();
+	MiniGameLevel* pLevel = mWorldData.getLevel();
+	MiniGameStage* pStage = mWorldData.getStage();
+	GameOverStats stats = pStage->mCombatManager.getGameOverStats();
 	if (stats.mGameOver)
 	{
-		if (mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mNextLevelData.mType == ELevelType_MINI_GAME)
+		if (!mWorldData.onLastStage() or mWorldData.onLastStage() and (pLevel->mNextLevelData.mType == ELevelType_MINI_GAME))
 		{
 			mData.mNextMiniGameState = EMiniGameState_BUILD_NEXT_LEVEL;
 		}
@@ -566,7 +550,7 @@ void MiniGameBuffer::postTick()
 		{
 			
 			// force tick a round, to drain turns to pass
-			CombatManager& combatManager = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager;
+			CombatManager& combatManager = pStage->mCombatManager;
 			combatManager.tickAllAlive();
 			int index = -1;
 			CombatCharacter* pNextCharacter = combatManager.returnNextCharacter(*mData.getCharacter(), index, false);
@@ -583,6 +567,7 @@ void MiniGameBuffer::postTick()
 			{
 				mData.mNextMiniGameState = getPostBufferState(*pNextCharacter);;
 			}
+			pNextCharacter = nullptr;
 		}
 		else
 		{
@@ -592,15 +577,12 @@ void MiniGameBuffer::postTick()
 
 	// continue game / set up for next time
 	mData.mPostBufferGameState = EMiniGameState_INVALID;
-	
+	pStage = nullptr;
+	pLevel = nullptr;
 }
 
 
-MiniGameBuildNextLevel::MiniGameBuildNextLevel(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData)
-	: MiniGameState(keyboardData, data, worldData) {
-	;
-}
-
+MiniGameBuildNextLevel::MiniGameBuildNextLevel(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData) { ; }
 
 MiniGameExit::MiniGameExit(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData) { ; }
 
@@ -641,9 +623,9 @@ MiniGameStateManager::~MiniGameStateManager()
 
 void MiniGameStateManager::start() 
 {
-	CombatManager& combatManager = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager;
+	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
 	combatManager.createCurCharacterList();
-	mWorldData.resetLevel();
+	mWorldData.resetStage();
 	mData.mStateData.reset();
 	mData.mStateData.setCharacter(combatManager.mpAllCombatCharacters[0], 0);
 	combatManager.mpAllCombatCharacters[0]->preTick();
@@ -668,17 +650,17 @@ void MiniGameStateManager::start()
 
 void MiniGameStateManager::preTick() 
 {
+	MiniGameStage* pStage = mWorldData.getStage();
 	if (mData.mLastFrameStateEnum != mData.mCurStateEnum)
 	{
 		// changed state
-		mData.mPreTickCharacterSnapShots.push(createCombatCharacterSnapShots(mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager));
+		mData.mPreTickCharacterSnapShots.push(createCombatCharacterSnapShots(pStage->mCombatManager));
 		mData.mPreviousStateDatas.push(mData.mStateData);
 	}
 	mData.mLastFrameStateEnum = mData.mCurStateEnum; 
 	
-	MiniGameLevel* pLevel = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber];
-	pLevel->preTick();
-	pLevel = nullptr;
+	pStage->preTick();
+	pStage = nullptr;
 }
 
 void MiniGameStateManager::tick()
@@ -708,7 +690,7 @@ void MiniGameStateManager::postTick()
 
 void MiniGameStateManager::printBoard(ScreenObject& screenObject, const StyleManager& styleManager)
 {
-	Grid& grid = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mGrid;
+	Grid& grid = mWorldData.getStage()->mGrid;
 	updateTileColors(styleManager);
 	grid.printGrid(screenObject.mpRenderer, screenObject.mGameScreenToGameLevelChunkRatio);
 	printCharacters(screenObject, styleManager);
@@ -716,8 +698,8 @@ void MiniGameStateManager::printBoard(ScreenObject& screenObject, const StyleMan
 
 void MiniGameStateManager::printCharacters(ScreenObject& screenObject, const StyleManager& styleManager)
 {
-	Grid& grid = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mGrid;
-	CombatManager& combatManager = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager;
+	Grid& grid = mWorldData.getStage()->mGrid;
+	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
 	for (CombatCharacter* pCurCombatCharacter : combatManager.mpCurCombatCharacters)
 	{
 		Tile* pCurTile = pCurCombatCharacter->mCombatMovementManager.getCurTile();
@@ -735,8 +717,8 @@ void MiniGameStateManager::printCharacters(ScreenObject& screenObject, const Sty
 
 void MiniGameStateManager::updateTileColors(const StyleManager& styleManager)
 {
-	Grid& grid = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mGrid;
-	CombatManager& combatManager = mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager;
+	Grid& grid = mWorldData.getStage()->mGrid;
+	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
 
 	// figure out if SELECTED OR HIGHLIGHTED
 	for (Tile* pCurTile : grid.mpTiles)
@@ -890,7 +872,7 @@ void MiniGameStateManager::createDebugLog()
 		break;	
 	}
 
-	std::string characterChanges =  getCharacterChangesString(mWorldData.mpMiniGameLevels[mWorldData.mCurMiniGameLevelNumber]->mCombatManager, mData.mPreTickCharacterSnapShots.top());
+	std::string characterChanges =  getCharacterChangesString(mWorldData.getStage()->mCombatManager, mData.mPreTickCharacterSnapShots.top());
 	if (line != "" && characterChanges != "")
 	{
 		line += ". " + characterChanges;

@@ -243,6 +243,9 @@
     <ClInclude Include="src\animationHelper.h">
       <Filter>Source Files\Structural</Filter>
     </ClInclude>
+    <ClInclude Include="src\levelEffects.h">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\movementHelper.cpp">
@@ -436,6 +439,9 @@
     </ClCompile>
     <ClCompile Include="src\animationhelper.cpp">
       <Filter>Source Files\Structural</Filter>
+    </ClCompile>
+    <ClCompile Include="src\levelEffects.cpp">
+      <Filter>Source Files\Platforming\PlatformingEntities</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

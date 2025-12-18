@@ -79,7 +79,7 @@ void GameStateManager::updateCurState(EGameState nextStateEnum)
 			WorldData& worldData = ((GameStatePlay*)mStates[EGameState_PLAY])->mWorldData;
 			if (mWorldData.mGoToNextLevel)
 			{
-				((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.mWorldData.setNextLevel(worldData.mpNextLevelData->mLevelNumber);
+				((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.mWorldData.setNextLevel(worldData.mpNextLevelData->mWorldNumber, worldData.mpNextLevelData->mLevelNumber, worldData.mpNextLevelData->mStageNumber);
 				((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.start();
 				mWorldData.mGoToNextLevel = false;
 				mWorldData.mpNextLevelData = nullptr;
@@ -115,8 +115,7 @@ void GameStateManager::postTick()
 	if (mMiniGameStateManager.mData.mCurStateEnum == EMiniGameState_BUILD_NEXT_LEVEL)
 	{
 		MiniGameWorldData& worldData = mMiniGameStateManager.mWorldData;
-		int nextLevelNumber = worldData.mpMiniGameLevels[worldData.mCurMiniGameLevelNumber]->mNextLevelData.mLevelNumber;
-		worldData.setNextLevel(nextLevelNumber);
+		worldData.goToNextLevel();
 		switchToMiniGame();
 		mMiniGameStateManager.updateCurState(EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT);
 	}
@@ -414,12 +413,8 @@ void GameStatePlay::tick(GameStateManagerData& gameStateManagerData, MiniGameSta
 {
 	mTicksSinceInput += 1;
 	mWorldData.updateCurLevelChunk();
-	Level* curLevel = mWorldData.mpWorlds[mWorldData.mCurWorldNumber]->mpLevels[mWorldData.mCurLevelNumber];
 
-	Player & player = mWorldData.mPlayer;
-	LevelChunk& curLevelChunk = mWorldData.mCurLevelChunk;
 	SDL_PumpEvents();
-
 	getInput();
 
 	if (!mSettingsManager.mSingleSteppingMode or (mSettingsManager.mSingleSteppingMode and mSettingsManager.mFrameStepInputRequest))
@@ -469,7 +464,6 @@ void GameStatePlay::tick(GameStateManagerData& gameStateManagerData, MiniGameSta
 
 void GameStatePlay::useInput(GameStateManagerData& gameStateManagerData)
 {
-
 	eventVect.clear();
 	for (int countEvent = 0; countEvent < mKeyboardData.mNumKeys; countEvent++)
 	{
@@ -647,10 +641,8 @@ void GameStatePlay::render(EGameState curState)
 
 
 GameStatePlayMiniGame::GameStatePlayMiniGame(GameStateData& gameStateData, KeyboardData& keyboardData, 
-	MiniGameStateManager& miniGameStateManager, MenuManager& menuManager, ScreenObject& screen, SettingsManager& settingsManager,
-	StyleManager& styleManager) 
-	: GameState(gameStateData, keyboardData, menuManager, settingsManager, styleManager, screen),
-	mMiniGameStateManager(miniGameStateManager) {}
+	MiniGameStateManager& miniGameStateManager, MenuManager& menuManager, ScreenObject& screen, SettingsManager& settingsManager, StyleManager& styleManager) 
+	: GameState(gameStateData, keyboardData, menuManager, settingsManager, styleManager, screen), mMiniGameStateManager(miniGameStateManager) { ; }
 
 void GameStatePlayMiniGame::setUp() { mTicks = 0; }
 
@@ -659,12 +651,12 @@ void GameStatePlayMiniGame::tick(GameStateManagerData& gameStateManagerData, Min
 	mTicks += 1;
 	mTicksSinceInput += 1;
 	SDL_PumpEvents();
-	MiniGameLevel* pCurLevel = mMiniGameStateManager.mWorldData.mpMiniGameLevels[mMiniGameStateManager.mWorldData.mCurMiniGameLevelNumber];
+	CombatManager& combatManager = mMiniGameStateManager.mWorldData.getStage()->mCombatManager;
 
-	if (pCurLevel->mCombatManager.mpCurCombatCharacters.size() == 0)
+	if (combatManager.mpCurCombatCharacters.size() == 0)
 	{
-		pCurLevel->mCombatManager.createCurCharacterList();
-		mMiniGameStateManager.mData.mStateData.setCharacter(pCurLevel->mCombatManager.mpCurCombatCharacters[0], 0);
+		combatManager.createCurCharacterList();
+		mMiniGameStateManager.mData.mStateData.setCharacter(combatManager.mpCurCombatCharacters[0], 0);
 	}
 
 	getInput();
@@ -706,8 +698,7 @@ void GameStatePlayMiniGame::render(EGameState curState)
 
 
 GameStateMenu::GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboardData, 
-		MenuManager& menuManager, SettingsManager& settingsManager, StyleManager& styleManager, 
-		WorldData& worldData) 
+	MenuManager& menuManager, SettingsManager& settingsManager, StyleManager& styleManager, WorldData& worldData) 
 	: GameState(gameStateData, keyboardData, menuManager, settingsManager, styleManager, worldData.mScreen), mWorldData(worldData) {;}
 
 void GameStateMenu::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager)
