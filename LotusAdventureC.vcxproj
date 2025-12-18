@@ -50,7 +50,6 @@
     <ClInclude Include="src\lotusAdventureLevels.h" />
     <ClInclude Include="src\lotusAdventureLevelsDemo.h" />
     <ClInclude Include="src\lotusAdventureMenus.h" />
-    <ClInclude Include="src\lotusAdventureMiniLevels.h" />
     <ClInclude Include="src\menuHelperClass.h" />
     <ClInclude Include="src\miniGameStateHelper.h" />
     <ClInclude Include="src\miniGameStateHelperClass.h" />
@@ -124,7 +123,6 @@
     <ClCompile Include="src\lotusAdventureLevels.cpp" />
     <ClCompile Include="src\lotusAdventureLevelsDemo.cpp" />
     <ClCompile Include="src\lotusAdventureMenus.cpp" />
-    <ClCompile Include="src\lotusAdventureMiniLevels.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\menuHelper.cpp" />
     <ClCompile Include="src\menuHelperClass.cpp" />

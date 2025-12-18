@@ -12,11 +12,13 @@
 #include "collectibleHelper.h"
 #include "worldDataHelper.h"
 #include "worldHelper.h"
+#include "miniGameWorldDataHelper.h"
+#include "miniGameLevelHelper.h"
 
 
 void createNames(Level* pCurLevel, int curLevelNumber);
 
-void createLevels(WorldData& worldData, ScreenObject& screen);
+void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenObject& screen);
 
 
 #endif

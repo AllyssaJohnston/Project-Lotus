@@ -204,9 +204,6 @@
     <ClInclude Include="src\lotusAdventureMenus.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\lotusAdventureMiniLevels.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\menuHelper.h">
       <Filter>Source Files\UI</Filter>
     </ClInclude>
@@ -402,9 +399,6 @@
       <Filter>Source Files\Platforming\Movement</Filter>
     </ClCompile>
     <ClCompile Include="src\lotusAdventureMenus.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\lotusAdventureMiniLevels.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\menuHelper.cpp">

@@ -16,10 +16,8 @@
 
 #if DEMO == 0
 #include "lotusAdventureLevels.h"
-#include "lotusAdventureMiniLevels.h"
 #else 
 #include "lotusAdventureLevelsDemo.h"
-#include "lotusAdventureMiniLevels.h"
 #endif
 
 #include "lotusAdventureMenus.h"
@@ -118,8 +116,7 @@ int main(int argc, char* args[])
 		return -1;
 	}
 
-	createLevels(gameInstance.mWorldData, gameInstance.mScreen);
-	createMiniGameLevels(gameInstance.mMiniGameWorldData);
+	createLevels(gameInstance.mWorldData, gameInstance.mMiniGameWorldData, gameInstance.mScreen); // PLATFORMING + MINI GAME
 	setUpFontSizeChart(gameInstance.mFontSizeChart, gameInstance.mStyleManager, gameInstance.mScreen.mpRenderer);
 	createMenus(gameInstance.mMenuManager, gameInstance.mScreen, gameInstance.mMiniGameWorldData, gameInstance.mStyleManager, gameInstance.mSettingsManager);
 	setUpAllTextures();
