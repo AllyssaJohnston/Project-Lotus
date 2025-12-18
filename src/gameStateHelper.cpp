@@ -73,22 +73,28 @@ void GameStateManager::updateCurState(EGameState nextStateEnum)
 		break;
 	case EGameState_PLAY_MINI_GAME:
 		
-		switchToMiniGame();
+		
 		if (previousState == EGameState_PLAY)
 		{
 			WorldData& worldData = ((GameStatePlay*)mStates[EGameState_PLAY])->mWorldData;
 			if (mWorldData.mGoToNextLevel)
 			{
 				((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.mWorldData.setNextLevel(worldData.mpNextLevelData->mWorldNumber, worldData.mpNextLevelData->mLevelNumber, worldData.mpNextLevelData->mStageNumber);
-				((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.start();
-				mWorldData.mGoToNextLevel = false;
-				mWorldData.mpNextLevelData = nullptr;
+				switchToMiniGame();
+				((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.start();	
 			}
+			mWorldData.mGoToNextLevel = false;
+			mWorldData.mpNextLevelData = nullptr;
 		}
 		else if (mGameStateData.mCleanNextState)
 		{
+			switchToMiniGame();
 			((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.start();
 			mGameStateData.mCleanNextState = false;
+		}
+		else
+		{
+			switchToMiniGame();
 		}
 		break;
 	case EGameState_MENU:
@@ -691,7 +697,6 @@ void GameStatePlayMiniGame::render(EGameState curState)
 	SDL_SetRenderDrawColor(mScreen.mpRenderer, 10, 100, 100, 1);
 	SDL_FRect rect2{ (10.0f/ (mTicksSinceInput + 1)), 700.0f, 20.0f, 20.0f };
 	SDL_RenderFillRect(mScreen.mpRenderer, &rect2);
-
 }
 
 
