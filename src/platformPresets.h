@@ -1,8 +1,9 @@
 #pragma once
 #include "helperClass.h"
 #include "EntityPresets.h"
+#include "globals.h"
 
-struct PPlatformPreset : public CCharacterPreset
+struct PPlatformPreset : public EntityPreset
 {
 	std::vector <AnimationPreset> mHorizontalAnimationPresets;
 	std::vector <AnimationPreset> mVerticalAnimationPresets;

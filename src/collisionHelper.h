@@ -5,29 +5,25 @@
 #include "helperClass.h"
 #include "entityHelper.h"
 
-class Collision
+struct Collision
 {
-public:
-    Entity* mpEntity1;
-    Entity* mpEntity2;
+    Entity& mEntity1;
+    Entity& mEntity2;
 
-    Collision(Entity * entity1, Entity * entity2);
-
-    ~Collision();
+    Collision(Entity& entity1, Entity& entity2);
 
     bool operator== (const Collision& other) const;
 
     bool operator!= (const Collision& other) const;
 };
 
-class RidingIsland
+struct RidingIsland
 {
-public:
     Entity* mpBase;
     Entity* mpTop;
     std::vector <Entity*> mpRidingContacts;
 
-    RidingIsland(Entity* ridingObject, Entity* objectToRide);
+    RidingIsland(Entity& ridingObject, Entity& objectToRide);
 
     ~RidingIsland();
 
@@ -35,8 +31,7 @@ public:
 
     void separateRidingContacts();
 
-    void addRidingContact(Entity* entity);
-
+    void addRidingContact(Entity& entity);
 };
 
 class CollisionManager
@@ -47,8 +42,8 @@ private:
 
 public:
     std::vector <Entity* >       mpCrateContacts;
-    std::vector <RidingIsland >  mpLastFrameRidingIslands;
-    std::vector <RidingIsland >  mpRidingIslands;
+    std::vector <RidingIsland >  mLastFrameRidingIslands;
+    std::vector <RidingIsland >  mRidingIslands;
     std::vector <Collision>      mCollisionsToSeparate;
     std::vector <Collision>      mThisFrameCollisions;
     std::vector <Collision>      mLastFrameCollisions;
@@ -59,29 +54,29 @@ public:
 
     void postTick();
 
-    void addCollision(Entity* pCurEntity1, Entity* pCurEntity2);
+    void addCollision(Entity& curEntity1, Entity& curEntity2);
 
-    void entitiesCollidedHorizontal(Entity* pCurEntity1, Entity* pCurEntity2);
+    void entitiesCollidedHorizontal(Entity& pCurEntity1, Entity& pCurEntity2);
 
-    void entitiesCollidedVertical(Entity* pCurEntity1, Entity* pCurEntity2);
+    void entitiesCollidedVertical(Entity& curEntity1, Entity& curEntity2);
 
-    bool isInThisFrameCollisions(Entity* pCurEntity) const;
+    bool isInThisFrameCollisions(const Entity& curEntity) const;
 
     void moveRidingIslands();
 
     void moveLastFrameRidingIslands();
 
-    void addCrateContact(Entity* crate);
+    void addCrateContact(Entity& crate);
 
-    bool isInCrateContacts(Entity* crate);
+    bool isInCrateContacts(const Entity& crate) const;
 
     void setCrateContactMovementIncrement(int movementIncrementInput);
 
-    void addRidingContact(Entity* ridingObject, Entity* objectToRide);
+    void addRidingContact(Entity& ridingObject, Entity& objectToRide);
 
-    RidingIsland* returnRidingIslandEntityIn(Entity* entity);
+    RidingIsland* returnRidingIslandEntityIn(const Entity& entity);
 
-    RidingIsland* returnLastFrameRidingIsland(Entity* entity);
+    RidingIsland* returnLastFrameRidingIsland(const Entity& entity);
 
     void updateLastFrameRidingIslands();
 

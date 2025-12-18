@@ -1,9 +1,10 @@
 #include "enemyPresets.h"
 
-EEnemyPreset::EEnemyPreset() : CCharacterPreset()
+EEnemyPreset::EEnemyPreset() : EntityPreset()
 {
 	mEntityClassType          = EEntityClassTypes_ENEMY;
 	mEntityType               = EEntityType_NON_STATIC;
+	mCharacterMode			  = ECharacterModes_MOVING;
 	mUseMovementEffect		  = false;
 
 	mSpreadEdges			  = false;
@@ -12,13 +13,11 @@ EEnemyPreset::EEnemyPreset() : CCharacterPreset()
 }
 
 //EARTH ENEMIES
-
 //DRAGUAR BLOSSOM
 ERatPreset::ERatPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_RAT;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance           = 75;
@@ -37,12 +36,12 @@ ERatPreset::ERatPreset() : EEnemyPreset()
 	int  runFrameRate		= 15;
 	bool runMustFinish		= false;
 	std::vector <std::string> animationRunFileNames = { "EarthEnemies/DraguarBlossom/draguarBlossomAnimation01.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation02.bmp",
-		"EarthEnemies/DraguarBlossom/draguarBlossomAnimation03.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation04.bmp",
-		"EarthEnemies/DraguarBlossom/draguarBlossomAnimation05.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation06.bmp",
-		"EarthEnemies/DraguarBlossom/draguarBlossomAnimation07.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation08.bmp",
-		"EarthEnemies/DraguarBlossom/draguarBlossomAnimation09.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation10.bmp",
-		"EarthEnemies/DraguarBlossom/draguarBlossomAnimation11.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation12.bmp"};
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish));
+														"EarthEnemies/DraguarBlossom/draguarBlossomAnimation03.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation04.bmp",
+														"EarthEnemies/DraguarBlossom/draguarBlossomAnimation05.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation06.bmp",
+														"EarthEnemies/DraguarBlossom/draguarBlossomAnimation07.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation08.bmp",
+														"EarthEnemies/DraguarBlossom/draguarBlossomAnimation09.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation10.bmp",
+														"EarthEnemies/DraguarBlossom/draguarBlossomAnimation11.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation12.bmp"};
+	mAnimationPresets = { AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish) };
 }
 
 //SEEDLING
@@ -50,7 +49,6 @@ EFastRatPreset::EFastRatPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_FAST_RAT;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
 	mMovementCodes			= { EEntityMovements_WALK };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance           = 75;
@@ -68,11 +66,11 @@ EFastRatPreset::EFastRatPreset() : EEnemyPreset()
 
 	int  runFrameRate		= 20;
 	bool runMustFinish		= false;
-	std::vector <std::string> animationRunFileNames = {"EarthEnemies/Seedling/seedlingAnimation02.bmp", "EarthEnemies/Seedling/seedlingAnimation01.bmp",
-		"EarthEnemies/Seedling/seedlingAnimation02.bmp", "EarthEnemies/Seedling/seedlingAnimation03.bmp",
-		"EarthEnemies/Seedling/seedlingAnimation02.bmp", "EarthEnemies/Seedling/seedlingAnimation04.bmp"};
+	std::vector <std::string> animationRunFileNames = { "EarthEnemies/Seedling/seedlingAnimation02.bmp", "EarthEnemies/Seedling/seedlingAnimation01.bmp",
+														"EarthEnemies/Seedling/seedlingAnimation02.bmp", "EarthEnemies/Seedling/seedlingAnimation03.bmp",
+														"EarthEnemies/Seedling/seedlingAnimation02.bmp", "EarthEnemies/Seedling/seedlingAnimation04.bmp"};
 
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish));
+	mAnimationPresets = { AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish) };
 }
 
 //SHROOM VIPER
@@ -80,7 +78,6 @@ EBouncyRatPreset::EBouncyRatPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BOUNCY_RAT;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_BOUNCY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
 	mMovementCodes			= { EEntityMovements_WALK };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance           = 75;
@@ -99,8 +96,8 @@ EBouncyRatPreset::EBouncyRatPreset() : EEnemyPreset()
 	int  runFrameRate		= 15;
 	bool runMustFinish		= false;
 	std::vector <std::string> animationRunFileNames = { "EarthEnemies/ShroomViper/shroomViperAnimation01.bmp", "EarthEnemies/ShroomViper/shroomViperAnimation02.bmp",
-		"EarthEnemies/ShroomViper/shroomViperAnimation04.bmp" };
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish));
+														"EarthEnemies/ShroomViper/shroomViperAnimation04.bmp" };
+	mAnimationPresets = { AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish) };
 }
 
 //FROCODILE
@@ -108,7 +105,6 @@ EFrogPreset::EFrogPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_FROG;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
 	mMovementCodes			= { EEntityMovements_JUMP };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mWidth					= 60;
@@ -146,7 +142,6 @@ EBouncyFrogPreset::EBouncyFrogPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BOUNCY_FROG;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_BOUNCY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
 	mMovementCodes			= { EEntityMovements_JUMP };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mWidth					= 60;
@@ -164,23 +159,18 @@ EBouncyFrogPreset::EBouncyFrogPreset() : EEnemyPreset()
 
 	int  stationaryFrameRate = 0;
 	bool stationaryMustFinish = false;
-	std::vector <std::string> animationStationaryFileNames;
-	animationStationaryFileNames.push_back("EarthEnemies/FrogShroom/frogShroomAnimation01.bmp");
+	std::vector <std::string> animationStationaryFileNames = { "EarthEnemies/FrogShroom/frogShroomAnimation01.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish));
 
 
 	int  jumpFrameRate = 12;
 	bool jumpMustFinish = false;
-	std::vector <std::string> animationJumpFileNames;
-	animationJumpFileNames.push_back("EarthEnemies/FrogShroom/frogShroomAnimation02.bmp");
-	animationJumpFileNames.push_back("EarthEnemies/FrogShroom/frogShroomAnimation03.bmp");
+	std::vector <std::string> animationJumpFileNames = { "EarthEnemies/FrogShroom/frogShroomAnimation02.bmp", "EarthEnemies/FrogShroom/frogShroomAnimation03.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_JUMP, animationJumpFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, jumpFrameRate, jumpMustFinish));
 
 	int  fallFrameRate = 12;
 	bool fallMustFinish = false;
-	std::vector <std::string> animationFallFileNames;
-	animationFallFileNames.push_back("EarthEnemies/FrogShroom/frogShroomAnimation04.bmp");
-	animationFallFileNames.push_back("EarthEnemies/FrogShroom/frogShroomAnimation05.bmp");
+	std::vector <std::string> animationFallFileNames = { "EarthEnemies/FrogShroom/frogShroomAnimation04.bmp", "EarthEnemies/FrogShroom/frogShroomAnimation05.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_FALL, animationFallFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, fallFrameRate, fallMustFinish));
 }
 
@@ -189,12 +179,10 @@ EHidingRatPreset::EHidingRatPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_HIDING_RAT;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
-	mCharacterModes.push_back(ECharacterModes_STATIONARY);
-	mMovementCodes			= { EEntityMovements_WALK };
+	mMovementCodes			= { EEntityMovements_WALK, EEntityMovements_NONE };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance           = 75;
-	mCharacterModeInterval  = 100;
+	mMovementCodeInterval	= 100;
 	mWidth					= 60;
 	mHeight					= 25;
 	mImageOffsetX           = 0;
@@ -209,32 +197,25 @@ EHidingRatPreset::EHidingRatPreset() : EEnemyPreset()
 
 	int  stationaryFrameRate = 0;
 	bool stationaryMustFinish = false;
-	std::vector <std::string> animationStationaryFileNames;
-	animationStationaryFileNames.push_back("EarthEnemies/Spiderig/spiderigAnimation04.bmp");
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish));
+	std::vector <std::string> animationStationaryFileNames = { "EarthEnemies/Spiderig/spiderigAnimation04.bmp" };
+	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight - 20, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish));
 
 
 	int  runFrameRate = 15;
 	bool runMustFinish = false;
-	std::vector <std::string> animationRunFileNames;
-	animationRunFileNames.push_back("EarthEnemies/Spiderig/spiderigAnimation01.bmp");
-	animationRunFileNames.push_back("EarthEnemies/Spiderig/spiderigAnimation02.bmp");
-	animationRunFileNames.push_back("EarthEnemies/Spiderig/spiderigAnimation01.bmp");
-	animationRunFileNames.push_back("EarthEnemies/Spiderig/spiderigAnimation03.bmp");
+	std::vector <std::string> animationRunFileNames = { "EarthEnemies/Spiderig/spiderigAnimation01.bmp", "EarthEnemies/Spiderig/spiderigAnimation02.bmp","EarthEnemies/Spiderig/spiderigAnimation01.bmp",
+														"EarthEnemies/Spiderig/spiderigAnimation03.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish));
 }
 
 
 //FIRE ENEMIES
-
 //FIRMUS
 EFireRatPreset::EFireRatPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_FIRE_RAT;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_BURNING, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_FIRE_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_FIRE_RESISTENT };
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance           = 75;
@@ -252,10 +233,8 @@ EFireRatPreset::EFireRatPreset() : EEnemyPreset()
 
 	int  runFrameRate = 22;
 	bool runMustFinish = false;
-	std::vector <std::string> animationRunFileNames;
-	animationRunFileNames.push_back("FireEnemies/Firmus/firmusAnimation01.bmp");
-	animationRunFileNames.push_back("FireEnemies/Firmus/firmusAnimation02.bmp");
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish));
+	std::vector <std::string> animationRunFileNames = { "FireEnemies/Firmus/firmusAnimation01.bmp", "FireEnemies/Firmus/firmusAnimation02.bmp" };
+	mAnimationPresets = { AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish) };
 }
 
 //FIERLINE
@@ -263,9 +242,7 @@ EFireBatVPreset::EFireBatVPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_FIRE_BAT_V;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_BURNING, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_FIRE_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_FIRE_RESISTENT };
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_VERTICAL;
 	mJumpDistance           = 75;
@@ -283,11 +260,11 @@ EFireBatVPreset::EFireBatVPreset() : EEnemyPreset()
 
 	int  flyFrameRate		= 15;
 	bool flyMustFinish		= false;
-	std::vector <std::string> animationFlyFileNames = {"FireEnemies/Fierline/fierlineAnimation01.bmp", "FireEnemies/Fierline/fierlineAnimation02.bmp",
-		"FireEnemies/Fierline/fierlineAnimation03.bmp", "FireEnemies/Fierline/fierlineAnimation04.bmp",
-		"FireEnemies/Fierline/fierlineAnimation05.bmp", "FireEnemies/Fierline/fierlineAnimation04.bmp",
-		"FireEnemies/Fierline/fierlineAnimation03.bmp", "FireEnemies/Fierline/fierlineAnimation02.bmp" };
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_FLY, animationFlyFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, flyFrameRate, flyMustFinish));
+	std::vector <std::string> animationFlyFileNames = { "FireEnemies/Fierline/fierlineAnimation01.bmp", "FireEnemies/Fierline/fierlineAnimation02.bmp",
+														"FireEnemies/Fierline/fierlineAnimation03.bmp", "FireEnemies/Fierline/fierlineAnimation04.bmp",
+														"FireEnemies/Fierline/fierlineAnimation05.bmp", "FireEnemies/Fierline/fierlineAnimation04.bmp",
+														"FireEnemies/Fierline/fierlineAnimation03.bmp", "FireEnemies/Fierline/fierlineAnimation02.bmp" };
+	mAnimationPresets = { AnimationPreset(EAnimationType_FLY, animationFlyFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, flyFrameRate, flyMustFinish) };
 }
 
 //FIRIKIN
@@ -295,14 +272,11 @@ EFireFrogPreset::EFireFrogPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_FIRE_FROG;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_BURNING, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_FIRE_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_STATIONARY);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
-	mMovementCodes			= {EEntityMovements_JUMP};
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_FIRE_RESISTENT };
+	mMovementCodes			= {EEntityMovements_JUMP, EEntityMovements_NONE};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance           = 30;
-	mCharacterModeInterval  = 100;
+	mMovementCodeInterval	= 100;
 	mWidth					= 45;
 	mHeight					= 40;
 	mImageOffsetX           = 0;
@@ -317,24 +291,18 @@ EFireFrogPreset::EFireFrogPreset() : EEnemyPreset()
 
 	int  stationaryFrameRate = 0;
 	bool stationaryMustFinish = false;
-	std::vector <std::string> animationStationaryFileNames;
-	animationStationaryFileNames.push_back("FireEnemies/Firikin/firikinAnimation01.bmp");
+	std::vector <std::string> animationStationaryFileNames = { "FireEnemies/Firikin/firikinAnimation01.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish));
 
 
 	int  jumpFrameRate = 10;
 	bool jumpMustFinish = false;
-	std::vector <std::string> animationJumpFileNames;
-	animationJumpFileNames.push_back("FireEnemies/Firikin/firikinAnimation02.bmp");
-	animationJumpFileNames.push_back("FireEnemies/Firikin/firikinAnimation03.bmp");
-	//animationJumpFileNames.push_back("FireEnemies/Firikin/firikinAnimation04.bmp");
+	std::vector <std::string> animationJumpFileNames = { "FireEnemies/Firikin/firikinAnimation02.bmp", "FireEnemies/Firikin/firikinAnimation03.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_JUMP, animationJumpFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, jumpFrameRate, jumpMustFinish));
 
 	int  fallFrameRate = 0;
 	bool fallMustFinish = false;
-	std::vector <std::string> animationFallFileNames;
-	animationFallFileNames.push_back("FireEnemies/Firikin/firikinAnimation05.bmp");
-	//animationFallFileNames.push_back("FireEnemies/Firikin/firikinAnimation06.bmp");
+	std::vector <std::string> animationFallFileNames = { "FireEnemies/Firikin/firikinAnimation05.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_FALL, animationFallFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, fallFrameRate, fallMustFinish));
 }
 
@@ -343,11 +311,7 @@ ESnailPreset::ESnailPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_SNAIL;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_CRUSH_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_SPIKE_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_FIRE_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_SPIKE_RESISTENT, EEntityCharacteristicsTypes_FIRE_RESISTENT };
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance           = 75;
@@ -365,11 +329,8 @@ ESnailPreset::ESnailPreset() : EEnemyPreset()
 
 	int  runFrameRate		= 15;
 	bool runMustFinish		= false;
-	std::vector <std::string> animationRunFileNames;
-	animationRunFileNames.push_back("FireEnemies/Scorpus/scorpusAnimation01.bmp");
-	animationRunFileNames.push_back("FireEnemies/Scorpus/scorpusAnimation02.bmp");
-	animationRunFileNames.push_back("FireEnemies/Scorpus/scorpusAnimation03.bmp");
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish));
+	std::vector <std::string> animationRunFileNames = { "FireEnemies/Scorpus/scorpusAnimation01.bmp", "FireEnemies/Scorpus/scorpusAnimation02.bmp", "FireEnemies/Scorpus/scorpusAnimation03.bmp" };
+	mAnimationPresets = { AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish) };
 }
 
 //GEM BUG
@@ -377,11 +338,7 @@ ESpikeySnailPreset::ESpikeySnailPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_SPIKEY_SNAIL;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_SPIKEY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_CRUSH_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_SPIKE_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_FIRE_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_SPIKE_RESISTENT, EEntityCharacteristicsTypes_FIRE_RESISTENT };
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance           = 75;
@@ -399,11 +356,8 @@ ESpikeySnailPreset::ESpikeySnailPreset() : EEnemyPreset()
 
 	int  runFrameRate		= 15;
 	bool runMustFinish		= false;
-	std::vector <std::string> animationRunFileNames;
-	animationRunFileNames.push_back("FireEnemies/GemBug/gemBugAnimation01.bmp");
-	animationRunFileNames.push_back("FireEnemies/GemBug/gemBugAnimation02.bmp");
-	animationRunFileNames.push_back("FireEnemies/GemBug/gemBugAnimation03.bmp");
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish));
+	std::vector <std::string> animationRunFileNames = { "FireEnemies/GemBug/gemBugAnimation01.bmp", "FireEnemies/GemBug/gemBugAnimation02.bmp", "FireEnemies/GemBug/gemBugAnimation03.bmp" };
+	mAnimationPresets = { AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish) };
 }
 
 //GEM WALKER
@@ -411,13 +365,9 @@ ESpikeySnailChameleonPreset::ESpikeySnailChameleonPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_SPIKEY_SNAIL_CHAMELEON;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_SPIKEY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_CRUSH_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_SPIKE_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_FIRE_RESISTENT);
-	mStages.push_back(ECharacterModes_STATIC);
-	mStages.push_back(ECharacterModes_MOVING);
-	mCharacterModes.push_back(mStages[0]);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_SPIKE_RESISTENT, EEntityCharacteristicsTypes_FIRE_RESISTENT };
+	mStages					= { ECharacterModes_STATIC, ECharacterModes_MOVING };
+	mCharacterMode			= mStages[0];
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance           = 75;
@@ -435,37 +385,30 @@ ESpikeySnailChameleonPreset::ESpikeySnailChameleonPreset() : EEnemyPreset()
 
 	int  stationaryFrameRate = 0;
 	bool stationaryMustFinish = false;
-	std::vector <std::string> animationStationaryFileNames;
-	animationStationaryFileNames.push_back("FireEnemies/GemWalker/gemWalkerAnimation03.bmp");
+	std::vector <std::string> animationStationaryFileNames = { "FireEnemies/GemWalker/gemWalkerAnimation03.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish));
 
 
 	int  runFrameRate = 15;
 	bool runMustFinish = false;
-	std::vector <std::string> animationRunFileNames;
-	animationRunFileNames.push_back("FireEnemies/GemWalker/gemWalkerAnimation01.bmp");
-	animationRunFileNames.push_back("FireEnemies/GemWalker/gemWalkerAnimation02.bmp");
+	std::vector <std::string> animationRunFileNames = { "FireEnemies/GemWalker/gemWalkerAnimation01.bmp", "FireEnemies/GemWalker/gemWalkerAnimation02.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish));
 
 	int  fallFrameRate = 15;
 	bool fallMustFinish = false;
-	std::vector <std::string> animationFallFileNames;
-	animationFallFileNames.push_back("FireEnemies/GemWalker/gemWalkerAnimation02.bmp");
+	std::vector <std::string> animationFallFileNames = { "FireEnemies/GemWalker/gemWalkerAnimation02.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_FALL, animationFallFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, fallFrameRate, fallMustFinish));
 }
 
 
 
 //WATER ENEMIES
-
 //GLATA
 EBatHPreset::EBatHPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BAT_H;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL;
 	mJumpDistance           = 75;
@@ -484,18 +427,15 @@ EBatHPreset::EBatHPreset() : EEnemyPreset()
 	int  flyFrameRate		= 15;
 	bool flyMustFinish		= false;
 	std::vector <std::string> animationFlyFileNames = {"WaterEnemies/Glata/GlataAnimation01.bmp", "WaterEnemies/Glata/GlataAnimation02.bmp", "WaterEnemies/Glata/GlataAnimation03.bmp"};
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_FLY, animationFlyFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, flyFrameRate, flyMustFinish));
+	mAnimationPresets = { AnimationPreset(EAnimationType_FLY, animationFlyFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, flyFrameRate, flyMustFinish) };
 }
 
 //SERPHISH
-
 EBatVPreset::EBatVPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BAT_V;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_VERTICAL;
 	mJumpDistance           = 75;
@@ -514,7 +454,7 @@ EBatVPreset::EBatVPreset() : EEnemyPreset()
 	int  flyFrameRate		= 15;
 	bool flyMustFinish		= false;
 	std::vector <std::string> animationFlyFileNames = {"WaterEnemies/Serphish/SerphishAnimation01.bmp", "WaterEnemies/Serphish/SerphishAnimation02.bmp"};
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_FLY, animationFlyFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, flyFrameRate, flyMustFinish));
+	mAnimationPresets = { AnimationPreset(EAnimationType_FLY, animationFlyFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, flyFrameRate, flyMustFinish) };
 }
 
 //JELISH
@@ -522,9 +462,7 @@ EBatDPreset::EBatDPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BAT_D;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_DIAGONAL;
 	mJumpDistance           = 75;
@@ -543,7 +481,7 @@ EBatDPreset::EBatDPreset() : EEnemyPreset()
 	int  flyFrameRate		= 15;
 	bool flyMustFinish		= false;
 	std::vector <std::string> animationFlyFileNames = {"WaterEnemies/Jelish/JelishAnimation01.bmp", "WaterEnemies/Jelish/JelishAnimation02.bmp", "WaterEnemies/Jelish/JelishAnimation03.bmp"};
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_FLY, animationFlyFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, flyFrameRate, flyMustFinish));
+	mAnimationPresets = { AnimationPreset(EAnimationType_FLY, animationFlyFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, flyFrameRate, flyMustFinish) };
 }
 
 //SHELL BEAST
@@ -551,15 +489,11 @@ EHidingSnailPreset::EHidingSnailPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_HIDING_SNAIL;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_CRUSH_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
-	mCharacterModes.push_back(ECharacterModes_STATIONARY);
-	mMovementCodes			= {EEntityMovements_WALK};
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
+	mMovementCodes			= {EEntityMovements_WALK, EEntityMovements_NONE };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance           = 75;
-	mCharacterModeInterval  = 80;
+	mMovementCodeInterval	= 80;
 	mWidth					= 80;
 	mHeight					= 50;
 	mImageOffsetX           = 0;
@@ -574,20 +508,16 @@ EHidingSnailPreset::EHidingSnailPreset() : EEnemyPreset()
 
 	int  stationaryFrameRate = 0;
 	bool stationaryMustFinish = false;
-	std::vector <std::string> animationStationaryFileNames;
-	animationStationaryFileNames.push_back("WaterEnemies/ShellBeast/ShellBeastAnimation01.bmp");
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish));
+	std::vector <std::string> animationStationaryFileNames = { "WaterEnemies/ShellBeast/ShellBeastAnimation01.bmp" };
+	mAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish) };
 
 	maxImageWidth       = 180;
 	maxImageHeight      = 170;
 
 	int  runFrameRate = 15;
 	bool runMustFinish = false;
-	std::vector <std::string> animationRunFileNames;
-	animationRunFileNames.push_back("WaterEnemies/ShellBeast/ShellBeastAnimation02.bmp");
-	animationRunFileNames.push_back("WaterEnemies/ShellBeast/ShellBeastAnimation03.bmp");
-	animationRunFileNames.push_back("WaterEnemies/ShellBeast/ShellBeastAnimation04.bmp");
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish));
+	std::vector <std::string> animationRunFileNames = { "WaterEnemies/ShellBeast/ShellBeastAnimation02.bmp", "WaterEnemies/ShellBeast/ShellBeastAnimation03.bmp", "WaterEnemies/ShellBeast/ShellBeastAnimation04.bmp" };
+	mAnimationPresets = { AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish) };
 }
 
 //SPINE SHELL
@@ -595,10 +525,7 @@ EGrabbingSnailPreset::EGrabbingSnailPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_GRABBING_SNAIL;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_GRABBING, EEntityEdgeType_GRABBING);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_CRUSH_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance           = 75;
@@ -618,32 +545,24 @@ EGrabbingSnailPreset::EGrabbingSnailPreset() : EEnemyPreset()
 
 	int  runFrameRate = 12;
 	bool runMustFinish = false;
-	std::vector <std::string> animationRunFileNames;
-	animationRunFileNames.push_back("WaterEnemies/SpineShell/SpineShellAnimation01.bmp");
-	animationRunFileNames.push_back("WaterEnemies/SpineShell/SpineShellAnimation02.bmp");
-	animationRunFileNames.push_back("WaterEnemies/SpineShell/SpineShellAnimation03.bmp");
-	animationRunFileNames.push_back("WaterEnemies/SpineShell/SpineShellAnimation04.bmp");
+	std::vector <std::string> animationRunFileNames = { "WaterEnemies/SpineShell/SpineShellAnimation01.bmp", "WaterEnemies/SpineShell/SpineShellAnimation02.bmp",
+														"WaterEnemies/SpineShell/SpineShellAnimation03.bmp", "WaterEnemies/SpineShell/SpineShellAnimation04.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, runFrameRate, runMustFinish));
 
 	int  grabbingFrameRate = 8;
 	bool grabbingMustFinish = true;
-	std::vector <std::string> animationGrabbingFileNames;
-	animationGrabbingFileNames.push_back("WaterEnemies/SpineShell/SpineShellAnimation01.bmp");
-	animationGrabbingFileNames.push_back("WaterEnemies/SpineShell/SpineShellAnimation05.bmp");
-	animationGrabbingFileNames.push_back("WaterEnemies/SpineShell/SpineShellAnimation06.bmp");
-	animationGrabbingFileNames.push_back("WaterEnemies/SpineShell/SpineShellAnimation07.bmp");
+	std::vector <std::string> animationGrabbingFileNames = {	"WaterEnemies/SpineShell/SpineShellAnimation01.bmp", "WaterEnemies/SpineShell/SpineShellAnimation05.bmp",
+																"WaterEnemies/SpineShell/SpineShellAnimation06.bmp", "WaterEnemies/SpineShell/SpineShellAnimation07.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_GRABBING, animationGrabbingFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, grabbingFrameRate, grabbingMustFinish));
 }
 
 
 //AIR ENEMIES
-
 //MOTHA
 EWalkingFrogPreset::EWalkingFrogPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_WALKING_FROG;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
 	mMovementCodes		    = { EEntityMovements_WALK, EEntityMovements_JUMP };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mMovementCodeInterval   = 80;
@@ -673,13 +592,11 @@ EWalkingFrogPreset::EWalkingFrogPreset() : EEnemyPreset()
 
 	int  jumpFrameRate = 10;
 	bool jumpMustFinish = false;
-	//std::vector <std::string> animationJumpFileNames = { "AirEnemies/Motha/mothaAnimation04.bmp" };
 	std::vector <std::string> animationJumpFileNames = { "AirEnemies/Motha/mothaAnimation05.bmp", "AirEnemies/Motha/mothaAnimation06.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_JUMP, animationJumpFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, jumpFrameRate, jumpMustFinish));
 
 	int  fallFrameRate = 10;
 	bool fallMustFinish = false;
-	//std::vector <std::string> animationFallFileNames = { "AirEnemies/Motha/mothaAnimation07.bmp" };
 	std::vector <std::string> animationFallFileNames = { "AirEnemies/Motha/mothaAnimation08.bmp", "AirEnemies/Motha/mothaAnimation09.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_FALL, animationFallFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, fallFrameRate, fallMustFinish));
 }
@@ -689,9 +606,7 @@ ESlowBatHPreset::ESlowBatHPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BAT_H;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL;
 	mJumpDistance           = 75;
@@ -709,15 +624,15 @@ ESlowBatHPreset::ESlowBatHPreset() : EEnemyPreset()
 
 	int  flyFrameRate		= 8;
 	bool flyMustFinish		= false;
-	std::vector <std::string> animationFlyFileNames =	{"AirEnemies/Swooper/SwooperAnimation01.bmp", "AirEnemies/Swooper/SwooperAnimation02.bmp", "AirEnemies/Swooper/SwooperAnimation03.bmp",
-		"AirEnemies/Swooper/SwooperAnimation04.bmp", "AirEnemies/Swooper/SwooperAnimation05.bmp", "AirEnemies/Swooper/SwooperAnimation06.bmp",
-		"AirEnemies/Swooper/SwooperAnimation07.bmp", "AirEnemies/Swooper/SwooperAnimation08.bmp", "AirEnemies/Swooper/SwooperAnimation09.bmp",
-		"AirEnemies/Swooper/SwooperAnimation10.bmp", "AirEnemies/Swooper/SwooperAnimation11.bmp", "AirEnemies/Swooper/SwooperAnimation12.bmp",
-		"AirEnemies/Swooper/SwooperAnimation13.bmp", "AirEnemies/Swooper/SwooperAnimation12.bmp", "AirEnemies/Swooper/SwooperAnimation11.bmp",
-		"AirEnemies/Swooper/SwooperAnimation10.bmp", "AirEnemies/Swooper/SwooperAnimation09.bmp", "AirEnemies/Swooper/SwooperAnimation08.bmp",
-		"AirEnemies/Swooper/SwooperAnimation07.bmp", "AirEnemies/Swooper/SwooperAnimation06.bmp", "AirEnemies/Swooper/SwooperAnimation05.bmp",
-		"AirEnemies/Swooper/SwooperAnimation04.bmp", "AirEnemies/Swooper/SwooperAnimation03.bmp", "AirEnemies/Swooper/SwooperAnimation02.bmp"};
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_FLY, animationFlyFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, flyFrameRate, flyMustFinish));
+	std::vector <std::string> animationFlyFileNames = {		"AirEnemies/Swooper/SwooperAnimation01.bmp", "AirEnemies/Swooper/SwooperAnimation02.bmp", "AirEnemies/Swooper/SwooperAnimation03.bmp",
+															"AirEnemies/Swooper/SwooperAnimation04.bmp", "AirEnemies/Swooper/SwooperAnimation05.bmp", "AirEnemies/Swooper/SwooperAnimation06.bmp",
+															"AirEnemies/Swooper/SwooperAnimation07.bmp", "AirEnemies/Swooper/SwooperAnimation08.bmp", "AirEnemies/Swooper/SwooperAnimation09.bmp",
+															"AirEnemies/Swooper/SwooperAnimation10.bmp", "AirEnemies/Swooper/SwooperAnimation11.bmp", "AirEnemies/Swooper/SwooperAnimation12.bmp",
+															"AirEnemies/Swooper/SwooperAnimation13.bmp", "AirEnemies/Swooper/SwooperAnimation12.bmp", "AirEnemies/Swooper/SwooperAnimation11.bmp",
+															"AirEnemies/Swooper/SwooperAnimation10.bmp", "AirEnemies/Swooper/SwooperAnimation09.bmp", "AirEnemies/Swooper/SwooperAnimation08.bmp",
+															"AirEnemies/Swooper/SwooperAnimation07.bmp", "AirEnemies/Swooper/SwooperAnimation06.bmp", "AirEnemies/Swooper/SwooperAnimation05.bmp",
+															"AirEnemies/Swooper/SwooperAnimation04.bmp", "AirEnemies/Swooper/SwooperAnimation03.bmp", "AirEnemies/Swooper/SwooperAnimation02.bmp"};
+	mAnimationPresets = { AnimationPreset(EAnimationType_FLY, animationFlyFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, flyFrameRate, flyMustFinish) };
 }
 
 //FELIGA
@@ -725,9 +640,7 @@ EProjectileBatVPreset::EProjectileBatVPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BAT_V;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT);
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_VERTICAL;
 	mProjectilePath         = EEntityMovementPath_HORIZONTAL;
@@ -754,5 +667,4 @@ EProjectileBatVPreset::EProjectileBatVPreset() : EEnemyPreset()
 	bool projectileMustFinish = true;
 	std::vector <std::string> animationProjectileFileNames = {"AirEnemies/Feliga/FeligaAnimation04.bmp"};
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_SHOOTING_PROJECTILE, animationProjectileFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, projectileFrameRate, projectileMustFinish));
-
 }

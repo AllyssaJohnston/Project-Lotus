@@ -1,6 +1,6 @@
 #include "platformPresets.h"
 
-PPlatformPreset::PPlatformPreset() : CCharacterPreset()
+PPlatformPreset::PPlatformPreset() : EntityPreset()
 {
 	mEntityClassType		 = EEntityClassTypes_PLATFORM;
 	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_INVINCIBLE);
@@ -8,7 +8,7 @@ PPlatformPreset::PPlatformPreset() : CCharacterPreset()
 	mRideable                = true;
 
 	mEntityType     = EEntityType_STATIC;
-	mCharacterModes.push_back(ECharacterModes_STATIC);
+	mCharacterMode  = ECharacterModes_STATIC;
 	mMovementCodes  = { EEntityMovements_NONE };
 	mMovementPath	= EEntityMovementPath_NONE;
 	mMovementEffect = 0;
@@ -58,26 +58,26 @@ void PStandardPreset::setUpAnimationPresets(EWorldType worldType)
 	switch (worldType)
 	{
 	case EWorldType_EARTH:
-		horizontalFileNames.push_back(	"Platforms/platformStandardEarth.bmp");
-		verticalFileNames.push_back(	"Platforms/platformStandardEarthV.bmp");
+		horizontalFileNames = { "Platforms/platformStandardEarth.bmp" };
+		verticalFileNames	= { "Platforms/platformStandardEarthV.bmp" };
 		break;
 	case EWorldType_FIRE:
-		horizontalFileNames.push_back(	"Platforms/platformStandardFire.bmp");
-		verticalFileNames.push_back(	"Platforms/platformStandardFireV.bmp");
+		horizontalFileNames = { "Platforms/platformStandardFire.bmp" };
+		verticalFileNames	= { "Platforms/platformStandardFireV.bmp" };
 		break;
 	case EWorldType_WATER:
-		horizontalFileNames.push_back(	"Platforms/platformStandardWater.bmp");
-		verticalFileNames.push_back(	"Platforms/platformStandardWaterV.bmp");
+		horizontalFileNames = { "Platforms/platformStandardWater.bmp" };
+		verticalFileNames	= { "Platforms/platformStandardWaterV.bmp"};
 		break;
 	case EWorldType_AIR:
 	default:
-		horizontalFileNames.push_back(	"Platforms/platformStandardAir.bmp");
-		verticalFileNames.push_back(	"Platforms/platformStandardAirV.bmp");
+		horizontalFileNames = { "Platforms/platformStandardAir.bmp" };
+		verticalFileNames	= { "Platforms/platformStandardAirV.bmp"};
 		break;
 	}
 	
-	mHorizontalAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,		horizontalFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
-	mVerticalAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,		verticalFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY,		horizontalFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
+	mVerticalAnimationPresets	= { AnimationPreset(EAnimationType_STATIONARY,		verticalFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 }
 
 
@@ -105,22 +105,22 @@ void PSolidPreset::setUpAnimationPresets(EWorldType worldType)
 	switch (worldType)
 	{
 	case EWorldType_EARTH:
-		horizontalFileNames.push_back(	"Platforms/platformSolidEarth.bmp");
-		verticalFileNames.push_back(	"Platforms/platformSolidEarthV.bmp");
+		horizontalFileNames = { "Platforms/platformSolidEarth.bmp" };
+		verticalFileNames	= { "Platforms/platformSolidEarthV.bmp"};
 		break;
 	case EWorldType_FIRE:
-		horizontalFileNames.push_back(	"Platforms/platformSolidFire.bmp");
-		verticalFileNames.push_back(	"Platforms/platformSolidFireV.bmp");
+		horizontalFileNames = { "Platforms/platformSolidFire.bmp" };
+		verticalFileNames	= { "Platforms/platformSolidFireV.bmp"};
 		break;
 	case EWorldType_WATER:
 	default:
-		horizontalFileNames.push_back(	"Platforms/platformSolidWater.bmp");
-		verticalFileNames.push_back(	"Platforms/platformSolidWaterV.bmp");
+		horizontalFileNames = { "Platforms/platformSolidWater.bmp" };
+		verticalFileNames	= { "Platforms/platformSolidWaterV.bmp" };
 		break;
 	}
 
-	mHorizontalAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,		horizontalFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
-	mVerticalAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,		verticalFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY,		horizontalFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
+	mVerticalAnimationPresets	= { AnimationPreset(EAnimationType_STATIONARY,		verticalFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 }
 
 
@@ -135,14 +135,12 @@ PStickyPreset::PStickyPreset() : PPlatformPreset()
 	int  frameRate = 0;
 	bool mustFinish = false;
 
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformSticky.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformSticky.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mMovementEffect = -4;
 
 	mTypeName = "STICKY";
-
 }
 
 
@@ -157,13 +155,11 @@ PIcyPreset::PIcyPreset() : PPlatformPreset()
 	int  frameRate = 0;
 	bool mustFinish = false;
 
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformIcy.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformIcy.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mMovementEffect = 2;
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_SLIPPERY);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_SLIPPERY };
 
 	mTypeName = "ICY";
 }
@@ -180,15 +176,12 @@ PMagneticPreset::PMagneticPreset() : PPlatformPreset()
 	int  frameRate = 0;
 	bool mustFinish = false;
 
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformMetallic.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformMetallic.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_MAGNETIC);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_MAGNETIC };
 
 	mTypeName = "METALLIC";
-
 }
 
 
@@ -207,7 +200,7 @@ PCrumblingPreset::PCrumblingPreset() : PPlatformPreset()
 		"Platforms/platformCrumbling05.bmp", "Platforms/platformCrumbling06.bmp",
 		"Platforms/platformCrumbling07.bmp", "Platforms/platformCrumbling08.bmp",
 		"Platforms/platformCrumbling09.bmp", "Platforms/platformCrumbling10.bmp"};
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_PLAY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_PLAY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mTypeName = "CRUMBLING";
 }
@@ -225,11 +218,8 @@ PSpikePreset::PSpikePreset() : PPlatformPreset()
 	mHowToDetermineWidthHeight = EHowToDetermineWidthHeight_SPLICE;
 
 	mSplice = true;
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformSpike1.bmp");
-	horizontalFileNames.push_back("Platforms/platformSpike2.bmp");
-	horizontalFileNames.push_back("Platforms/platformSpike3.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformSpike1.bmp", "Platforms/platformSpike2.bmp", "Platforms/platformSpike3.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mTypeName = "SPIKE";
 }
@@ -246,13 +236,11 @@ PLavaPreset::PLavaPreset() : PPlatformPreset()
 	int  frameRate = 0;
 	bool mustFinish = false;
 
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformLava.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformLava.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
-	std::vector <std::string> verticalFileNames;
-	verticalFileNames.push_back("Platforms/platformLavaV.bmp");
-	mVerticalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> verticalFileNames = { "Platforms/platformLavaV.bmp" };
+	mVerticalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mTypeName = "LAVA";
 }
@@ -272,13 +260,11 @@ PElectricPreset::PElectricPreset() : PPlatformPreset()
 	int  frameRate = 0;
 	bool mustFinish = false;
 
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformElectric.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformElectric.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
-	std::vector <std::string> verticalFileNames;
-	verticalFileNames.push_back("Platforms/platformElectricV.bmp");
-	mVerticalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> verticalFileNames = { "Platforms/platformElectricV.bmp" };
+	mVerticalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mTypeName = "ELECTRIC";
 }
@@ -295,13 +281,11 @@ PBouncyPreset::PBouncyPreset() : PPlatformPreset()
 	int  frameRate = 0;
 	bool mustFinish = false;
 
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformBouncy.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformBouncy.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
-	std::vector <std::string> verticalFileNames;
-	verticalFileNames.push_back("Platforms/platformBouncyV.bmp");
-	mVerticalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> verticalFileNames = { "Platforms/platformBouncyV.bmp" };
+	mVerticalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mTypeName = "BOUNCY";
 }
@@ -318,13 +302,11 @@ PWallJumpablePreset::PWallJumpablePreset() : PPlatformPreset()
 	int  frameRate = 0;
 	bool mustFinish = false;
 
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformBouncy.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformBouncy.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
-	std::vector <std::string> verticalFileNames;
-	verticalFileNames.push_back("Platforms/platformBouncyV.bmp");
-	mVerticalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> verticalFileNames = { "Platforms/platformBouncyV.bmp" };
+	mVerticalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mTypeName = "WALL JUMPABLE";
 }
@@ -356,19 +338,19 @@ void PGatePreset::setUpAnimationPresets(EWorldType worldType)
 	switch (worldType)
 	{
 	case EWorldType_EARTH:
-		verticalFileNames.push_back("Platforms/platformGateEarth.bmp");
+		verticalFileNames = { "Platforms/platformGateEarth.bmp" };
 		mExtraWidth = 35;
 		break;
 	case EWorldType_FIRE:
-		verticalFileNames.push_back("Platforms/platformGateFire.bmp");
+		verticalFileNames = { "Platforms/platformGateFire.bmp" };
 		break;
 	case EWorldType_WATER:
 	default:
-		verticalFileNames.push_back("Platforms/platformGateWater.bmp");
+		verticalFileNames = { "Platforms/platformGateWater.bmp" };
 		break;
 	}
 
-	mVerticalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY,   verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	mVerticalAnimationPresets = {AnimationPreset(EAnimationType_STATIONARY,   verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish)};
 }
 
 
@@ -386,25 +368,24 @@ void PTargetGatePreset::setUpAnimationPresets(EWorldType worldType)
 	int  frameRate = 0;
 	bool mustFinish = false;
 
-	mVerticalAnimationPresets.clear();
 	mExtraWidth = 25;
 
 	std::vector <std::string> verticalFileNames;
 	switch (worldType)
 	{
 	case EWorldType_EARTH:
-		verticalFileNames.push_back("Platforms/platformTargetGateEarth.bmp");
+		verticalFileNames = { "Platforms/platformTargetGateEarth.bmp" };
 		mExtraWidth = 35;
 		break;
 	case EWorldType_FIRE:
-		verticalFileNames.push_back("Platforms/platformTargetGateFire.bmp");
+		verticalFileNames = { "Platforms/platformTargetGateFire.bmp" };
 		break;
 	case EWorldType_WATER:
-		verticalFileNames.push_back("Platforms/platformTargetGateWater.bmp");
+		verticalFileNames = { "Platforms/platformTargetGateWater.bmp" };
 		break;
 	}
 	
-	mVerticalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY,   verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	mVerticalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY,   verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 }
 
 
@@ -419,9 +400,8 @@ PPressureOperatedGatePreset::PPressureOperatedGatePreset() : PGatePreset(0)
 	mHowToDetermineWidthHeight = EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT;
 
 	mVerticalAnimationPresets.clear();
-	std::vector <std::string> verticalFileNames;
-	verticalFileNames.push_back("Platforms/platformPressureOperatedGate.bmp");
-	mVerticalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> verticalFileNames = { "Platforms/platformPressureOperatedGate.bmp" };
+	mVerticalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mTypeName = "PRESSURE OPERATED GATE";
 }
@@ -455,18 +435,18 @@ void PTargetPreset::setUpAnimationPresets(EWorldType worldType)
 	switch (worldType)
 	{
 	case EWorldType_EARTH:
-		horizontalFileNames.push_back("Platforms/platformTargetEarth.bmp");
+		horizontalFileNames = { "Platforms/platformTargetEarth.bmp" };
 		break;
 	case EWorldType_FIRE:
-		horizontalFileNames.push_back("Platforms/platformTargetFire.bmp");
+		horizontalFileNames = { "Platforms/platformTargetFire.bmp" };
 		break;
 	case EWorldType_WATER:
 	default:
-		horizontalFileNames.push_back("Platforms/platformTargetWater.bmp");
+		horizontalFileNames = { "Platforms/platformTargetWater.bmp" };
 		break;
 	}
 	
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY,   horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY,   horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 }
 
 
@@ -488,12 +468,11 @@ PCratePreset::PCratePreset() : PPlatformPreset()
 	mImmuneToStatusEffects  = false;
 
 	mEntityType		= EEntityType_NON_STATIC;
-	mCharacterModes.clear();
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mCharacterMode  = ECharacterModes_MOVING;
 	mMovementCodes	= { EEntityMovements_FALL };
 	mMovementPath	= EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mJumpDistance	= 75;
-	mAutoMoveRule = EMovementAutoMoveRule_USE_CUR_DIRECTION;
+	mAutoMoveRule   = EMovementAutoMoveRule_USE_CUR_DIRECTION;
 
 	mCurDirection = EDirection_LEFT;
 
@@ -505,9 +484,8 @@ PCratePreset::PCratePreset() : PPlatformPreset()
 	bool mustFinish = false;
 	mHowToDetermineWidthHeight = EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT;
 
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformCrate.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformCrate.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mTypeName = "CRATE";
 }
@@ -515,15 +493,11 @@ PCratePreset::PCratePreset() : PPlatformPreset()
 
 PMagneticCratePreset::PMagneticCratePreset() : PCratePreset()
 {
-	mEntityCharacterType      = EEntityCharacterTypes_P_MAGNETIC_CRATE;
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_CRUSH_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_SPIKE_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_FIRE_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_MAGNETIC);
-	mHitboxEdges = HitboxEdges(EEntityEdgeType_MAGNETIC, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_MOVEABLE, EEntityEdgeType_MOVEABLE);
-	mVulnerableToProjectiles = true;
+	mEntityCharacterType		=	EEntityCharacterTypes_P_MAGNETIC_CRATE;
+	mEntityCharacteristicTypes	= { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_SPIKE_RESISTENT, EEntityCharacteristicsTypes_FIRE_RESISTENT,
+									EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT, EEntityCharacteristicsTypes_MAGNETIC };
+	mHitboxEdges				= HitboxEdges(EEntityEdgeType_MAGNETIC, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_MOVEABLE, EEntityEdgeType_MOVEABLE);
+	mVulnerableToProjectiles	= true;
 
 	mImageOffsetX = 0;
 	mImageOffsetY = 0;
@@ -532,9 +506,8 @@ PMagneticCratePreset::PMagneticCratePreset() : PCratePreset()
 	mHowToDetermineWidthHeight = EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT;
 
 	mHorizontalAnimationPresets.clear();
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformMetalCrate.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformMetalCrate.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mTypeName = "MAGNETIC CRATE";
 }
@@ -543,10 +516,7 @@ PMagneticCratePreset::PMagneticCratePreset() : PCratePreset()
 PArmoredCratePreset::PArmoredCratePreset() : PCratePreset()
 {
 	mEntityCharacterType      = EEntityCharacterTypes_P_ARMORED_CRATE;
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_CRUSH_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_SPIKE_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_FIRE_RESISTENT);
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_SPIKE_RESISTENT, EEntityCharacteristicsTypes_FIRE_RESISTENT };
 	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_MOVEABLE, EEntityEdgeType_MOVEABLE);
 	mVulnerableToProjectiles = false;
 
@@ -557,9 +527,8 @@ PArmoredCratePreset::PArmoredCratePreset() : PCratePreset()
 	mHowToDetermineWidthHeight = EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT;
 
 	mHorizontalAnimationPresets.clear();
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformArmoredCrate.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformArmoredCrate.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mTypeName = "ARMORED CRATE";
 }
@@ -578,15 +547,13 @@ PPressurePlatePreset::PPressurePlatePreset() : PPlatformPreset()
 	mPrintViaChunk = false;
 	mHowToDetermineWidthHeight = EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT;
 
-	std::vector <std::string> horizontalFileNames;
-	horizontalFileNames.push_back("Platforms/platformPressurePlate.bmp");
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	std::vector <std::string> horizontalFileNames = { "Platforms/platformPressurePlate.bmp" };
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 	mTypeName = "PRESSURE PLATE";
 
 	mWidth = -1;
 	mHeight = -1;
-
 }
 
 
@@ -598,8 +565,7 @@ PMovingPreset::PMovingPreset(int worldNumber) : PPlatformPreset()
 	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 
 	mEntityType    = EEntityType_NON_STATIC;
-	mCharacterModes.clear();
-	mCharacterModes.push_back(ECharacterModes_MOVING);
+	mCharacterMode = ECharacterModes_MOVING;
 	mMovementCodes = { EEntityMovements_FLY };
 	mMovementPath  = EEntityMovementPath_INVALID;
 	mJumpDistance  = 0;
@@ -626,22 +592,22 @@ void PMovingPreset::setUpAnimationPresets(EWorldType worldType)
 	switch (worldType)
 	{
 	case EWorldType_EARTH:
-		horizontalFileNames.push_back("Platforms/platformStandardEarth.bmp");
-		verticalFileNames.push_back("Platforms/platformStandardEarthV.bmp");
+		horizontalFileNames = { "Platforms/platformStandardEarth.bmp" };
+		verticalFileNames = { "Platforms/platformStandardEarthV.bmp" };
 		break;
 	case EWorldType_FIRE:
-		horizontalFileNames.push_back("Platforms/platformStandardFire.bmp");
-		verticalFileNames.push_back("Platforms/platformStandardFireV.bmp");
+		horizontalFileNames = { "Platforms/platformStandardFire.bmp" };
+		verticalFileNames = { "Platforms/platformStandardFireV.bmp" };
 		break;
 	case EWorldType_WATER:
 	default:
-		horizontalFileNames.push_back("Platforms/platformStandardWater.bmp");
-		verticalFileNames.push_back("Platforms/platformStandardWaterV.bmp");
+		horizontalFileNames = { "Platforms/platformStandardWater.bmp" };
+		verticalFileNames = { "Platforms/platformStandardWaterV.bmp" };
 		break;
 	}
 	
-	mHorizontalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
-	mVerticalAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY,   verticalFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
+	mVerticalAnimationPresets	= { AnimationPreset(EAnimationType_STATIONARY,   verticalFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 }
 
 
@@ -669,34 +635,38 @@ PWindGustPlatformPreset::PWindGustPlatformPreset() : PAreaEffectPlatformPreset()
 
 void PWindGustPlatformPreset::setUpAnimationPresets()
 {
-	int  frameRate = 0;
-	bool mustFinish = false;
+	if (DEMO == 0)
+	{
+		int  frameRate = 0;
+		bool mustFinish = false;
 
-	std::vector <std::string> upAnimationFileNames		= { "blue.bmp" };
-	mUpAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,	upAnimationFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+		std::vector <std::string> upAnimationFileNames = { "blue.bmp" };
+		mUpAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY,	upAnimationFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
-	std::vector <std::string> downAnimationFileNames	= { "blue.bmp" };
-	mDownAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY,  downAnimationFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+		std::vector <std::string> downAnimationFileNames = { "blue.bmp" };
+		mDownAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY,  downAnimationFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
-	std::vector <std::string> leftAnimationFileNames	= { "blue.bmp" };
-	mLeftAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY,  leftAnimationFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+		std::vector <std::string> leftAnimationFileNames = { "blue.bmp" };
+		mLeftAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY,  leftAnimationFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
-	std::vector <std::string> rightAnimationFileNames	= { "blue.bmp" };
-	mRightAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, rightAnimationFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+		std::vector <std::string> rightAnimationFileNames = { "blue.bmp" };
+		mRightAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, rightAnimationFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
 
-	frameRate = 10;
-	mustFinish = true;
+		frameRate = 10;
+		mustFinish = true;
 
-	std::vector <std::string> upAreaEffectFileNames		= { "pink.bmp" };
-	mAreaEffectUpAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,	upAreaEffectFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+		std::vector <std::string> upAreaEffectFileNames = { "pink.bmp" };
+		mAreaEffectUpAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY,	upAreaEffectFileNames,		mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
-	std::vector <std::string> downAreaEffectFileNames	= { "pink.bmp" };
-	mAreaEffectDownAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,	downAreaEffectFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+		std::vector <std::string> downAreaEffectFileNames = { "pink.bmp" };
+		mAreaEffectDownAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY,	downAreaEffectFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
-	std::vector <std::string> leftAreaEffectFileNames	= { "pink.bmp" };
-	mAreaEffectLeftAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,	leftAreaEffectFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+		std::vector <std::string> leftAreaEffectFileNames = { "pink.bmp" };
+		mAreaEffectLeftAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY,	leftAreaEffectFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
 
-	std::vector <std::string> rightAreaEffectFileNames	= { "pink.bmp" };
-	mAreaEffectRightAnimationPresets.push_back(	AnimationPreset(EAnimationType_STATIONARY,	rightAreaEffectFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish));
+		std::vector <std::string> rightAreaEffectFileNames = { "pink.bmp" };
+		mAreaEffectRightAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY,	rightAreaEffectFileNames,	mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
+	}
+	
 }

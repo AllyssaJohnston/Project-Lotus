@@ -27,6 +27,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\animationHelper.h" />
     <ClInclude Include="src\combatAttackPreset.h" />
     <ClInclude Include="src\entityPresets.h" />
     <ClInclude Include="src\collectibleHelper.h" />
@@ -51,6 +52,7 @@
     <ClInclude Include="src\lotusAdventureMiniLevels.h" />
     <ClInclude Include="src\menuHelperClass.h" />
     <ClInclude Include="src\miniGameStateHelper.h" />
+    <ClInclude Include="src\miniGameStateHelperClass.h" />
     <ClInclude Include="src\miniGameWorldDataHelper.h" />
     <ClInclude Include="src\movementFalling.h" />
     <ClInclude Include="src\gameInstanceHelper.h" />
@@ -84,6 +86,7 @@
     <ClInclude Include="src\textBoxHelperClass.h" />
     <ClInclude Include="src\textBoxPresets.h" />
     <ClInclude Include="src\tileCoordsHelper.h" />
+    <ClInclude Include="src\tileCoordsHelperClass.h" />
     <ClInclude Include="src\tileHelper.h" />
     <ClInclude Include="src\tileHelperClass.h" />
     <ClInclude Include="src\tilePresets.h" />
@@ -93,6 +96,7 @@
     <ClInclude Include="src\worldHelperClass.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\animationhelper.cpp" />
     <ClCompile Include="src\collectibleHelper.cpp" />
     <ClCompile Include="src\collectiblePreset.cpp" />
     <ClCompile Include="src\collisionHelper.cpp" />
@@ -110,7 +114,6 @@
     <ClCompile Include="src\entityQuadTree.cpp" />
     <ClCompile Include="src\gameInstanceHelper.cpp" />
     <ClCompile Include="src\gameStateHelper.cpp" />
-    <ClCompile Include="src\gameStateHelperClass.cpp" />
     <ClCompile Include="src\gridHelper.cpp" />
     <ClCompile Include="src\helperClass.cpp" />
     <ClCompile Include="src\hitboxHelper.cpp" />
@@ -125,6 +128,7 @@
     <ClCompile Include="src\menuHelperClass.cpp" />
     <ClCompile Include="src\miniGameLevelHelper.cpp" />
     <ClCompile Include="src\miniGameStateHelper.cpp" />
+    <ClCompile Include="src\miniGameStateHelperClass.cpp" />
     <ClCompile Include="src\miniGameWorldDataHelper.cpp" />
     <ClCompile Include="src\movementFalling.cpp" />
     <ClCompile Include="src\movementFly.cpp" />
@@ -148,6 +152,7 @@
     <ClCompile Include="src\textBoxHelperClass.cpp" />
     <ClCompile Include="src\textBoxPresets.cpp" />
     <ClCompile Include="src\tileCoordsHelper.cpp" />
+    <ClCompile Include="src\tileCoordsHelperClass.cpp" />
     <ClCompile Include="src\tileHelper.cpp" />
     <ClCompile Include="src\tileHelperClass.cpp" />
     <ClCompile Include="src\tilePresets.cpp" />

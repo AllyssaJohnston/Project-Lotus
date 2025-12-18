@@ -61,6 +61,15 @@ enum EKeyboardInput
 	EKeyboardInput_MAX
 };
 
+struct KeyData
+{
+	int mKey = -1;
+	int mRepeat = -1;
+
+	KeyData() { ; }
+	KeyData(int key, int repeat);
+};
+
 const static int numEventsToGrab = 20;
 
 static const std::map<const SDL_Keycode, const EKeyboardInput> SDLKToKeyboardMap =
@@ -125,12 +134,13 @@ enum EDirection
 	EDirection_NONE,
 	EDirection_LEFT_AND_RIGHT,
 	EDirection_UP_AND_DOWN,
+	EDirection_ALL,
 	EDirection_MAX
 };
 
 
 
-//Types of Hitbox Edges
+// Types of Hitbox Edges
 enum EEntityEdgeType
 {
 	EEntityEdgeType_INVALID = -1,
@@ -308,11 +318,11 @@ enum EWorldType
 
 
 
-std::vector<std::string> tokenize(std::string input, std::string delimiter);
+std::vector<std::string> tokenize(const std::string input, const std::string delimiter);
 
-std::vector<std::string> tokenizeByStringLength(std::string input, int lineLength);
+std::vector<std::string> tokenizeByStringLength(const std::string input, int lineLength);
 
-std::string createStringFromKeyboardList(std::vector <EKeyboardInput> list);
+std::string createStringFromKeyboardList(const std::vector<EKeyboardInput>& list);
 
 float degreesToImageRotationDegrees(int startingImageRotation, int degrees);
 
@@ -328,3 +338,5 @@ void addToListIfUnique(std::vector<T*>& list, T* elementToAdd)
 	}
 	list.push_back(elementToAdd);
 }
+
+std::string directionToString(EDirection dir);

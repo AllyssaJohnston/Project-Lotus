@@ -86,28 +86,28 @@ void MenuPage::setCurTextBoxIfValid(int count)
 	}
 }
 
-void MenuPage::setCurTextBox(TextBox * textBox)
+void MenuPage::setCurTextBox(TextBox* pTextBox)
 {
 	if (mpCurTextBox != nullptr)
 	{
 		mpCurTextBox->changeIsHighlighted(false);
 	}
-	mpCurTextBox = textBox;
+	mpCurTextBox = pTextBox;
 	if (mpCurTextBox != nullptr) 
 	{
 		mpCurTextBox->changeIsHighlighted(true);
 	}
 }
 
-void MenuPage::setCurSelectedTextBox(TextBox* textBox)  { mpCurSelectedTextBox = textBox; }
+void MenuPage::setCurSelectedTextBox(TextBox* pTextBox)  { mpCurSelectedTextBox = pTextBox; }
 
 bool MenuPage::curTextBoxChange() { return mpLastFrameCurTextBox != mpCurTextBox; }
 
-TextBox* MenuPage::getCurTextBox() { return mpCurTextBox; }
+TextBox* MenuPage::getCurTextBox() const { return mpCurTextBox; }
 
-TextBox* MenuPage::getCurSelectedTextBox() { return mpCurSelectedTextBox; }
+TextBox* MenuPage::getCurSelectedTextBox() const { return mpCurSelectedTextBox; }
 
-int MenuPage::getCurTextBoxIndex()
+int MenuPage::getCurTextBoxIndex() const
 {
 	for (int count = 0; count < mpAllSelectableTextBoxes.size(); count++)
 	{
@@ -121,7 +121,7 @@ int MenuPage::getCurTextBoxIndex()
 
 std::vector<SDL_Texture*> MenuPage::getCurTextBoxTextures() const { return mpCurTextBox->getTextBoxTexture(); }
 
-std::vector <TextBox*> MenuPage::getAllTextBoxes()
+std::vector <TextBox*> MenuPage::getAllTextBoxes() const
 {
 	std::vector <TextBox*> allTextBoxes;
 	for (TextBox* pTextBox : mpAllSelectableTextBoxes)
@@ -135,7 +135,7 @@ std::vector <TextBox*> MenuPage::getAllTextBoxes()
 	return allTextBoxes;
 }
 
-std::vector <TextBox*> MenuPage::getCurTextBoxes()
+std::vector <TextBox*> MenuPage::getCurTextBoxes() const
 {
 	std::vector <TextBox*> allCurTextBoxes;
 	for (TextBox* pCurTextBox : mpAllSelectableTextBoxes)
@@ -157,7 +157,7 @@ std::vector <TextBox*> MenuPage::getCurTextBoxes()
 	return allCurTextBoxes;
 }
 
-std::vector <UIBlock*> MenuPage::getAllBlocks() 
+std::vector <UIBlock*> MenuPage::getAllBlocks() const
 {
 	std::vector <UIBlock*> list;
 	for (UIBlock* pBlock : mpBlocks) 
@@ -171,20 +171,20 @@ std::vector <UIBlock*> MenuPage::getAllBlocks()
 
 void MenuPage::updateAllTextBoxShowState(MiniGameStateManagerData& data)
 {
-	//update show state for all textboxes
+	// update show state for all textboxes
 	for (TextBox* pCurTextBox : mpAllSelectableTextBoxes)
 	{
-		pCurTextBox->mShow = shouldShowTextBox(pCurTextBox, data);
+		pCurTextBox->mShow = shouldShowTextBox(*pCurTextBox, data);
 	}
 
 	for (TextBox* pCurTextBox : mpAllDisplayOnlyTextBoxes)
 	{
-		pCurTextBox->mShow = shouldShowTextBox(pCurTextBox, data);
+		pCurTextBox->mShow = shouldShowTextBox(*pCurTextBox, data);
 	}
 
 	for (ShapeBox* pShapeBox : mpShapeBoxes)
 	{
-		pShapeBox->mShow = shouldShowTextBox(pShapeBox, data);
+		pShapeBox->mShow = shouldShowTextBox(*pShapeBox, data);
 	}
 }
 
@@ -260,7 +260,7 @@ void MenuManager::preTick()
 	mpCurMenuPage->preTick();
 }
 
-TextBox* MenuManager::returnMouseTextBox(Vect2 gameUnitsMousePos)
+TextBox* MenuManager::returnMouseTextBox(Vect2& gameUnitsMousePos)
 {
 	int  x = int( (gameUnitsMousePos.getX() - 5) / mScreen.mGameScreenToGameLevelChunkRatio);
 	int x2 = int( (gameUnitsMousePos.getX() + 5) / mScreen.mGameScreenToGameLevelChunkRatio);
@@ -310,14 +310,14 @@ void MenuManager::setUpBlocks()
 	}
 }
 
-void MenuManager::setCurMenuPage(MenuPage* newMenuPage)
+void MenuManager::setCurMenuPage(MenuPage* pNewMenuPage)
 {
 	mpCurMenuPage->setCurSelectedTextBox(nullptr);
 	mpCurMenuPage->setCurTextBox(nullptr);
-	mpCurMenuPage = newMenuPage;
+	mpCurMenuPage = pNewMenuPage;
 }
 
-void MenuManager::renderMenus(EGameState curState, bool forceUpdate, std::string curKeys)
+void MenuManager::renderMenus(EGameState curState, bool forceUpdate, std::string& curKeys)
 {
 	getUpdatedMenuBoxes(curState, forceUpdate, curKeys);
 	printBoxes();
@@ -346,24 +346,24 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 	
 	for (TextBox* pCurTextBox : allTextBoxes)
 	{
-		std::string updatedMessage = pCurTextBox->mDataStorage.mMessage;
-		switch (pCurTextBox->mType)
+		std::string updatedMessage = pCurTextBox->mMessage;
+		switch (pCurTextBox->mData.mType)
 		{
 		case ETextBoxType_GAME_STAT_BOX:
-			updatedMessage = updateGameStatBoxCurTextBoxMessage(pCurTextBox, curKeys, mWorldData, mSettingsManager);
+			updatedMessage = updateGameStatBoxCurTextBoxMessage(*pCurTextBox, curKeys, mWorldData, mSettingsManager);
 			break;
 		case ETextBoxType_MINI_GAME_STAT_BOX:
-			updatedMessage = updateMiniGameStatBoxCurTextBoxMessage(pCurTextBox, mMiniGameStateManagerData, mMiniGameWorldData);
+			updatedMessage = updateMiniGameStatBoxCurTextBoxMessage(*pCurTextBox, mMiniGameStateManagerData, mMiniGameWorldData);
 			break;
 		case ETextBoxType_MINI_GAME_PLAYER_BOX:
 		case ETextBoxType_MINI_GAME_CHARACTER_BOX:
-			updatedMessage = updateCharacterStatBoxCurTextBoxMessage(pCurTextBox, mMiniGameStateManagerData, mMiniGameWorldData);
+			updatedMessage = updateCharacterStatBoxCurTextBoxMessage(*pCurTextBox, mMiniGameStateManagerData, mMiniGameWorldData);
 			break;
 		default:
 			break;
 		}
 
-		if ((pCurTextBox->mDataStorage.mMessage != updatedMessage) or (mSettingsManager.mTextIncrease != mSettingsManager.mLastFrameTextIncrease) or !pCurTextBox->mSetUp)
+		if ((pCurTextBox->mMessage != updatedMessage) or (mSettingsManager.mTextIncrease != mSettingsManager.mLastFrameTextIncrease) or !pCurTextBox->mSetUp)
 		{
 			pCurTextBox->updateMessage(pRenderer, mFontSizeChart, updatedMessage);
 			updated = true;
@@ -371,9 +371,9 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 	}
 	for (HealthBox* pHealthBox : mpCurMenuPage->mpHealthBoxes)
 	{
-		std::string updatedMessage = updateHealthStatBoxCurTextBoxMessage(pHealthBox, mMiniGameWorldData);
+		std::string updatedMessage = updateHealthStatBoxCurTextBoxMessage(*pHealthBox, mMiniGameWorldData);
 
-		if ((pHealthBox->mHealthText.mDataStorage.mMessage != updatedMessage) or (mSettingsManager.mTextIncrease != mSettingsManager.mLastFrameTextIncrease) or !pHealthBox->mHealthText.mSetUp)
+		if ((pHealthBox->mHealthText.mMessage != updatedMessage) or (mSettingsManager.mTextIncrease != mSettingsManager.mLastFrameTextIncrease) or !pHealthBox->mHealthText.mSetUp)
 		{
 			float healthRatio = mMiniGameWorldData.mpMiniGameLevels[mMiniGameWorldData.mCurMiniGameLevelNumber]->mCombatManager.mpAllCombatCharacters[pHealthBox->mCombatCharacterIndex]->getHealthRatio();
 			pHealthBox->updateMessage(pRenderer, mFontSizeChart, updatedMessage, healthRatio);
@@ -414,7 +414,7 @@ void MenuManager::printBoxes()
 		SDL_Color curOutlineColor = pCurTextBox->getIsHighlighted() ? pCurTextBox->mHighlightedOutlineColor : pCurTextBox->mOutlineColor;
 		
 		const Hitbox& box = *pCurTextBox->mpCurHitbox;
-		//outline box
+		// outline box
 		if (pCurTextBox->mOutlineWidth != 0 && curOutlineColor.a != 0)
 		{
 			SDL_SetRenderDrawColor(pRenderer, curOutlineColor.r, curOutlineColor.g, curOutlineColor.b, curOutlineColor.a);
@@ -425,7 +425,7 @@ void MenuManager::printBoxes()
 			SDL_RenderFillRect(pRenderer, &rect);
 		}
 
-		//background box
+		// background box
 		if (curTextBoxColor.a != 0)
 		{
 			SDL_SetRenderDrawColor(pRenderer, curTextBoxColor.r, curTextBoxColor.g, curTextBoxColor.b, curTextBoxColor.a);
@@ -436,7 +436,7 @@ void MenuManager::printBoxes()
 			SDL_RenderFillRect(pRenderer, &rect);
 		}
 
-		//text
+		// text
 		for (int i = 0; i < (*(pCurTextBox->mpCurTextures)).size(); i++)
 		{
 			const Hitbox& curLineBox = (*(pCurTextBox->mpCurLineHitboxes))[i];
@@ -448,7 +448,7 @@ void MenuManager::printBoxes()
 		}
 	}
 
-	//image boxes
+	// image boxes
 	for (ImageBox* pCurImageBox : mpCurMenuPage->mpImageBoxes)
 	{
 		if (pCurImageBox->mShow)
@@ -464,7 +464,7 @@ void MenuManager::printBoxes()
 
 	}
 
-	//shape boxes
+	// shape boxes
 	for (ShapeBox* pShapeBox : mpCurMenuPage->mpShapeBoxes)
 	{
 		if (pShapeBox->mShow)
@@ -489,7 +489,7 @@ void MenuManager::printBoxes()
 		}
 	}
 
-	//health boxes
+	// health boxes
 	for (HealthBox* pHealthBox : mpCurMenuPage->mpHealthBoxes)
 	{
 		SDL_SetRenderDrawColor(pRenderer, pHealthBox->mBoundingBox.mColor.r, pHealthBox->mBoundingBox.mColor.g, pHealthBox->mBoundingBox.mColor.b, pHealthBox->mBoundingBox.mColor.a);
@@ -506,7 +506,7 @@ void MenuManager::printBoxes()
 									pHealthBox->mHealthLeftBox.mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
 		SDL_RenderFillRect(pRenderer, &healthRect);
 
-		//text
+		// text
 		for (int i = 0; i < (*(pHealthBox->mHealthText.mpCurTextures)).size(); i++)
 		{
 			const Hitbox& curLineBox = (*(pHealthBox->mHealthText.mpCurLineHitboxes))[i];
@@ -521,8 +521,7 @@ void MenuManager::printBoxes()
 
 bool MenuManager::shouldUpdateTextBoxShowState(EGameState curState, bool forceUpdate)
 {	
-	//Mini Game Option Boxes have a whenToShowList 
-	//bool didGameStateChange = ()
+	// Mini Game Option Boxes have a whenToShowList 
 	bool didMiniGameStateChange = (mMiniGameStateManagerData.mLastFrameStateEnum != mMiniGameStateManagerData.mCurStateEnum);
 	bool isMiniGame             = (curState == EGameState_PLAY_MINI_GAME);
 
@@ -552,7 +551,6 @@ void MenuManager::updateUIElements()
 			pCurImageBox->mShow = pCurLevel->mDoubleJumpAllowed;
 			break;
 		case ETextBoxID_SLASH_UI:
-			
 			pCurImageBox->mShow = pCurLevel->mSlashAllowed;
 			break;
 		default:
@@ -560,7 +558,7 @@ void MenuManager::updateUIElements()
 		}
 	}
 
-	//projectiles
+	// draw available player projectiles
 	if (pCurLevel->mThrowProjectileAllowed)
 	{
 		for (int count = 0; count < mWorldData.mProjectileLimit - mWorldData.getNumPlayerProjectiles(); count++)

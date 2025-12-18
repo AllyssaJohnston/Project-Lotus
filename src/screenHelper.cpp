@@ -40,8 +40,8 @@ void ScreenObject::getBestScreenSize()
 	RECT 	   desktopWindow;
 	const HWND desktopWindowRef = GetDesktopWindow();
 	GetWindowRect(desktopWindowRef, &desktopWindow);
-	mScreenWidth = desktopWindow.right; //1920;// desktopWindow.right;
-	mScreenHeight = desktopWindow.bottom; //1440;// desktopWindow.bottom;
+	mScreenWidth = desktopWindow.right; // 1920;// desktopWindow.right;
+	mScreenHeight = desktopWindow.bottom; // 1440;// desktopWindow.bottom;
 
 	float gameRatio1 = mScreenWidth / 16.0f;
 	float gameWidth1 = (float)mScreenWidth;

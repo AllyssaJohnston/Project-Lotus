@@ -234,6 +234,15 @@
     <ClInclude Include="src\globals.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\miniGameStateHelperClass.h">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tileCoordsHelperClass.h">
+      <Filter>Source Files\MiniGame\Tile</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animationHelper.h">
+      <Filter>Source Files\Structural</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\movementHelper.cpp">
@@ -270,9 +279,6 @@
       <Filter>Source Files\Structural</Filter>
     </ClCompile>
     <ClCompile Include="src\gameStateHelper.cpp">
-      <Filter>Source Files\Structural</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gameStateHelperClass.cpp">
       <Filter>Source Files\Structural</Filter>
     </ClCompile>
     <ClCompile Include="src\helperClass.cpp">
@@ -421,6 +427,15 @@
     </ClCompile>
     <ClCompile Include="src\miniGameStateHelper.cpp">
       <Filter>Source Files\MiniGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\miniGameStateHelperClass.cpp">
+      <Filter>Source Files\MiniGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tileCoordsHelperClass.cpp">
+      <Filter>Source Files\MiniGame\Tile</Filter>
+    </ClCompile>
+    <ClCompile Include="src\animationhelper.cpp">
+      <Filter>Source Files\Structural</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

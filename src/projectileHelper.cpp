@@ -1,40 +1,34 @@
 #include "projectileHelper.h"
 
-Projectile::Projectile(Vect2 positionInput, ProjectilePreset* preset, EDirection curDirection, 
-        std::string hostName) : Entity()
+Projectile::Projectile(const Vect2 positionInput, const ProjectilePreset& preset, EDirection curDirection,
+        std::string hostName) : Entity(), mHostName(hostName)
 {
     setUpBaseStats(preset);
 
-    mAnimationManager.setupAnimationManager(preset->mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
+    mAnimationManager.setupAnimationManager(preset.mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
     mMovementManager.setupMovementManager(positionInput, preset, curDirection);
     mMovementManager.setCurFacingDirection(curDirection);
-    mImageObjectHitbox.setupImageObject("blue.bmp", preset->mWidth, preset->mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
-
-    mpPreset = preset;
-    hostName = mHostName;
-
+    if (DEMO == 0)
+    {
+        mImageObjectHitbox.setupImageObject("blue.bmp", preset.mWidth, preset.mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
+    }
 }
 
-Projectile::Projectile(Vect2 positionInput, Vect2 movementVect, ProjectilePreset* preset, 
-        EDirection curDirectionX, EDirection curDirectionY, std::string hostName) : Entity()
+Projectile::Projectile(const Vect2 positionInput, const Vect2 movementVect, const ProjectilePreset& preset,
+        EDirection curDirectionX, EDirection curDirectionY, std::string hostName) : Entity(), mHostName(hostName)
 {
     setUpBaseStats(preset);
 
-    mAnimationManager.setupAnimationManager(preset->mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
+    mAnimationManager.setupAnimationManager(preset.mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
     mMovementManager.setupMovementManager(positionInput, movementVect, preset, curDirectionX, curDirectionY);
     mMovementManager.setCurFacingDirection(curDirectionX);
-    mImageObjectHitbox.setupImageObject("blue.bmp", preset->mWidth, preset->mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
-
-    mpPreset = preset;
-    mHostName = hostName;
-
+    if (DEMO == 0)
+    {
+        mImageObjectHitbox.setupImageObject("blue.bmp", preset.mWidth, preset.mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
+    }
 }
 
-Projectile::~Projectile()
-{
-    mpPreset = nullptr;
-    Entity::~Entity();
-}
+Projectile::~Projectile() { Entity::~Entity(); }
 
 void Projectile::preTick()
 {
@@ -56,15 +50,10 @@ void Projectile::postTick()
     mMovementManager.setMovementStateToCharacterMode();
 }
 
-void Projectile::updateAnimationManager()
-{
-    mAnimationManager.updateAnimation(mAnimationManager.getCurAnimation()->mAnimationType);
-}
+void Projectile::updateAnimationManager() { mAnimationManager.updateAnimation(mAnimationManager.getCurAnimation()->mAnimationType); }
 
 void Projectile::takeDamage() { died(); }
 
 void Projectile::died() { mAmAlive = false; }
-
-ProjectilePreset* Projectile::getPreset() { return mpPreset; }
 
 std::string Projectile::getHostName() const { return mHostName; }

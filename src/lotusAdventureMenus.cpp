@@ -319,11 +319,17 @@ void createMiniGameMenu(MenuManager& menuManager, ScreenObject& screen,  MiniGam
 	miniGameMenuPage->addBox(new TextBox(MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME, whenToShow), ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, maxWidth,		maxHeight / maxLines,	Edges(0, 10, 0,  0)), font, TextBoxSizeInfo(optionText,		optionText),		white),		false,		attackTilesBlock);
 	characterOptionsDetailsBlock->mpSubBlocks.push_back(attackTilesBlock);
 
+	curX = 20;
+	curY = screen.mGameLevelChunkHeight - 15;
+	BlockAlignElementsVertically* debugStatLine = new BlockAlignElementsVertically(Hitbox(CoordsX1Y1WidthHeight(curX, curY, maxWidth, maxHeight)), ETextBoxPositionAlign_LEFT, EDirection_RIGHT, EDirection_UP, !fill, !fill, Edges(), highlightPanelColor);
+	miniGameMenuPage->addBox(new TextBox(MiniGameStatBoxPreset(EGameStatBoxValueToDisplay_MINI_GAME_DEBUG_LINE), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines, Edges()), font, TextBoxSizeInfo(detailText , detailText), darkPink), false, debugStatLine);
+
 
 	miniGameMenuPage->mpBlocks.push_back(upperRightBlock); //block 1
 	miniGameMenuPage->mpBlocks.push_back(debugHUDBlock); //block 2
 	miniGameMenuPage->mpBlocks.push_back(characterOptionsBlock); //block 3
 	createMiniGameCharacterAttackPanel(menuManager, screen, worldData, styleManager, settingsManager); //block 4
+	miniGameMenuPage->mpBlocks.push_back(debugStatLine); //block 5
 
 	miniGameMenuPage = nullptr;
 	upperRightBlock = nullptr;
@@ -331,6 +337,8 @@ void createMiniGameMenu(MenuManager& menuManager, ScreenObject& screen,  MiniGam
 	characterOptionsBlock = nullptr;
 	characterOptionsHeadingBlock = nullptr;
 	characterOptionsDetailsBlock = nullptr;
+
+	
 }
 
 void createMiniGameCharacterStatsMenu(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, StyleManager& styleManager, SettingsManager& settingsManager)

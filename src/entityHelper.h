@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "imageHelper.h"
+#include "animationHelper.h"
 #include "movementHelper.h"
 
 
@@ -35,6 +36,7 @@ protected:
 
 public:
 	std::string								  mName								= "Invalid";
+	std::string								  mTypeName							= "Invalid";
 	AnimationManager						  mAnimationManager;
 
 	bool								      mIsVisible						= true;
@@ -49,18 +51,17 @@ public:
 	bool									  mRideable							= false;
 	bool									  mHasAttachmentPoint				= false;
 	Vect2									  mAttachmentPoint					= Vect2(0,0);
-	bool									  mSpreadEdges						= false; //to other entities
-	int										  mSpreadEdgesInterval				= false; //for other entities
+	bool									  mSpreadEdges						= false; // to other entities
+	int										  mSpreadEdgesInterval				= false; // for other entities
 	bool									  mImmuneToStatusEffects			= false;
 
 	Entity() {}
 
 	virtual ~Entity();
 
-	void setUpBaseStats(CCharacterPreset* preset);
+	void setUpBaseStats(const EntityPreset& preset);
 
 	virtual void resetStats();
-
 	virtual void resetToCheckpoint();
 
 	virtual void setCheckpointStats();
@@ -69,34 +70,26 @@ public:
 	virtual void updateAnimationManager() {}
 
 	virtual void takeDamage();
-
 	virtual void updateDamage();
-
 	bool takingDamage();
 
 	virtual void died();
-
 	bool getAmAlive() const;
 
 
 	virtual void preTick();
-
 	virtual void tick();
-
 	virtual void postTick();
 
 
 	ImageObject& getImageObjectHitbox();
-
+	
 
 	SDL_Texture* getTexture() const;
-
 	void setTexture(SDL_Texture* texture);
 
 	SDL_Texture* getHitboxTexture() const;
-
 	void setHitboxTexture(SDL_Texture* texture);
-
 
 
 	MovementManager& getMovementManager();
@@ -105,20 +98,16 @@ public:
 
 
 	EEntityType getType() const;
-
 	int getClassType() const;
-
 	int getSubClassType() const;
-
 	EEntityCharacterTypes getCharacterType()  const;
 
-	std::vector <EEntityCharacteristicsTypes> getCurCharacteristics() const;
 
+
+	std::vector <EEntityCharacteristicsTypes> getCurCharacteristics() const;
 	bool hasCharacteristic(EEntityCharacteristicsTypes characteristic) const;
 	
 
-	virtual void setTrapped();
-
-	virtual std::string getHostName() const;
+	virtual void setTrapped() { ; };
 };
 

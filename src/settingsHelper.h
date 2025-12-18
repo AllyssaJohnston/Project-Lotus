@@ -2,9 +2,8 @@
 #include <vector>
 #include "helperClass.h"
 
-class SettingsManager
+struct SettingsManager
 {
-public:
 	std::vector <EKeyboardInput> leftKeys;
 	std::vector <EKeyboardInput> upKeys;
 	std::vector <EKeyboardInput> rightKeys;
@@ -21,7 +20,7 @@ public:
 	int								mTextIncrease				= 0;
 	float							mTextBoxChangeWidthFactor	= 0;
 
-	//DEBUGGING Tools
+	// DEBUGGING Tools
 	bool							mSingleSteppingMode		= false;
 	bool							mFrameStepInputRequest	= false;
 

@@ -1,7 +1,5 @@
 #include "movementFly.h"
 
-#include <iostream>
-
 FlyingState::FlyingState(PositionData& pos, MovementData& movData, AttemptMove& move) : mMovementData(movData) , MovementState(pos, move) {;}
 
 void FlyingState::printState() { std::cout << "FlyingState" << "\n"; }

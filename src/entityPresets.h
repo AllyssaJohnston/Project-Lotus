@@ -1,27 +1,27 @@
 #pragma once
+#include <SDL3/SDL.h>
 #include "helperClass.h"
 #include "hitboxHelper.h"
 #include "movementHelperClass.h"
 #include "imageHelper.h"
-#include <SDL3/SDL.h>
+#include "animationHelper.h"
 
-//TODO reanme to EEntityPreset
-struct CCharacterPreset
+
+struct EntityPreset
 {
-	EEntityClassTypes						  mEntityClassType		    = EEntityClassTypes_ENTITY;
-	EEntitySubClassTypes					  mEntitySubClassType		= EEntitySubClassTypes_NA;
-	EEntityCharacterTypes				      mEntityCharacterType      = EEntityCharacterTypes_C_CHARACTER;
-	std::vector <EEntityCharacteristicsTypes> mEntityCharacteristicTypes;
-	EEntityType								  mEntityType				= EEntityType_INVALID;
-	std::vector <ECharacterModes>			  mCharacterModes;
-	std::vector <ECharacterModes>			  mStages;
+	EEntityClassTypes							mEntityClassType		    = EEntityClassTypes_ENTITY;
+	EEntitySubClassTypes						mEntitySubClassType			= EEntitySubClassTypes_NA;
+	EEntityCharacterTypes						mEntityCharacterType		= EEntityCharacterTypes_C_CHARACTER;
+	std::vector <EEntityCharacteristicsTypes>	mEntityCharacteristicTypes;
+	EEntityType									mEntityType					= EEntityType_INVALID;
+	ECharacterModes								mCharacterMode				= ECharacterModes_INVALID;
+	std::vector <ECharacterModes>				mStages;
 
 	HitboxEdges mHitboxEdges;
 
 	std::vector<EEntityMovements> mMovementCodes	= { EEntityMovements_NONE };
 	EEntityMovementPath mMovementPath				= EEntityMovementPath_NONE;
 	int					mMovementCodeInterval		= 0;
-	int				    mCharacterModeInterval		= 0;
 	
 	int					mMovementEffect				= 0;
 	bool                mUseMovementEffect			= true;
@@ -31,8 +31,6 @@ struct CCharacterPreset
 	EDirection			mCurDirection				= EDirection_NONE;
 	Vect2				mMovementVect2				= Vect2(0, 0);
 	int				    mJumpDistance				= 0;
-	int					mWallJumpDistanceX			= 0;
-	int					mWallJumpDistanceY			= 0;
 
 	int					mWidth						= -1;
 	int					mHeight						= -1;
@@ -54,7 +52,7 @@ struct CCharacterPreset
 	int	 mSpreadEdgesInterval   = 0;
 	bool mImmuneToStatusEffects = false;
 
-	CCharacterPreset(){}
+	EntityPreset(){}
 
-	~CCharacterPreset(){}
+	~EntityPreset(){}
 };

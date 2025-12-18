@@ -1,8 +1,6 @@
 #include "UIBlockHelper.h"
 
 
-//TODO fix starting position center
-
 UIBlock::~UIBlock()
 {
 	for (UIBlock* subBlock : mpSubBlocks)
@@ -19,7 +17,7 @@ UIBlock::~UIBlock()
 
 void UIBlock::updateBlocks()
 {
-	//figure out all block widths and heights
+	// figure out all block widths and heights
 	adjustBlocksWidthHeight();
 
 	int x = 0;
@@ -59,7 +57,7 @@ void UIBlock::updateBlocks()
 
 	mHitbox.setTopLeft(Vect2(x, y));
 
-	//figure out block locations
+	// figure out block locations
 	moveSubBlocks();
 }
 
@@ -87,54 +85,6 @@ void UIBlock::setMaxForBoxes()
 		
 	}
 }
-
-//int UIBlock::calcMaxFontSizeForBlock()
-//{
-//	int maxFontSize = 72; // Max font size is 72
-//
-//	for (UIBox* pCurBox : mpAllBoxes)
-//	{
-//		TextBox* pTextBox = dynamic_cast<TextBox*>(pCurBox);
-//		if (pTextBox && pTextBox->mShow)
-//		{
-//			int textMax = pTextBox->getMaxFontSizeGivenText();
-//			if (textMax != 0) 
-//			{
-//				maxFontSize = std::min(maxFontSize, textMax);
-//			}
-//		}
-//	}
-//
-//	for (UIBlock* pCurBlock : mpSubBlocks)
-//	{
-//		int textMax = pCurBlock->calcMaxFontSizeForBlock();
-//		if (textMax != 0) 
-//		{
-//			maxFontSize = std::min(maxFontSize, textMax);
-//		}
-//	}
-//
-//	return maxFontSize;
-//}
-
-//void UIBlock::setMaxFontSizeForBlock(int maxTextSize)
-//{
-//
-//	for (UIBox* pCurBox : mpAllBoxes)
-//	{
-//		TextBox* pTextBox = dynamic_cast<TextBox*>(pCurBox);
-//		if (pTextBox)
-//		{
-//			pTextBox->setBoxGroupMaxFontSize(maxTextSize);
-//
-//		}
-//	}
-//
-//	for (UIBlock* pCurBlock : mpSubBlocks)
-//	{
-//		pCurBlock->setMaxFontSizeForBlock(maxTextSize);
-//	}
-//}
 
 void UIBlock::setAllTextures(SDL_Renderer* pRenderer)
 {
@@ -211,7 +161,7 @@ int UIBlock::getIndexOfLastCurBox()
 	return -1;
 }
 
-//MASTER / HEAD BLOCK
+// HEAD BLOCK
 BlockAlignElementsVertically::BlockAlignElementsVertically(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection directionH, EDirection directionV,
 		bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name) 
 {
@@ -222,7 +172,7 @@ BlockAlignElementsVertically::BlockAlignElementsVertically(Hitbox hitbox, ETextB
 	mName = name;
 }
 
-//SUB BLOCKS
+// SUB BLOCKS
 BlockAlignElementsVertically::BlockAlignElementsVertically(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlign, 
 		EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name)
 {
@@ -268,7 +218,7 @@ void BlockAlignElementsVertically::adjustBlocksWidthHeight()
 {
 	if (mpSubBlocks.size() > 0)
 	{
-		int maxWidth = mFillWidth ? mMaxWidth : 0; //todo cut after max
+		int maxWidth = mFillWidth ? mMaxWidth : 0; // TODO cut after max
 		int height = 0;
 		for (UIBlock* pCurBlock : mpSubBlocks)
 		{
@@ -285,7 +235,7 @@ void BlockAlignElementsVertically::adjustBlocksWidthHeight()
 
 	else if (mpAllBoxes.size() > 0)
 	{
-		int maxWidth = mFillWidth ? mMaxWidth : 0; //todo cut after max
+		int maxWidth = mFillWidth ? mMaxWidth : 0; // TODO cut after max
 		int height = 0;
 
 		for (UIBox* pCurBox : mpAllBoxes)
@@ -326,7 +276,7 @@ void BlockAlignElementsVertically::moveBoxes()
 {
 	if (mGrowthDirection == EDirection_DOWN or mGrowthDirection == EDirection_UP_AND_DOWN)
 	{
-		//top to bottom
+		// top to bottom
 		int i = getIndexOfFirstCurBox();
 		if (i == -1)
 		{
@@ -334,9 +284,9 @@ void BlockAlignElementsVertically::moveBoxes()
 		}
 		UIBox* pLastTextBox = mpAllBoxes[i];
 
-		//if left aligned, take into account all left margins, ignore right margins
-		//if center aligned, start in the center and THEN push right by the left magin AND push left by the right margain
-		//if right aligned, ignore left margins, take into account the right margins
+		// if left aligned, take into account all left margins, ignore right margins
+		// if center aligned, start in the center and THEN push right by the left magin AND push left by the right margain
+		// if right aligned, ignore left margins, take into account the right margins
 		int leftMargin = (mPositionAlign == ETextBoxPositionAlign_RIGHT) ? 0 : pLastTextBox->mMargins.mLeft;
 		int rightMargin = (mPositionAlign == ETextBoxPositionAlign_LEFT) ? 0 : pLastTextBox->mMargins.mRight;
 		
@@ -371,7 +321,7 @@ void BlockAlignElementsVertically::moveBoxes()
 	}
 	else 
 	{
-		//Bottom to top
+		// Bottom to top
 		int i = getIndexOfLastCurBox();
 		if (i == -1)
 		{
@@ -379,9 +329,9 @@ void BlockAlignElementsVertically::moveBoxes()
 		}
 		UIBox* pLastTextBox = mpAllBoxes[i];
 		
-		//if left aligned, take into account all left margins, ignore right margins
-		//if center aligned, start in the center and THEN push right by the left magin AND push left by the right margain
-		//if right aligned, ignore left margins, take into account the right margins
+		// if left aligned, take into account all left margins, ignore right margins
+		// if center aligned, start in the center and THEN push right by the left magin AND push left by the right margain
+		// if right aligned, ignore left margins, take into account the right margins
 
 		int leftMargin = (mPositionAlign == ETextBoxPositionAlign_RIGHT) ? 0 : pLastTextBox->mMargins.mLeft;
 		int rightMargin = (mPositionAlign == ETextBoxPositionAlign_LEFT) ? 0 : pLastTextBox->mMargins.mRight;
@@ -393,7 +343,7 @@ void BlockAlignElementsVertically::moveBoxes()
 		int changeX = x - pLastTextBox->mpCurHitbox->getTopLeft().getX() + centering;
 		int changeY = y - pLastTextBox->mpCurHitbox->getTopLeft().getY();
 		pLastTextBox->shiftHitbox(Vect2(changeX, changeY));
-		for (int count = i - 1; count > -1; count--) //int count = i  - 1
+		for (int count = i - 1; count > -1; count--) // int count = i  - 1
 		{
 			if (!mpAllBoxes[count]->mShow)
 			{
@@ -424,7 +374,7 @@ void BlockAlignElementsVertically::moveSubBlocks()
 	{
 		if (mGrowthDirection == EDirection_DOWN or mGrowthDirection == EDirection_UP_AND_DOWN)
 		{
-			//top to bottom
+			// top to bottom
 			UIBlock* pLastBlock = mpSubBlocks[0];
 			int x = pLastBlock->mMargins.mLeft + mHitbox.getTopLeft().getX();
 			int y = pLastBlock->mMargins.mTop + mHitbox.getTopLeft().getY();
@@ -442,7 +392,7 @@ void BlockAlignElementsVertically::moveSubBlocks()
 		}
 		else
 		{
-			//bottom to top
+			// bottom to top
 			UIBlock* pLastBlock = mpSubBlocks[mpSubBlocks.size() - 1];
 			int x = pLastBlock->mMargins.mLeft + mHitbox.getTopLeft().getX();
 			int y = -pLastBlock->mMargins.mBottom + mHitbox.getBottomRight().getY() - pLastBlock->mHitbox.getHeight();
@@ -467,7 +417,7 @@ void BlockAlignElementsVertically::moveSubBlocks()
 
 
 
-//MASTER / HEAD BLOCK
+// HEAD BLOCK
 BlockAlignElementsHorizontally::BlockAlignElementsHorizontally(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection directionH, EDirection directionV, 
 		bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name) 
 {
@@ -478,7 +428,7 @@ BlockAlignElementsHorizontally::BlockAlignElementsHorizontally(Hitbox hitbox, ET
 	mName = name;
 }
 
-//SUB BLOCKS
+// SUB BLOCKS
 BlockAlignElementsHorizontally::BlockAlignElementsHorizontally(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlign, 
 		EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name)
 {
@@ -525,7 +475,7 @@ void BlockAlignElementsHorizontally::adjustBlocksWidthHeight()
 {
 	if (mpSubBlocks.size() > 0)
 	{
-		int maxHeight = mFillHeight ? mMaxHeight : 0; //todo cut after max
+		int maxHeight = mFillHeight ? mMaxHeight : 0; // TODO cut after max
 		int width = 0;
 		
 		for (UIBlock* pCurBlock : mpSubBlocks)
@@ -543,7 +493,7 @@ void BlockAlignElementsHorizontally::adjustBlocksWidthHeight()
 
 	else if (mpAllBoxes.size() > 0)
 	{
-		int maxHeight = mFillHeight ? mMaxHeight : 0; //todo cut after max
+		int maxHeight = mFillHeight ? mMaxHeight : 0; // TODO cut after max
 		int width = 0;
 
 		for (UIBox* pCurBox : mpAllBoxes)
@@ -584,7 +534,7 @@ void BlockAlignElementsHorizontally::moveBoxes()
 {
 	if (mGrowthDirection == EDirection_RIGHT or mGrowthDirection == EDirection_LEFT_AND_RIGHT)
 	{
-		//left to right
+		// left to right
 		int i = getIndexOfFirstCurBox();
 		if (i == -1) 
 		{
@@ -618,7 +568,7 @@ void BlockAlignElementsHorizontally::moveBoxes()
 	}
 	else 
 	{
-		//Right to left
+		// Right to left
 		int i = getIndexOfLastCurBox();
 		if (i == -1)
 		{
@@ -658,7 +608,7 @@ void BlockAlignElementsHorizontally::moveSubBlocks()
 	{
 		if (mGrowthDirection == EDirection_RIGHT or mGrowthDirection == EDirection_LEFT_AND_RIGHT)
 		{
-			//left to right
+			// left to right
 			UIBlock* pLastBlock = mpSubBlocks[0];
 			int x = pLastBlock->mMargins.mLeft + mHitbox.getTopLeft().getX();
 			int y = pLastBlock->mMargins.mTop - pLastBlock->mMargins.mBottom + mHitbox.getTopLeft().getY();
@@ -676,7 +626,7 @@ void BlockAlignElementsHorizontally::moveSubBlocks()
 		}
 		else
 		{
-			//right to left
+			// right to left
 			UIBlock* pLastBlock = mpSubBlocks[mpSubBlocks.size() - 1];
 			int x = pLastBlock->mMargins.mLeft + mHitbox.getBottomRight().getX() - pLastBlock->mHitbox.getWidth() - pLastBlock->mMargins.mRight;
 			int y = pLastBlock->mMargins.mTop - pLastBlock->mMargins.mBottom + mHitbox.getTopLeft().getY();
@@ -695,12 +645,12 @@ void BlockAlignElementsHorizontally::moveSubBlocks()
 	}
 	if (mpAllBoxes.size() > 0)
 	{
-		//BOXES
+		// BOXES
 		moveBoxes();
 	}
 }
 
-//MASTER BLOCK
+// MASTER BLOCK
 BlockAlignElementsGrid::BlockAlignElementsGrid(Hitbox hitbox, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit, bool fillWidth, bool fillHeight,
 	Edges margins, SDL_Color backgroundColor, std::string name)
 {
@@ -709,7 +659,7 @@ BlockAlignElementsGrid::BlockAlignElementsGrid(Hitbox hitbox, ETextBoxPositionAl
 	constructBlock(hitbox, positionAlign, limitByRows, limit, fillWidth, fillHeight, margins, backgroundColor);
 }
 
-//MASTER BLOCK
+// MASTER BLOCK
 BlockAlignElementsGrid::BlockAlignElementsGrid(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit, bool fillWidth, bool fillHeight,
 	Edges margins, SDL_Color backgroundColor, std::string name)
 {
@@ -739,13 +689,13 @@ void BlockAlignElementsGrid::constructBlock(Hitbox hitbox, ETextBoxPositionAlign
 	mFillHeight = fillHeight;
 }
 
-//TODO cut after max
+// TODO cut after max
 void BlockAlignElementsGrid::adjustBlocksWidthHeight() 
 {
 	mRowHeights.clear();
 	mColWidths.clear();
 
-	//update num rows
+	// update num rows
 	updateNumRowsCols();
 
 	if (mpSubBlocks.size() > 0)
@@ -873,7 +823,7 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 
 void BlockAlignElementsGrid::moveBoxes() 
 {
-	//left to right
+	// left to right
 	UIBox* pLastTextBox = mpAllBoxes[0];
 
 	int curRow = 0;
@@ -929,7 +879,7 @@ void BlockAlignElementsGrid::moveSubBlocks()
 {
 	if (mpSubBlocks.size() > 0)
 	{
-		//left to right && top to bottom
+		// left to right && top to bottom
 		UIBlock* pLastBlock = mpSubBlocks[0];
 		
 		int curRow = 0;
@@ -970,7 +920,7 @@ void BlockAlignElementsGrid::moveSubBlocks()
 	}
 	if (mpAllBoxes.size() > 0)
 	{
-		//BOXES
+		// BOXES
 		moveBoxes();
 	}
 }

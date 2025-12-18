@@ -1,13 +1,13 @@
 #include "collectiblePresets.h"
 
-CCollectiblePreset::CCollectiblePreset() : CCharacterPreset()
+CCollectiblePreset::CCollectiblePreset() : EntityPreset()
 {
 	mEntityClassType		= EEntityClassTypes_COLLECTIBLE;
 	mEntityCharacterType	= EEntityCharacterTypes_C_ENTITY;
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 
 	mEntityType		= EEntityType_STATIC;
-	mCharacterModes.push_back(ECharacterModes_STATIC);
+	mCharacterMode  = ECharacterModes_STATIC;
 	mMovementCodes  = { EEntityMovements_NONE };
 	mMovementPath	= EEntityMovementPath_NONE;
 
@@ -17,7 +17,6 @@ CCollectiblePreset::CCollectiblePreset() : CCharacterPreset()
 	mHeight = -1;
 
 	mTypeName = "COLLECTIBLE";
-
 }
 
 CKeyPreset::CKeyPreset() : CCollectiblePreset()
@@ -42,7 +41,6 @@ CKeyPreset::CKeyPreset() : CCollectiblePreset()
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, imageOffsetX, imageOffsetY, stationaryFrameRate, stationaryMustFinish));
 
 	mTypeName = "KEY";
-
 }
 
 CSavePointPreset::CSavePointPreset() : CCollectiblePreset()
@@ -108,8 +106,8 @@ CEndOfLevelPreset::CEndOfLevelPreset(int worldType) : CCollectiblePreset()
 
 void CEndOfLevelPreset::setUpAnimationPresets(int worldType)
 {
-	int maxImageWidth  = 130;
-	int maxImageHeight = 130;
+	int maxImageWidth  = 60;
+	int maxImageHeight = 60;
 
 	int imageOffsetX = 0;
 	int imageOffsetY = 10;
@@ -132,7 +130,6 @@ void CEndOfLevelPreset::setUpAnimationPresets(int worldType)
 		break;
 	}
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, imageOffsetX, imageOffsetY, stationaryFrameRate, stationaryMustFinish));
-
 }
 
 
@@ -165,6 +162,7 @@ void CMiniGameLevelPreset::setUpAnimationPresets(int enemyType)
 	switch (enemyType)
 	{
 	case EEntityCharacterTypes_E_RAT:
+	default:
 		mWidth = 80;
 		mHeight = 50;
 		maxImageWidth = 90;
@@ -175,9 +173,6 @@ void CMiniGameLevelPreset::setUpAnimationPresets(int enemyType)
 									"EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost07.bmp",  "EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost08.bmp",
 									"EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost09.bmp",  "EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost10.bmp",
 									"EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost11.bmp",  "EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost12.bmp"};
-		break;
-	default:
-		animationRunFileNames = { "UIElements/enemiesUI.bmp" }; // TODO replace
 		break;
 	}
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_RUN, animationRunFileNames, maxImageWidth, maxImageHeight, imageOffsetX, imageOffsetY, frameRate, mustFinish));

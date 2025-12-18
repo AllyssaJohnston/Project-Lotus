@@ -13,7 +13,13 @@ const SDL_Color StyleManager::teal			= {20,  60,  60,  1};
 const SDL_Color StyleManager::hintBlue      = {221, 255, 253, 1};
 const SDL_Color StyleManager::clear         = {0,   0,   0,   0};
 
-StyleManager::~StyleManager()
+StyleManager::~StyleManager() { fontName = nullptr; }
+
+SDL_Color blendColors(SDL_Color* pColor1, SDL_Color* pColor2, float blendPercent)
 {
-	fontName = nullptr;
+	SDL_Color newColor;
+	newColor.r = Uint8(pColor1->r * (1 - blendPercent)) + Uint8(pColor2->r * blendPercent);
+	newColor.g = Uint8(pColor1->g * (1 - blendPercent)) + Uint8(pColor2->g * blendPercent);
+	newColor.b = Uint8(pColor1->b * (1 - blendPercent)) + Uint8(pColor2->b * blendPercent);
+	return newColor;
 }

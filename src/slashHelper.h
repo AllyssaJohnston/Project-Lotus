@@ -11,21 +11,20 @@
 #define degToRad(angleDegrees) ((float)(angleDegrees) * M_PI / 180.0f)
 #define radToDeg(angleRadians) ((float)(angleRadians) * 180.0f / M_PI)
 
+int getEntityDistance(Entity& entity, const Entity& otherEntity, const Hitbox& slashHitbox, int degrees);
+
 struct EntityDistance
 {
-	Entity* mpEntity = nullptr;
+	Entity& mEntity;
 	int mDistance    = INT_MAX;
 
-	EntityDistance();
+	EntityDistance(Entity& entity, int distance);
 
-	EntityDistance(Entity* pEntity, Entity* otherEntity, Hitbox slashHitbox, int degrees);
-
-	~EntityDistance();
+	~EntityDistance() { ; }
 };
 
 class SlashManager
 {
-	MovementManager& mPlayerMovementManager;
 	int mSpaceFromPlayer = 10;
 public:
 	EDirection mCurSlashDirection		= EDirection_RIGHT;
@@ -37,22 +36,21 @@ public:
 	bool mCurSlash						= false;
 	std::chrono::time_point<std::chrono::steady_clock> mTimeOfLastSlash;
 
-	int mSlashLength = 80;
-	Vect2 mCenterOfRotation = Vect2(0, 0);
-	Hitbox mHitbox = Hitbox(Vect2(0,0), 10, 10);
+	int mSlashLength						= 80;
+	Vect2 mCenterOfRotation					= Vect2(0, 0);
+	Hitbox mHitbox							= Hitbox(Vect2(0,0), 10, 10);
 	AnimationManager mAnimationManager;
 	ImageObject mImageObjectHitbox;
-	SDL_Texture* mHitboxTexture = nullptr; //actual slash hitbox
+	SDL_Texture* mpHitboxTexture			= nullptr; // actual slash hitbox
 	ImageObject mImageObjectImageHitbox;
-	SDL_Texture* mSlashImageHitboxTexture = nullptr; //sword hitbox
-	int mImageRotation = 180;
+	SDL_Texture* mpSlashImageHitboxTexture	= nullptr; // sword hitbox
+	int mImageRotation						= 180;
 
-	SlashManager(MovementManager& playerMovementManager);
+	SlashManager();
 
-	void startSlash();
+	void startSlash(MovementManager& playerMovementManager);
 
-	void updateCurCenterPoint();
+	void updateCurCenterPoint(MovementManager& playerMovementManager);
 
-	void tick();
-
+	void tick(MovementManager& playerMovementManager);
 };

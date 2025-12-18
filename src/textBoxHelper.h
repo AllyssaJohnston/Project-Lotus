@@ -37,21 +37,22 @@ public:
 	UIBox() { ; }
 	virtual ~UIBox();
 
-	virtual void shiftHitbox(Vect2 shiftTopLeft) = 0;
+	virtual void shiftHitbox(const Vect2 shiftTopLeft) = 0;
 };
 
 class TextBox : public UIBox
 {
 public:
-	ETextBoxType          mType					= ETextBoxType_INVALID;
-	ETextBoxFunction      mFunction				= ETextBoxFunction_INVALID;
+	const TextBoxData		mData;
+	ETextBoxFunction		mFunction			= ETextBoxFunction_INVALID;
+	std::string				mMessage			= "invalid";
 
 	Hitbox mStandardHitbox						= Hitbox();
 	Hitbox mHighlightedHitbox					= Hitbox();
 
 	const char* mFontFile;
-	TTF_Font *	mpStandardFont					= nullptr;
-	TTF_Font *	mpHighlightedFont				= nullptr;
+	TTF_Font*	mpStandardFont					= nullptr;
+	TTF_Font*	mpHighlightedFont				= nullptr;
 	int			mStandardFontSize				= -1;
 	int			mHighlightedFontSize			= -1;
 	int			mMaxFontSizeGivenText			= FontSizeChart::mMinFontSize;
@@ -78,16 +79,14 @@ public:
 	SDL_Color mOutlineColor;
 	SDL_Color mHighlightedOutlineColor;
 
-	TextBoxPreset mDataStorage;
-
 	bool mSetUp = false;
 
-	TextBox(TextBoxPreset dataStorage, ETextBoxFunction textBoxFunction, TextBoxPositionInfo positionInfo,
-		const char* fileName, TextBoxSizeInfo sizeInfo, TextBoxColorInfo colorInfo);
+	TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, const TextBoxPositionInfo positionInfo,
+		const char* fileName, const TextBoxSizeInfo sizeInfo, const TextBoxColorInfo colorInfo);
 
 	~TextBox();
 
-	void updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, std::string textMessage);
+	void updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, const std::string textMessage);
 
 	void calcMaxFontSizeGivenText(FontSizeChart& fontSizeChart);
 
@@ -111,13 +110,13 @@ public:
 
 	void updateHitboxes();
 
-	void shiftHitbox(Vect2 shiftTopLeft) override;
+	void shiftHitbox(const Vect2 shiftTopLeft) override;
 
 private:
 	bool mIsHighlighted = false;
 	
 
-	void updateTextLines(std::string text, FontSizeChart& fontSizeChart);
+	void updateTextLines(const std::string text, FontSizeChart& fontSizeChart);
 
 	void updateHitboxesInternal(bool isHighlighted, Hitbox& hitbox, std::vector<Hitbox>& hitboxes);
 
@@ -132,7 +131,7 @@ public:
 	ImageObject				mImageObject;
 	ETextBoxID				mID				= ETextBoxID_INVALID;
 
-	ImageBox(ImageBoxPreset preset, ImageBoxPositionInfo positionInfo, std::string fileName);
+	ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo positionInfo, const std::string fileName);
 
 	~ImageBox() { ; }
 
@@ -146,9 +145,9 @@ public:
 	SDL_Color	   mColor;
 	ShapeBoxPreset mDataStorage;
 
-	ShapeBox(ShapeBoxPreset preset, TextBoxPositionInfo positionInfo, SDL_Color color);
+	ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positionInfo, const SDL_Color color);
 
-	void shiftHitbox(Vect2 shiftTopLeft) override;
+	void shiftHitbox(const Vect2 shiftTopLeft) override;
 };
 
 class HealthBox : public UIBox
@@ -159,12 +158,12 @@ public:
 	TextBox	 mHealthText;
 	int		 mCombatCharacterIndex = -1;
 
-	HealthBox(HealthBoxPreset preset, TextBoxPositionInfo positionInfo, const char* font, int healthSize, SDL_Color healthColor, 
-			SDL_Color backgroundColor, SDL_Color textColor);
+	HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int healthSize, const SDL_Color healthColor, 
+			const SDL_Color backgroundColor, const SDL_Color textColor);
 
-	void shiftHitbox(Vect2 shiftTopLeft) override;
+	void shiftHitbox(const Vect2 shiftTopLeft) override;
 
-	void updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, std::string updatedMessage, float curRatio);
+	void updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, const std::string updatedMessage, float curRatio);
 
 private:
 	int mMaxWidth;

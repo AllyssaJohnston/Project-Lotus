@@ -38,14 +38,14 @@ Tile* Grid::getTileFromCoords(int mouseX, int mouseY) const
 void Grid::createGrid()
 {
     int curY = mStartY;
-    int curX;
+    int curX = 0;
     RegularTilePreset preset = RegularTilePreset();
     for (int row = 0; row < mNumRows; row++)
     {
         curX = mStartX;
         for (int col = 0; col < mNumCols; col++)
         {
-            mpTiles.push_back(new Tile(createTileName(row, col), row, col, CoordsX1Y1WidthHeight(curX, curY, mTileWidth, mTileHeight), &preset));
+            mpTiles.push_back(new Tile(createTileName(row, col), row, col, CoordsX1Y1WidthHeight(curX, curY, mTileWidth, mTileHeight), preset));
             curX += mTileWidth + mSpacing;
         }
         curY += mTileHeight + mSpacing;
@@ -75,11 +75,20 @@ bool Grid::isLegalCoords(int row, int col) const { return (row >= 0 and row < mN
 
 void Grid::printGrid(SDL_Renderer* pRenderer, float gameScreenToGameLevelChunkRatio) const
 {
-    for (Tile* curTile : mpTiles)
+    for (Tile* pCurTile : mpTiles)
     {
-        SDL_Color& curColor = curTile->mCurColor;
-        SDL_FRect curTileRect {float(curTile->mCoords.mX1 * gameScreenToGameLevelChunkRatio), float(curTile->mCoords.mY1 * gameScreenToGameLevelChunkRatio), float(curTile->mCoords.mWidth * gameScreenToGameLevelChunkRatio), float(curTile->mCoords.mHeight * gameScreenToGameLevelChunkRatio)};
+        SDL_Color& curColor = pCurTile->mCurColor;
+        SDL_FRect curTileRect {float(pCurTile->mCoords.mX1) * gameScreenToGameLevelChunkRatio, float(pCurTile->mCoords.mY1) * gameScreenToGameLevelChunkRatio, float(pCurTile->mCoords.mWidth) * gameScreenToGameLevelChunkRatio, float(pCurTile->mCoords.mHeight) * gameScreenToGameLevelChunkRatio};
         SDL_SetRenderDrawColor(pRenderer, curColor.r, curColor.g, curColor.b, curColor.a);
         SDL_RenderFillRect(pRenderer, &curTileRect);
     }
+}
+
+Tile* findTile(const Grid& grid, const TileCoords& tileCoords)
+{
+    if (grid.isLegalCoords(tileCoords.mRow, tileCoords.mCol))
+    {
+        return grid.mpTiles[grid.getIndex(tileCoords.mRow, tileCoords.mCol)];
+    }
+    return nullptr;
 }

@@ -1,18 +1,21 @@
 #include "combatCharacterHelper.h"
 
-CombatCharacter::CombatCharacter(std::string name, Tile* pCurTile, CombatCharacterPreset* preset)
+CombatCharacter::CombatCharacter(const std::string name, Tile* pCurTile, const CombatCharacterPreset& preset) : mCombatMovementManager(CombatMovementManager(pCurTile, preset))
 {
     mName = name;
-    mType = preset->mType;
-    mCombatMovementManager = CombatMovementManager(pCurTile, preset);
+    mType = preset.mType;
 
-    mCurAttackDamage    = preset->mAttackDamage;
-    mCurHealthCapacity  = preset->mHealthCapacity;
-    mCurHealth          = preset->mHealthCapacity;
 
-    mCurDefenseCapacity = preset->mDefenseCapacity;
+    mCurAttackDamage    = preset.mAttackDamage;
+    mCurHealthCapacity  = preset.mHealthCapacity;
+    mCurHealth          = preset.mHealthCapacity;
 
-    mIconFileName = preset->mIconFileName;
+    mCurDefenseCapacity = preset.mDefenseCapacity;
+
+    mModelFileName = preset.mModelFileName;
+    mIconFileName = preset.mIconFileName;
+
+    mModel.setupImageObject(mModelFileName, preset.mMaxWidth, preset.mMaxHeight, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
 }
 
 void CombatCharacter::preTick()
@@ -21,6 +24,7 @@ void CombatCharacter::preTick()
     {
         mCombatMovementManager.preTick();
     }
+    mTurnsToPass = std::max(0, mTurnsToPass -1);
 }
 
 void CombatCharacter::resetStats()
@@ -34,68 +38,24 @@ void CombatCharacter::resetStats()
 
 void CombatCharacter::takeDamage(int damageToTake)
 {
-    int defenseChange = 0;
-
-    if (mCurDefense - damageToTake >= 0)
-    {
-        //Will have leftover defense
-        defenseChange = damageToTake;
-    }
-    else
-    {
-        defenseChange = mCurDefense;
-    }
+    // take away defense, then health if needed.
+    // don't let defense go below 0
+    int defenseChange = (mCurDefense - damageToTake >= 0) ? damageToTake : mCurDefense;
     mCurDefense -= defenseChange;
 
-    int healthChange  = damageToTake - defenseChange;
-    mCurHealth -= healthChange;
-
-    mTurnsToPass = 0;
-
-    bool statusChange = false;
+    mCurHealth -= damageToTake - defenseChange;
+    
     updateAmAlive();
-    if (mAmAlive == false)
-    {
-        statusChange = true;
-    }
-
-    //create AttackCharacterChanges
 }
 
-void CombatCharacter::updateAmAlive()
-{
-    if (mCurHealth <= 0)
-    {
-        mAmAlive = false;
-        return;
-    }
-    mAmAlive = true;
-}
+void CombatCharacter::updateAmAlive() { mAmAlive = mCurHealth > 0; }
 
-int CombatCharacter::defend()
-{
-    int defenseChange = mCurDefenseCapacity - mCurDefense;
-    mCurDefense += defenseChange;
-    return defenseChange;
-}
+// defend up to max defense
+void CombatCharacter::defend() { mCurDefense = mCurDefenseCapacity; }
 
-int CombatCharacter::stun()
-{
-    int turnsToPassChange = 1 - mTurnsToPass;
-    mTurnsToPass          = 1;
-    return turnsToPassChange;
-}
+void CombatCharacter::stun(int numTurnsStunned) { mTurnsToPass += numTurnsStunned; }
 
 void CombatCharacter::move(Tile* pTileInput) { mCombatMovementManager.setCurTile(pTileInput); }
-
-void CombatCharacter::postRound()
-{
-    mTurnsToPass -= 1;
-    if (mTurnsToPass < 0)
-    {
-        mTurnsToPass = 0;
-    }
-}
 
 bool CombatCharacter::returnIsLowLife() const { return ((mCurHealth / mCurHealthCapacity) * 100 <= 10); }
 

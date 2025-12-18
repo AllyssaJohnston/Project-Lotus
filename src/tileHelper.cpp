@@ -1,43 +1,36 @@
 #include "tileHelper.h"
 
-Tile::Tile(std::string name, int row, int col, CoordsX1Y1WidthHeight coords, TilePreset* preset)
-{
-    mName    = name;
-    mType    = preset->mType;
-    mRow     = row;
-    mCol     = col;
-    mCoords  = coords;
-    mpPreset = preset;
-    mRegularColor = preset->mRegularColor;
-    mCurColor     = preset->mRegularColor;
-}
+Tile::Tile(const std::string name, int row, int col, const CoordsX1Y1WidthHeight coords, const TilePreset& preset)
+    : mName(name), mType(preset.mType), mRow(row), mCol(col), mCoords(coords),
+    mRegularColor(preset.mRegularColor), mCurColor(preset.mRegularColor) { ; }
 
 void Tile::preTick()
 {
     mLastFrameMode = mCurMode;
 }
 
-void Tile::setMode(EMiniGameCombatTileMode newMode)
+void Tile::setMode(EMiniGameCombatTileMode newMode) { mCurMode = newMode; }
+
+EMiniGameCombatTileMode Tile::getLastFrameMode() const { return mLastFrameMode; }
+
+EMiniGameCombatTileMode Tile::getMode() const { return mCurMode; }
+
+void Tile::setType(const TilePreset& preset)
 {
-    mCurMode = newMode;
+    mRegularColor = preset.mRegularColor;
+    mCurColor = preset.mRegularColor;
+    mType = preset.mType;
 }
 
-EMiniGameCombatTileMode Tile::getLastFrameMode() const
+void Tile::setType(EMiniGameCombatTileType type, const SDL_Color& regularColor) 
 {
-    return mLastFrameMode;
+    mRegularColor = regularColor;
+    mCurColor = regularColor;
+    mType = type;
 }
 
-EMiniGameCombatTileMode Tile::getMode() const
-{
-    return mCurMode;
-}
+EMiniGameCombatTileType Tile::getType() const { return mType; }
 
-void Tile::setCurColor(SDL_Color* newColor)
-{
-    mCurColor = *newColor;
-}
+void Tile::setCurColor(const SDL_Color& newColor) { mCurColor = newColor; }
 
-void Tile::resetCurColor()
-{
-    mCurColor = mRegularColor;
-}
+void Tile::resetCurColor() { mCurColor = mRegularColor; }

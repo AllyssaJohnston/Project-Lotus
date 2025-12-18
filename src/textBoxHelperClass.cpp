@@ -1,6 +1,11 @@
 #include "textBoxHelperClass.h"
 
 
+TextBoxData::TextBoxData(EGameStatBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay,
+	int attackNum, ETextBoxType type, std::vector <EMiniGameState>& miniGameStateWhenToShowList) : mGameStatToDisplay(gameStatToDisplay), mCombatCharacterIndex(combatCharacterIndex), 
+	mShowDuringAllCharacters(showDuringAllCharacters), mCharacterStatToDisplay(characterStatToDisplay), mAttackNum(attackNum), mType(type), mMiniGameStateWhenToShowList(miniGameStateWhenToShowList) { ; }
+
+
 TextBoxPositionInfo::TextBoxPositionInfo(Vect2 position, ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight, Edges margins)
 	: mPosition(position), mPositionAlign(positionAlign), mTextAlign(textAlign), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins) { ; }
 

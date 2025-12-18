@@ -1,6 +1,7 @@
 .vs
 LotusAdventureC
 x64
+bin
 
 ArtFiles/AirEnemies
 ArtFiles/Collectibles/endOfLevelFire.bmp
@@ -8,8 +9,14 @@ ArtFiles/Collectibles/endOfLevelWater.bmp
 ArtFiles/Collectibles/endOfLevelAir.bmp
 ArtFiles/FireEnemies
 ArtFiles/FireWorld
+ArtFiles/blue.bmp
 ArtFiles/gradient.bmp
 ArtFiles/pink.bmp
+ArtFiles/MiniGameModels/Fire
+ArtFiles/MiniGameUI/Air
+ArtFiles/MiniGameUI/Dark
+ArtFiles/MiniGameUI/Fire
+ArtFiles/MiniGameUI/Water
 ArtFiles/Platforms/platformArmoredCrate.bmp
 ArtFiles/Platforms/platformCrumbling*
 ArtFiles/Platforms/platformElectric*

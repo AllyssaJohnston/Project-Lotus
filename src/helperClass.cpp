@@ -1,18 +1,18 @@
 #include "helperClass.h"
 
-std::vector<std::string> tokenize(std::string input, std::string delimiter)
+std::vector<std::string> tokenize(const std::string input, const std::string delimiter)
 {
 	std::vector<std::string> tokens;
 	int start = 0;
 	int end   = 0;
-	while (start < input.size())
+	while (start < (int)input.size())
 	{
-		int end = input.find(delimiter, start);
+		int end = (int)input.find(delimiter, start);
 		std::string token = "";
 		if (end == -1)
 		{
 			token = input.substr(start);
-			start = input.size();
+			start = (int)input.size();
 		}
 		else
 		{
@@ -24,7 +24,7 @@ std::vector<std::string> tokenize(std::string input, std::string delimiter)
 	return tokens;
 }
 
-std::vector<std::string> tokenizeByStringLength(std::string input, int lineLength)
+std::vector<std::string> tokenizeByStringLength(const std::string input, int lineLength)
 {
 	std::vector<std::string> tokens = tokenize(input, " ");
 	std::string curLine = "";
@@ -33,7 +33,7 @@ std::vector<std::string> tokenizeByStringLength(std::string input, int lineLengt
 	{
 		if (0 == i and (tokens[0].length() > lineLength))
 		{
-			SDL_assert(false);  //max width is too small
+			SDL_assert(false);  // max width is too small
 		}
 		else if (curLine.length() + tokens[i].length() + 1 < lineLength)
 		{
@@ -50,7 +50,7 @@ std::vector<std::string> tokenizeByStringLength(std::string input, int lineLengt
 	return lines;
 }
 
-std::string createStringFromKeyboardList(std::vector <EKeyboardInput> list)
+std::string createStringFromKeyboardList(const std::vector <EKeyboardInput>& list)
 {
 	std::string message;
 	for (int count = 0; count < list.size() - 1; count++)
@@ -70,3 +70,29 @@ float degreesToImageRotationDegrees(int startingImageRotation, int degrees)
 	}
 	return (float)updatedDegrees;
 }
+
+
+std::string directionToString(EDirection dir)
+{
+	switch (dir)
+	{
+	case EDirection_LEFT:
+		return "left";
+	case EDirection_LEFT_AND_RIGHT:
+		return "left and right";
+	case EDirection_RIGHT:
+		return "right";
+	case EDirection_UP:
+		return "up";
+	case EDirection_UP_AND_DOWN:
+		return "up and down";
+	case EDirection_DOWN:
+		return "down";
+	case EDirection_NONE:
+		return "none";
+	}
+	return "invalid";
+}
+
+
+KeyData::KeyData(int key, int repeat) : mKey(key), mRepeat(repeat) { ; }

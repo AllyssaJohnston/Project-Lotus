@@ -7,8 +7,6 @@
 
 class Grid
 {
-private:
-    StyleManager        mStyleManager;
 public:
     const int           mNumRows = 16;
     const int           mNumCols = 16;
@@ -36,11 +34,9 @@ public:
 
     void resetAllTilesModes(EMiniGameCombatTileMode tileMode);
 
-    //void addEntityToTile(TileEntity & tileEntity)
-
-    //void removeEntityFromTile(TileEntity & tileEntity)
-
     bool isLegalCoords(int row, int col) const;
 
     void printGrid(SDL_Renderer* pRenderer, float gameScreenToGameLevelChunkRatio) const;
 };
+
+Tile* findTile(const Grid& grid, const TileCoords& tileCoords);

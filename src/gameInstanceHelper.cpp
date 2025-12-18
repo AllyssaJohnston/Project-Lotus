@@ -1,22 +1,11 @@
 #include "gameInstanceHelper.h"
-#include "projectileHelper.h"
-#include "projectilePresets.h"
-#include "platformHelper.h"
-#include "worldHelper.h"
-#include "worldHelperClass.h"
-#include "enemyHelper.h"
-#include "collectibleHelper.h"
-#include "menuHelper.h"
-#include "movementJump.h"
 
 GameInstance::GameInstance()
 {
 	mWorldData.createLevelChunk();
 }
 
-GameInstance::~GameInstance()
-{
-}
+GameInstance::~GameInstance() { }
 
 void GameInstance::preTick() 
 {

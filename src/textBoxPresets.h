@@ -2,20 +2,13 @@
 #include "textBoxHelperClass.h"
 #include "helperClass.h"
 
-//TEXT BOX
+// TEXT BOX
 struct TextBoxPreset
 {
-	EGameStatBoxValueToDisplay		mGameStatToDisplay			= EGameStatBoxValueToDisplay_INVALID;
-	int								mCombatCharacterIndex		= -1;
-	bool							mShowDuringAllCharacters	= false;
-	ECharacterStatBoxValueToDisplay mCharacterStatToDisplay		= ECharacterStatBoxValueToDisplay_INVALID;
-	int								mAttackNum					= -1;
-	ETextBoxType					mType						= ETextBoxType_INVALID;
-	std::vector <EMiniGameState>	mMiniGameStateWhenToShowList;
-	std::string                     mMessage					= "Invalid";
+	TextBoxData mData;
+	std::string mMessage = "Invalid";
 
 	TextBoxPreset() { ; }
-
 };
 
 struct StandardTextBoxPreset : public TextBoxPreset { StandardTextBoxPreset(std::string message); };
@@ -28,7 +21,6 @@ struct MiniGameCharacterBoxPreset : public TextBoxPreset
 	MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList);
 	MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, int attackNum, std::vector <EMiniGameState> miniGameStateWhenToShowList);
 	MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList);
-	
 };
 
 struct MiniGamePlayerBoxPreset : public TextBoxPreset {	 MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList); };
@@ -37,7 +29,7 @@ struct MiniGameBoxPreset : public TextBoxPreset { MiniGameBoxPreset(std::string 
 
 struct GameStatBoxPreset : public TextBoxPreset { GameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay); };
 
-//IMAGE BOXES
+// IMAGE BOXES
 struct ImageBoxPreset
 {
 	bool       mAutoShow = true;
@@ -47,7 +39,7 @@ struct ImageBoxPreset
 struct DontAutoShowImageBoxPreset : public ImageBoxPreset { DontAutoShowImageBoxPreset(ETextBoxID id); };
 
 
-//SHAPE BOXES
+// SHAPE BOXES
 struct ShapeBoxPreset
 {
 	EShapeTypeShowType				mShowType					= EShapeTypeShowType_STANDARD;

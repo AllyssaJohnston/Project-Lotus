@@ -14,8 +14,10 @@
 #include "movementJump.h"
 #include "slashHelper.h"
 
-struct WorldData
+
+class WorldData
 {
+public:
     Player						mPlayer;
     std::vector <World *>       mpWorlds;
 #if DEMO == 0
@@ -26,7 +28,7 @@ struct WorldData
     int                         mCurLevelNumber = 0;
 #endif
     LevelChunk					mCurLevelChunk;
-    std::vector <Projectile *>  mpProjectiles;
+    std::vector <Projectile*>   mpProjectiles;
     int                         mProjectileLimit      = 3;
     const int					mMaxProjectileLimit   = 7;
     int                         mNumLotusCollectibles = 0;
@@ -34,15 +36,22 @@ struct WorldData
     bool                        mGoToNextLevel = false;
     LevelData*                  mpNextLevelData = nullptr;
 
-    WorldData(ScreenObject& screen);
+private:
+    SlashManager&       mSlashManager;
+    CollisionManager&   mCollisionManager;
+
+public:
+
+
+    WorldData(ScreenObject& screen, SlashManager& slashManager, CollisionManager& collisionManager);
 
     ~WorldData();
 
-    void getAllDynamicEntities(std::vector<Entity*>& dynamicEntities, Hitbox hitbox);
+    void getAllDynamicEntities(std::vector<Entity*>& pDynamicEntities, const Hitbox& hitbox);
 
-    void getAllStaticEntities(std::vector<Entity*>& staticEntities, Hitbox hitbox);
+    void getAllStaticEntities(std::vector<Entity*>& pStaticEntities, const Hitbox& hitbox);
 
-    void entityPreTickUpdateMovement(SlashManager& slashManager);
+    void entityPreTickCalcMovement();
 
     void createLevelChunk();
 
@@ -50,61 +59,63 @@ struct WorldData
 
     void updateBackgroundEffects();
 
+// old collision system
 #if COLLISION_SYSTEM == 0
 
-    void updateNonstaticMovement(std::vector<Entity*> nonstaticEntities);
+    void updateNonstaticMovement(std::vector<Entity*>& pNonstaticEntities);
 
-    void entityCollisions(CollisionManager& collisionManager, DamageManager& damageManager, SlashManager& slashManager, KeyboardData& keyboardData);
+    void entityCollisions();
 
-    void updatePlayerCollisions(CollisionManager& collisionManager, DamageManager& damageManager);
+    void updatePlayerCollisions();
 
-    void collideWithWorld(Entity* pCurEntity);
+    void collideWithWorld(Entity& curEntity);
 
-    void collideWithPlatforms(CollisionManager& collisionManager, DamageManager& damageManager, Entity* pCurEntity);
+    void collideWithPlatforms(Entity& curEntity);
 
-    void collideWithNonStaticPlatforms(CollisionManager& collisionManager, DamageManager& damageManager, Entity* pCurEntity);
+    void collideWithNonStaticPlatforms(Entity& curEntity);
 
-    void collideWithEnemies(CollisionManager& collisionManager, DamageManager& damageManager, Entity* pCurEntity);
+    void collideWithEnemies(Entity& curEntity);
 
-    void checkIfOnEdgeOfPlatform(CollisionManager& collisionManager, Enemy* pCurEnemy);
+    void checkIfOnEdgeOfPlatform(Enemy& curEnemy);
 
-    void collectedCollectible(Collectible* curCollectible);
+    void collectedCollectible(Collectible& collectible);
 
+// new collision system
 #elif COLLISION_SYSTEM == 1
-    void entityCollisions(CollisionManager& collisionManager, DamageManager& damageManager, SlashManager& slashManager, KeyboardData& keyboardData);
+    void entityCollisions();
 
-    void collideWithWorld(Entity* curEntity);
+    void collideWithWorld(Entity& curEntity);
 
-    void updateNonstaticCollisions(CollisionManager& collisionManager, DamageManager& damageManager);
+    void updateNonstaticCollisions();
 
-    void runNonstaticCollisions(CollisionManager& collisionManager, DamageManager& damageManager, std::vector<Entity*> pNonstaticEntities, bool& interrupted);
+    void runNonstaticCollisions(std::vector<Entity*>& pNonstaticEntities, bool& interrupted);
 
-    void updateNonstaticMovement(std::vector<Entity*> pEntitiesToMove);
+    void updateNonstaticMovement(std::vector<Entity*>& pEntitiesToMove);
 
-    bool updateNonstaticCollisionEffects(CollisionManager& collisionManager, DamageManager& damageManager, std::vector<Entity*> pNonstaticEntities);
+    bool updateNonstaticCollisionEffects(std::vector<Entity*>& pNonstaticEntities);
 
-    void collideWithPlayer(CollisionManager& collisionManager, DamageManager& damageManager, Collision& curCollision);
+    void collideWithPlayer(Collision& curCollision);
 
-    void collideWithPlatform(CollisionManager& collisionManager, DamageManager& damageManager, Collision& curCollision);
+    void collideWithPlatform(Collision& curCollision);
 
-    void collideWithNonStaticPlatform(CollisionManager& collisionManager, DamageManager& damageManager, Collision& curCollision);
+    void collideWithNonStaticPlatform(Collision& curCollision);
 
-    void collideWithEnemy(CollisionManager& collisionManager, DamageManager& damageManager, Collision& curCollision);
+    void collideWithEnemy(Collision& curCollision);
 
     void collideWithProjectile(Collision& curCollision);
 
-    void slashCollisions(SlashManager& slashManager);
+    void slashCollisions();
 
-    void checkIfOnEdgeOfPlatform(CollisionManager& collisionManager, Collision& curCollision);
+    void checkIfOnEdgeOfPlatform(Collision& curCollision);
 
-    bool collectedCollectible(Collectible* curCollectible);
+    bool collectedCollectible(Collectible& curCollectible);
 #endif
 
     void playerShootProjectile(EEntityMovementPath path);
 
-    void playerSwordSlash(SlashManager& slashManager);
+    void playerSwordSlash();
 
-    void enemyShootProjectile(Enemy* pCurEnemy);
+    void enemyShootProjectile(Enemy& curEnemy);
 
     void entityPostTick();
 
@@ -114,7 +125,7 @@ struct WorldData
 
     void updatePermanentCollectibles();
 
-    void killedCharacter(Entity* pCharacterKilled, bool instantDeath = false);
+    void killedCharacter(Entity& characterKilled, bool instantDeath = false);
 
     void saveInGameStats();
 
@@ -128,27 +139,27 @@ struct WorldData
 
     void setNextLevel(int nextWorldNumber, int nextLevelNumber);
 
-    void renderTexture(SDL_Texture* pHitboxTexture, Hitbox& hitbox, Vect2 imageOffset);
-    void renderTexture(SDL_Texture* pHitboxTexture, Hitbox& hitbox, EImageOffset offsetType, Vect2 imageOffset, EDirection entityFacingDirection, bool rotating, float rotation);
+    void renderTexture(SDL_Texture* pHitboxTexture, const Hitbox& hitbox, const Vect2& imageOffset);
+    void renderTexture(SDL_Texture* pHitboxTexture, const Hitbox& hitbox, EImageOffset offsetType, const Vect2& imageOffset, EDirection entityFacingDirection, bool rotating, float rotation);
 
-    void renderEntityWithHitbox(Entity* pCurEntity);
-    void renderEntityWithHitbox(ImageObject* pCurImageObject, SDL_Texture* pHitboxTexture, EImageOffset offsetType, EDirection entityFacingDirection, Hitbox& entityHitbox, bool rotating, float rotation);
+    void renderEntityWithHitbox(Entity& curEntity);
+    void renderEntityWithHitbox(const ImageObject& curImageObject, SDL_Texture* pHitboxTexture, EImageOffset offsetType, EDirection entityFacingDirection, const Hitbox& entityHitbox, 
+            bool rotating, float rotation);
 
-    void renderEntityViaChunk(Entity* pCurEntity);
-    void renderEntityViaChunk(ImageObject* pCurImageObject, Hitbox& entityHitbox);
+    void renderEntityViaChunk(Entity& curEntity);
+    void renderEntityViaChunk(const ImageObject& curImageObject, const Hitbox& entityHitbox);
 
-    void renderEntityViaSplice(Entity* pCurEntity);
-    void renderEntityViaSplice(AnimationManager& animationManager, Hitbox& entityHitbox);
+    void renderEntityViaSplice(Entity& curEntity);
+    void renderEntityViaSplice(const AnimationManager& animationManager, const Hitbox& entityHitbox);
 
-    void renderEntity(Entity* pCurEntity);
-    void renderEntity(ImageObject* pCurImageObject, EImageOffset offsetType, 
-        EDirection entityFacingDirection, Hitbox& entityHitbox);
-    void renderEntity(ImageObject* pCurImageObject, EImageOffset offsetType, EDirection entityFacingDirection, Hitbox& entityHitbox, bool rotating, float rotation);
+    void renderEntity(Entity& curEntity);
+    void renderEntity(const ImageObject& curImageObject, EImageOffset offsetType, EDirection entityFacingDirection, const Hitbox& entityHitbox);
+    void renderEntity(const ImageObject& curImageObject, EImageOffset offsetType, EDirection entityFacingDirection, const Hitbox& entityHitbox, bool rotating, float rotation);
 
     void renderBackgrounds();
 
     void renderBackgroundEffects();
 
-    void renderCircleGradient(SDL_Color color, Vect2 center, int radius);
+    void renderCircleGradient(const SDL_Color& color, const Vect2& center, int radius);
 
 };

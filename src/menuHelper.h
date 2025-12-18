@@ -23,28 +23,12 @@ enum EMenuPageType
 	EMenuPageType_MAX
 };
 
-/*class EMenusType(Enum):
-    MAIN_MENU                  = 0
-    LEVEL_SELECTION_MENU       = 1
-    SAVE_MENU                  = 2
-    LOAD_MENU                  = 3
-    SHOP_MENU                  = 4
-    SHOP_ITEM_MENU             = 5
-    STATS_MENU                 = 6
-    HANDBOOK_MENU              = 7
-    SETTINGS_MENU              = 8
-    CONTROLS_MENU              = 9
-    GAME_PLAY                  = 10
-    GAME_LOADING_SCREEN        = 11
-    GAME_LOADED_SCREEN         = 12
-    MINI_GAME_MENU             = 13*/
-
 class MenuPage
 {
 private:
-	TextBox *	mpCurSelectedTextBox	= nullptr;
-	TextBox*	mpLastFrameCurTextBox	= nullptr;
-	TextBox *	mpCurTextBox			= nullptr;
+	TextBox* mpCurSelectedTextBox	= nullptr;
+	TextBox* mpLastFrameCurTextBox	= nullptr;
+	TextBox* mpCurTextBox			= nullptr;
 public:
 	std::vector <TextBox*>		mpAllSelectableTextBoxes;
 	std::vector <TextBox*>		mpAllDisplayOnlyTextBoxes;
@@ -66,25 +50,25 @@ public:
 
 	void setCurTextBoxIfValid(int count);
 
-	void setCurTextBox(TextBox * textBox);
+	void setCurTextBox(TextBox* pTextBox);
 
-	void setCurSelectedTextBox(TextBox* textBox);
+	void setCurSelectedTextBox(TextBox* pTextBox);
 
-	TextBox* getCurTextBox();
+	TextBox* getCurTextBox() const;
 
-	TextBox* getCurSelectedTextBox();
+	TextBox* getCurSelectedTextBox() const;
 
 	bool curTextBoxChange();
 
-	int getCurTextBoxIndex();
+	int getCurTextBoxIndex() const;
 
 	std::vector<SDL_Texture*> getCurTextBoxTextures() const;
 
-	std::vector <TextBox*> getAllTextBoxes();
+	std::vector <TextBox*> getAllTextBoxes() const;
 
-	std::vector <TextBox*> getCurTextBoxes();
+	std::vector <TextBox*> getCurTextBoxes() const;
 
-	std::vector <UIBlock*> getAllBlocks();
+	std::vector <UIBlock*> getAllBlocks() const;
 
 	void updateAllTextBoxShowState(MiniGameStateManagerData& data);
 
@@ -99,8 +83,8 @@ class MenuManager
 {
 public:
 	std::vector <MenuPage*> mpMenuPages;
-	MenuPage * mpCurMenuPage		= nullptr;
-	MenuPage * mpLastFrameMenuPage	= nullptr;
+	MenuPage* mpCurMenuPage		= nullptr;
+	MenuPage* mpLastFrameMenuPage	= nullptr;
 	
 	MenuManager(ScreenObject& screen, WorldData& worldData, SettingsManager& settingsManager, FontSizeChart& fontSizeChart, MiniGameStateManagerData& miniGameStateManagerData, 
 			MiniGameWorldData& miniWorldData);
@@ -109,15 +93,15 @@ public:
 
 	void preTick();
 
-	TextBox* returnMouseTextBox(Vect2 gameUnitsMousePos);
+	TextBox* returnMouseTextBox(Vect2& gameUnitsMousePos);
 
 	void setAllTextBoxTextures();
 
 	void setUpBlocks();
 
-	void setCurMenuPage(MenuPage* newMenuPage);
+	void setCurMenuPage(MenuPage* pNewMenuPage);
 
-	void renderMenus(EGameState curState, bool forceUpdate, std::string curKeys);
+	void renderMenus(EGameState curState, bool forceUpdate, std::string& curKeys);
 
 	bool shouldUpdateTextBoxShowState(EGameState curState, bool forceUpdate);
 
@@ -134,5 +118,4 @@ private:
 	void getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std::string& curKeys);
 
 	void printBoxes();
-
 };

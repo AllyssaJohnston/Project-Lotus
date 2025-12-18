@@ -10,14 +10,14 @@ enum ETextBoxFunction
 {
 	ETextBoxFunction_INVALID = -1,
 	
+	// main game
 	ETextBoxFunction_PLAY_GAME_BOX,
 	ETextBoxFunction_PLAY_MINI_GAME_BOX,
 	ETextBoxFunction_GO_TO_MAIN_MENU_BOX,
 
 	ETextBoxFunction_NO_FUNCTION,
-	//ETextBoxFunction_NON_SELECTABLE,
 
-	//For mini game
+	// For mini game
 	ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX,
 	ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX,
 	ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX,
@@ -36,18 +36,11 @@ enum ETextBoxType
 {
 	ETextBoxType_INVALID = -1,
 	ETextBoxType_TEXT_BOX,
-	//ETextBoxType_LEVEL_BOX = 1
-	//ETextBoxType_STATS_BOX = 2
-	//ETextBoxType_FILE_BOX = 3
-	//ETextBoxType_SHOP_BOX = 4
 	ETextBoxType_GAME_STAT_BOX,
 	ETextBoxType_MINI_GAME_BOX,
 	ETextBoxType_MINI_GAME_STAT_BOX,
 	ETextBoxType_MINI_GAME_CHARACTER_BOX,
 	ETextBoxType_MINI_GAME_PLAYER_BOX,
-	//ETextBoxType_MINI_GAME_OPTION_BOX,
-	//ETextBoxType_CHARACTER_STAT_AND_MINI_GAME_OPTION_BOX,
-	//ETextBoxType_ACTION_LOG_BOX,
 	ETextBoxType_MAX
 };
 
@@ -70,6 +63,7 @@ enum EGameStatBoxValueToDisplay
 	EGameStatBoxValueToDisplay_SLASH_KEY,
 	EGameStatBoxValueToDisplay_TEXT_SIZE_FACTOR,
 	EGameStatBoxValueToDisplay_CUR_KEYBOARD,
+	EGameStatBoxValueToDisplay_MINI_GAME_DEBUG_LINE,
 	EGameStatBoxValueToDisplay_MAX
 };
 
@@ -119,10 +113,26 @@ enum ETextBoxTextAlign
 	ETextBoxTextAlign_MAX
 };
 
+struct TextBoxData 
+{
+	EGameStatBoxValueToDisplay		mGameStatToDisplay = EGameStatBoxValueToDisplay_INVALID;
+	int								mCombatCharacterIndex = -1;
+	bool							mShowDuringAllCharacters = false;
+	ECharacterStatBoxValueToDisplay mCharacterStatToDisplay = ECharacterStatBoxValueToDisplay_INVALID;
+	int								mAttackNum = -1;
+	ETextBoxType					mType = ETextBoxType_INVALID;
+	std::vector <EMiniGameState>	mMiniGameStateWhenToShowList;
+
+	TextBoxData() { ; }
+
+	TextBoxData(EGameStatBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, 
+			int attackNum, ETextBoxType mType, std::vector <EMiniGameState>& miniGameStateWhenToShowList);
+};
+
 struct TextBoxPositionInfo
 {
 	Vect2                 mPosition;
-	ETextBoxPositionAlign mPositionAlign; //only affects x coord
+	ETextBoxPositionAlign mPositionAlign; // only affects x coord
 	ETextBoxTextAlign     mTextAlign;
 
 	int mMaxWidth;
@@ -210,8 +220,8 @@ struct FontSizeChart
 	const static int mMaxFontSize = 150;
 
 	
-	//can't easily make static, since all values would have to be provided at start
-	//font name maps to a map of font sizes paired with actual sizing details
+	// can't easily make static, since all values would have to be provided at start
+	// font name maps to a map of font sizes paired with actual sizing details
 	std::map<const char*, std::map<int, SDL_Point>> mFontChart;
 
 	void createFontChart(const char*, SDL_Renderer* pRenderer);

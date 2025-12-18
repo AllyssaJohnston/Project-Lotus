@@ -4,31 +4,20 @@
 #include "styleHelper.h"
 #include "tileCoordsHelper.h"
 
-class TilePreset
+struct TilePreset
 {
-public:
     EMiniGameCombatTileType mType           = EMiniGameCombatTileType_INVALID;
     SDL_Color               mRegularColor   = SDL_Color();
 
-    
     TilePreset() {}
 };
 
-class RegularTilePreset : public TilePreset
-{
-public:
-    RegularTilePreset();
-};
+struct RegularTilePreset : public TilePreset { RegularTilePreset(); };
 
-class ImpassableTilePreset : public TilePreset
-{
-public:
-    ImpassableTilePreset();
-};
+struct ImpassableTilePreset : public TilePreset { ImpassableTilePreset(); };
 
-class TeleporterTilePreset : public TilePreset
+struct TeleporterTilePreset : public TilePreset
 {
-public:
-    TileCoords * mpTileToMoveTo;
-    TeleporterTilePreset(TileCoords * pTileToMoveTo);
+    TileCoords* mpTileToMoveTo;
+    TeleporterTilePreset(TileCoords* pTileToMoveTo);
 };

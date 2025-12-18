@@ -11,10 +11,9 @@ class Platform : public Entity
 {
 protected:
 	CoordsX1X2Y1Y2		mCoords;
-	PPlatformPreset*	mpPreset	= nullptr;
 	bool				mIsMoveable = false;
 
-	Platform();
+	Platform() { ; } // subclasses are in charge of their own setup
 
 public:
 	bool mPrintViaChunk				= false;
@@ -22,11 +21,11 @@ public:
 	int  mCodeNumber				= -1;
 	EHowToDetermineWidthHeight mHowToDetermineWidthHeight = EHowToDetermineWidthHeight_INVALID;
 
-	Platform(CoordsX1X2Y1Y2 coordsInput, PPlatformPreset* preset);
+	Platform(const CoordsX1X2Y1Y2 coordsInput, const PPlatformPreset& preset);
 
 	~Platform();
 
-	void setUpPlatformBaseStats(CoordsX1X2Y1Y2 coordsInput, PPlatformPreset* preset);
+	void setUpPlatformBaseStats(const CoordsX1X2Y1Y2& coordsInput, const PPlatformPreset& preset);
 
 
 	virtual bool isMoveable() const;
@@ -37,9 +36,6 @@ public:
 	virtual void activate();
 
 	virtual void startCrumble();
-
-
-	PPlatformPreset* getPreset() const;
 
 
 	virtual void setCheckpointStats() override;
@@ -59,7 +55,7 @@ class Crate : public Platform
 {
 public:
 
-	Crate(CoordsX1X2Y1Y2 coordsInput, PCratePreset* preset);
+	Crate(const CoordsX1X2Y1Y2 coordsInput, const PCratePreset& preset);
 
 	~Crate();
 
@@ -80,7 +76,7 @@ private:
 	bool mCheckpointIsCrumbling = false;
 
 public:
-	Crumbling(CoordsX1X2Y1Y2 coordsInput, PCrumblingPreset* preset);
+	Crumbling(const CoordsX1X2Y1Y2 coordsInput, const PCrumblingPreset& preset);
 
 	~Crumbling();
 
@@ -106,12 +102,12 @@ private:
 	int          mFramesSinceUnhidden = 0;
 
 public:
-	Gate(CoordsX1X2Y1Y2 coordsInput, PGatePreset* preset);
-	Gate(CoordsX1X2Y1Y2 coordsInput, PGatePreset* preset, int codeNumber);
+	Gate(const CoordsX1X2Y1Y2 coordsInput, const PGatePreset& preset);
+	Gate(const CoordsX1X2Y1Y2 coordsInput, const PGatePreset& preset, int codeNumber);
 
 	~Gate();
 
-	void setUpGate(CoordsX1X2Y1Y2 coordsInput, PGatePreset* preset);
+	void setUpGate(const CoordsX1X2Y1Y2& coordsInput, const PGatePreset& preset);
 
 	void preTick() override;
 
@@ -133,7 +129,7 @@ private:
 	HitboxEdges  mHiddenHitboxEdges;
 
 public:
-	Target(CoordsX1X2Y1Y2 coordsInput, PTargetPreset* preset);
+	Target(const CoordsX1X2Y1Y2 coordsInput, const PTargetPreset& preset);
 
 	~Target();
 
@@ -153,7 +149,7 @@ private:
 
 public:
 
-	PressurePlate(CoordsX1X2Y1Y2 coordsInput, PPressurePlatePreset* preset, int codeNumber);
+	PressurePlate(const CoordsX1X2Y1Y2 coordsInput, const PPressurePlatePreset& preset, int codeNumber);
 	
 	~PressurePlate();
 
@@ -172,7 +168,7 @@ class MovingPlatform : public Platform
 {
 public:
 	
-	MovingPlatform(CoordsX1X2Y1Y2 coordsInput, PMovingPreset* preset, EEntityMovementPath movementPath);
+	MovingPlatform(const CoordsX1X2Y1Y2 coordsInput, const PMovingPreset& preset, EEntityMovementPath movementPath);
 
 	~MovingPlatform();
 };
@@ -180,16 +176,14 @@ public:
 class AreaEffectPlatform : public Platform
 {
 public:
-	//mMovementManager for actual platform
-	Hitbox		mAreaEffectHitbox; //Hitbox for area effect
+	Hitbox		mAreaEffectHitbox; // Hitbox for area effect only
 	EDirection	mEffectDirection	= EDirection_INVALID;
 	int			mAreaEffectMovement	= -1;
 
-	//mAnimationManager platform animation
-	AnimationManager mAreaEffectAnimationManager; //animation for effect
+	AnimationManager mAreaEffectAnimationManager; // animation for area effect only
 
-	AreaEffectPlatform(CoordsX1X2Y1Y2 hitboxCoords, CoordsX1X2Y1Y2 areaEffectCoords, EDirection effectDirection, 
-			PAreaEffectPlatformPreset* preset);
+	AreaEffectPlatform(const CoordsX1X2Y1Y2 hitboxCoords, const CoordsX1X2Y1Y2 areaEffectCoords, EDirection effectDirection,
+			const PAreaEffectPlatformPreset& preset);
 
 	~AreaEffectPlatform();
 };

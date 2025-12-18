@@ -1,7 +1,5 @@
 #include "movementJump.h"
 
-#include <iostream>
-
 void JumpingData::stopJump()
 {
 	mAmJump					= false;
@@ -9,8 +7,6 @@ void JumpingData::stopJump()
 	mWallJumpDirection		= EDirection_NONE;
 
 	mJumpDistanceLeft		= 0;
-	mWallJumpDistanceXLeft	= 0;
-	mWallJumpDistanceYLeft	= 0;
 }
 
 JumpingState::JumpingState(PositionData& pos, MovementData& movData, JumpingData& jump, AttemptMove& move) : mMovementData(movData), mJumpData(jump), MovementState(pos, move) {;}
@@ -19,13 +15,13 @@ void JumpingState::printState() {	std::cout << "JumpingState" << "\n"; }
 
 void JumpingState::calcMove(bool moveHorizontal)
 {
-	//Update Y
+	// Update Y
 	Vect2 topLeft = mPositionData.mHitbox.getTopLeft();
 	mAttemptMove.mWantToMoveTo = topLeft;
 	mAttemptMove.mWantToMoveTo.changeY(-mMovementData.mCurMovementVect2.getY() * 2);
 	updateJumpDistanceLeft();
 
-	//Update X
+	// Update X
 	if (moveHorizontal)
 	{
 		if (mMovementData.mCurDirection == EDirection_LEFT)
@@ -71,9 +67,7 @@ void JumpingState::startWallJump()
 	landed();
 	mJumpData.mAmJump					= true;
 	mJumpData.mAmWallJump				= true;
-	mJumpData.mJumpDistanceLeft			= mJumpData.mJumpDistance;
-	mJumpData.mWallJumpDistanceXLeft	= mJumpData.mWallJumpDistanceX;
-	mJumpData.mWallJumpDistanceYLeft	= mJumpData.mWallJumpDistanceY;
+	mJumpData.mJumpDistanceLeft			= (int)(mJumpData.mJumpDistance * 1.25f);
 
 	if (mPositionData.mFacing == EDirection_LEFT)
 	{
@@ -88,53 +82,4 @@ void JumpingState::startWallJump()
 		mJumpData.mWallJumpDirection	= EDirection_LEFT;
 		mPositionData.mFacing           = EDirection_LEFT;
 	}
-}
-
-void JumpingState::continueWallJump()
-{
-	if (mJumpData.mAmWallJump)
-	{
-		mPositionData.mHitbox.updateTopLeftY(-mMovementData.mCurMovementVect2.getY() * 2);
-		updateWallJumpDistanceYLeft();
-		
-		if (mJumpData.mWallJumpDistanceYLeft <= 0)
-		{
-			endJump();
-		}
-		if (mJumpData.mWallJumpDirection == EDirection_NONE)
-		{
-			endJump();
-			return;
-		}
-		int multiplier = mJumpData.mWallJumpDirection == EDirection_LEFT ? -1 : 1;
-		int xMovement = mMovementData.mCurMovementVect2.getX();
-		
-		mPositionData.mHitbox.updateTopLeftX(xMovement * multiplier);
-	}
-}
-
-void JumpingState::updateWallJumpDistanceXLeft()
-{
-	mJumpData.mWallJumpDistanceXLeft -= mMovementData.mCurMovementVect2.getX();
-
-	if (mJumpData.mWallJumpDistanceXLeft <= 0)
-	{
-		endJump();
-	}
-}
-
-void JumpingState::updateWallJumpDistanceYLeft()
-{
-	mJumpData.mWallJumpDistanceYLeft -= mMovementData.mCurMovementVect2.getY();
-
-	if (mJumpData.mWallJumpDistanceYLeft <= 0)
-	{
-		endJump();
-	}
-}
-
-bool JumpingState::isMostlyDoneWithWallJump() 
-{ 
-	return mJumpData.mWallJumpDistanceXLeft < mMovementData.mCurMovementVect2.getX() 
-		or mJumpData.mWallJumpDistanceYLeft < mMovementData.mCurMovementVect2.getY();
 }

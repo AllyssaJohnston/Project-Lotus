@@ -4,22 +4,17 @@ CombatManager::~CombatManager()
 {
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        pCharacter = nullptr;
+        delete pCharacter;
     }
-}
-
-void CombatManager::preTick()
-{
-    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
-    {
-        pCharacter->preTick();
-    }
+    mpAllCombatCharacters.clear();
+    mpCurCombatCharacters.clear();
 }
 
 void CombatManager::postTick()
 {
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
+        
         if (pCharacter->mCurHealth <= 0)
         {
             createCurCharacterList();
@@ -28,6 +23,7 @@ void CombatManager::postTick()
 
     }
 }
+
 
 void CombatManager::createCurCharacterList()
 {
@@ -43,64 +39,138 @@ void CombatManager::createCurCharacterList()
 
 std::vector <CombatCharacter*> CombatManager::getCurCharactersThatCanPlay() const
 {
-    std::vector <CombatCharacter*> curCombatCharactersThatCanPlay;
+    std::vector <CombatCharacter*> pCurCombatCharactersThatCanPlay;
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        if (pCharacter->mTurnsToPass == 0)
+        if (pCharacter->mAmAlive && pCharacter->mTurnsToPass == 0)
         {
-            curCombatCharactersThatCanPlay.push_back(pCharacter);
+            pCurCombatCharactersThatCanPlay.push_back(pCharacter);
         }
     }
-    return curCombatCharactersThatCanPlay;
+    return pCurCombatCharactersThatCanPlay;
 }
 
-CombatCharacter* CombatManager::returnNextCharacter(CombatCharacter* pCurCharacter)
+std::vector <CombatCharacter*> CombatManager::getCurAliveCharacters() const
+{
+    std::vector <CombatCharacter*> pCurAliveCombatCharacters;
+    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
+    {
+        if (pCharacter->mAmAlive)
+        {
+            pCurAliveCombatCharacters.push_back(pCharacter);
+        }
+    }
+    return pCurAliveCombatCharacters;
+}
+
+CombatCharacter* CombatManager::returnNextCharacter(CombatCharacter& curCharacter, bool preTick)
 {
     int i = -1;
-    return returnNextCharacter(pCurCharacter, i);
+    return returnNextCharacter(curCharacter, i, preTick);
 }
 
-CombatCharacter* CombatManager::returnNextCharacter(CombatCharacter* pCurCharacter, int& outIndex)
+// out all index is the index of the new character im the all character list
+CombatCharacter* CombatManager::returnNextCharacter(CombatCharacter& curCharacter, int& outAllIndex, bool preTick)
+{
+    CombatCharacter* pNextCharacter = getNextCharacter(curCharacter);
+    if (pNextCharacter == nullptr)
+    {
+        return nullptr;
+    }
+        
+    // figure out the range between the old character and the new
+    int indexOfOldCharInAllChars = 0;
+    for (int count = 0; count < mpAllCombatCharacters.size(); count++)
+    {
+        if (mpAllCombatCharacters[count] == &curCharacter)
+        {
+            indexOfOldCharInAllChars = count;
+        }
+        if (mpAllCombatCharacters[count] == pNextCharacter)
+        {
+            outAllIndex = count;
+        }
+    }
+
+    // pretick characters after the old character up to and including the new one
+    preTickRange(indexOfOldCharInAllChars, outAllIndex, preTick);
+
+    return pNextCharacter;
+}
+
+
+CombatCharacter* CombatManager::getNextCharacter(const CombatCharacter& curCharacter)
 {
     std::vector <CombatCharacter*> curCharactersThatCanPlay = getCurCharactersThatCanPlay();
     if (curCharactersThatCanPlay.size() == 0)
     {
-        SDL_assert(false);
         return nullptr;
+    }
+
+    int indexOfCurCharacter = 0;
+    CombatCharacter* pNextCharacter = nullptr;
+
+    for (int count = 0; count < mpAllCombatCharacters.size(); count++)
+    {
+        if (mpAllCombatCharacters[count] == &curCharacter)
+        {
+            indexOfCurCharacter = count;
+            break;
+        }
+    }
+
+    if (indexOfCurCharacter + 1 >= curCharactersThatCanPlay.size())
+    {
+        return curCharactersThatCanPlay[0];
     }
     else
     {
-        int indexOfCurCharacter = 0;
-        CombatCharacter* pNextCharacter = nullptr;
-
-        for (int count = 0; count < curCharactersThatCanPlay.size(); count++)
-        {
-            if (curCharactersThatCanPlay[count] == pCurCharacter)
-            {
-                indexOfCurCharacter = count;
-            }
-        }
-        if (indexOfCurCharacter + 1 < curCharactersThatCanPlay.size())
-        {
-            pNextCharacter = curCharactersThatCanPlay[indexOfCurCharacter + 1];
-            outIndex = indexOfCurCharacter + 1;
-        }
-        else
-        {
-            pNextCharacter = curCharactersThatCanPlay[0];
-            outIndex = 0;
-        }
-        updateCharacterPostTurn(pCurCharacter, pNextCharacter);
-        return pNextCharacter;
+        return curCharactersThatCanPlay[indexOfCurCharacter + 1];
     }
 }
 
+void CombatManager::preTickRange(int startIndex, int endIndex, bool tickLast)
+{
+    if (!tickLast) 
+    { 
+        endIndex--;  
+    }
 
-int CombatManager::returnCharacterIndex(CombatCharacter* pGivenCharacter) const
+    // pretick characters after the old character up to and including the new one
+    if (startIndex < endIndex)
+    {
+        for (int count = startIndex + 1; count <= endIndex; count++)
+        {
+            if (mpAllCombatCharacters[count]->mAmAlive)
+            {
+                mpAllCombatCharacters[count]->preTick();
+            }
+        }
+    }
+    else
+    {
+        for (int count = endIndex; count < mpAllCombatCharacters.size(); count++)
+        {
+            if (mpAllCombatCharacters[count]->mAmAlive)
+            {
+                mpAllCombatCharacters[count]->preTick();
+            }
+        }
+        for (int count = 0; count < startIndex; count++)
+        {
+            if (mpAllCombatCharacters[count]->mAmAlive)
+            {
+                mpAllCombatCharacters[count]->preTick();
+            }
+        }
+    }
+}
+
+int CombatManager::returnCharacterIndex(const CombatCharacter& givenCharacter) const
 {
     for (int count = 0; count < mpAllCombatCharacters.size(); count++)
     {
-        if (mpAllCombatCharacters[count] == pGivenCharacter)
+        if (mpAllCombatCharacters[count] == &givenCharacter)
         {
             return count;
         }
@@ -108,78 +178,62 @@ int CombatManager::returnCharacterIndex(CombatCharacter* pGivenCharacter) const
     return -1;
 }
 
-void CombatManager::updateAllCharactersPostTurn()
+void CombatManager::tickAllAlive()
 {
-    for(CombatCharacter* pCharacter : mpCurCombatCharacters)
+    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        pCharacter->postRound();
+        if (pCharacter->mAmAlive)
+        {
+            pCharacter->preTick();
+        }
     }
+    createCurCharacterList();
 }
 
-void CombatManager::updateCharacterPostTurn(CombatCharacter* pOldCharacter, CombatCharacter* pNextCharacter)
-{
-    int oldCharacterIndex = std::numeric_limits<int>::max();
-    int nextCharacterIndex = std::numeric_limits<int>::max();
 
-    for (int count = 0; count < mpCurCombatCharacters.size(); count++)
-    {
-        CombatCharacter * pCurCharacter = mpCurCombatCharacters[count];
-        if (pCurCharacter == pOldCharacter)
-        {
-            oldCharacterIndex = count;
-        }
-        if (pCurCharacter == pNextCharacter)
-        {
-            nextCharacterIndex = count;
-        }
-    }
 
-    for (int count = oldCharacterIndex + 1; count < mpCurCombatCharacters.size(); count++)
-    {
-        CombatCharacter * pCurCharacter = mpCurCombatCharacters[count];
-        pCurCharacter->postRound();
-    }
-
-    if (nextCharacterIndex < oldCharacterIndex)
-    {
-        for (int count = 0; count < nextCharacterIndex + 1; count++)
-        {
-            CombatCharacter * pCurCharacter = mpCurCombatCharacters[count];
-            pCurCharacter->postRound();
-        }
-    }
-}
-
-//return attackedCharacterChanges
-void CombatManager::attack(CombatCharacter* pAttackingCharacter, Tile* pGivenTile, const Attack& attack)
+void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile, const Attack& attack)
 {
     for (CombatCharacter* pCurCharacter : mpCurCombatCharacters)
     {
-        if (pCurCharacter != pAttackingCharacter)
+        if (pCurCharacter != &attackingCharacter and (pCurCharacter->mCombatMovementManager.getCurTile()->mRow == givenTile.mRow) 
+                    and  (pCurCharacter->mCombatMovementManager.getCurTile()->mCol == givenTile.mCol))
         {
-            if          ((pCurCharacter->mCombatMovementManager.getCurTile()->mRow == pGivenTile->mRow) 
-                    and  (pCurCharacter->mCombatMovementManager.getCurTile()->mCol == pGivenTile->mCol))
+            int damageToTake = int(attackingCharacter.mCurAttackDamage * attack.mDamagePercent);
+            if (attack.mDamageDistanceDependent)
             {
-                int damageToTake = int(pAttackingCharacter->mCurAttackDamage * attack.mDamagePercent);
-                if (attack.mDamageDistanceDependent)
-                {
-                    Tile* pCurCharacterTile = pCurCharacter->mCombatMovementManager.getCurTile();
-                    Tile* pAttackingCharacterTile = pAttackingCharacter->mCombatMovementManager.getCurTile();
-                    int distance = getDistanceBetweenTiles(pCurCharacterTile, pAttackingCharacterTile);
+                Tile* pCurCharacterTile = pCurCharacter->mCombatMovementManager.getCurTile();
+                Tile* pAttackingCharacterTile = attackingCharacter.mCombatMovementManager.getCurTile();
+                int distance = getDistanceBetweenTiles(*pCurCharacterTile, *pAttackingCharacterTile);
 
-                    damageToTake -= int(.15f * distance);
-                    if (damageToTake < 0)
-                    {
-                        damageToTake = 0;
-                    }
-                }
-                pCurCharacter->takeDamage(damageToTake);
-                //specialEffect(gameInstance, pAttackingCharacter, pCurCharacter, attack.mSpecialEffects);
-                /*if (pCurCharacter->mCurHealth <= 0)
+                damageToTake -= int(.15f * distance);
+                if (damageToTake < 0)
                 {
-                characterDied();
-                }*/
+                    damageToTake = 0;
+                }
             }
+            pCurCharacter->takeDamage(damageToTake);
+            specialEffect(attackingCharacter, *pCurCharacter, givenTile, attack);
+        }
+    }
+}
+
+void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, Tile& givenTile, const Attack& attack)
+{
+    for (const SpecialEffect& specialEffect : attack.mSpecialEffects)
+    {
+        switch (specialEffect.mType)
+        {
+        case EMiniGameCombatSpecialEffectTypes_STUN:
+            attackedCharacter.stun(specialEffect.mAmount);
+            break;
+        case EMiniGameCombatSpecialEffectTypes_LOSE_TURN:
+            // self stun
+            attackingCharacter.stun(specialEffect.mAmount);
+            break;
+        default:
+            SDL_assert(false);
+            break;
         }
     }
 }

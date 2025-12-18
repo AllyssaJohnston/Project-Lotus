@@ -11,75 +11,38 @@ class CombatManager
 public:
     std::vector <CombatCharacter*> mpCurCombatCharacters;
     std::vector <CombatCharacter*> mpAllCombatCharacters;
-    //std::vector <CombatEntity*>    mpObjects;
 
     CombatManager(){}
 
     ~CombatManager();
 
-    void preTick();
     void postTick();
 
     void createCurCharacterList();
 
     std::vector <CombatCharacter*> getCurCharactersThatCanPlay() const;
 
-    CombatCharacter* returnNextCharacter(CombatCharacter* pCurCharacter);
+    std::vector <CombatCharacter*> getCurAliveCharacters() const;
 
-    CombatCharacter* returnNextCharacter(CombatCharacter* pCurCharacter, int& outIndex);
+    CombatCharacter* returnNextCharacter(CombatCharacter& curCharacter, bool preTick = true);
 
-    int returnCharacterIndex(CombatCharacter* pGivenCharacter) const;
+    CombatCharacter* returnNextCharacter(CombatCharacter& curCharacter, int& outIndex, bool preTick = true);
 
-    void updateAllCharactersPostTurn();
+    int returnCharacterIndex(const CombatCharacter& givenCharacter) const;
 
-    void updateCharacterPostTurn(CombatCharacter* pOldCharacter, CombatCharacter* pNextCharacter);
+    void tickAllAlive();
 
-    //return attackedCharacterChanges
-    void attack(CombatCharacter* pAttackingCharacter, Tile* pGivenTile, const Attack & attack);
 
-    //NOTHING IN HERE YET
-    /*void specialEffect(GameInstance& gameInstance, CombatCharacter* pAttackingCharacter, CombatCharacter* pAttackedCharacter, std::vector<SpecialEffect>& pSpecialEffects)
-    {
+    void attack(CombatCharacter& attackingCharacter, Tile& givenTile, const Attack& attack);
 
-    }*/
-
+    void specialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, Tile& givenTile, const Attack& attack);
+    
     GameOverStats getGameOverStats();
 
     void resetStats();
 
-    /*
+private:
+    CombatCharacter* getNextCharacter(const CombatCharacter& curCharacter);
 
-    def specialEffect(self, gameInstance, attackingCharacter, attackedCharacter, specialEffects, curAttackingCharacterChanges, curAttackedCharacterChanges):
-    for count in range(0, len(specialEffects)):
-    curSpecialEffect = specialEffects[count]
-    grid = gameInstance.miniGameLevels[gameInstance.miniGameLevelNumber].grid
-    if   curSpecialEffect.type == EMiniGameCombatSpecialEffectTypes.NONE.value:
-    pass
-    elif curSpecialEffect.type == EMiniGameCombatSpecialEffectTypes.KNOCKBACK.value:
-    directionBetweenCharacters = getDirectionBetweenTiles(attackingCharacter.movementManager.curTile, attackedCharacter.movementManager.curTile)
-    rowMove = 0
-    colMove = 0
-    if   directionBetweenCharacters.rowDirection == EDirection.NEG.value:
-    #CAN CHANGE VALUE OF ROW MOVE
-    rowMove = -1
-    elif directionBetweenCharacters.rowDirection == EDirection.POS.value:
-    rowMove = 1
-    if   directionBetweenCharacters.colDirection == EDirection.NEG.value:
-    colMove = -1
-    elif directionBetweenCharacters.colDirection == EDirection.POS.value:
-    colMove = 1
-    formerTile = attackedCharacter.movementManager.curTile
-    if grid.legalCoords(formerTile.row + rowMove, formerTile.col + colMove):
-    tileToMoveTo = grid.tiles[formerTile.row + rowMove][formerTile.col + colMove]
-    moveChange = calculateMoveChange(attackedCharacter.movementManager.curTile, tileToMoveTo)
-    attackedCharacter.move(evaluateTileTypeAndTakeAction(gameInstance, tileToMoveTo, attackedCharacter))
-    actionTaken = ActionTakenMovePreset(attackedCharacter, moveChange)
-    gameInstance.miniGameStateManager.addActionTaken(ActionTaken(actionTaken))
-    elif curSpecialEffect.type == EMiniGameCombatSpecialEffectTypes.STUN.value:
-    curAttackedCharacterChanges.turnsToPassChange = attackedCharacter.stun()
-    elif curSpecialEffect.type == EMiniGameCombatSpecialEffectTypes.LOSE_TURN.value:
-    curAttackingCharacterChanges.turnsToPassChange = attackingCharacter.stun()
-
-
-    */
+    void preTickRange(int startIndex, int endIndex, bool tickLast);
 };

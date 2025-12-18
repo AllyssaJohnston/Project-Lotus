@@ -1,5 +1,5 @@
 #pragma once
-
+#include <iostream>
 #include "movementHelperClass.h"
 
 class WalkingState : public MovementState

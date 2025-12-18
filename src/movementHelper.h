@@ -9,227 +9,210 @@
 #include <array>
 #include <vector>
 
-const int numMovementStates = 5;
+const int numMovementStates = 6;
 
 class MovementManager 
 {
 private:
 
-		Vect2 mStartPosition;
-		Vect2 mCheckpointPosition;
+	Vect2 mStartPosition;
+	Vect2 mCheckpointPosition;
 
-		std::array<MovementState*, numMovementStates> mMovementStates;
+	std::array<MovementState*, numMovementStates> mMovementStates;
 
-		EMovementStateIndex mCurMovementState			= EMovementStateIndex_STANDING;
-		EMovementStateIndex mLastMovementState          = EMovementStateIndex_STANDING;
+	EMovementStateIndex mCurMovementState			= EMovementStateIndex_STANDING;
+	EMovementStateIndex mLastMovementState          = EMovementStateIndex_STANDING;
 
-		bool				mDebugPrint					= false;
+	bool				mDebugPrint					= false;
 
-		PositionData		mPositionData;
-		MovementData		mMovementData;
-		JumpingData			mJumpingData;
-		AttemptMove         mAttemptMove;
+	PositionData		mPositionData;
+	MovementData		mMovementData;
+	JumpingData			mJumpingData;
+	AttemptMove         mAttemptMove;
 
-		int                 mCurHitboxEdgesInterval     = 0;
-		int                 mCurHitboxEdgesIntervalLeft = 0;
+	int					mMinFramesToAccelerate = 120;
 
-		int	const			mCurVect2Interval			= 5;
-		int					mCurVect2IntervalLeft		= 0;
+	int                 mCurHitboxEdgesInterval     = 0;
+	int                 mCurHitboxEdgesIntervalLeft = 0;
 
-		bool				mCollidedThisFrame			= false;
-		bool			    mSwappedDirThisFrame		= false;
-		bool				mReceivedInputThisFrame		= false;
-		bool				mInputDriven				= false;
+	int	const			mCurVect2Interval			= 5;
+	int					mCurVect2IntervalLeft		= 0;
 
-		int					mFramesInState              = 0;
+	bool				mCollidedThisFrame			= false;
+	bool			    mSwappedDirThisFrame		= false;
+	bool				mReceivedInputThisFrame		= false;
+	bool				mInputDriven				= false;
 
-		bool				mMoveHorizontal				= true;
-		bool				mAutoMove					= false;
-		Vect2				mAutoMoveVect2				= Vect2(0, 0);
+	int					mFramesInState              = 0;
 
-		//helper methods
-		void setUpMovementManagerInternal(Vect2 startPosition, CCharacterPreset* preset);
+	bool				mMoveHorizontal				= true;
+	bool				mAutoMove					= false;
+	Vect2				mAutoMoveVect2				= Vect2(0, 0);
 
-		void updateCharacterModeCountDown();
+	void setUpMovementManagerInternal(const Vect2 startPosition, const EntityPreset& preset);
 
-		void resetCharacterModeCountDown();
+public:
+	bool mHaveStatusEffect = false;
 
-		void updateCurCharacterMode();
+	MovementManager();
 
+	void setupMovementManager(const Vect2 startPosition, const EntityPreset& preset);
 
-		void updateMovementCodeCountDown();
+	void setupMovementManager(const Vect2 startPosition, const EntityPreset& preset, const EDirection curDirection);
 
-		void resetMovementCodeCountDown();
+	void setupMovementManager(const Vect2 startPosition, const EntityPreset& preset, const int widthInput, const int heightInput);
 
-		void updateCurMovementCode();
+	void setupMovementManager(const Vect2 startPosition, const EntityPreset& preset, const EEntityMovementPath path, const EDirection curDirection, const int widthInput, const int heightInput);
 
-	public:
-		bool mHaveStatusEffect = false;
+	void setupMovementManager(const Vect2 startPosition, const Vect2 movementVect, const EntityPreset& preset, const EDirection curDirectionX, const EDirection curDirectionY);
 
-		MovementManager();
-
-		void setupMovementManager(Vect2 startPosition, CCharacterPreset* preset);
-
-		void setupMovementManager(Vect2 startPosition, CCharacterPreset* preset, EDirection curDirection);
-
-		void setupMovementManager(Vect2 startPosition, CCharacterPreset* preset, int widthInput, int heightInput);
-
-		void setupMovementManager(Vect2 startPosition, CCharacterPreset* preset, EEntityMovementPath path, EDirection curDirection, int widthInput, int heightInput);
-
-		void setupMovementManager(Vect2 startPosition, Vect2 movementVect, CCharacterPreset* preset, EDirection curDirectionX, EDirection curDirectionY);
-
-		~MovementManager();
+	~MovementManager() { ; }
 
 
-		void setInputDriven(bool input);
+	void setInputDriven(bool input);
 
 
-		void setMovementState(EMovementStateIndex);
+	void setMovementState(EMovementStateIndex);
 
-		std::array<MovementState*, numMovementStates>& getMovementStates();
+	std::array<MovementState*, numMovementStates> getMovementStates() const;
 
-		EMovementStateIndex getCurMovementState();
+	EMovementStateIndex getCurMovementState() const;
 
-		void setMovementStateToCharacterMode();
-
-
-		void resetStats();
-
-		void resetToCheckpoint();
+	void setMovementStateToCharacterMode();
 
 
-		void preTick();
+	void resetStats();
 
-		void postTick();
+	void resetToCheckpoint();
 
 
-		void calcMovement();
+	void preTick();
 
-		void move();
+	void postTick();
 
-#ifdef COLLISION_SYSTEM == 0
-		void moveToWantToMoveTo(); // for old collision system
+
+	void calcMovement();
+
+	void move();
+
+#if COLLISION_SYSTEM == 0
+	void moveToWantToMoveTo(); // for old collision system
 #endif
 
-		void updateAccelerationY();
+	void updateAccelerationY();
+
+	void push(int changeMovement, EDirection givenDirection);
+		
+		
+	void setCurCharacterMode(ECharacterModes givenCharacterMode);
+
+	void setCurMovementCode(EEntityMovements givenCharacterCode);
 
 
-		//void useGroundEffect();
+	void useInput(std::vector<KeyData>& eventVect, bool useHorizontalInput, bool canWallJump = false);
 
-		void push(int changeMovement, EDirection givenDirection);
+	void collided(EDirection direction);
+
+
+	void setOnGroundFalse();
+
+	void setOnGroundTrue(int curGroundMovementEffect, std::vector<EEntityCharacteristicsTypes> curGroundCharacteristics, EEntityEdgeType curGroundTop);
+
+	bool isOnGround() const;
+
+	int getMovementEffect() const;
 		
 
-		void setCurCharacterMode(ECharacterModes givenCharacterMode);
+	bool inJump() const;
 
-		void changeCharacterModes(std::vector<ECharacterModes> givenCharacterModes);
+	bool inWallJump() const;
 
-		void setCurMovementCode(EEntityMovements givenCharacterCode);
+	void jump(float jumpMultipler);
+
+	bool collideWithBouncy();
+
+	void startWallJump();
+
+	void setMaxJumps(int maxJumps);
 
 
-		void useInput(std::vector<KeyData>& eventVect, bool useHorizontalInput, bool canWallJump = false);
+	void left();
 
-		void collided(EDirection direction);
+	void right();
 
+	int getXChange() const;
 
-		void setOnGroundFalse();
+	int getYChange() const;
 
-		void setOnGroundTrue(int curGroundMovementEffect, std::vector<EEntityCharacteristicsTypes> curGroundCharacteristics, EEntityEdgeType curGroundTop);
+	Vect2 getMovementVect2() const;
 
-		bool isOnGround() const;
+	int getWidth() const;
 
-		int getMovementEffect() const;
+	int getHeight() const;
+
+	Hitbox& getHitbox();
 		
 
-		bool inJump() const;
+	EDirection getCurFacingDirection() const;
 
-		bool inWallJump() const;
+	void setCurFacingDirection(EDirection direction);
 
-		void jump(float jumpMultipler);
+	EDirection getCurDirection() const;
 
-		bool collideWithBouncy();
+	EDirection getCurDirectionY() const;
 
-		void startWallJump();
-
-		void setMaxJumps(int maxJumps);
+	void setCurDirection(EDirection dir);
 
 
-		void left();
-
-		void right();
-
-		int getXChange() const;
-
-		int getYChange() const;
-
-		Vect2 getMovementVect2() const;
-
-		int getWidth() const;
-
-		int getHeight() const;
-
-		Hitbox & getHitbox();
+	EDirection getLastFrameDirection() const;
 		
+	EDirection getLastFrameDirectionY() const;
 
-		EDirection getCurFacingDirection() const;
-
-		void setCurFacingDirection(EDirection direction);
-
-		EDirection getCurDirection() const;
-
-		EDirection getCurDirectionY() const;
-
-		void setCurDirection(EDirection dir);
-
-
-		EDirection getLastFrameDirection() const;
-		
-		EDirection getLastFrameDirectionY() const;
-
-		bool getDidSwitchedDir() const;
+	bool getDidSwitchedDir() const;
 
 
 
-		EEntityMovements getMovementCode() const;
+	EEntityMovements getMovementCode() const;
 
-		EEntityMovementPath getPath() const;
+	EEntityMovementPath getPath() const;
 
-		ECharacterModes getCurMode() const;
+	ECharacterModes getCurMode() const;
 
 
 		
-		HitboxEdges getHitboxEdges() const;
+	HitboxEdges getHitboxEdges() const;
 
-		void setCurHitboxEdges(const HitboxEdges&, int interval);
+	void setCurHitboxEdges(const HitboxEdges&, int interval);
 
-		void permSetHitboxEdges(const HitboxEdges&);
+	void permSetHitboxEdges(const HitboxEdges&);
 
-		void resetCurHitboxEdges();
+	void resetCurHitboxEdges();
 
-		EEntityEdgeType getEdgeType(EBoxSide boxSide) const;
+	EEntityEdgeType getEdgeType(EBoxSide boxSide) const;
 
 		
 
-		void calculateXDirection();
+	void calculateXDirection();
 
-		void calculateYDirection();
-
-
-		void setStartPosition(Vect2 newStartingPosition);
-
-		void setCheckpointPosition();
+	void calculateYDirection();
 
 
+	void setStartPosition(Vect2 newStartingPosition);
 
-		JumpingData& getJumpingData();
-
-		MovementData& getMovementData();
-
-		PositionData& getPositionData();
-
-		AttemptMove& getAttemptMove();
-
-		bool receivedInputThisFrame() const;
+	void setCheckpointPosition();
 
 
-		void setDebugPrint(bool);
+
+	JumpingData& getJumpingData();
+
+	MovementData& getMovementData();
+
+	PositionData& getPositionData();
+
+	AttemptMove& getAttemptMove();
+
+
+	bool getReceivedInputThisFrame() const;
+
+	void setDebugPrint(bool);
 };

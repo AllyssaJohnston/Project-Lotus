@@ -1,10 +1,10 @@
 #pragma once
 #include "entityPresets.h"
 #include "imageHelper.h"
+#include "globals.h"
 
-class CPlayerPreset : public CCharacterPreset
+struct CPlayerPreset : public EntityPreset
 {
-public:
 	int mSwordSlashWidth        = 50;
 	int mSwordSlashHeight       = 30;
 

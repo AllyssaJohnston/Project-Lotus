@@ -8,23 +8,21 @@
 class Tile
 {
 private:
-    TilePreset * mpPreset                   = nullptr;
-    SDL_Color    mRegularColor;
+    SDL_Color               mRegularColor;
     EMiniGameCombatTileMode mLastFrameMode  = EMiniGameCombatTileMode_NOT_SELECTED;
     EMiniGameCombatTileMode mCurMode        = EMiniGameCombatTileMode_NOT_SELECTED;
-
-    //CombatEntity * mCurEntity;
+    EMiniGameCombatTileType mType           = EMiniGameCombatTileType_INVALID;
 
 public:
     std::string             mName;
-    EMiniGameCombatTileType mType   = EMiniGameCombatTileType_INVALID;
+   
     int                     mRow    = -1;
     int                     mCol    = -1;
     CoordsX1Y1WidthHeight   mCoords;
 
     SDL_Color               mCurColor;
 
-    Tile(std::string name, int row, int col, CoordsX1Y1WidthHeight coords, TilePreset* preset);
+    Tile(const std::string name, int row, int col, const CoordsX1Y1WidthHeight coords, const TilePreset& preset);
 
     void preTick();
 
@@ -34,10 +32,12 @@ public:
 
     EMiniGameCombatTileMode getMode() const;
 
-    void setCurColor(SDL_Color* newColor);
+    void setType(const TilePreset& preset);
+    void setType(EMiniGameCombatTileType type, const SDL_Color& regularColor);
+
+    EMiniGameCombatTileType getType() const;
+
+    void setCurColor(const SDL_Color& newColor);
 
     void resetCurColor();
-
-    //void setCurEntity(CombatEntity & newEntity) 
-
 };

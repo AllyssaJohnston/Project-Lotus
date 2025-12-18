@@ -6,24 +6,18 @@
 #include "combatCharacterPresets.h"
 #include "tileCoordsHelper.h"
 
-std::vector <TileCoords> returnTileCoords(Tile* pGivenTile, EMiniGameCombatMoveAttackTypes moveAttackType);
-
 class CombatMovementManager
 {
 private:
-    std::vector <Attack>           mAttacks; //attacks for this character remain the same throughout
-    EMiniGameCombatMoveAttackTypes mMoveType        = EMiniGameCombatMoveAttackTypes_INVALID;
-	//TODO CHANGE NAME
-    std::vector <TileCoords>       mpMoveTileCoords;
+    std::vector <Attack>           mAttacks;
+    EMiniGameCombatMoveAttackTypes mMoveType = EMiniGameCombatMoveAttackTypes_INVALID;
+    std::vector <TileCoords>       mMoveTileCoords;
 
-    Tile * mpStartingTile                           = nullptr;
-    Tile * mpCurTile                                = nullptr;
+    Tile* mpStartingTile    = nullptr;
+    Tile* mpCurTile         = nullptr;
 
 public:
-
-    CombatMovementManager() { }
-
-    CombatMovementManager(Tile* pTile, CombatCharacterPreset* pPreset);
+    CombatMovementManager(Tile* pTile, const CombatCharacterPreset& preset);
 
     ~CombatMovementManager();
 
@@ -33,11 +27,15 @@ public:
 
     void setCurTile(Tile* pTileInput);
 
-    std::vector <TileCoords> getMoveTiles();
+    void setMoveTiles();
 
-    std::vector <Attack> getAttacks() const;
+    std::vector <TileCoords> getMoveTiles() const;
 
-    Tile* getCurTile();
+    bool isTileInMoveRange(const Tile& givenTile) const;
+
+    std::vector <Attack>& getAttacks();
+
+    Tile* getCurTile() const;
 
     EMiniGameCombatMoveAttackTypes getMoveType() const;
 };

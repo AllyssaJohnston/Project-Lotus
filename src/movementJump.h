@@ -1,5 +1,5 @@
 #pragma once
-
+#include <iostream>
 #include "movementHelperClass.h"
 
 class JumpingState : public MovementState
@@ -17,8 +17,4 @@ public:
 	void endJump();
 	void landed();
 	void startWallJump();
-	void continueWallJump();
-	void updateWallJumpDistanceXLeft();
-	void updateWallJumpDistanceYLeft();
-	bool isMostlyDoneWithWallJump();
 };

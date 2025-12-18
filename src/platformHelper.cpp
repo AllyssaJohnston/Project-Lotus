@@ -1,55 +1,45 @@
 #include "platformHelper.h"
 
-Platform::Platform(CoordsX1X2Y1Y2 coordsInput, PPlatformPreset* preset)
+Platform::Platform(const CoordsX1X2Y1Y2 coordsInput, const PPlatformPreset& preset)
 {
 	setUpPlatformBaseStats(coordsInput, preset);
 
-	int width  = coordsInput.getX2() - coordsInput.getX1();
-	int height = coordsInput.getY2() - coordsInput.getY1();
-	mMovementManager.setupMovementManager(Vect2(coordsInput.getX1(), coordsInput.getY1()), preset, width, height);
+	int width  = coordsInput.mX2 - coordsInput.mX1;
+	int height = coordsInput.mY2 - coordsInput.mY1;
+	mMovementManager.setupMovementManager(Vect2(coordsInput.mX1, coordsInput.mY1), preset, width, height);
 	std::vector <AnimationPreset> animationPresets;
 	if (height > width)
 	{
-		animationPresets = preset->mVerticalAnimationPresets;
+		animationPresets = preset.mVerticalAnimationPresets;
 	}
 	else
 	{
-		animationPresets = preset->mHorizontalAnimationPresets;
+		animationPresets = preset.mHorizontalAnimationPresets;
 	}
 
 	if (animationPresets.size() > 0)
 	{
-		mAnimationManager.setupAnimationManager(animationPresets,   width + preset->mExtraWidth, height + preset->mExtraHeight, mHowToDetermineWidthHeight);
+		mAnimationManager.setupAnimationManager(animationPresets,   width + preset.mExtraWidth, height + preset.mExtraHeight, mHowToDetermineWidthHeight);
 	}
 }
 
-Platform::Platform()
-{
-	mpPreset = nullptr;
-}
+Platform::~Platform() { Entity::~Entity(); }
 
-Platform::~Platform()
-{
-	mpPreset = nullptr;
-	Entity::~Entity();
-}
-
-void Platform::setUpPlatformBaseStats(CoordsX1X2Y1Y2 coordsInput, PPlatformPreset* preset)
+void Platform::setUpPlatformBaseStats(const CoordsX1X2Y1Y2& coordsInput, const PPlatformPreset& preset)
 {
 	setUpBaseStats(preset);
 	mAmAlive = true;
-	mMovementEffect   = preset->mMovementEffect;
+	mMovementEffect   = preset.mMovementEffect;
 	mCoords		      = coordsInput;
-	mpPreset	      = preset;
-	mPrintViaChunk    = preset->mPrintViaChunk;
-	mSplice           = preset->mSplice;
-	mHowToDetermineWidthHeight = preset->mHowToDetermineWidthHeight;
+	mPrintViaChunk    = preset.mPrintViaChunk;
+	mSplice           = preset.mSplice;
+	mHowToDetermineWidthHeight = preset.mHowToDetermineWidthHeight;
 
-	if ((false == mPrintViaChunk 	and mHowToDetermineWidthHeight == EHowToDetermineWidthHeight_CHUNK_IMAGES) 	or (true == mPrintViaChunk 	and mHowToDetermineWidthHeight != EHowToDetermineWidthHeight_CHUNK_IMAGES))
+	if ((!mPrintViaChunk 	and mHowToDetermineWidthHeight == EHowToDetermineWidthHeight_CHUNK_IMAGES) 	or (mPrintViaChunk 	and mHowToDetermineWidthHeight != EHowToDetermineWidthHeight_CHUNK_IMAGES))
 	{
 		SDL_assert(false);
 	}
-	if ((false == mSplice 			and mHowToDetermineWidthHeight == EHowToDetermineWidthHeight_SPLICE) 		or (true == mSplice 		and mHowToDetermineWidthHeight != EHowToDetermineWidthHeight_SPLICE))
+	if ((!mSplice 			and mHowToDetermineWidthHeight == EHowToDetermineWidthHeight_SPLICE) 		or (mSplice 		and mHowToDetermineWidthHeight != EHowToDetermineWidthHeight_SPLICE))
 	{
 		SDL_assert(false);
 	}
@@ -64,9 +54,6 @@ void Platform::hide() { ; }
 void Platform::activate() { ; }
 
 void Platform::startCrumble() { ; }
-
-
-PPlatformPreset* Platform::getPreset() const { return mpPreset; }
 
 
 void Platform::setCheckpointStats()
@@ -104,7 +91,8 @@ void Platform::postTick()
 
 void Platform::died() 
 { 
-	if (mEntityType == EEntityType_NON_STATIC) {
+	if (mEntityType == EEntityType_NON_STATIC) 
+	{
 		Entity::died();
 	}
 	else 
@@ -115,20 +103,17 @@ void Platform::died()
 
 
 
-Crate::Crate(CoordsX1X2Y1Y2 coordsInput, PCratePreset* preset) : Platform()
+Crate::Crate(const CoordsX1X2Y1Y2 coordsInput, const PCratePreset& preset) : Platform()
 {
 	setUpPlatformBaseStats(coordsInput, preset);
-	int width = coordsInput.getX2() - coordsInput.getX1();
-	int height = coordsInput.getY2() - coordsInput.getY1();
-	mMovementManager.setupMovementManager(Vect2(coordsInput.getX1(), coordsInput.getY1()), preset, width, height);
-	mAnimationManager.setupAnimationManager(preset->mHorizontalAnimationPresets, width + preset->mExtraWidth, height + preset->mExtraHeight, mHowToDetermineWidthHeight);
+	int width = coordsInput.mX2 - coordsInput.mX1;
+	int height = coordsInput.mY2 - coordsInput.mY1;
+	mMovementManager.setupMovementManager(Vect2(coordsInput.mX1, coordsInput.mY1), preset, width, height);
+	mAnimationManager.setupAnimationManager(preset.mHorizontalAnimationPresets, width + preset.mExtraWidth, height + preset.mExtraHeight, mHowToDetermineWidthHeight);
 	mIsMoveable = true;
 }
 
-Crate::~Crate()
-{
-	Platform::~Platform();
-}
+Crate::~Crate() { Platform::~Platform(); }
 
 void Crate::tick()
 {
@@ -148,11 +133,7 @@ void Crate::tick()
 
 }
 
-void Crate::postTick()
-{
-	//mMovementManager.calculateXDirection();
-	Platform::postTick();
-}
+void Crate::postTick() { Platform::postTick(); }
 
 void Crate::setCheckpointStats()
 {
@@ -164,25 +145,22 @@ void Crate::setCheckpointStats()
 
 
 
-Crumbling::Crumbling(CoordsX1X2Y1Y2 coordsInput, PCrumblingPreset* preset) : Platform()
+Crumbling::Crumbling(const CoordsX1X2Y1Y2 coordsInput, const PCrumblingPreset& preset) : Platform()
 {
 	setUpPlatformBaseStats(coordsInput, preset);
 	mCheckpointIsVisible   = true;
 
-	int width			   = coordsInput.getX2() - coordsInput.getX1();
-	int height		   	   = coordsInput.getY2() - coordsInput.getY1();
-	mMovementManager.setupMovementManager(Vect2(coordsInput.getX1(), coordsInput.getY1()), preset, width, height);
+	int width			   = coordsInput.mX2 - coordsInput.mX1;
+	int height		   	   = coordsInput.mY2 - coordsInput.mY1;
+	mMovementManager.setupMovementManager(Vect2(coordsInput.mX1, coordsInput.mY1), preset, width, height);
 
-	mStartingHitboxEdges   = preset->mHitboxEdges;
-	mHiddenHitboxEdges	   = preset->mHiddenHitboxEdges;
+	mStartingHitboxEdges   = preset.mHitboxEdges;
+	mHiddenHitboxEdges	   = preset.mHiddenHitboxEdges;
 
-	mAnimationManager.setupAnimationManager(preset->mHorizontalAnimationPresets, width + preset->mExtraWidth, height + preset->mExtraHeight, mHowToDetermineWidthHeight);
+	mAnimationManager.setupAnimationManager(preset.mHorizontalAnimationPresets, width + preset.mExtraWidth, height + preset.mExtraHeight, mHowToDetermineWidthHeight);
 }
 
-Crumbling::~Crumbling()
-{
-	Platform::~Platform();
-}
+Crumbling::~Crumbling() { Platform::~Platform(); }
 
 void Crumbling::hide()
 {
@@ -239,33 +217,30 @@ void Crumbling::postTick()
 
 
 
-Gate::Gate(CoordsX1X2Y1Y2 coordsInput, PGatePreset* preset) : Platform()
-{
-	setUpGate(coordsInput, preset);
+Gate::Gate(const CoordsX1X2Y1Y2 coordsInput, const PGatePreset& preset) : Platform()
+{ 
+	setUpGate(coordsInput, preset); 
 }
 
-Gate::Gate(CoordsX1X2Y1Y2 coordsInput, PGatePreset* preset, int codeNumber) : Platform()
+Gate::Gate(const CoordsX1X2Y1Y2 coordsInput, const PGatePreset& preset, int codeNumber) : Platform()
 {
 	setUpGate(coordsInput, preset);
 	mCodeNumber = codeNumber;
 }
 
-Gate::~Gate()
-{
-	Platform::~Platform();
-}
+Gate::~Gate() { Platform::~Platform();}
 
-void Gate::setUpGate(CoordsX1X2Y1Y2 coordsInput, PGatePreset* preset)
+void Gate::setUpGate(const CoordsX1X2Y1Y2& coordsInput, const PGatePreset& preset)
 {
 	setUpPlatformBaseStats(coordsInput, preset);
 	mCheckpointIsVisible = true;
-	int width			 = coordsInput.getX2() - coordsInput.getX1();
-	int height			 = coordsInput.getY2() - coordsInput.getY1();
-	mMovementManager.setupMovementManager(Vect2(coordsInput.getX1(), coordsInput.getY1()), preset, width, height);
-	mStartingHitboxEdges = preset->mHitboxEdges;
-	mHiddenHitboxEdges	 = preset->mHiddenHitboxEdges;
+	int width			 = coordsInput.mX2 - coordsInput.mX1;
+	int height			 = coordsInput.mY2 - coordsInput.mY1;
+	mMovementManager.setupMovementManager(Vect2(coordsInput.mX1, coordsInput.mY1), preset, width, height);
+	mStartingHitboxEdges = preset.mHitboxEdges;
+	mHiddenHitboxEdges	 = preset.mHiddenHitboxEdges;
 
-	mAnimationManager.setupAnimationManager(preset->mVerticalAnimationPresets, width + preset->mExtraWidth, height + preset->mExtraHeight, mHowToDetermineWidthHeight);
+	mAnimationManager.setupAnimationManager(preset.mVerticalAnimationPresets, width + preset.mExtraWidth, height + preset.mExtraHeight, mHowToDetermineWidthHeight);
 }
 
 void Gate::preTick()
@@ -321,25 +296,21 @@ void Gate::setCheckpointStats()
 
 
 
-Target::Target(CoordsX1X2Y1Y2 coordsInput, PTargetPreset* preset) : Platform()
+Target::Target(const CoordsX1X2Y1Y2 coordsInput, const PTargetPreset& preset) : Platform()
 {
 	setUpPlatformBaseStats(coordsInput, preset);
 
 	mCheckpointIsVisible = true;
-	int width			 = coordsInput.getX2() - coordsInput.getX1();
-	int height			 = coordsInput.getY2() - coordsInput.getY1();
-	mMovementManager.setupMovementManager(Vect2(coordsInput.getX1(), coordsInput.getY1()), preset, width, height);
-	mStartingHitboxEdges = preset->mHitboxEdges;
-	mHiddenHitboxEdges	 = preset->mHiddenHitboxEdges;
+	int width			 = coordsInput.mX2 - coordsInput.mX1;
+	int height			 = coordsInput.mY2 - coordsInput.mY1;
+	mMovementManager.setupMovementManager(Vect2(coordsInput.mX1, coordsInput.mY1), preset, width, height);
+	mStartingHitboxEdges = preset.mHitboxEdges;
+	mHiddenHitboxEdges	 = preset.mHiddenHitboxEdges;
 
-	mAnimationManager.setupAnimationManager(preset->mHorizontalAnimationPresets, width + preset->mExtraWidth, height + preset->mExtraHeight, mHowToDetermineWidthHeight);
-
+	mAnimationManager.setupAnimationManager(preset.mHorizontalAnimationPresets, width + preset.mExtraWidth, height + preset.mExtraHeight, mHowToDetermineWidthHeight);
 }
 
-Target::~Target()
-{
-	Platform::~Platform();
-}
+Target::~Target() { Platform::~Platform(); }
 
 void Target::hide()
 {
@@ -373,26 +344,23 @@ void Target::setCheckpointStats()
 
 
 
-PressurePlate::PressurePlate(CoordsX1X2Y1Y2 coordsInput, PPressurePlatePreset* preset, int codeNumber) : Platform()
+PressurePlate::PressurePlate(const CoordsX1X2Y1Y2 coordsInput, const PPressurePlatePreset& preset, int codeNumber) : Platform()
 {
 	setUpPlatformBaseStats(coordsInput, preset);
 
 	mCodeNumber = codeNumber;
 	mCheckpointIsVisible = true;
-	int width			 = coordsInput.getX2() - coordsInput.getX1();
-	int height			 = coordsInput.getY2() - coordsInput.getY1();
-	mMovementManager.setupMovementManager(Vect2(coordsInput.getX1(), coordsInput.getY1()), preset, width, height);
+	int width			 = coordsInput.mX2 - coordsInput.mX1;
+	int height			 = coordsInput.mY2 - coordsInput.mY1;
+	mMovementManager.setupMovementManager(Vect2(coordsInput.mX1, coordsInput.mY1), preset, width, height);
 
 	mPrintViaChunk = false;
-	mAnimationManager.setupAnimationManager(preset->mHorizontalAnimationPresets, width + preset->mExtraWidth, height + preset->mExtraHeight, mHowToDetermineWidthHeight);
+	mAnimationManager.setupAnimationManager(preset.mHorizontalAnimationPresets, width + preset.mExtraWidth, height + preset.mExtraHeight, mHowToDetermineWidthHeight);
 
 	mFramesSinceUnactivated = 0;
 }
 
-PressurePlate::~PressurePlate()
-{
-	Platform::~Platform();
-}
+PressurePlate::~PressurePlate() { Platform::~Platform(); }
 
 void PressurePlate::preTick()
 {
@@ -436,13 +404,12 @@ void PressurePlate::setCheckpointStats()
 
 
 
-MovingPlatform::MovingPlatform(CoordsX1X2Y1Y2 coordsInput, PMovingPreset* preset, EEntityMovementPath movementPath) : 
-		Platform(coordsInput, preset)
+MovingPlatform::MovingPlatform(const CoordsX1X2Y1Y2 coordsInput, const PMovingPreset& preset, EEntityMovementPath movementPath) : Platform()
 {
 	setUpPlatformBaseStats(coordsInput, preset);
 
-	int width  = coordsInput.getX2() - coordsInput.getX1();
-	int height = coordsInput.getY2() - coordsInput.getY1();
+	int width  = coordsInput.mX2 - coordsInput.mX1;
+	int height = coordsInput.mY2 - coordsInput.mY1;
 
 	EDirection curDirection = EDirection_LEFT;
 	if (movementPath == EEntityMovementPath_VERTICAL)
@@ -450,29 +417,26 @@ MovingPlatform::MovingPlatform(CoordsX1X2Y1Y2 coordsInput, PMovingPreset* preset
 		curDirection = EDirection_DOWN;
 	}
 
-	mMovementManager.setupMovementManager(Vect2(coordsInput.getX1(), coordsInput.getY1()), preset, movementPath, curDirection, width, height);
+	mMovementManager.setupMovementManager(Vect2(coordsInput.mX1, coordsInput.mY1), preset, movementPath, curDirection, width, height);
 }
 
-MovingPlatform::~MovingPlatform()
-{
-	Platform::~Platform();
-}
+MovingPlatform::~MovingPlatform() { Platform::~Platform(); }
 
 
 
 
-AreaEffectPlatform::AreaEffectPlatform(CoordsX1X2Y1Y2 hitboxCoords, CoordsX1X2Y1Y2 areaEffectCoords, EDirection effectDirection, 
-		PAreaEffectPlatformPreset* preset) : Platform(hitboxCoords, preset)
+AreaEffectPlatform::AreaEffectPlatform(const CoordsX1X2Y1Y2 hitboxCoords, const CoordsX1X2Y1Y2 areaEffectCoords, EDirection effectDirection,
+		const PAreaEffectPlatformPreset& preset) : Platform()
 {
 	setUpPlatformBaseStats(hitboxCoords, preset);
 
-	int width  = hitboxCoords.getX2() - hitboxCoords.getX1();
-	int height = hitboxCoords.getY2() - hitboxCoords.getY1();
-	int areaEffectWidth  = areaEffectCoords.getX2() - areaEffectCoords.getX1();
-	int areaEffectHeight = areaEffectCoords.getY2() - areaEffectCoords.getY1();
-	mAreaEffectHitbox = Hitbox(Vect2(areaEffectCoords.getX1(), areaEffectCoords.getY1()), areaEffectWidth, areaEffectHeight);
+	int width  = hitboxCoords.mX2 - hitboxCoords.mX1;
+	int height = hitboxCoords.mY2 - hitboxCoords.mY1;
+	int areaEffectWidth  = areaEffectCoords.mX2 - areaEffectCoords.mX1;
+	int areaEffectHeight = areaEffectCoords.mY2 - areaEffectCoords.mY1;
+	mAreaEffectHitbox = Hitbox(Vect2(areaEffectCoords.mX1, areaEffectCoords.mY1), areaEffectWidth, areaEffectHeight);
 
-	mAreaEffectMovement  = preset->mAreaEffectMovement;
+	mAreaEffectMovement  = preset.mAreaEffectMovement;
 	mEffectDirection = effectDirection;
 
 	std::vector <AnimationPreset>  animationPresets;
@@ -481,20 +445,20 @@ AreaEffectPlatform::AreaEffectPlatform(CoordsX1X2Y1Y2 hitboxCoords, CoordsX1X2Y1
 	switch (effectDirection)
 	{
 	case EDirection_LEFT:
-		animationPresets			= preset->mLeftAnimationPresets;
-		areaEffectAnimationPresets	= preset->mAreaEffectLeftAnimationPresets;
+		animationPresets			= preset.mLeftAnimationPresets;
+		areaEffectAnimationPresets	= preset.mAreaEffectLeftAnimationPresets;
 		break;
 	case EDirection_RIGHT:
-		animationPresets			= preset->mRightAnimationPresets;
-		areaEffectAnimationPresets	= preset->mAreaEffectRightAnimationPresets;
+		animationPresets			= preset.mRightAnimationPresets;
+		areaEffectAnimationPresets	= preset.mAreaEffectRightAnimationPresets;
 		break;
 	case EDirection_UP:
-		animationPresets			= preset->mUpAnimationPresets;
-		areaEffectAnimationPresets	= preset->mAreaEffectUpAnimationPresets;
+		animationPresets			= preset.mUpAnimationPresets;
+		areaEffectAnimationPresets	= preset.mAreaEffectUpAnimationPresets;
 		break;
 	case EDirection_DOWN:
-		animationPresets			= preset->mDownAnimationPresets;
-		areaEffectAnimationPresets	= preset->mAreaEffectDownAnimationPresets;
+		animationPresets			= preset.mDownAnimationPresets;
+		areaEffectAnimationPresets	= preset.mAreaEffectDownAnimationPresets;
 		break;
 	default:
 		SDL_assert(false);
@@ -505,7 +469,4 @@ AreaEffectPlatform::AreaEffectPlatform(CoordsX1X2Y1Y2 hitboxCoords, CoordsX1X2Y1
 	mAreaEffectAnimationManager.setupAnimationManager(	areaEffectAnimationPresets, areaEffectWidth,	areaEffectHeight,	mHowToDetermineWidthHeight);
 }
 
-AreaEffectPlatform::~AreaEffectPlatform()
-{
-	Platform::~Platform();
-}
+AreaEffectPlatform::~AreaEffectPlatform() { Platform::~Platform(); }
