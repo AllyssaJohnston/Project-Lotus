@@ -117,8 +117,10 @@ void MovementManager::setMovementStateToCharacterMode()
 		mMoveHorizontal = false;
 		break;
 	case EEntityMovements_JUMP:
+		// can only jump if on the ground. If not on the ground, finish falling first
 		if (mPositionData.mOnGround)
 		{
+			setMovementState(EMovementStateIndex_JUMPING);
 			jump(1.0f);
 		}
 		else if (!mJumpingData.mAmJump)
@@ -134,8 +136,17 @@ void MovementManager::setMovementStateToCharacterMode()
 		mMoveHorizontal = false;
 		break;
 	case EEntityMovements_NONE:
-		setMovementState(EMovementStateIndex_STATIONARY);
-		mMoveHorizontal = false;
+		// if not on the ground (and not static) finish falling before freezing
+		if (mMovementData.getCharacterMode() != ECharacterModes_STATIC && !mPositionData.mOnGround)
+		{
+			setMovementState(EMovementStateIndex_FALLING);
+			mMoveHorizontal = true;
+		}
+		else
+		{
+			setMovementState(EMovementStateIndex_STATIONARY);
+			mMoveHorizontal = false;
+		}
 		break;
 	default:
 		break;
@@ -233,9 +244,13 @@ void MovementManager::postTick()
 
 void MovementManager::calcMovement()
 {
-	mMovementData.updateMovementCodeCountDown(mPositionData.mOnGround);
+	if (mMovementData.updateMovementCodeCountDown(mPositionData.mOnGround))
+	{
+		// changed movement code, now update state
+		setMovementStateToCharacterMode();
+	}
 
-	// There is nothing to update, exit early.  Could make a state that just returned
+	// static entity
 	if (mMovementData.getCharacterMode() == ECharacterModes_STATIC)
 	{
 		mAttemptMove.mWantToMoveTo = mPositionData.mHitbox.getTopLeft();
@@ -248,7 +263,7 @@ void MovementManager::calcMovement()
 
 
 	// Transition states if needed.
-	if (mCurMovementState == EMovementStateIndex_FLYING)
+	if (mMovementData.getCurMovementCode() == EEntityMovements_FLY)
 	{
 		return;
 	}
@@ -426,11 +441,17 @@ void MovementManager::setOnGroundTrue(int curGroundMovementEffect, std::vector <
 	{
 		return;
 	}
+	
 	mPositionData.mOnGround = true;
 	mPositionData.mCurGroundMovementEffect  = curGroundMovementEffect;
 	mPositionData.mCurGroundCharacteristics = curGroundCharacteristics;
 	mPositionData.mCurGroundTop             = curGroundTop;
-	
+
+	if (getMovementCode() == EEntityMovements_FLY)
+	{
+		return;
+	}
+
 	if (mCurMovementState == EMovementStateIndex_JUMPING && (mMovementStates[EMovementStateIndex_JUMPING]->mFramesInState < 2))
 	{
 		// keep jumping
@@ -468,7 +489,7 @@ void MovementManager::jump(float jumpMultiplier)
 {
 	if (std::find(mPositionData.mCurGroundCharacteristics.begin(), mPositionData.mCurGroundCharacteristics.end(), EEntityCharacteristicsTypes_MAGNETIC) != mPositionData.mCurGroundCharacteristics.end())
 	{
-		return; //on magnetic
+		return; // on magnetic
 	}
 
 	bool jump = false;

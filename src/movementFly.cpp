@@ -13,7 +13,7 @@ void FlyingState::calcMove(bool moveHorizontal) {
 	}
 	if (mMovementData.mPath == EEntityMovementPath_VERTICAL or mMovementData.mPath == EEntityMovementPath_DIAGONAL)
 	{
-		int multiplier = mMovementData.mCurDirection == EDirection_UP ? -1 : 1;
+		int multiplier = mMovementData.mCurDirectionY == EDirection_UP ? -1 : 1;
 		curMovementY = mMovementData.mCurMovementVect2.getY() * multiplier;
 	}
 

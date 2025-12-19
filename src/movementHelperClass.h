@@ -144,12 +144,14 @@ public:
 
 	ECharacterModes getCharacterMode() const;
 
-	void updateMovementCodeCountDown(bool onGround);
+	bool updateMovementCodeCountDown(bool onGround);
 
 	void resetMovementCodeCountDown();
 
+private:
 	void updateCurMovementCode();
 
+public:
 	void setCurMovementCode(EEntityMovements newCode);
 
 	EEntityMovements getCurMovementCode() const;

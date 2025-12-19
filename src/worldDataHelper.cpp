@@ -446,7 +446,7 @@ void WorldData::updatePlayerCollisions()
 				EEntityEdgeType enemyEdgeType = pCurEnemy->getMovementManager().getEdgeType(enemySeparationPath);
 				if (willKillCharacter(mPlayer, enemyEdgeType))
 				{
-					killedCharacter(mPlayer, !instantDeath);
+					killedCharacter(mPlayer, (enemyEdgeType == EEntityEdgeType_BURNING));
 				}
 				if (enemyEdgeType == EEntityEdgeType_GRABBING)
 				{

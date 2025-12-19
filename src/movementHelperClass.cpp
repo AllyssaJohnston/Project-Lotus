@@ -11,7 +11,10 @@ void MovementState::tickUpdate(bool moveHorizontal)
 
 void MovementState::startedState()  {  mFramesInState = 0;  }
 
-void MovementState::printState() { std::cout << mStateName << "\n"; }
+void MovementState::printState() 
+{ 
+	/*std::cout << mStateName << "\n"; */
+}
 
 
 bool PositionData::inGroundCharacteristics(EEntityCharacteristicsTypes type) const { return (std::find(mCurGroundCharacteristics.begin(), mCurGroundCharacteristics.end(), type) != mCurGroundCharacteristics.end()); }
@@ -33,7 +36,7 @@ void MovementData::setCurCharacterMode(ECharacterModes newMode) { mCharacterMode
 
 ECharacterModes MovementData::getCharacterMode() const { return mCharacterMode;  }
 
-void MovementData::updateMovementCodeCountDown(bool onGround)
+bool MovementData::updateMovementCodeCountDown(bool onGround)
 {
 	if (mMovementCodes.size() > 1)
 	{
@@ -41,8 +44,10 @@ void MovementData::updateMovementCodeCountDown(bool onGround)
 		if (mMovementCodeCountDown < 0 && onGround)
 		{
 			updateCurMovementCode();
+			return true;
 		}
 	}
+	return false;
 }
 
 void MovementData::resetMovementCodeCountDown() { mMovementCodeCountDown = mMovementCodeInterval; }

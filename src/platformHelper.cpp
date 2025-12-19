@@ -405,7 +405,7 @@ void PressurePlate::setCheckpointStats()
 
 
 
-MovingPlatform::MovingPlatform(const CoordsX1X2Y1Y2 coordsInput, const PMovingPreset& preset, EEntityMovementPath movementPath) : Platform()
+MovingPlatform::MovingPlatform(const CoordsX1X2Y1Y2 coordsInput, const PMovingPreset& preset, EEntityMovementPath movementPath) : Platform(coordsInput, preset)
 {
 	setUpPlatformBaseStats(coordsInput, preset);
 
