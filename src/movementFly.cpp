@@ -1,8 +1,6 @@
 #include "movementFly.h"
 
-FlyingState::FlyingState(PositionData& pos, MovementData& movData, AttemptMove& move) : mMovementData(movData) , MovementState(pos, move) {;}
-
-void FlyingState::printState() { std::cout << "FlyingState" << "\n"; }
+FlyingState::FlyingState(PositionData& pos, MovementData& movData, AttemptMove& move) : mMovementData(movData) , MovementState(pos, move) { mStateName = "FlyingState"; }
 
 void FlyingState::calcMove(bool moveHorizontal) {
 	

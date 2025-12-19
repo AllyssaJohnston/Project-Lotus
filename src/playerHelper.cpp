@@ -7,13 +7,11 @@ Player::Player() : Entity()
 	mEntityType				  = EEntityType_NON_STATIC;
 	mEntityClassType          = EEntityClassTypes_PLAYER;
 	mEntityCharacterType      = EEntityCharacterTypes_C_PLAYER;
-	mOriginalEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_NONE);
+	mOriginalEntityCharacteristicTypes = { EEntityCharacteristicsTypes_NONE };
 
 	mFramesTakingDamageBeforeDeath = 7;
 
 	mMovementManager.setupMovementManager(Vect2(0, 0), gStaticPlayerPreset);
-	mMovementManager.setInputDriven(true);
-
 	mAnimationManager.setupAnimationManager(gStaticPlayerPreset.mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
 	if (DEMO == 0)
 	{
@@ -29,23 +27,18 @@ Player::~Player()
 {
 	for (Collectible* pCollectible : mpCurHeldCollectibles)
 	{
-		pCollectible = nullptr;
+		pCollectible = nullptr; // let level delete the collectibles
 	}
+	mpCurHeldCollectibles.clear();
 	Entity::~Entity();
 }
 
 void Player::preTick()
 {
 	Entity::preTick();
-	if (mMovementManager.getPositionData().mOnGround)
+	if (mMovementManager.isOnGround() and mMovementManager.inGroundCharacteristics(EEntityCharacteristicsTypes_SLIPPERY))
 	{
-		for (EEntityCharacteristicsTypes type : mMovementManager.getPositionData().mCurGroundCharacteristics)
-		{
-			if (type == EEntityCharacteristicsTypes_SLIPPERY)
-			{
-				mUseHorizontalInputThisFrame = false;
-			}
-		}
+		mUseHorizontalInputThisFrame = false;
 	}
 	mMovementManager.preTick();
 }
@@ -53,7 +46,7 @@ void Player::preTick()
 void Player::tick()
 {
 	Entity::tick();
-	if (mUseHorizontalInputThisFrame == false)
+	if (!mUseHorizontalInputThisFrame)
 	{
 		mMovementManager.getMovementStates()[EMovementStateIndex_WALKING]->autoMove();
 	}
@@ -66,12 +59,16 @@ void Player::postTick()
 	updateAnimationManager();
 	mMovementManager.postTick();
 	mUseHorizontalInputThisFrame = true;
-	if (mMovementManager.isOnGround() == true)
+	if (mMovementManager.isOnGround())
 	{
 		for (Collectible* curHeldCollectible : mpCurHeldCollectibles)
 		{
 			curHeldCollectible->setPermanentlyPickedUp(true);
 		}
+	}
+	if (DEMO == 0)
+	{
+		mMovementManager.printState();
 	}
 }
 
@@ -106,7 +103,7 @@ void Player::updateAnimationManager()
 		mAnimationManager.updateAnimation(EAnimationType_STATIONARY);
 	}
 
-	if (mMovementManager.getJumpingData().mNumCurJumps == 2)
+	if (mMovementManager.getCurJumps() == 2)
 	{
 		mAnimationManager.changeOutfit(mDoubleJumpOutfit); 
 	}
@@ -120,28 +117,28 @@ void Player::updateAnimationManager()
 void Player::resetStats()
 {
 	Entity::resetStats();
-	mKeys	 = mStartingKeys;
-	mTargets = mStartingTargets;
-	mUseHorizontalInputThisFrame = true;
-	mCanWallJump = false;
+	mKeys							= mStartingKeys;
+	mTargets						= mStartingTargets;
+	mUseHorizontalInputThisFrame	= true;
+	mCanWallJump					= false;
 }
 
 void Player::resetToCheckpoint()
 {
 	Entity::resetToCheckpoint();
-	mKeys	 = mCheckpointKeys;
-	mTargets = mCheckpointTargets;
-	mAmAlive = true;
-	mUseHorizontalInputThisFrame = true;
-	mCanWallJump = mCheckpointCanWallJump;
+	mKeys							= mCheckpointKeys;
+	mTargets						= mCheckpointTargets;
+	mAmAlive						= true;
+	mUseHorizontalInputThisFrame	= true;
+	mCanWallJump					= mCheckpointCanWallJump;
 }
 
 void Player::setCheckpointStats()
 {
 	Entity::setCheckpointStats();
-	mCheckpointKeys		= mKeys;
-	mCheckpointTargets  = mTargets;
-	mCheckpointCanWallJump = mCanWallJump;
+	mCheckpointKeys				= mKeys;
+	mCheckpointTargets			= mTargets;
+	mCheckpointCanWallJump		= mCanWallJump;
 }
 
 

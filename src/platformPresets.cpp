@@ -2,31 +2,32 @@
 
 PPlatformPreset::PPlatformPreset() : EntityPreset()
 {
-	mEntityClassType		 = EEntityClassTypes_PLATFORM;
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_INVINCIBLE);
-	mVulnerableToProjectiles = false;
-	mRideable                = true;
+	mEntityClassType			= EEntityClassTypes_PLATFORM;
+	mEntityCharacteristicTypes	= { EEntityCharacteristicsTypes_INVINCIBLE };
+	mEntityType					= EEntityType_STATIC;
 
-	mEntityType     = EEntityType_STATIC;
 	mCharacterMode  = ECharacterModes_STATIC;
 	mMovementCodes  = { EEntityMovements_NONE };
 	mMovementPath	= EEntityMovementPath_NONE;
-	mMovementEffect = 0;
-
-	mSpreadEdges			= false;
-	mSpreadEdgesInterval    = 0;
-	mImmuneToStatusEffects  = false;
-
+	
 	mCurDirection = EDirection_NONE;
 
 	mMovementVect2 = Vect2(0, 0);
 
-	mImageOffsetX = 0;
-	mImageOffsetY = 0;
+	mVulnerableToProjectiles	= false;
+	mRideable					= true;
+
+	mSpreadEdges			= false;
+	mSpreadEdgesInterval	= 0;
+	mImmuneToStatusEffects	= false;
+
+	mMovementEffect = 0;
 
 	mWidth  = -1;
 	mHeight = -1;
 
+	mImageOffsetX = 0;
+	mImageOffsetY = 0;
 	mExtraWidth = 0;
 	mExtraHeight = 0;
 }
@@ -35,17 +36,12 @@ PPlatformPreset::PPlatformPreset() : EntityPreset()
 
 PStandardPreset::PStandardPreset(int worldNumber) : PPlatformPreset()
 {
-
 	mEntityCharacterType      = EEntityCharacterTypes_P_STANDARD;
+	mTypeName = "STANDARD";
+
 	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 
 	setUpAnimationPresets(EWorldType(worldNumber));
-
-	mTypeName = "STANDARD";
-
-	mWidth = -1;
-	mHeight = -1;
-
 }
 
 void PStandardPreset::setUpAnimationPresets(EWorldType worldType)
@@ -85,14 +81,11 @@ void PStandardPreset::setUpAnimationPresets(EWorldType worldType)
 PSolidPreset::PSolidPreset(int worldNumber) : PPlatformPreset()
 {
 	mEntityCharacterType = EEntityCharacterTypes_P_SOLID;
-	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-
-	mAnimationPresets.clear();
-
-	setUpAnimationPresets(EWorldType(worldNumber));
-
 	mTypeName = "SOLID";
 
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
+	setUpAnimationPresets(EWorldType(worldNumber));
 }
 
 void PSolidPreset::setUpAnimationPresets(EWorldType worldType)
@@ -127,20 +120,18 @@ void PSolidPreset::setUpAnimationPresets(EWorldType worldType)
 
 PStickyPreset::PStickyPreset() : PPlatformPreset()
 {
-	mEntityCharacterType      = EEntityCharacterTypes_P_STICKY;
+	mEntityCharacterType = EEntityCharacterTypes_P_STICKY;
+	mTypeName = "STICKY";
+	
 	mHitboxEdges = HitboxEdges(EEntityEdgeType_STICKY, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 
-	mAnimationPresets.clear();
+	mMovementEffect = -4;
 
 	int  frameRate = 0;
 	bool mustFinish = false;
 
 	std::vector <std::string> horizontalFileNames = { "Platforms/platformSticky.bmp" };
 	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mMovementEffect = -4;
-
-	mTypeName = "STICKY";
 }
 
 
@@ -148,20 +139,18 @@ PStickyPreset::PStickyPreset() : PPlatformPreset()
 PIcyPreset::PIcyPreset() : PPlatformPreset()
 {
 	mEntityCharacterType		= EEntityCharacterTypes_P_ICY;
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_SLIPPERY };
+	mTypeName = "ICY";
+	
 	mHitboxEdges				= HitboxEdges(EEntityEdgeType_ICY, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 
-	mAnimationPresets.clear();
+	mMovementEffect = 2;
 
 	int  frameRate = 0;
 	bool mustFinish = false;
 
 	std::vector <std::string> horizontalFileNames = { "Platforms/platformIcy.bmp" };
 	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mMovementEffect = 2;
-	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_SLIPPERY };
-
-	mTypeName = "ICY";
 }
 
 
@@ -169,19 +158,15 @@ PIcyPreset::PIcyPreset() : PPlatformPreset()
 PMagneticPreset::PMagneticPreset() : PPlatformPreset()
 {
 	mEntityCharacterType		= EEntityCharacterTypes_P_MAGNETIC;
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_MAGNETIC };
+	mTypeName = "METALLIC";
+	
 	mHitboxEdges				= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-
-	mAnimationPresets.clear();
 
 	int  frameRate = 0;
 	bool mustFinish = false;
-
 	std::vector <std::string> horizontalFileNames = { "Platforms/platformMetallic.bmp" };
-	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_MAGNETIC };
-
-	mTypeName = "METALLIC";
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };	
 }
 
 
@@ -189,6 +174,8 @@ PMagneticPreset::PMagneticPreset() : PPlatformPreset()
 PCrumblingPreset::PCrumblingPreset() : PPlatformPreset()
 {
 	mEntityCharacterType = EEntityCharacterTypes_P_CRUMBLING;
+	mTypeName = "CRUMBLING";
+	
 	mHitboxEdges =		 HitboxEdges(EEntityEdgeType_CRUMBLING,    EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NEUTRAL,	   EEntityEdgeType_NEUTRAL);
 	mHiddenHitboxEdges = HitboxEdges(EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NON_EXISTENT);
 
@@ -201,8 +188,6 @@ PCrumblingPreset::PCrumblingPreset() : PPlatformPreset()
 		"Platforms/platformCrumbling07.bmp", "Platforms/platformCrumbling08.bmp",
 		"Platforms/platformCrumbling09.bmp", "Platforms/platformCrumbling10.bmp"};
 	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_PLAY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mTypeName = "CRUMBLING";
 }
 
 
@@ -210,6 +195,8 @@ PCrumblingPreset::PCrumblingPreset() : PPlatformPreset()
 PSpikePreset::PSpikePreset() : PPlatformPreset()
 {
 	mEntityCharacterType      = EEntityCharacterTypes_P_SPIKE;
+	mTypeName = "SPIKE";
+	
 	mHitboxEdges = HitboxEdges(EEntityEdgeType_SPIKEY, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 
 	int frameRate = 0;
@@ -219,9 +206,7 @@ PSpikePreset::PSpikePreset() : PPlatformPreset()
 
 	mSplice = true;
 	std::vector <std::string> horizontalFileNames = { "Platforms/platformSpike1.bmp", "Platforms/platformSpike2.bmp", "Platforms/platformSpike3.bmp" };
-	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mTypeName = "SPIKE";
+	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };	
 }
 
 
@@ -229,9 +214,9 @@ PSpikePreset::PSpikePreset() : PPlatformPreset()
 PLavaPreset::PLavaPreset() : PPlatformPreset()
 {
 	mEntityCharacterType      = EEntityCharacterTypes_P_LAVA;
-	mHitboxEdges = HitboxEdges(EEntityEdgeType_BURNING, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING);
+	mTypeName = "LAVA";
 
-	mAnimationPresets.clear();
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_BURNING, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING);
 
 	int  frameRate = 0;
 	bool mustFinish = false;
@@ -241,8 +226,6 @@ PLavaPreset::PLavaPreset() : PPlatformPreset()
 
 	std::vector <std::string> verticalFileNames = { "Platforms/platformLavaV.bmp" };
 	mVerticalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mTypeName = "LAVA";
 }
 
 
@@ -250,12 +233,11 @@ PLavaPreset::PLavaPreset() : PPlatformPreset()
 PElectricPreset::PElectricPreset() : PPlatformPreset()
 {
 	mEntityCharacterType      = EEntityCharacterTypes_P_ELECTRIC;
+	mTypeName = "ELECTRIC";
+	
 	mHitboxEdges = HitboxEdges(EEntityEdgeType_ELECTRIC, EEntityEdgeType_ELECTRIC, EEntityEdgeType_ELECTRIC, EEntityEdgeType_ELECTRIC);
-
 	mSpreadEdges = true;
 	mSpreadEdgesInterval = 15;
-
-	mAnimationPresets.clear();
 
 	int  frameRate = 0;
 	bool mustFinish = false;
@@ -265,8 +247,6 @@ PElectricPreset::PElectricPreset() : PPlatformPreset()
 
 	std::vector <std::string> verticalFileNames = { "Platforms/platformElectricV.bmp" };
 	mVerticalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mTypeName = "ELECTRIC";
 }
 
 
@@ -274,9 +254,9 @@ PElectricPreset::PElectricPreset() : PPlatformPreset()
 PBouncyPreset::PBouncyPreset() : PPlatformPreset()
 {
 	mEntityCharacterType      = EEntityCharacterTypes_P_BOUNCY;
+	mTypeName = "BOUNCY";
+	
 	mHitboxEdges = HitboxEdges(EEntityEdgeType_BOUNCY, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-
-	mAnimationPresets.clear();
 
 	int  frameRate = 0;
 	bool mustFinish = false;
@@ -286,8 +266,6 @@ PBouncyPreset::PBouncyPreset() : PPlatformPreset()
 
 	std::vector <std::string> verticalFileNames = { "Platforms/platformBouncyV.bmp" };
 	mVerticalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mTypeName = "BOUNCY";
 }
 
 
@@ -295,9 +273,9 @@ PBouncyPreset::PBouncyPreset() : PPlatformPreset()
 PWallJumpablePreset::PWallJumpablePreset() : PPlatformPreset()
 {
 	mEntityCharacterType      = EEntityCharacterTypes_P_WALL_JUMPABLE;
+	mTypeName = "WALL JUMPABLE";
+	
 	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_WALL_JUMPABLE, EEntityEdgeType_WALL_JUMPABLE);
-
-	mAnimationPresets.clear();
 
 	int  frameRate = 0;
 	bool mustFinish = false;
@@ -307,8 +285,6 @@ PWallJumpablePreset::PWallJumpablePreset() : PPlatformPreset()
 
 	std::vector <std::string> verticalFileNames = { "Platforms/platformBouncyV.bmp" };
 	mVerticalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mTypeName = "WALL JUMPABLE";
 }
 
 
@@ -316,15 +292,15 @@ PWallJumpablePreset::PWallJumpablePreset() : PPlatformPreset()
 PGatePreset::PGatePreset(int worldNumber) : PPlatformPreset()
 {
 	mEntityCharacterType	= EEntityCharacterTypes_P_GATE;
+	mTypeName = "GATE";
+	
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL,	   EEntityEdgeType_NEUTRAL,		 EEntityEdgeType_NEUTRAL,	   EEntityEdgeType_NEUTRAL);
 	mHiddenHitboxEdges		= HitboxEdges(EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NON_EXISTENT);
+	
 	mPrintViaChunk			= false;
-
 	mHowToDetermineWidthHeight = EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT;
 
 	setUpAnimationPresets(EWorldType(worldNumber));
-
-	mTypeName = "GATE";
 }
 
 void PGatePreset::setUpAnimationPresets(EWorldType worldType)
@@ -356,11 +332,10 @@ void PGatePreset::setUpAnimationPresets(EWorldType worldType)
 
 PTargetGatePreset::PTargetGatePreset(int worldNumber) : PGatePreset(worldNumber)
 {
-	mEntityCharacterType      = EEntityCharacterTypes_P_TARGET_GATE;
+	mEntityCharacterType = EEntityCharacterTypes_P_TARGET_GATE;
+	mTypeName = "TARGET GATE";
 
 	setUpAnimationPresets(EWorldType(worldNumber));
-
-	mTypeName = "TARGET GATE";
 }
 
 void PTargetGatePreset::setUpAnimationPresets(EWorldType worldType)
@@ -392,38 +367,36 @@ void PTargetGatePreset::setUpAnimationPresets(EWorldType worldType)
 PPressureOperatedGatePreset::PPressureOperatedGatePreset() : PGatePreset(0)
 {
 	mEntityCharacterType      = EEntityCharacterTypes_P_PRESSURE_OPERATED_GATE;
+	mTypeName = "PRESSURE OPERATED GATE";
 
 	mExtraWidth = 25;
-
 	int frameRate = 0;
 	bool mustFinish = false;
 	mHowToDetermineWidthHeight = EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT;
 
-	mVerticalAnimationPresets.clear();
 	std::vector <std::string> verticalFileNames = { "Platforms/platformPressureOperatedGate.bmp" };
 	mVerticalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, verticalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mTypeName = "PRESSURE OPERATED GATE";
 }
 
 
 
 PTargetPreset::PTargetPreset(int worldNumber) : PPlatformPreset()
 {
-	mEntityCharacterType      = EEntityCharacterTypes_P_TARGET;
+	mEntityCharacterType = EEntityCharacterTypes_P_TARGET;
+	mTypeName = "TARGET";
+
+	mVulnerableToProjectiles = true;
+
 	mHitboxEdges =		 HitboxEdges(EEntityEdgeType_NEUTRAL,	   EEntityEdgeType_NEUTRAL,      EEntityEdgeType_NEUTRAL,      EEntityEdgeType_NEUTRAL);
 	mHiddenHitboxEdges = HitboxEdges(EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NON_EXISTENT);
-	mVulnerableToProjectiles = true;
+	
+	
 	mPrintViaChunk = false;
-
 	mHowToDetermineWidthHeight = EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO;
-
 	mExtraWidth  = 10;
 	mExtraHeight = 10;
 
 	setUpAnimationPresets(EWorldType(worldNumber));
-
-	mTypeName = "TARGET";
 }
 
 void PTargetPreset::setUpAnimationPresets(EWorldType worldType)
@@ -455,29 +428,28 @@ PCratePreset::PCratePreset() : PPlatformPreset()
 {
 	mEntityCharacterType		= EEntityCharacterTypes_P_CRATE;
 	mEntitySubClassType			= EEntitySubClassTypes_CRATE;
-	mEntityCharacteristicTypes.clear();
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_CRUSH_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_SPIKE_RESISTENT);
-	mEntityCharacteristicTypes.push_back(EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT);
-	mHitboxEdges				= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_MOVEABLE, EEntityEdgeType_MOVEABLE);
-	mVulnerableToProjectiles	= true;
-	mPrintViaChunk				= false;
+	mEntityType					= EEntityType_NON_STATIC;
+	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_SPIKE_RESISTENT, EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
+	mTypeName = "CRATE";
 
-	mSpreadEdges			= false;
-	mSpreadEdgesInterval    = 0;
-	mImmuneToStatusEffects  = false;
-
-	mEntityType		= EEntityType_NON_STATIC;
 	mCharacterMode  = ECharacterModes_MOVING;
 	mMovementCodes	= { EEntityMovements_FALL };
 	mMovementPath	= EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance	= 75;
+	
 	mAutoMoveRule   = EMovementAutoMoveRule_USE_CUR_DIRECTION;
 
 	mCurDirection = EDirection_LEFT;
-
 	mMovementVect2 = Vect2(7, 5);
+	mJumpDistance	= 75;
 
+	mVulnerableToProjectiles = true;
+
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_MOVEABLE, EEntityEdgeType_MOVEABLE);
+	mSpreadEdges = false;
+	mSpreadEdgesInterval = 0;
+	mImmuneToStatusEffects = false;
+
+	mPrintViaChunk = false;
 	mImageOffsetX = 0;
 	mImageOffsetY = 0;
 	int frameRate	= 0;
@@ -486,19 +458,19 @@ PCratePreset::PCratePreset() : PPlatformPreset()
 
 	std::vector <std::string> horizontalFileNames = { "Platforms/platformCrate.bmp" };
 	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mTypeName = "CRATE";
 }
-
 
 PMagneticCratePreset::PMagneticCratePreset() : PCratePreset()
 {
 	mEntityCharacterType		=	EEntityCharacterTypes_P_MAGNETIC_CRATE;
 	mEntityCharacteristicTypes	= { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_SPIKE_RESISTENT, EEntityCharacteristicsTypes_FIRE_RESISTENT,
 									EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT, EEntityCharacteristicsTypes_MAGNETIC };
-	mHitboxEdges				= HitboxEdges(EEntityEdgeType_MAGNETIC, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_MOVEABLE, EEntityEdgeType_MOVEABLE);
-	mVulnerableToProjectiles	= true;
+	mTypeName = "MAGNETIC CRATE";
 
+	mVulnerableToProjectiles = true;
+
+	mHitboxEdges				= HitboxEdges(EEntityEdgeType_MAGNETIC, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_MOVEABLE, EEntityEdgeType_MOVEABLE);
+	
 	mImageOffsetX = 0;
 	mImageOffsetY = 0;
 	int frameRate	= 0;
@@ -508,16 +480,16 @@ PMagneticCratePreset::PMagneticCratePreset() : PCratePreset()
 	mHorizontalAnimationPresets.clear();
 	std::vector <std::string> horizontalFileNames = { "Platforms/platformMetalCrate.bmp" };
 	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mTypeName = "MAGNETIC CRATE";
 }
-
 
 PArmoredCratePreset::PArmoredCratePreset() : PCratePreset()
 {
 	mEntityCharacterType      = EEntityCharacterTypes_P_ARMORED_CRATE;
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_SPIKE_RESISTENT, EEntityCharacteristicsTypes_FIRE_RESISTENT };
+	mTypeName = "ARMORED CRATE";
+
 	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_MOVEABLE, EEntityEdgeType_MOVEABLE);
+	
 	mVulnerableToProjectiles = false;
 
 	mImageOffsetX = 0;
@@ -529,8 +501,6 @@ PArmoredCratePreset::PArmoredCratePreset() : PCratePreset()
 	mHorizontalAnimationPresets.clear();
 	std::vector <std::string> horizontalFileNames = { "Platforms/platformArmoredCrate.bmp" };
 	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mTypeName = "ARMORED CRATE";
 }
 
 
@@ -539,8 +509,9 @@ PArmoredCratePreset::PArmoredCratePreset() : PCratePreset()
 PPressurePlatePreset::PPressurePlatePreset() : PPlatformPreset()
 {
 	mEntityCharacterType      = EEntityCharacterTypes_P_PRESSURE_PLATE;
+	mTypeName = "PRESSURE PLATE";
+	
 	mHitboxEdges = HitboxEdges(EEntityEdgeType_WEIGHT_SENSITIVE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-
 
 	int  frameRate = 0;
 	bool mustFinish = false;
@@ -549,37 +520,27 @@ PPressurePlatePreset::PPressurePlatePreset() : PPlatformPreset()
 
 	std::vector <std::string> horizontalFileNames = { "Platforms/platformPressurePlate.bmp" };
 	mHorizontalAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, horizontalFileNames, mImageOffsetX, mImageOffsetY, frameRate, mustFinish) };
-
-	mTypeName = "PRESSURE PLATE";
-
-	mWidth = -1;
-	mHeight = -1;
 }
 
 
 
 PMovingPreset::PMovingPreset(int worldNumber) : PPlatformPreset()
 {
-
 	mEntityCharacterType      = EEntityCharacterTypes_P_MOVING_PLATFORM;
-	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	mEntityType = EEntityType_NON_STATIC;
+	mTypeName = "MOVING PLATFORM";
 
-	mEntityType    = EEntityType_NON_STATIC;
 	mCharacterMode = ECharacterModes_MOVING;
 	mMovementCodes = { EEntityMovements_FLY };
-	mMovementPath  = EEntityMovementPath_INVALID;
-	mJumpDistance  = 0;
+	mMovementPath = EEntityMovementPath_INVALID;
 
+	mJumpDistance = 0;
 	mMovementVect2 = Vect2(4, 5);
+
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NON_EXISTENT, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 
 	mHowToDetermineWidthHeight = EHowToDetermineWidthHeight_CHUNK_IMAGES;
 	setUpAnimationPresets(EWorldType(worldNumber));
-
-	mTypeName = "MOVING PLATFORM";
-
-	mWidth = -1;
-	mHeight = -1;
-
 }
 
 void PMovingPreset::setUpAnimationPresets(EWorldType worldType)
@@ -621,16 +582,15 @@ PAreaEffectPlatformPreset::PAreaEffectPlatformPreset() : PPlatformPreset()
 PWindGustPlatformPreset::PWindGustPlatformPreset() : PAreaEffectPlatformPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_P_WIND_GUST;
+	mTypeName = "WIND GUST";
+	
 	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mAreaEffectMovement     = 5;
 
 	setUpAnimationPresets();
 
-	mTypeName = "WIND GUST";
-
 	mWidth = -1;
 	mHeight = -1;
-
 }
 
 void PWindGustPlatformPreset::setUpAnimationPresets()

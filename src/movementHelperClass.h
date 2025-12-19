@@ -1,10 +1,13 @@
 #pragma once
-
+#include "globals.h"
 #include "helperClass.h"
 #include "hitboxHelper.h"
+#include <iostream>
 #include <vector>
 
 class Entity;
+struct AttemptMove;
+struct PositionData;
 
 enum EMovementAutoMoveRule
 {
@@ -12,11 +15,10 @@ enum EMovementAutoMoveRule
 	EMovementAutoMoveRule_USE_FACING_DIRECTION,
 	EMovementAutoMoveRule_USE_CUR_DIRECTION,
 	EMovementAutoMoveRule_MAX
-
 };
 
-enum EMovementStateIndex { 
-
+enum EMovementStateIndex 
+{ 
 	EMovementStateIndex_INVALID = -1,
 	EMovementStateIndex_STANDING, 
 	EMovementStateIndex_WALKING, 
@@ -35,8 +37,8 @@ enum EEntityType
 	EEntityType_MAX
 };
 
-enum ECharacterModes{
-
+enum ECharacterModes
+{
 	ECharacterModes_INVALID = -1,
 	ECharacterModes_STATIC,
 	ECharacterModes_MOVING,
@@ -71,13 +73,37 @@ enum EEntityMovementPath
 	EEntityMovementPath_MAX
 };
 
+
+class MovementState
+{
+protected:
+	std::string mStateName;
+	AttemptMove& mAttemptMove;
+	PositionData& mPositionData;
+
+public:
+	int mFramesInState = 0;
+	MovementState(PositionData& pos, AttemptMove& move);
+	void printState();
+	virtual void calcMove(bool moveHorizontal) = 0;
+	virtual void startedState();
+	virtual void tickUpdate(bool moveHorizontal);
+	virtual void left() { ; }
+	virtual void right() { ; }
+	virtual void landed() { ; }
+	virtual void autoMove() { ; }
+
+protected:
+	virtual void updateAccelerationY() { ; }
+};
+
 struct PositionData
 {
 	Hitbox		mHitbox;
 	HitboxEdges mOriginalHitboxEdges;
 	HitboxEdges	mCurHitboxEdges;
-	bool		mOnGround = false;
 	
+	bool		mOnGround = false;
 	std::vector <EEntityCharacteristicsTypes>	mCurGroundCharacteristics;
 	int											mCurGroundMovementEffect	= 0;  // Addition to X velocity
 	EEntityEdgeType								mCurGroundTop				= EEntityEdgeType_INVALID;
@@ -86,6 +112,8 @@ struct PositionData
 
 	Vect2 mCurPosition;
 	Vect2 mLastFramePosition;
+
+	bool inGroundCharacteristics(EEntityCharacteristicsTypes type) const;
 };
 
 class MovementData
@@ -96,10 +124,13 @@ public:
 
 	EDirection				mLastFrameDirection		= EDirection_NONE;
 	EDirection				mLastFrameDirectionY	= EDirection_NONE;
-	Vect2					mBaseMovementVect2;					// Base velocity of entity
-	Vect2					mCurMovementVect2;					// Current base velocity of entity
-	float					mAccelerationY			= 1.0f;		// Multipler to y velocity
-	bool					mUseMovementEffect      = true;		// is entity immune to ground movement effects
+	Vect2					mBaseMovementVect2;  // Base velocity of entity
+	Vect2					mCurMovementVect2;   // Current base velocity of entity
+
+	const int				mMinFramesToAccelerate	= 120;
+	float					mAccelerationY			= 1.0f;
+
+	bool					mUseMovementEffect      = true; // is entity immune to ground movement effects
 	EMovementAutoMoveRule	mMovementAutoMoveRule	= EMovementAutoMoveRule_INVALID;
 	
 	EEntityMovementPath mPath = EEntityMovementPath_INVALID;
@@ -111,7 +142,7 @@ public:
 
 
 
-	ECharacterModes getCurCharacterMode() const;
+	ECharacterModes getCharacterMode() const;
 
 	void updateMovementCodeCountDown(bool onGround);
 
@@ -123,6 +154,8 @@ public:
 
 	EEntityMovements getCurMovementCode() const;
 
+
+
 	void reset();
 
 
@@ -133,7 +166,7 @@ private:
 	int							  mMovementCodeCountDown	= -1; //how long before switching movement codes
 	int							  mMovementCodeInterval		= -1;
 
-	ECharacterModes				  mCurCharacterMode			= ECharacterModes_INVALID;
+	ECharacterModes				  mCharacterMode			= ECharacterModes_INVALID;
 };
 
 struct JumpingData
@@ -156,26 +189,5 @@ struct AttemptMove
 
 	AttemptMove() { ; }
 	AttemptMove(Vect2 wantToMoveTo) : mWantToMoveTo(wantToMoveTo) { ; }
-};
-
-class MovementState
-{
-protected:
-	AttemptMove& mAttemptMove;
-	PositionData& mPositionData;
-public:
-	int mFramesInState = 0;
-	MovementState(PositionData& pos, AttemptMove& move);
-	virtual void printState() = 0;
-	virtual void calcMove(bool moveHorizontal) = 0;
-	virtual void tickUpdate(bool moveHorizontal);
-	virtual void left()	{;}
-	virtual void right() {;}
-	virtual void landed() {;}
-	virtual void autoMove() {;}
-	void startedState()
-	{
-		mFramesInState = 0;
-	}
 };
 

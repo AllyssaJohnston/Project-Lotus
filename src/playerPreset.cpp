@@ -2,27 +2,26 @@
 
 CPlayerPreset::CPlayerPreset() : EntityPreset()
 {
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mEntityType             = EEntityType_NON_STATIC;
+	mTypeName				= "PLAYER";
+	
 	mCharacterMode			= ECharacterModes_MOVING;
-
 	mMovementCodes			= { EEntityMovements_INPUT };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 
-	mWidth					= 30;
-	mHeight					= 70;
+	mInputDriven			= true;
 
 	mCurDirection			= EDirection_LEFT;
-
 	mMovementVect2			= Vect2(8, 5);
 	mJumpDistance		    = 75;
 
+	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mSpreadEdges			= false;
 	mSpreadEdgesInterval    = 0;
 	mImmuneToStatusEffects  = false;
 
-	mTypeName				= "PLAYER";
-
+	mWidth = 30;
+	mHeight = 70;
 	int imageOffsetX		= 0;
 	int imageOffsetY		= 0;
 	int maxImageWidth       = 125;

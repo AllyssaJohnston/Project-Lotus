@@ -118,22 +118,23 @@ Crate::~Crate() { Platform::~Platform(); }
 void Crate::tick()
 {
 	Entity::tick();
-	if (mMovementManager.getPositionData().mOnGround)
+	if (mMovementManager.isOnGround())
 	{
-		for (int count = 0; count < mMovementManager.getPositionData().mCurGroundCharacteristics.size(); count++)
+		if (mMovementManager.inGroundCharacteristics(EEntityCharacteristicsTypes_SLIPPERY))
 		{
-			if (mMovementManager.getPositionData().mCurGroundCharacteristics[count] == EEntityCharacteristicsTypes_SLIPPERY)
-			{
-				mMovementManager.getMovementStates()[EMovementStateIndex_WALKING]->autoMove();
-			}
+			// on slippery
+			mMovementManager.getMovementStates()[EMovementStateIndex_WALKING]->autoMove();
 		}
 	}
 	mMovementManager.calculateXDirection();
 	mMovementManager.calcMovement();
-
 }
 
-void Crate::postTick() { Platform::postTick(); }
+void Crate::postTick() 
+{ 
+	Entity::postTick();
+	mMovementManager.postTick();
+}
 
 void Crate::setCheckpointStats()
 {

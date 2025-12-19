@@ -1,10 +1,9 @@
 #include "movementWalk.h"
 
-WalkingState::WalkingState(PositionData& pos, MovementData& movData, AttemptMove& move) : mMovementData(movData), MovementState(pos, move){;}
+WalkingState::WalkingState(PositionData& pos, MovementData& movData, AttemptMove& move) : mMovementData(movData), MovementState(pos, move) { mStateName = "WalkingState"; }
 
-void WalkingState::printState() { std::cout << "WalkingState" << "\n"; }
-
-void WalkingState::calcMove(bool moveHorizontal) {
+void WalkingState::calcMove(bool moveHorizontal) 
+{
 	// Attempt to fall
 	Vect2 topLeft = mPositionData.mHitbox.getTopLeft();
 	mAttemptMove.mWantToMoveTo = topLeft;

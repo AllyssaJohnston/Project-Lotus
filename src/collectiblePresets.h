@@ -27,7 +27,7 @@ struct CEndOfLevelPreset : public CCollectiblePreset
 struct CMiniGameLevelPreset : public CCollectiblePreset
 {
 	LevelData nextLevelData;
-	CMiniGameLevelPreset(int enemyType, LevelData givenNextLevelData);
+	CMiniGameLevelPreset(EEntityCharacterTypes enemyType, LevelData givenNextLevelData);
 
-	void setUpAnimationPresets(int enemyType);
+	void setUpAnimationPresets(EEntityCharacterTypes enemyType);
 };

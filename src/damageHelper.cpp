@@ -16,7 +16,7 @@ bool willKillCharacter(const Entity& entity, const EEntityEdgeType edgeType)
 void spreadEdges(Entity& spreadingEntity, Entity& entityToSpreadTo)
 {
     if (spreadingEntity.getAmAlive() and entityToSpreadTo.getAmAlive() and ( spreadingEntity.mSpreadEdges 
-        or (spreadingEntity.getMovementManager().mHaveStatusEffect and !entityToSpreadTo.mImmuneToStatusEffects)))
+        or (spreadingEntity.getMovementManager().haveStatusEffect() and !entityToSpreadTo.mImmuneToStatusEffects)))
     {
         HitboxEdges edges    = spreadingEntity.getMovementManager().getHitboxEdges();
         int         interval = spreadingEntity.mSpreadEdgesInterval;

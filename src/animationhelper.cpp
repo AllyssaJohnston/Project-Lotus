@@ -129,7 +129,7 @@ void AnimationManager::setUpAnimation(const AnimationPreset& animationPreset, in
 	case EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO:
 		for (int countOutfit = 0; countOutfit < (int)animationPreset.mOutfitsWithFrameNames.size(); countOutfit++)
 		{
-			Outfit* curOutfit = new Outfit();
+			Outfit* pCurOutfit = new Outfit();
 			for (int countFrame = 0; countFrame < (int)animationPreset.mOutfitsWithFrameNames[countOutfit].size(); countFrame++)
 			{
 				ImageObject* curImageObject;
@@ -143,11 +143,11 @@ void AnimationManager::setUpAnimation(const AnimationPreset& animationPreset, in
 					curImageObject = new ImageObject(animationPreset.mOutfitsWithFrameNames[countOutfit][countFrame], imageRatio);
 				}
 				curImageObject->setImageOffset(animationPreset.mImageOffsetX, animationPreset.mImageOffsetY);
-				curOutfit->mpFrames.push_back(curImageObject);
+				pCurOutfit->mpFrames.push_back(curImageObject);
 				curImageObject = nullptr;
 			}
-			outfits.push_back(curOutfit);
-			curOutfit = nullptr;
+			outfits.push_back(pCurOutfit);
+			pCurOutfit = nullptr;
 		}
 		break;
 

@@ -9,6 +9,14 @@ void MovementState::tickUpdate(bool moveHorizontal)
 	mAttemptMove.mInterrupted = false;
 }
 
+void MovementState::startedState()  {  mFramesInState = 0;  }
+
+void MovementState::printState() { std::cout << mStateName << "\n"; }
+
+
+bool PositionData::inGroundCharacteristics(EEntityCharacteristicsTypes type) const { return (std::find(mCurGroundCharacteristics.begin(), mCurGroundCharacteristics.end(), type) != mCurGroundCharacteristics.end()); }
+
+
 
 void MovementData::setUp(const std::vector<EEntityMovements>& movementCodes,  const EEntityMovements& curMovementCode, const int& movementCodeInterval, 
 						 const ECharacterModes& curCharacterMode)
@@ -18,12 +26,12 @@ void MovementData::setUp(const std::vector<EEntityMovements>& movementCodes,  co
 	mMovementCodeCountDown = movementCodeInterval;
 	mMovementCodeInterval = movementCodeInterval;
 
-	mCurCharacterMode = curCharacterMode;
+	mCharacterMode = curCharacterMode;
 }
 
-void MovementData::setCurCharacterMode(ECharacterModes newMode) { mCurCharacterMode = newMode; }
+void MovementData::setCurCharacterMode(ECharacterModes newMode) { mCharacterMode = newMode; }
 
-ECharacterModes MovementData::getCurCharacterMode() const { return mCurCharacterMode;  }
+ECharacterModes MovementData::getCharacterMode() const { return mCharacterMode;  }
 
 void MovementData::updateMovementCodeCountDown(bool onGround)
 {
@@ -69,4 +77,14 @@ void MovementData::reset()
 {
 	resetMovementCodeCountDown();
 	setCurMovementCode(mMovementCodes[0]);
+}
+
+
+void JumpingData::stopJump()
+{
+	mAmJump = false;
+	mAmWallJump = false;
+	mWallJumpDirection = EDirection_NONE;
+
+	mJumpDistanceLeft = 0;
 }

@@ -3,27 +3,27 @@
 ProjectilePreset::ProjectilePreset() : EntityPreset()
 {
 	mEntityClassType			= EEntityClassTypes_PROJECTILE;
-
-	mHitboxEdges				= HitboxEdges(EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS);
 	mEntityType					= EEntityType_NON_STATIC;
 
-	mCharacterMode				= ECharacterModes_MOVING;
-	mMovementCodes				= {EEntityMovements_FLY};
-	mMovementPath				= EEntityMovementPath_DIAGONAL;
+	mCharacterMode = ECharacterModes_MOVING;
+	mMovementCodes = { EEntityMovements_FLY };
+	mMovementPath = EEntityMovementPath_DIAGONAL;
 
-	mImageOffsetX = 0;
-	mImageOffsetY = 0;
+	mHitboxEdges				= HitboxEdges(EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_HAZARDOUS);
+	mSpreadEdges = false;
+	mSpreadEdgesInterval = 0;
+	mImmuneToStatusEffects = false;
 
 	mVulnerableToProjectiles = true;
-
-	mSpreadEdges			 = false;
-	mSpreadEdgesInterval     = 0;
-	mImmuneToStatusEffects   = false;
+	
+	mImageOffsetX = 0;
+	mImageOffsetY = 0;
 }
 
 PlayerProjectilePreset::PlayerProjectilePreset(EEntityMovementPath movementPath) : ProjectilePreset()
 {
 	mEntityCharacterType      = EEntityCharacterTypes_PJ_PLAYER_PROJECTILE;
+	mTypeName = "PLAYER PROJECTILE";
 
 	mMovementVect2            = Vect2(6, 6);
 	mMovementPath             = movementPath;
@@ -44,10 +44,6 @@ PlayerProjectilePreset::PlayerProjectilePreset(EEntityMovementPath movementPath)
 
 	int maxImageWidth  = 80;
 	int maxImageHeight = 80;
-
-	mTypeName = "PLAYER PROJECTILE";
-
-
 	int  stationaryFrameRate = 0;
 	bool stationaryMustFinish = false;
 	mAnimationPresets = { AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, mImageOffsetX, mImageOffsetY, stationaryFrameRate, stationaryMustFinish) };
@@ -56,6 +52,7 @@ PlayerProjectilePreset::PlayerProjectilePreset(EEntityMovementPath movementPath)
 EnemyProjectilePreset::EnemyProjectilePreset() : ProjectilePreset()
 {
 	mEntityCharacterType      = EEntityCharacterTypes_PJ_ENEMY_PROJECTILE;
+	mTypeName = "ENEMY PROJECTILE";
 
 	mMovementVect2            = Vect2(5, 5);
 
@@ -64,9 +61,6 @@ EnemyProjectilePreset::EnemyProjectilePreset() : ProjectilePreset()
 
 	int maxImageWidth         = 35;
 	int maxImageHeight        = 35;
-
-	mTypeName = "ENEMY PROJECTILE";
-
 
 	int  stationaryFrameRate = 0;
 	bool stationaryMustFinish = false;

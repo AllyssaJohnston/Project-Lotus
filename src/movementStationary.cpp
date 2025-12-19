@@ -1,13 +1,10 @@
 #include "movementStationary.h"
 
-StationaryState::StationaryState(PositionData& pos, MovementData& mov, JumpingData& jump, AttemptMove& move) : mMovementData(mov), mJumpData(jump), MovementState(pos, move) { ; }
-
-void StationaryState::printState() { std::cout << "StationaryState" << "\n"; }
+StationaryState::StationaryState(PositionData& pos, MovementData& mov, AttemptMove& move) : mMovementData(mov), MovementState(pos, move) { mStateName = "StationaryState"; }
 
 void StationaryState::calcMove(bool moveHorizontal)
 {
 	Vect2 topLeft = mPositionData.mHitbox.getTopLeft();
 	mAttemptMove.mWantToMoveTo = topLeft;
-	mAttemptMove.mWantToMoveTo.changeY(mMovementData.mCurMovementVect2.getY());
-	mMovementData.mCurDirectionY = EDirection_DOWN;
 }
+

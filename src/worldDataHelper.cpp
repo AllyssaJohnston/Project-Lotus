@@ -484,7 +484,7 @@ void WorldData::updatePlayerCollisions()
 					// SPECIAL CASES
 					if (enemyEdgeType == EEntityEdgeType_BOUNCY)
 					{
-						if (!movementManager.getJumpingData().mAmJump)
+						if (!movementManager.inJump())
 						{
 							movementManager.collideWithBouncy();
 						}
@@ -1376,7 +1376,7 @@ bool WorldData::updateNonstaticCollisionEffects(std::vector<Entity*>& pNonstatic
 		switch (collision.mEntity2.getClassType())
 		{
 		case EEntityClassTypes_PLATFORM:
-			if (collision.mEntity2.getMovementManager().getMovementData().mCurCharacterMode == ECharacterModes_STATIC) {
+			if (collision.mEntity2.getMovementManager().getCurMode() == ECharacterModes_STATIC) {
 				collideWithPlatform(collision);
 			}
 			else
@@ -1407,7 +1407,7 @@ bool WorldData::updateNonstaticCollisionEffects(std::vector<Entity*>& pNonstatic
 		switch (reverseCollision.mEntity2.getClassType())
 		{
 		case EEntityClassTypes_PLATFORM:
-			if (reverseCollision.mEntity2.getMovementManager().getMovementData().mCurCharacterMode == ECharacterModes_STATIC) {
+			if (reverseCollision.mEntity2.getMovementManager().getCurMode() == ECharacterModes_STATIC) {
 				collideWithPlatform(reverseCollision);
 			}
 			else
@@ -2022,7 +2022,6 @@ void WorldData::entityPostTick()
 	std::vector <Platform*> pAllPlatforms = curLevel->getAllActivePlatforms();
 	for (Platform* pCurPlatform : pAllPlatforms)
 	{
-		pCurPlatform->getMovementManager().postTick();
 		pCurPlatform->postTick();
 	}
 

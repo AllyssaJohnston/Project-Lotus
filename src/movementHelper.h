@@ -19,18 +19,13 @@ private:
 	Vect2 mCheckpointPosition;
 
 	std::array<MovementState*, numMovementStates> mMovementStates;
-
 	EMovementStateIndex mCurMovementState			= EMovementStateIndex_STANDING;
 	EMovementStateIndex mLastMovementState          = EMovementStateIndex_STANDING;
-
-	bool				mDebugPrint					= false;
 
 	PositionData		mPositionData;
 	MovementData		mMovementData;
 	JumpingData			mJumpingData;
 	AttemptMove         mAttemptMove;
-
-	int					mMinFramesToAccelerate = 120;
 
 	int                 mCurHitboxEdgesInterval     = 0;
 	int                 mCurHitboxEdgesIntervalLeft = 0;
@@ -40,39 +35,30 @@ private:
 
 	bool				mCollidedThisFrame			= false;
 	bool			    mSwappedDirThisFrame		= false;
+
 	bool				mReceivedInputThisFrame		= false;
 	bool				mInputDriven				= false;
-
-	int					mFramesInState              = 0;
 
 	bool				mMoveHorizontal				= true;
 	bool				mAutoMove					= false;
 	Vect2				mAutoMoveVect2				= Vect2(0, 0);
 
+	bool				mHaveStatusEffect			= false;
+
 	void setUpMovementManagerInternal(const Vect2 startPosition, const EntityPreset& preset);
 
 public:
-	bool mHaveStatusEffect = false;
+	
 
 	MovementManager();
-
 	void setupMovementManager(const Vect2 startPosition, const EntityPreset& preset);
-
 	void setupMovementManager(const Vect2 startPosition, const EntityPreset& preset, const EDirection curDirection);
-
 	void setupMovementManager(const Vect2 startPosition, const EntityPreset& preset, const int widthInput, const int heightInput);
-
 	void setupMovementManager(const Vect2 startPosition, const EntityPreset& preset, const EEntityMovementPath path, const EDirection curDirection, const int widthInput, const int heightInput);
-
 	void setupMovementManager(const Vect2 startPosition, const Vect2 movementVect, const EntityPreset& preset, const EDirection curDirectionX, const EDirection curDirectionY);
 
-	~MovementManager() { ; }
 
-
-	void setInputDriven(bool input);
-
-
-	void setMovementState(EMovementStateIndex);
+	void setMovementState(EMovementStateIndex index);
 
 	std::array<MovementState*, numMovementStates> getMovementStates() const;
 
@@ -99,17 +85,12 @@ public:
 	void moveToWantToMoveTo(); // for old collision system
 #endif
 
-	void updateAccelerationY();
 
 	void push(int changeMovement, EDirection givenDirection);
 		
 		
-	void setCurCharacterMode(ECharacterModes givenCharacterMode);
 
-	void setCurMovementCode(EEntityMovements givenCharacterCode);
-
-
-	void useInput(std::vector<KeyData>& eventVect, bool useHorizontalInput, bool canWallJump = false);
+	void useInput(std::vector<KeyData>& eventVect, bool useHorizontalInput, bool canWallJump);
 
 	void collided(EDirection direction);
 
@@ -121,17 +102,19 @@ public:
 	bool isOnGround() const;
 
 	int getMovementEffect() const;
+
+	bool inGroundCharacteristics(EEntityCharacteristicsTypes type) const;
 		
 
 	bool inJump() const;
-
-	bool inWallJump() const;
 
 	void jump(float jumpMultipler);
 
 	bool collideWithBouncy();
 
 	void startWallJump();
+
+	int getCurJumps();
 
 	void setMaxJumps(int maxJumps);
 
@@ -163,14 +146,21 @@ public:
 
 	void setCurDirection(EDirection dir);
 
-
 	EDirection getLastFrameDirection() const;
 		
 	EDirection getLastFrameDirectionY() const;
 
 	bool getDidSwitchedDir() const;
 
+	void calculateXDirection();
 
+	void calculateYDirection();
+
+
+
+	void setCurCharacterMode(ECharacterModes givenCharacterMode);
+
+	void setCurMovementCode(EEntityMovements givenCharacterCode);
 
 	EEntityMovements getMovementCode() const;
 
@@ -190,11 +180,8 @@ public:
 
 	EEntityEdgeType getEdgeType(EBoxSide boxSide) const;
 
-		
 
-	void calculateXDirection();
-
-	void calculateYDirection();
+	bool haveStatusEffect();
 
 
 	void setStartPosition(Vect2 newStartingPosition);
@@ -202,17 +189,13 @@ public:
 	void setCheckpointPosition();
 
 
-
-	JumpingData& getJumpingData();
-
-	MovementData& getMovementData();
-
-	PositionData& getPositionData();
-
+	
 	AttemptMove& getAttemptMove();
 
 
 	bool getReceivedInputThisFrame() const;
 
-	void setDebugPrint(bool);
+	void printState() const;
+
+
 };

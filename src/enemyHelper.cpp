@@ -48,7 +48,6 @@ void Enemy::setUpEnemyBaseStats(const Vect2& positionInput, const EEnemyPreset& 
 	setUpBaseStats(preset);
 	mAnimationManager.setupAnimationManager(preset.mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
 	mMovementManager.setupMovementManager(positionInput, preset);
-	mMovementManager.setInputDriven(false);
 
 	if (DEMO == 0)
 	{
@@ -70,7 +69,7 @@ void Enemy::tick()
 {
 	Entity::tick();
 	mBrain.tick();
-	if (!mBrain.isMovementPaused() )
+	if (!mBrain.isMovementPaused())
 	{
 		mMovementManager.calcMovement();
 	}
@@ -82,7 +81,7 @@ void Enemy::postTick()
 	updateAnimationManager();
 	mMovementManager.postTick();
 	mMovementManager.setMovementStateToCharacterMode();
-	mMovementManager.setCurFacingDirection(mMovementManager.getMovementData().mCurDirection);
+	mMovementManager.setCurFacingDirection(mMovementManager.getCurDirection());
 }
 
 

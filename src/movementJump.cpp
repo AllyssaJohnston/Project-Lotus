@@ -1,17 +1,8 @@
 #include "movementJump.h"
 
-void JumpingData::stopJump()
-{
-	mAmJump					= false;
-	mAmWallJump				= false;
-	mWallJumpDirection		= EDirection_NONE;
 
-	mJumpDistanceLeft		= 0;
-}
 
-JumpingState::JumpingState(PositionData& pos, MovementData& movData, JumpingData& jump, AttemptMove& move) : mMovementData(movData), mJumpData(jump), MovementState(pos, move) {;}
-
-void JumpingState::printState() {	std::cout << "JumpingState" << "\n"; }
+JumpingState::JumpingState(PositionData& pos, MovementData& movData, JumpingData& jump, AttemptMove& move) : mMovementData(movData), mJumpData(jump), MovementState(pos, move) { mStateName = "JumpingState"; }
 
 void JumpingState::calcMove(bool moveHorizontal)
 {
