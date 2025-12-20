@@ -147,9 +147,6 @@
     <ClInclude Include="src\combatAttackHelperClass.h">
       <Filter>Source Files\MiniGame\Attack</Filter>
     </ClInclude>
-    <ClInclude Include="src\combatAttackPreset.h">
-      <Filter>Source Files\MiniGame\Attack</Filter>
-    </ClInclude>
     <ClInclude Include="src\combatCharacterHelper.h">
       <Filter>Source Files\MiniGame\Character</Filter>
     </ClInclude>
@@ -243,6 +240,9 @@
     <ClInclude Include="src\levelEffects.h">
       <Filter>Source Files\Platforming\PlatformingEntities</Filter>
     </ClInclude>
+    <ClInclude Include="src\combatAttackPresets.h">
+      <Filter>Source Files\MiniGame\Attack</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\movementHelper.cpp">
@@ -300,9 +300,6 @@
       <Filter>Source Files\Platforming</Filter>
     </ClCompile>
     <ClCompile Include="src\combatAttackHelperClass.cpp">
-      <Filter>Source Files\MiniGame\Attack</Filter>
-    </ClCompile>
-    <ClCompile Include="src\combatAttackPreset.cpp">
       <Filter>Source Files\MiniGame\Attack</Filter>
     </ClCompile>
     <ClCompile Include="src\combatCharacterHelper.cpp">
@@ -436,6 +433,9 @@
     </ClCompile>
     <ClCompile Include="src\levelEffects.cpp">
       <Filter>Source Files\Platforming\PlatformingEntities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\combatAttackPresets.cpp">
+      <Filter>Source Files\MiniGame\Attack</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

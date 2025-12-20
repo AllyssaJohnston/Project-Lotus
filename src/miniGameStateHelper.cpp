@@ -5,7 +5,7 @@ MiniGameState::MiniGameState(KeyboardData& keyboardData, MiniGameStateData& data
 
 void MiniGameState::useMouseInput(EMiniGameState curStateEnum, ScreenObject& screenObject) 
 {
-	if (curStateEnum == EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT or curStateEnum == EMiniGameState_PLAYER_TAKE_ACTION_ATTACK)
+	if (curStateEnum == EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT or curStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT)
 	{
 		float x;
 		float y;
@@ -102,29 +102,63 @@ void MiniGamePlayerWaitForActionInput::postTick(EMiniGameState nextStateEnum)
 
 
 
-MiniGamePlayerWaitForAttackInput::MiniGamePlayerWaitForAttackInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
+MiniGamePlayerWaitForAttackOptionInput::MiniGamePlayerWaitForAttackOptionInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
-void MiniGamePlayerWaitForAttackInput::postTick(Attack attack)
+void MiniGamePlayerWaitForAttackOptionInput::postTick(Attack attack)
 {
 	mData.mpCurAttack = new Attack(attack);
-	mData.mNextMiniGameState = attack.mRequiresDirectionInput ? EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT : EMiniGameState_PLAYER_TAKE_ACTION_ATTACK;
+	if (attack.mRequiresDirectionInput)
+	{
+		mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT;
+	}
+	else if (attack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
+	{
+		mData.mCurAttackDirection = EDirection_ALL;
+		mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK;
+	}
+	else
+	{
+		mData.mCurAttackDirection = EDirection_ALL;
+		mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT;
+	}
 }
 
 
 
-MiniGamePlayerWaitForAttackSubInput::MiniGamePlayerWaitForAttackSubInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
+MiniGamePlayerWaitForAttackDirectionInput::MiniGamePlayerWaitForAttackDirectionInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
-void MiniGamePlayerWaitForAttackSubInput::postTick(EDirection curAttackDirection)
+void MiniGamePlayerWaitForAttackDirectionInput::postTick(EDirection curAttackDirection)
 {
 	mData.mCurAttackDirection = curAttackDirection;
-	mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK;
+	mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK;
+}
+
+
+MiniGamePlayerWaitForAttackTileInput::MiniGamePlayerWaitForAttackTileInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData) { ; }
+
+void MiniGamePlayerWaitForAttackTileInput::selectTile(const Vect2 pos)
+{
+	Tile* pTile = mWorldData.getStage()->mGrid.getTileFromCoords(pos.getX(), pos.getY());
+	if (pTile != nullptr && tileInAttackRange(*mData.mpCurAttack, mData.mCurAttackDirection, mWorldData.getStage()->mGrid, pTile, mData.getCharacter()->mCombatMovementManager.getCurTile()))
+	{
+		pTile->setMode(EMiniGameCombatTileMode_SELECTED);
+		std::vector <Tile*> pTilesToAttack = { pTile };
+		mWorldData.getStage()->mCombatManager.attackMultipleTiles(*mData.getCharacter(), pTilesToAttack, *mData.mpCurAttack);
+		postTick();
+	}
+}
+
+void MiniGamePlayerWaitForAttackTileInput::postTick()
+{
+	setUpForBufferState(mWorldData, mData);
+	mData.mAttacked = true;
 }
 
 
 
-MiniGamePlayerCompleteDirectionalAttack::MiniGamePlayerCompleteDirectionalAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
+MiniGamePlayerCompleteActionAttack::MiniGamePlayerCompleteActionAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
-void MiniGamePlayerCompleteDirectionalAttack::tick()
+void MiniGamePlayerCompleteActionAttack::tick()
 {
 	if (mData.mTicks < mData.mTicksBeforeAction)
 	{
@@ -136,7 +170,7 @@ void MiniGamePlayerCompleteDirectionalAttack::tick()
 	}
 }
 
-void MiniGamePlayerCompleteDirectionalAttack::attackTiles()
+void MiniGamePlayerCompleteActionAttack::attackTiles()
 {
 	std::vector <TileCoords> tileCoords = returnTileCoords(*mData.getCharacter()->mCombatMovementManager.getCurTile(), mData.mpCurAttack->mType, mData.mCurAttackDirection);
 	std::vector <Tile* > pTilesToAttack;
@@ -152,7 +186,7 @@ void MiniGamePlayerCompleteDirectionalAttack::attackTiles()
 	postTick();
 }
 
-void MiniGamePlayerCompleteDirectionalAttack::postTick()
+void MiniGamePlayerCompleteActionAttack::postTick()
 {
 	setUpForBufferState(mWorldData, mData);
 	mData.mAttacked = true;
@@ -160,54 +194,33 @@ void MiniGamePlayerCompleteDirectionalAttack::postTick()
 
 
 
-MiniGamePlayerTakeActionAttack::MiniGamePlayerTakeActionAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
-
-void MiniGamePlayerTakeActionAttack::selectTile(const Vect2 pos)
-{
-	Tile* pTile = mWorldData.getStage()->mGrid.getTileFromCoords(pos.getX(), pos.getY());
-
-	if (pTile != nullptr && tileInAttackRange(*mData.mpCurAttack, mData.mCurAttackDirection, mWorldData.getStage()->mGrid, pTile, mData.getCharacter()->mCombatMovementManager.getCurTile()))
-	{
-		pTile->setMode(EMiniGameCombatTileMode_SELECTED);
-		std::vector <Tile*> pTilesToAttack = { pTile };
-		mWorldData.getStage()->mCombatManager.attackMultipleTiles(*mData.getCharacter(), pTilesToAttack, *mData.mpCurAttack);
-		postTick();
-	}
-}
-
-void MiniGamePlayerTakeActionAttack::postTick()
-{
-	setUpForBufferState(mWorldData, mData);
-	mData.mAttacked = true;
-}
 
 
+MiniGamePlayerCompleteActionDefend::MiniGamePlayerCompleteActionDefend(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
-MiniGamePlayerTakeActionDefend::MiniGamePlayerTakeActionDefend(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
-
-void MiniGamePlayerTakeActionDefend::tick()
+void MiniGamePlayerCompleteActionDefend::tick()
 {
 	mData.getCharacter()->defend();
 	postTick();
 }
 
-void MiniGamePlayerTakeActionDefend::postTick()
+void MiniGamePlayerCompleteActionDefend::postTick()
 {
 	setUpForBufferState(mWorldData, mData);
 	mData.mDefended = true;
 }
 
 
-MiniGamePlayerTakeActionHeal::MiniGamePlayerTakeActionHeal(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData) { ; }
+MiniGamePlayerCompleteActionHeal::MiniGamePlayerCompleteActionHeal(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData) { ; }
 
-void MiniGamePlayerTakeActionHeal::tick()
+void MiniGamePlayerCompleteActionHeal::tick()
 {
 	// self heal
 	mData.getCharacter()->heal(mData.getCharacter()->getHealAmount());
 	postTick();
 }
 
-void MiniGamePlayerTakeActionHeal::postTick()
+void MiniGamePlayerCompleteActionHeal::postTick()
 {
 	setUpForBufferState(mWorldData, mData);
 	mData.mHealed = true;
@@ -258,7 +271,7 @@ void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 
 	// now try to find the best tile they can attack from
 	int maxNumberOfCharactersCanAttack = 0;
-	int minDistanceFromPlayer = std::numeric_limits<int>::max();
+	float minDistanceFromPlayer = FLT_MAX;
 	Tile* pBestTileToMoveTo = nullptr;
 
 	for (Tile* pMoveTile : pAllPossibleMoveTiles)
@@ -267,7 +280,7 @@ void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 		int curNumCharactersCanAttack = (int)playerTiles.size();
 		for (Tile* pPlayerTile : playerTiles)
 		{
-			int curDistance = getDistanceBetweenTiles(*pMoveTile, *pPlayerTile);
+			float curDistance = getDistanceBetweenTiles(*pMoveTile, *pPlayerTile);
 			if (curNumCharactersCanAttack > maxNumberOfCharactersCanAttack)
 			{
 				// can attack more things
@@ -293,13 +306,13 @@ void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 	// No tiles enemy can attack from
 	// move closer to a player
 	std::vector <TileDistance> tileDistances = returnListOfTileDistances(combatManager.mpCurAliveCombatCharacters, pAllPossibleMoveTiles, &curEnemy);
-	minDistanceFromPlayer = std::numeric_limits<int>::max();
+	minDistanceFromPlayer = FLT_MAX;
 	Tile* pCurTile = &curEnemyTile;
 	for (TileDistance& curTileDistance : tileDistances)
 	{
 		if (minDistanceFromPlayer > curTileDistance.mDistance)
 		{
-			minDistanceFromPlayer = (int)curTileDistance.mDistance;
+			minDistanceFromPlayer = curTileDistance.mDistance;
 			pCurTile = &curTileDistance.mTile2;
 		}
 	}
@@ -537,21 +550,21 @@ MiniGameExit::MiniGameExit(KeyboardData& keyboardData, MiniGameStateData& data, 
 //MINI GAME STATE MANAGER
 MiniGameStateManager::MiniGameStateManager(KeyboardData& keyboardData, MiniGameWorldData& miniGameWorldData) : mWorldData(miniGameWorldData)
 {
-	mpStates = {new MiniGamePlayerWaitForMoveInput(			keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerMoveCharacter(			keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerWaitForActionInput(		keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerWaitForAttackInput(		keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerWaitForAttackSubInput(	keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerCompleteDirectionalAttack(keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerTakeActionAttack(			keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerTakeActionDefend(			keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerTakeActionHeal(			keyboardData, mData.mStateData, mWorldData),
-				new MiniGameEnemyMoveCharacter(				keyboardData, mData.mStateData, mWorldData),
-				new MiniGameEnemyTakeAction(				keyboardData, mData.mStateData, mWorldData),
-				new MiniGameCharacterStunned(				keyboardData, mData.mStateData, mWorldData),
-				new MiniGameBuffer(							keyboardData, mData.mStateData, mWorldData),
-				new MiniGameExit(							keyboardData, mData.mStateData, mWorldData),
-				new MiniGameBuildNextLevel(					keyboardData, mData.mStateData, mWorldData) 
+	mpStates = {new MiniGamePlayerWaitForMoveInput(				keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerMoveCharacter(				keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerWaitForActionInput(			keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerWaitForAttackOptionInput(		keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerWaitForAttackDirectionInput(	keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerWaitForAttackTileInput(		keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerCompleteActionAttack(			keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerCompleteActionDefend(			keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerCompleteActionHeal(			keyboardData, mData.mStateData, mWorldData),
+				new MiniGameEnemyMoveCharacter(					keyboardData, mData.mStateData, mWorldData),
+				new MiniGameEnemyTakeAction(					keyboardData, mData.mStateData, mWorldData),
+				new MiniGameCharacterStunned(					keyboardData, mData.mStateData, mWorldData),
+				new MiniGameBuffer(								keyboardData, mData.mStateData, mWorldData),
+				new MiniGameExit(								keyboardData, mData.mStateData, mWorldData),
+				new MiniGameBuildNextLevel(						keyboardData, mData.mStateData, mWorldData) 
 	};
 	mData.mCurStateEnum = EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
 
@@ -696,8 +709,8 @@ void MiniGameStateManager::updateTileColors(const StyleManager& styleManager)
 		tileCoordsList = pCurCombatCharacter->mCombatMovementManager.getMoveTiles();
 		tileType = EMiniGameCombatActionType_MOVE;
 		break;
-	case EMiniGameState_PLAYER_TAKE_ACTION_ATTACK:
-	case EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK:
+	case EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT:
+	case EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK:
 	case EMiniGameState_ENEMY_TAKE_ACTION:
 		tileType = EMiniGameCombatActionType_ATTACK;
 		if (mData.mStateData.mpCurAttack != nullptr)
@@ -766,8 +779,7 @@ void MiniGameStateManager::createDebugLog()
 		line = mData.mStateData.getCharacter()->mName + " moved to " + std::to_string(mData.mStateData.mpTileToMoveTo->mRow) + ", " + std::to_string(mData.mStateData.mpTileToMoveTo->mCol);
 		break;
 
-	case EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK:
-	case EMiniGameState_PLAYER_TAKE_ACTION_ATTACK:
+	case EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK:
 	case EMiniGameState_ENEMY_TAKE_ACTION:
 		if (mData.mStateData.mAttacked)
 		{

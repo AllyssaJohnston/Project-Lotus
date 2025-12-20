@@ -35,6 +35,8 @@ enum EMiniGameCombatSpecialEffectTypes
     EMiniGameCombatSpecialEffectTypes_STUN,
     EMiniGameCombatSpecialEffectTypes_LOSE_TURN,
     EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER,
+    EMiniGameCombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER,
+    EMiniGameCombatSpecialEffectTypes_HEALTH_CAPACITY_MULTIPLIER,
     EMiniGameCombatSpecialEffectTypes_HEAL,
     EMiniGameCombatSpecialEffectTypes_MAX
 };

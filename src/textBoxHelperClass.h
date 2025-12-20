@@ -24,11 +24,7 @@ enum ETextBoxFunction
 	ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX,
 
 	ETextBoxFunction_ATTACK_STYLE_BOX,
-
-	ETextBoxFunction_ATTACK_DIRECTION_UP_BOX,
-	ETextBoxFunction_ATTACK_DIRECTION_DOWN_BOX,
-	ETextBoxFunction_ATTACK_DIRECTION_LEFT_BOX,
-	ETextBoxFunction_ATTACK_DIRECTION_RIGHT_BOX,
+	ETextBoxFunction_ATTACK_DIRECTION_BOX,
 	
 	ETextBoxFunction_MAX
 };
@@ -39,6 +35,7 @@ enum ETextBoxType
 	ETextBoxType_TEXT_BOX,
 	ETextBoxType_GAME_STAT_BOX,
 	ETextBoxType_MINI_GAME_BOX,
+	ETextBoxType_MINI_GAME_DIRECTION_BOX,
 	ETextBoxType_MINI_GAME_STAT_BOX,
 	ETextBoxType_MINI_GAME_CHARACTER_BOX,
 	ETextBoxType_MINI_GAME_PLAYER_BOX,
@@ -121,6 +118,7 @@ struct TextBoxData
 	bool							mShowDuringAllCharacters = false;
 	ECharacterStatBoxValueToDisplay mCharacterStatToDisplay = ECharacterStatBoxValueToDisplay_INVALID;
 	int								mAttackNum = -1;
+	EDirection						mAttackDirection = EDirection_INVALID;
 	ETextBoxType					mType = ETextBoxType_INVALID;
 	std::vector <EMiniGameState>	mMiniGameStateWhenToShowList;
 

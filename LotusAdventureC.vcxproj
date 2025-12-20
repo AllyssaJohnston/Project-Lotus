@@ -28,7 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\animationHelper.h" />
-    <ClInclude Include="src\combatAttackPreset.h" />
+    <ClInclude Include="src\combatAttackPresets.h" />
     <ClInclude Include="src\entityPresets.h" />
     <ClInclude Include="src\collectibleHelper.h" />
     <ClInclude Include="src\collectiblePresets.h" />
@@ -101,7 +101,7 @@
     <ClCompile Include="src\collectiblePreset.cpp" />
     <ClCompile Include="src\collisionHelper.cpp" />
     <ClCompile Include="src\combatAttackHelperClass.cpp" />
-    <ClCompile Include="src\combatAttackPreset.cpp" />
+    <ClCompile Include="src\combatAttackPresets.cpp" />
     <ClCompile Include="src\combatCharacterHelper.cpp" />
     <ClCompile Include="src\combatCharacterPresets.cpp" />
     <ClCompile Include="src\combatHelper.cpp" />

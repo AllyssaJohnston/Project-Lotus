@@ -14,6 +14,6 @@ std::vector<TileCoords> getGrid(int gridWidth, int gridHeight);
 
 bool isPlayableTile(const Tile& gGivenTile);
 
-int getDistanceBetweenTiles(const Tile& tile1, const Tile& tile2);
+float getDistanceBetweenTiles(const Tile& tile1, const Tile& tile2);
 
 EDirection getDirectionBetweenTiles(const Tile& tile1, const Tile& tile2);

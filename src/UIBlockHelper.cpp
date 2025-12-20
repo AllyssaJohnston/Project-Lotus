@@ -223,8 +223,20 @@ void BlockAlignElementsVertically::adjustBlocksWidthHeight()
 		for (UIBlock* pCurBlock : mpSubBlocks)
 		{
 			pCurBlock->adjustBlocksWidthHeight();
-			maxWidth = std::max(pCurBlock->mHitbox.getWidth() + pCurBlock->mMargins.mLeft + pCurBlock->mMargins.mRight, maxWidth);
-			height += pCurBlock->mHitbox.getHeight() + pCurBlock->mMargins.mTop + pCurBlock->mMargins.mBottom;
+
+			int curWidth = pCurBlock->mHitbox.getWidth();
+			if (curWidth != 0)
+			{
+				curWidth += pCurBlock->mMargins.mLeft + pCurBlock->mMargins.mRight;
+			}
+			int curHeight = pCurBlock->mHitbox.getHeight();
+			if (curHeight != 0)
+			{
+				curHeight += pCurBlock->mMargins.mTop + pCurBlock->mMargins.mBottom;
+			}
+
+			maxWidth = std::max(curWidth, maxWidth);
+			height += curHeight;
 		}
 
 		height = mFillHeight ? std::max(mMaxHeight, height) : height;
@@ -242,8 +254,20 @@ void BlockAlignElementsVertically::adjustBlocksWidthHeight()
 		{
 			if (pCurBox->mShow)
 			{
-				maxWidth = std::max(pCurBox->mpCurHitbox->getWidth() + pCurBox->mMargins.mLeft + pCurBox->mMargins.mRight, maxWidth);
-				height += pCurBox->mpCurHitbox->getHeight() + pCurBox->mMargins.mTop + pCurBox->mMargins.mBottom;
+				int curWidth = pCurBox->mpCurHitbox->getWidth();
+				if (curWidth != 0)
+				{
+					curWidth += pCurBox->mMargins.mLeft + pCurBox->mMargins.mRight;
+				}
+				int curHeight = pCurBox->mpCurHitbox->getHeight();
+				if (curHeight != 0)
+				{
+					curHeight += pCurBox->mMargins.mTop + pCurBox->mMargins.mBottom;
+				}
+
+
+				maxWidth = std::max(curWidth, maxWidth);
+				height += curHeight;
 			}
 		}
 
@@ -481,8 +505,20 @@ void BlockAlignElementsHorizontally::adjustBlocksWidthHeight()
 		for (UIBlock* pCurBlock : mpSubBlocks)
 		{
 			pCurBlock->adjustBlocksWidthHeight();
-			maxHeight = std::max(pCurBlock->mHitbox.getHeight() + pCurBlock->mMargins.mTop + pCurBlock->mMargins.mBottom, maxHeight);
-			width += pCurBlock->mHitbox.getWidth() + pCurBlock->mMargins.mLeft + pCurBlock->mMargins.mRight;
+			int curWidth = pCurBlock->mHitbox.getWidth();
+			if (curWidth != 0)
+			{
+				curWidth += pCurBlock->mMargins.mLeft + pCurBlock->mMargins.mRight;
+			}
+			int curHeight = pCurBlock->mHitbox.getHeight();
+			if (curHeight != 0)
+			{
+				curHeight += pCurBlock->mMargins.mTop + pCurBlock->mMargins.mBottom;
+			}
+
+
+			maxHeight = std::max(curHeight, maxHeight);
+			width += curWidth;
 		}
 
 		width = mFillWidth ? std::max(mMaxWidth, width) : width;
@@ -500,8 +536,20 @@ void BlockAlignElementsHorizontally::adjustBlocksWidthHeight()
 		{
 			if (pCurBox->mShow)
 			{
-				maxHeight = std::max(pCurBox->mpCurHitbox->getHeight() + pCurBox->mMargins.mTop + pCurBox->mMargins.mBottom, maxHeight);
-				width += pCurBox->mpCurHitbox->getWidth() + pCurBox->mMargins.mLeft + pCurBox->mMargins.mRight;
+
+				int curWidth = pCurBox->mpCurHitbox->getWidth();
+				if (curWidth != 0)
+				{
+					curWidth += pCurBox->mMargins.mLeft + pCurBox->mMargins.mRight;
+				}
+				int curHeight = pCurBox->mpCurHitbox->getHeight();
+				if (curHeight != 0)
+				{
+					curHeight += pCurBox->mMargins.mTop + pCurBox->mMargins.mBottom;
+				}
+
+				maxHeight = std::max(curHeight, maxHeight);
+				width += curWidth;
 			}
 		}
 
@@ -711,8 +759,16 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 
 			pCurBlock->adjustBlocksWidthHeight();
 			
-			int curWidth	= pCurBlock->mHitbox.getWidth()  + pCurBlock->mMargins.mLeft + pCurBlock->mMargins.mRight;
-			int curHeight	= pCurBlock->mHitbox.getHeight() + pCurBlock->mMargins.mTop + pCurBlock->mMargins.mBottom;
+			int curWidth = pCurBlock->mHitbox.getWidth();
+			if (curWidth != 0)
+			{
+				curWidth += pCurBlock->mMargins.mLeft + pCurBlock->mMargins.mRight;
+			}
+			int curHeight = pCurBlock->mHitbox.getHeight();
+			if (curHeight != 0)
+			{
+				curHeight += pCurBlock->mMargins.mTop + pCurBlock->mMargins.mBottom;
+			}
 
 			if (mRowHeights.size() <= x) 
 			{
@@ -726,7 +782,6 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 			if (mColWidths.size() <= y)
 			{
 				mColWidths.push_back(curWidth);
-
 			}
 			else
 			{
@@ -745,8 +800,8 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 			height += curHeight;
 		}
 
-		width = mFillWidth ? std::max(mMaxWidth, width) : width;
-		height = mFillHeight ? std::max(mMaxHeight, height) : height;
+		width	= mFillWidth ? std::max(mMaxWidth, width) : width;
+		height	= mFillHeight ? std::max(mMaxHeight, height) : height;
 
 		mHitbox.setWidth(std::max(width, 1));
 		mHitbox.setHeight(std::max(height, 1));
@@ -763,8 +818,16 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 			int x = i / mNumCols;
 			int y = i - (x * mNumCols);
 
-			int curWidth	= pCurBox->mpCurHitbox->getWidth() + pCurBox->mMargins.mLeft + pCurBox->mMargins.mRight;
-			int curHeight	= pCurBox->mpCurHitbox->getHeight() + pCurBox->mMargins.mTop + pCurBox->mMargins.mBottom;
+			int curWidth = pCurBox->mpCurHitbox->getWidth();
+			if (curWidth != 0)
+			{
+				curWidth += pCurBox->mMargins.mLeft + pCurBox->mMargins.mRight;
+			}
+			int curHeight = pCurBox->mpCurHitbox->getHeight();
+			if (curHeight != 0)
+			{
+				curHeight += pCurBox->mMargins.mTop + pCurBox->mMargins.mBottom;
+			}
 
 			if (mRowHeights.size() <= x)
 			{
@@ -793,8 +856,8 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 				height += curHeight;
 			}
 
-			width = mFillWidth ? std::max(mMaxWidth, width) : width;
-			height = mFillHeight ? std::max(mMaxHeight, height) : height;
+			width	= mFillWidth ? std::max(mMaxWidth, width) : width;
+			height	= mFillHeight ? std::max(mMaxHeight, height) : height;
 			i++;
 		}
 

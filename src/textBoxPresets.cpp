@@ -19,8 +19,8 @@ MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool 
 	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
 	mData.mCharacterStatToDisplay		= characterStatToDisplay;
 	mData.mMiniGameStateWhenToShowList	= { EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT, EMiniGameState_PLAYER_MOVE_CHARACTER, EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT,
-											EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT,
-											EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK, EMiniGameState_PLAYER_TAKE_ACTION_ATTACK, EMiniGameState_PLAYER_TAKE_ACTION_DEFEND,
+											EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT,
+											EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT, EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK, EMiniGameState_PLAYER_COMPLETE_ACTION_DEFEND,
 											EMiniGameState_ENEMY_MOVE_CHARACTER, EMiniGameState_ENEMY_TAKE_ACTION, EMiniGameState_BUFFER, EMiniGameState_CHARACTER_STUNNED };
 	mData.mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
 }
@@ -63,16 +63,21 @@ MiniGamePlayerBoxPreset::MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay
 	mData.mType							= ETextBoxType_MINI_GAME_PLAYER_BOX;
 }
 
-
-
-
-
 MiniGameBoxPreset::MiniGameBoxPreset(std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
 {
 	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
 	mData.mType							= ETextBoxType_MINI_GAME_BOX;
 	mMessage							= message;
 }
+
+MiniGameDirectionBoxPreset::MiniGameDirectionBoxPreset(std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList, EDirection direction) : TextBoxPreset()
+{
+	mData.mMiniGameStateWhenToShowList = miniGameStateWhenToShowList;
+	mData.mType = ETextBoxType_MINI_GAME_DIRECTION_BOX;
+	mData.mAttackDirection = direction;
+	mMessage = message;
+}
+
 
 GameStatBoxPreset::GameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay) : TextBoxPreset()
 {
@@ -89,7 +94,6 @@ DontAutoShowImageBoxPreset::DontAutoShowImageBoxPreset(ETextBoxID id) : ImageBox
 
 
 // SHAPE BOXES
-
 ShapeBoxPreset::ShapeBoxPreset(EShapeBoxClass type) : mType(type) { ; }
 
 MiniGameShapeBoxPreset::MiniGameShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters) : ShapeBoxPreset(type)

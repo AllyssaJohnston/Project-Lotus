@@ -130,8 +130,8 @@ void GameStateManager::postTick()
 void GameStateManager::switchToMiniGame()
 {
 	mpCurState->mMenuManager.setCurMenuPage(mpCurState->mMenuManager.mpMenuPages[int(EMenuPageType_MINI_GAME_MENU)]);
-	createMiniGameCharacterStatsMenu(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager, mpCurState->mSettingsManager);
-	createMiniGameCharacterAttackPanel(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager, mpCurState->mSettingsManager);
+	createMiniGameCharacterStatsMenu(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager);
+	createMiniGameCharacterAttackPanel(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager);
 	((GameStatePlayMiniGame*)mpCurState)->setUp();
 	((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.start();
 }
@@ -323,14 +323,14 @@ void GameState::useMouseCursor()
 
 void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 {
-	TextBox* curSelectedTextBox = mMenuManager.mpCurMenuPage->getCurSelectedTextBox();
+	TextBox* pCurSelectedTextBox = mMenuManager.mpCurMenuPage->getCurSelectedTextBox();
 	MiniGameState* pCurState = miniStateManager.mpCurState;
-	if (curSelectedTextBox == nullptr)
+	if (pCurSelectedTextBox == nullptr)
 	{
 		return;
 	}
 
-	switch (curSelectedTextBox->mFunction)
+	switch (pCurSelectedTextBox->mFunction)
 	{
 	case ETextBoxFunction_PLAY_GAME_BOX:
 		mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]);
@@ -343,26 +343,27 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 	case ETextBoxFunction_PLAY_MINI_GAME_BOX:
 		mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MINI_GAME_MENU)]);
 		mGameStateData.mNextGameState = EGameState_PLAY_MINI_GAME;
+		miniStateManager.mWorldData.setNextLevel(miniStateManager.mWorldData.mCheatWorldNumber, miniStateManager.mWorldData.mCheatLevelNumber, miniStateManager.mWorldData.mCheatStageNumber);
 		break;
 	case ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX:
 		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
 		{
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
-			pSpecificCurState->postTick(EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT);
+			pSpecificCurState->postTick(EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT);
 		}
 		break;
 	case ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX:
 		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
 		{
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
-			pSpecificCurState->postTick(EMiniGameState_PLAYER_TAKE_ACTION_DEFEND);
+			pSpecificCurState->postTick(EMiniGameState_PLAYER_COMPLETE_ACTION_DEFEND);
 		}
 		break;
 	case ETextBoxFunction_HEAL_CUR_COMBAT_CHARACTER_BOX:
 		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
 		{
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
-			pSpecificCurState->postTick(EMiniGameState_PLAYER_TAKE_ACTION_HEAL);
+			pSpecificCurState->postTick(EMiniGameState_PLAYER_COMPLETE_ACTION_HEAL);
 		}
 		break;
 	case ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX:
@@ -373,38 +374,17 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 		}
 		break;
 	case ETextBoxFunction_ATTACK_STYLE_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT)
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT)
 		{
-			MiniGamePlayerWaitForAttackInput* pSpecificCurState = (MiniGamePlayerWaitForAttackInput*)pCurState;
-			pSpecificCurState->postTick(miniStateManager.mData.mStateData.getCharacter()->mCombatMovementManager.getAttacks()[curSelectedTextBox->mData.mAttackNum]);
+			MiniGamePlayerWaitForAttackOptionInput* pSpecificCurState = (MiniGamePlayerWaitForAttackOptionInput*)pCurState;
+			pSpecificCurState->postTick(miniStateManager.mData.mStateData.getCharacter()->mCombatMovementManager.getAttacks()[pCurSelectedTextBox->mData.mAttackNum]);
 		}
 		break;
-	case ETextBoxFunction_ATTACK_DIRECTION_LEFT_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
+	case ETextBoxFunction_ATTACK_DIRECTION_BOX:
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT)
 		{
-			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
-			pSpecificCurState->postTick(EDirection_LEFT);
-		}
-		break;
-	case ETextBoxFunction_ATTACK_DIRECTION_RIGHT_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
-		{
-			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
-			pSpecificCurState->postTick(EDirection_RIGHT);
-		}
-		break;
-	case ETextBoxFunction_ATTACK_DIRECTION_UP_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
-		{
-			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
-			pSpecificCurState->postTick(EDirection_UP);
-		}
-		break;
-	case ETextBoxFunction_ATTACK_DIRECTION_DOWN_BOX:
-		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT)
-		{
-			MiniGamePlayerWaitForAttackSubInput* pSpecificCurState = (MiniGamePlayerWaitForAttackSubInput*)pCurState;
-			pSpecificCurState->postTick(EDirection_DOWN);
+			MiniGamePlayerWaitForAttackDirectionInput* pSpecificCurState = (MiniGamePlayerWaitForAttackDirectionInput*)pCurState;
+			pSpecificCurState->postTick(pCurSelectedTextBox->mData.mAttackDirection);
 		}
 		break;
 	}
@@ -742,7 +722,6 @@ void GameStateMenu::render(EGameState curState)
 	SDL_SetRenderDrawColor(mScreen.mpRenderer, 50, 50, 50, 1);
 	SDL_FRect rect{ (mousePos.getX() - 10.0f), (mousePos.getY() - 10.0f), 20.0f, 20.0f};
 	SDL_RenderFillRect(mScreen.mpRenderer, &rect);
-
 }
 
 

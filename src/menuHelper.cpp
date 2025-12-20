@@ -341,10 +341,8 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 	{
 		updated = true;
 	}
-	std::vector<TextBox*> allTextBoxes = mpCurMenuPage->getCurTextBoxes();
 
-	
-	for (TextBox* pCurTextBox : allTextBoxes)
+	for (TextBox* pCurTextBox : mpCurMenuPage->getCurTextBoxes())
 	{
 		std::string updatedMessage = pCurTextBox->mMessage;
 		switch (pCurTextBox->mData.mType)
@@ -363,7 +361,7 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 			break;
 		}
 
-		if ((pCurTextBox->mMessage != updatedMessage) or (mSettingsManager.mTextIncrease != mSettingsManager.mLastFrameTextIncrease) or !pCurTextBox->mSetUp)
+		if ((pCurTextBox->mMessage != updatedMessage) or !pCurTextBox->mSetUp)
 		{
 			pCurTextBox->updateMessage(pRenderer, mFontSizeChart, updatedMessage);
 			updated = true;
@@ -373,7 +371,7 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 	{
 		std::string updatedMessage = updateHealthStatBoxCurTextBoxMessage(*pHealthBox, mMiniGameWorldData);
 
-		if ((pHealthBox->mHealthText.mMessage != updatedMessage) or (mSettingsManager.mTextIncrease != mSettingsManager.mLastFrameTextIncrease) or !pHealthBox->mHealthText.mSetUp)
+		if ((pHealthBox->mHealthText.mMessage != updatedMessage) or !pHealthBox->mHealthText.mSetUp)
 		{
 
 			float ratio = updateHealthStatBoxCurTextBoxRatio(*pHealthBox, mMiniGameWorldData);

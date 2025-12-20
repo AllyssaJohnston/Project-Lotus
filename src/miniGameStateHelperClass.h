@@ -15,14 +15,17 @@ struct CombatCharacterSnapShot
     CombatCharacter* mpCharacter = nullptr;
     bool mAmAlive;
    
+    int mBaseDamage = -1;
     int mCurDamage = -1;
     std::vector<std::pair<float, int>> mAttackDamageModifiers;  // multiplier amount, num turns
 
     int mCurHealth = -1;
+    int mBaseHealthCapacity = -1;
     int mCurHealthCapacity = -1;
     std::vector<std::pair<float, int>> mHealthCapacityModifiers; // multiplier amount, num turns
 
     int mCurDefense = 0;
+    int mBaseDefenseCapacity = -1;
     int mCurDefenseCapacity = -1;
     std::vector<std::pair<float, int>> mDefenseCapacityModifiers; // multiplier amount, num turns
 

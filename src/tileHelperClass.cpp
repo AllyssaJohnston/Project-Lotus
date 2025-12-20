@@ -114,12 +114,11 @@ bool isPlayableTile(const Tile& givenTile)
     return false;
 }
 
-int getDistanceBetweenTiles(const Tile& tile1, const Tile& tile2)
+float getDistanceBetweenTiles(const Tile& tile1, const Tile& tile2)
 {
     int distanceRow = abs(tile1.mRow - tile2.mRow);
     int distanceCol = abs(tile1.mCol - tile2.mCol);
-    int distance = (int)sqrt(pow(distanceRow, 2) + pow(distanceCol, 2));
-    return distance;
+    return (float)sqrt(pow(distanceRow, 2) + pow(distanceCol, 2));
 }
 
 EDirection getDirectionBetweenTiles(const Tile& tile1, const Tile& tile2)

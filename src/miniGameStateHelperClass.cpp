@@ -7,15 +7,18 @@ CombatCharacterSnapShot::CombatCharacterSnapShot(CombatCharacter* pCharacter) : 
 {
 	mAmAlive					= mpCharacter->isAlive();
 
+	mBaseDamage					= mpCharacter->getBaseDamage();
 	mCurDamage					= mpCharacter->getCurDamage();
 	mAttackDamageModifiers		= mpCharacter->getDamageModifiers();
 
 	mCurHealth					= mpCharacter->getCurHealth();
+	mBaseHealthCapacity			= mpCharacter->getBaseHealthCapacity();
 	mCurHealthCapacity			= mpCharacter->getCurHealthCapacity();
 	mHealthCapacityModifiers	= mpCharacter->getHealthCapacityModifiers();
 	
 
 	mCurDefense					= mpCharacter->getCurDefense();
+	mBaseDefenseCapacity		= mpCharacter->getBaseDefenseCapacity();
 	mCurDefenseCapacity			= mpCharacter->getCurDefenseCapacity();
 	mDefenseCapacityModifiers	= mpCharacter->getDefenseCapacityModifiers();
 	
@@ -254,8 +257,17 @@ std::string getCharacterChangesString(const CombatManager& combatManager, const 
 			}
 
 
+			int baseHealthCapacity = pCharacter->getBaseHealthCapacity();
 			int curHealthCapacity = pCharacter->getCurHealthCapacity();
-			if (curHealthCapacity < preTickCharacter.mCurHealthCapacity)
+			if (baseHealthCapacity < preTickCharacter.mBaseHealthCapacity)
+			{
+				curLine += pCharacter->mName + "'s total health capacity permanently dropped to " + std::to_string(baseHealthCapacity) + " ";
+			}
+			else if (baseHealthCapacity > preTickCharacter.mBaseHealthCapacity)
+			{
+				curLine += pCharacter->mName + "'s total health capacity permanently increased to " + std::to_string(baseHealthCapacity) + " ";
+			}
+			else if (curHealthCapacity < preTickCharacter.mCurHealthCapacity)
 			{
 				curLine += pCharacter->mName + "'s total health capacity dropped to " + std::to_string(curHealthCapacity) + " ";
 			}
@@ -264,8 +276,17 @@ std::string getCharacterChangesString(const CombatManager& combatManager, const 
 				curLine += pCharacter->mName + "'s total health capacity increased to " + std::to_string(curHealthCapacity) + " ";
 			}
 
+			int baseDefenseCapacity = pCharacter->getBaseDefenseCapacity();
 			int curDefenseCapacity = pCharacter->getCurDefenseCapacity();
-			if (curDefenseCapacity < preTickCharacter.mCurDefenseCapacity)
+			if (baseDefenseCapacity < preTickCharacter.mBaseDefenseCapacity)
+			{
+				curLine += pCharacter->mName + "'s total defense capacity permanently dropped to " + std::to_string(baseDefenseCapacity) + " ";
+			}
+			else if (baseDefenseCapacity > preTickCharacter.mBaseDefenseCapacity)
+			{
+				curLine += pCharacter->mName + "'s total defense capacity permanently increased to " + std::to_string(baseDefenseCapacity) + " ";
+			}
+			else if (curDefenseCapacity < preTickCharacter.mCurDefenseCapacity)
 			{
 				curLine += pCharacter->mName + "'s total defense capacity dropped to " + std::to_string(curDefenseCapacity) + " ";
 			}
@@ -274,8 +295,17 @@ std::string getCharacterChangesString(const CombatManager& combatManager, const 
 				curLine += pCharacter->mName + "'s total defense capacity increased to " + std::to_string(curDefenseCapacity) + " ";
 			}
 
+			int baseDamage = pCharacter->getCurDamage();
 			int curDamage = pCharacter->getCurDamage();
-			if (curDamage < preTickCharacter.mCurDamage)
+			if (baseDamage < preTickCharacter.mBaseDamage)
+			{
+				curLine += pCharacter->mName + "'s total attack damage permanently dropped to " + std::to_string(baseDamage) + " ";
+			}
+			else if (baseDamage > preTickCharacter.mBaseDamage)
+			{
+				curLine += pCharacter->mName + "'s total attack damage permanently increased to " + std::to_string(baseDamage) + " ";
+			}
+			else if (curDamage < preTickCharacter.mCurDamage)
 			{
 				curLine += pCharacter->mName + "'s total attack damage dropped to " + std::to_string(curDamage) + " ";
 			}

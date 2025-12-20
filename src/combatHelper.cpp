@@ -205,21 +205,17 @@ void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile,
 {
     for (CombatCharacter* pCurCharacter : mpCurAliveCombatCharacters)
     {
-        if (pCurCharacter != &attackingCharacter and (pCurCharacter->mCombatMovementManager.getCurTile()->mRow == givenTile.mRow) 
-                    and  (pCurCharacter->mCombatMovementManager.getCurTile()->mCol == givenTile.mCol))
+        if (pCurCharacter->mCombatMovementManager.getCurTile() == &givenTile)
         {
             int damageToTake = int(attackingCharacter.getCurDamage() * attack.mDamagePercent);
             if (attack.mDamageDistanceDependent)
             {
-                Tile* pCurCharacterTile = pCurCharacter->mCombatMovementManager.getCurTile();
                 Tile* pAttackingCharacterTile = attackingCharacter.mCombatMovementManager.getCurTile();
-                int distance = getDistanceBetweenTiles(*pCurCharacterTile, *pAttackingCharacterTile);
+                float distance = getDistanceBetweenTiles(givenTile, *pAttackingCharacterTile);
 
+                // TODO move magic number
                 damageToTake -= int(.15f * distance);
-                if (damageToTake < 0)
-                {
-                    damageToTake = 0;
-                }
+                damageToTake = std::max(damageToTake, 0);
             }
             pCurCharacter->takeDamage(damageToTake);
             specialEffect(attackingCharacter, *pCurCharacter, givenTile, attack);
@@ -289,6 +285,30 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
             for (CombatCharacter* pCharacter : pCharacters)
             {
                 pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
+            }
+            break;
+        case EMiniGameCombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER:
+            switch (specialEffect.mAttackTargetType)
+            {
+            case EAttackTargetType_ALL_CHARACTERS:
+                pCharacters = getCurAliveCharacters();
+                break;
+            case EAttackTargetType_ALL_PLAYERS:
+                pCharacters = getCurAlivePlayers();
+                break;
+            case EAttackTargetType_ALL_ENEMIES:
+                pCharacters = getCurAliveEnemies();
+                break;
+            case EAttackTargetType_SELF:
+                pCharacters = { &attackingCharacter };
+                break;
+            default:
+                SDL_assert(false);
+                break;
+            }
+            for (CombatCharacter* pCharacter : pCharacters)
+            {
+                pCharacter->addDefenseCapacityModifier(specialEffect.mAmount, specialEffect.mTurns);
             }
             break;
         default:

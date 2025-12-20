@@ -62,24 +62,33 @@ struct MiniGamePlayerWaitForActionInput : public MiniGameState
     void postTick(EMiniGameState nextStateEnum);
 };
 
-struct MiniGamePlayerWaitForAttackInput : public MiniGameState
+struct MiniGamePlayerWaitForAttackOptionInput : public MiniGameState
 {
-    MiniGamePlayerWaitForAttackInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
+    MiniGamePlayerWaitForAttackOptionInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
 
     void postTick(Attack attack);
 };
 
-struct MiniGamePlayerWaitForAttackSubInput : public MiniGameState
+struct MiniGamePlayerWaitForAttackDirectionInput : public MiniGameState
 {
-    MiniGamePlayerWaitForAttackSubInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
+    MiniGamePlayerWaitForAttackDirectionInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
 
     void postTick(EDirection curAttackDirection);
 };
 
-struct MiniGamePlayerCompleteDirectionalAttack : public MiniGameState
+struct MiniGamePlayerWaitForAttackTileInput : public MiniGameState
 {
-    MiniGamePlayerCompleteDirectionalAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
+    MiniGamePlayerWaitForAttackTileInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
 
+    void selectTile(const Vect2 pos) override;
+
+    void postTick();
+};
+
+struct MiniGamePlayerCompleteActionAttack : public MiniGameState
+{
+    MiniGamePlayerCompleteActionAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
+    
     void tick() override;
 
     void attackTiles();
@@ -87,27 +96,18 @@ struct MiniGamePlayerCompleteDirectionalAttack : public MiniGameState
     void postTick();
 };
 
-struct MiniGamePlayerTakeActionAttack : public MiniGameState
+struct MiniGamePlayerCompleteActionDefend : public MiniGameState
 {
-    MiniGamePlayerTakeActionAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
-
-    void selectTile(const Vect2 pos) override;
-
-    void postTick();
-};
-
-struct MiniGamePlayerTakeActionDefend : public MiniGameState
-{
-    MiniGamePlayerTakeActionDefend(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
+    MiniGamePlayerCompleteActionDefend(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
 
     void tick() override;
 
     void postTick();
 };
 
-struct MiniGamePlayerTakeActionHeal : public MiniGameState
+struct MiniGamePlayerCompleteActionHeal : public MiniGameState
 {
-    MiniGamePlayerTakeActionHeal(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
+    MiniGamePlayerCompleteActionHeal(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
 
     void tick() override;
 

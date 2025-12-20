@@ -13,6 +13,8 @@ std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombat
         return getCrossTiles(givenTile, 0, 1, direction);
     case EMiniGameCombatMoveAttackTypes_CROSS2:
         return getCrossTiles(givenTile, 0, 2, direction);
+    case EMiniGameCombatMoveAttackTypes_CROSS2_2UNIT_OUT:
+        return getCrossTiles(givenTile, 2, 2, direction);
     case EMiniGameCombatMoveAttackTypes_CROSS3:
         return getCrossTiles(givenTile, 0, 3, direction);
     case EMiniGameCombatMoveAttackTypes_CROSS3_1UNIT_OUT:

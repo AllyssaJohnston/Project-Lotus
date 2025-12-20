@@ -1,6 +1,6 @@
 #include "combatCharacterPresets.h"
 
-PlayerCombatPreset::PlayerCombatPreset() : CombatCharacterPreset()
+LotusCombatPreset::LotusCombatPreset() : CombatCharacterPreset()
 {
     mType = EMiniGameCombatCharacterType_PLAYER;
 
@@ -36,6 +36,54 @@ PlayerCombatPreset::PlayerCombatPreset() : CombatCharacterPreset()
     mIconFileName = "MiniGameUI/LotusPortrait.bmp";
 }
 
+EzraCombatPreset::EzraCombatPreset() : CombatCharacterPreset()
+{
+    mType = EMiniGameCombatCharacterType_PLAYER;
+
+    Attack attack1 = Attack(); // ATTACK UP
+    attack1.mType = EMiniGameCombatMoveAttackTypes_WHOLE_GRID;
+    attack1.mName = "Attack Up";
+    attack1.mDescription = "Attack Up: Increase all player attacks";
+    attack1.mDamagePercent = 0.0f;
+    attack1.mDamageDistanceDependent = false;
+    attack1.mRequiresDirectionInput = false;
+    attack1.mSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.25, INT_MAX, EAttackTargetType_ALL_PLAYERS));
+    mAttacks.push_back(attack1);
+
+    Attack attack2 = Attack(); // ATTACK UP ++
+    attack2.mType = EMiniGameCombatMoveAttackTypes_WHOLE_GRID;
+    attack2.mName = "Attack Up ++";
+    attack2.mDescription = "Attack Up: Increase all player attacks";
+    attack2.mDamagePercent = 0.0f;
+    attack2.mDamageDistanceDependent = false;
+    attack2.mRequiresDirectionInput = false;
+    attack2.mSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.5, INT_MAX, EAttackTargetType_ALL_PLAYERS));
+    attack2.mSpecialEffects.push_back(SpecialEffectSelfStun(2));
+    mAttacks.push_back(attack2);
+
+    Attack attack3 = Attack(); // DEFENSE CAPACITY UP ++
+    attack3.mType = EMiniGameCombatMoveAttackTypes_WHOLE_GRID;
+    attack3.mName = "Defense Up ++";
+    attack3.mDescription = "Attack Up: Increase all player defense capacity";
+    attack3.mDamagePercent = 0.0f;
+    attack3.mDamageDistanceDependent = false;
+    attack3.mRequiresDirectionInput = false;
+    attack3.mSpecialEffects.push_back(SpecialEffectDefenseCapacityMultiplier(1.5, INT_MAX, EAttackTargetType_ALL_PLAYERS));
+    mAttacks.push_back(attack3);
+
+    mHealAmount = 6;
+
+    mMoveType = EMiniGameCombatMoveAttackTypes_CROSS3;
+
+    mAttackDamage = 12;
+    mHealthCapacity = 30;
+    mDefenseCapacity = 20;
+
+    mModelFileName = "MiniGameModels/Earth/MiniGameModelsEzra.bmp";
+    mIconFileName = "MiniGameUI/Earth/EzraPortrait.bmp";
+}
+
+
 // DRAGAUR BLOSSOM
 RatCombatPreset::RatCombatPreset() : CombatCharacterPreset()
 {
@@ -45,7 +93,7 @@ RatCombatPreset::RatCombatPreset() : CombatCharacterPreset()
     attack1.mType = EMiniGameCombatMoveAttackTypes_SQUARE2;
     attack1.mName = "Slash";
     attack1.mDescription = "Slash: Square 2";
-    attack1.mDamagePercent = .5f;
+    attack1.mDamagePercent = .6f;
     attack1.mDamageDistanceDependent = false;
     attack1.mRequiresDirectionInput = true;
     mAttacks.push_back(attack1);
@@ -57,13 +105,12 @@ RatCombatPreset::RatCombatPreset() : CombatCharacterPreset()
     attack2.mDamagePercent = 1.0f;
     attack2.mDamageDistanceDependent = false;
     attack2.mRequiresDirectionInput = false;
-    attack2.mSpecialEffects.push_back(SpecialEffectSelfStun(1));
     mAttacks.push_back(attack2);
 
     Attack attack3 = Attack(); // DRAGAUR GROWL (Inc attack)
     attack3.mType = EMiniGameCombatMoveAttackTypes_WHOLE_GRID;
     attack3.mName = "Dragaur Growl";
-    attack3.mDescription = "Dragaur Growl: Increase enmey attack by 25% for 3 turns";
+    attack3.mDescription = "Dragaur Growl: Increase enmey attack by 25%";
     attack3.mDamagePercent = 0.0f;
     attack3.mDamageDistanceDependent = false;
     attack3.mRequiresDirectionInput = false;
@@ -73,7 +120,7 @@ RatCombatPreset::RatCombatPreset() : CombatCharacterPreset()
 
     mMoveType = EMiniGameCombatMoveAttackTypes_CROSS2;
 
-    mAttackDamage       = 10;
+    mAttackDamage       = 8;
     mHealthCapacity     = 36;
     mDefenseCapacity    = 8;
 
@@ -114,3 +161,13 @@ FrogCombatPreset::FrogCombatPreset() : CombatCharacterPreset()
     mModelFileName = "MiniGameModels/Earth/MiniGameModelsFrocodile.bmp";
     mIconFileName = "MiniGameUI/Earth/FrocodilePortrait.bmp";
 }
+
+
+
+
+
+
+
+
+
+

@@ -80,7 +80,13 @@ void TextBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChar
 {
 	mMessage = textMessage;
 	calcMaxFontSizeGivenText(fontSizeChart);
-	SDL_assert(!mSetUp || (mMaxFontSizeGivenText >= mHighlightedFontSize));
+	if (DEMO == 0 && mHighlightedFontSize > mMaxFontSizeGivenText)
+	{
+		std::cout << "Font size too big: " + textMessage + "\n max size: " + std::to_string(mMaxFontSizeGivenText) + " requested size: " + std::to_string(mHighlightedFontSize)<<"\n";
+	}
+	mHighlightedFontSize = std::min(mHighlightedFontSize, mMaxFontSizeGivenText);
+	mStandardFontSize	= std::min(mStandardFontSize, mMaxFontSizeGivenText);
+
 	updateTextLines(textMessage, fontSizeChart);
 	setTextBoxTexture(pRenderer);
 	updateHitboxes();

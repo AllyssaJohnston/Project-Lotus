@@ -50,6 +50,7 @@ bool shouldShowTextBox(const TextBox& textBox, const MiniGameStateManagerData& d
 		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
 		break;
 	case ETextBoxType_MINI_GAME_BOX:
+	case ETextBoxType_MINI_GAME_DIRECTION_BOX:
 		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
 		break;
 	default:

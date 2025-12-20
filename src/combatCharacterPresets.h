@@ -1,8 +1,12 @@
 #pragma once
 #include "combatAttackHelper.h"
-#include "combatAttackPreset.h"
+#include "combatAttackPresets.h"
 #include "combatHelperClass.h"
 #include <vector>
+
+
+
+
 
 struct CombatCharacterPreset
 {
@@ -23,7 +27,9 @@ struct CombatCharacterPreset
     int mMaxHeight = 75;
 };
 
-struct PlayerCombatPreset : public CombatCharacterPreset { PlayerCombatPreset(); };
+struct LotusCombatPreset : public CombatCharacterPreset { LotusCombatPreset(); };
+
+struct EzraCombatPreset : public CombatCharacterPreset { EzraCombatPreset(); };
 
 struct RatCombatPreset : public CombatCharacterPreset { RatCombatPreset(); };
 

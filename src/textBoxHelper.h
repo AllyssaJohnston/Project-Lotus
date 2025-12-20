@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <iostream>
+#include "globals.h"
 #include "hitboxHelper.h"
 #include "textBoxPresets.h"
 #include "imageHelper.h"

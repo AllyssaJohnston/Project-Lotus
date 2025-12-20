@@ -27,6 +27,8 @@ struct MiniGamePlayerBoxPreset : public TextBoxPreset {	 MiniGamePlayerBoxPreset
 
 struct MiniGameBoxPreset : public TextBoxPreset { MiniGameBoxPreset(std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList); };
 
+struct MiniGameDirectionBoxPreset : public TextBoxPreset { MiniGameDirectionBoxPreset(std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList, EDirection direction); };
+
 struct GameStatBoxPreset : public TextBoxPreset { GameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay); };
 
 // IMAGE BOXES

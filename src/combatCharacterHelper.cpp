@@ -59,6 +59,7 @@ void CombatCharacter::updateAmAlive()
     if (!mAmAlive)
     {
         mTurnsToPass = 0;
+        mCurHealth = 0;
     }
 }
 
@@ -79,7 +80,17 @@ int CombatCharacter::getCurDamage() const
 
 int CombatCharacter::getBaseDamage() const { return mStandardAttackDamage; }
 
-void CombatCharacter::addDamageModifier(float multiplier, int numTurns) { mAttackDamageModifiers.push_back(std::pair<float, int>(multiplier, numTurns)); }
+void CombatCharacter::addDamageModifier(float multiplier, int numTurns) 
+{ 
+    if (numTurns == INT_MAX)
+    {
+        mStandardAttackDamage = (int)(mStandardAttackDamage * multiplier);
+    }
+    else
+    {
+        mAttackDamageModifiers.push_back(std::pair<float, int>(multiplier, numTurns));
+    }
+}
 
 void CombatCharacter::takeDamage(int damageToTake)
 {
@@ -118,7 +129,17 @@ bool CombatCharacter::returnIsLowHealth() const { return ((mCurHealth / getCurHe
 
 float CombatCharacter::getHealthRatio() const { return (float)mCurHealth / (float)getCurHealthCapacity(); }
 
-void CombatCharacter::addHealthCapacityModifier(float multiplier, int numTurns) { mHealthCapacityModifiers.push_back(std::pair<float, int>(multiplier, numTurns )); }
+void CombatCharacter::addHealthCapacityModifier(float multiplier, int numTurns) 
+{ 
+    if (numTurns == INT_MAX)
+    {
+        mStandardHealthCapacity = (int)(mStandardHealthCapacity * multiplier);
+    }
+    else
+    {
+        mHealthCapacityModifiers.push_back(std::pair<float, int>(multiplier, numTurns));
+    }
+}
 
 std::vector<std::pair<float, int>> CombatCharacter::getHealthCapacityModifiers() const { return mHealthCapacityModifiers; }
 
@@ -154,7 +175,17 @@ float CombatCharacter::getDefenseRatio() const { return (float)mCurDefense / (fl
 // defend up to max defense
 void CombatCharacter::defend() { mCurDefense = getCurDefenseCapacity(); }
 
-void CombatCharacter::addDefenseCapacityModifier(float multiplier, int numTurns) { mDefenseCapacityModifiers.push_back(std::pair<float, int>(multiplier, numTurns )); }
+void CombatCharacter::addDefenseCapacityModifier(float multiplier, int numTurns) 
+{
+    if (numTurns == INT_MAX)
+    {
+        mStandardDefenseCapacity = (int)(mStandardDefenseCapacity * multiplier);
+    }
+    else
+    {
+        mDefenseCapacityModifiers.push_back(std::pair<float, int>(multiplier, numTurns));
+    }
+}
 
 std::vector<std::pair<float, int>> CombatCharacter::getDefenseCapacityModifiers() const { return mDefenseCapacityModifiers; }
 
