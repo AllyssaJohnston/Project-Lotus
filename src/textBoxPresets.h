@@ -65,6 +65,7 @@ struct MiniGameShapeBoxPreset : public ShapeBoxPreset
 struct HealthBoxPreset
 {
 	int mCombatCharacterIndex = -1;
+	ECharacterStatBoxValueToDisplay mStatToDisplay = ECharacterStatBoxValueToDisplay_INVALID;
 
-	HealthBoxPreset(int characterIndex);
+	HealthBoxPreset(int characterIndex, ECharacterStatBoxValueToDisplay stat);
 };

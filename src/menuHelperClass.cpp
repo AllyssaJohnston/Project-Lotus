@@ -218,4 +218,33 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 	return "error";
 }
 
-std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const MiniGameWorldData& worldData) { return std::to_string(worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->getCurHealth()); }
+std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const MiniGameWorldData& worldData) 
+{ 
+	switch (healthBox.mStatToDisplay)
+	{
+	case ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH:
+		return std::to_string(worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->getCurHealth());
+	case ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE:
+		return std::to_string(worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->getCurDefense());
+	default:
+		SDL_assert(false);
+		break;
+	}
+	return "invalid";
+	
+}
+
+float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const MiniGameWorldData& worldData)
+{
+	switch (healthBox.mStatToDisplay)
+	{
+	case ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH:
+		return worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->getHealthRatio();
+	case ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE:
+		return worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->getDefenseRatio();
+	default:
+		SDL_assert(false);
+		break;
+	}
+	return -1.0f;
+}

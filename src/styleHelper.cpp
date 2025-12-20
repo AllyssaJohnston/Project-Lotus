@@ -11,6 +11,7 @@ const SDL_Color StyleManager::navy			= {20,  0,   110, 1};
 const SDL_Color StyleManager::black			= {0,   0,   0,   1};
 const SDL_Color StyleManager::teal			= {20,  60,  60,  1};
 const SDL_Color StyleManager::hintBlue      = {221, 255, 253, 1};
+const SDL_Color StyleManager::gold			= {181, 160, 0,   1};
 const SDL_Color StyleManager::clear         = {0,   0,   0,   0};
 
 StyleManager::~StyleManager() { fontName = nullptr; }

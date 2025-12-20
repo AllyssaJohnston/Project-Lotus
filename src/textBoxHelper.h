@@ -153,9 +153,11 @@ public:
 class HealthBox : public UIBox
 {
 public:
+
 	ShapeBox mBoundingBox;
 	ShapeBox mHealthLeftBox;
 	TextBox	 mHealthText;
+	ECharacterStatBoxValueToDisplay mStatToDisplay;
 	int		 mCombatCharacterIndex = -1;
 
 	HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int healthSize, const SDL_Color healthColor, 

@@ -142,6 +142,8 @@ int CombatCharacter::getCurDefenseCapacity() const
 
 int CombatCharacter::getBaseDefenseCapacity() const { return mStandardDefenseCapacity; }
 
+float CombatCharacter::getDefenseRatio() const { return (float)mCurDefense / (float)getCurDefenseCapacity(); }
+
 // defend up to max defense
 void CombatCharacter::defend() { mCurDefense = getCurDefenseCapacity(); }
 

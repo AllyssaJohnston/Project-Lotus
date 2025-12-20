@@ -63,6 +63,8 @@ public:
 
     int getBaseDefenseCapacity() const;
 
+    float getDefenseRatio() const;
+
     void defend();
 
     void addDefenseCapacityModifier(float multiplier, int numTurns);

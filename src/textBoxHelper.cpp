@@ -408,13 +408,14 @@ HealthBox::HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo pos
 		const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor) : UIBox(), 
 		mBoundingBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, backgroundColor)), mHealthLeftBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, healthColor)),
 		mHealthText(TextBox(StandardTextBoxPreset("temp"), ETextBoxFunction_NO_FUNCTION, positionInfo, font, healthSize, textColor)), mMaxWidth(positionInfo.mMaxWidth), 
-		mCombatCharacterIndex(preset.mCombatCharacterIndex)
+		mCombatCharacterIndex(preset.mCombatCharacterIndex), mStatToDisplay(preset.mStatToDisplay)
 { 
 	mAutoShow = true;
 	mPositionAlign = positionInfo.mPositionAlign;
 	mClassType = EUIBoxClass_HEALTHBOX;
 	mpCurHitbox = mBoundingBox.mpCurHitbox;
 	mMargins = positionInfo.mMargins;
+	
 }
 
 void HealthBox::shiftHitbox(const Vect2 shiftTopLeft) 

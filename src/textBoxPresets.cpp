@@ -126,4 +126,4 @@ MiniGameShapeBoxPreset::MiniGameShapeBoxPreset(EShapeBoxClass type, std::vector 
 
 
 
-HealthBoxPreset::HealthBoxPreset(int characterIndex) : mCombatCharacterIndex(characterIndex) { ; }
+HealthBoxPreset::HealthBoxPreset(int characterIndex, ECharacterStatBoxValueToDisplay stat) : mCombatCharacterIndex(characterIndex), mStatToDisplay(stat) { ; }

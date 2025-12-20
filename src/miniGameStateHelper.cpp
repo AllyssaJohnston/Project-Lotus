@@ -248,7 +248,7 @@ void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 	for (Tile* pMoveTile : pAllPossibleMoveTiles)
 	{
 		std::vector<Tile*> playerTiles = returnTilesFromAttacksWithPlayersOnThem(mWorldData, pMoveTile, curEnemy.mCombatMovementManager.getAttacks(), EDirection_ALL);
-		int curNumCharactersCanAttack = playerTiles.size();
+		int curNumCharactersCanAttack = (int)playerTiles.size();
 		for (Tile* pPlayerTile : playerTiles)
 		{
 			int curDistance = getDistanceBetweenTiles(*pMoveTile, *pPlayerTile);
