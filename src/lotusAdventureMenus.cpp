@@ -273,11 +273,15 @@ void createMiniGameMenu(MenuManager& menuManager, ScreenObject& screen,  MiniGam
 	BlockAlignElementsHorizontally* defendOptionRowBlock = new BlockAlignElementsHorizontally(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(0, 10, 0, 0));
 	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),														TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER,	bullet,		bullet,					Edges(0, 0,  10, 10)),																styleManager.white),	defendOptionRowBlock);
 	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("DEFEND",					whenToShow), ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER,	maxWidth,	maxHeight / maxLines,	Edges()),				font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox),	true,		defendOptionRowBlock);
+	BlockAlignElementsHorizontally* healOptionRowBlock = new BlockAlignElementsHorizontally(  maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(0, 10, 0, 0));
+	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),														TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER,	bullet,		bullet,					Edges(0, 0,  10, 10)),																styleManager.white),	healOptionRowBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("HEAL",						whenToShow), ETextBoxFunction_HEAL_CUR_COMBAT_CHARACTER_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER,	maxWidth,	maxHeight / maxLines,	Edges()),				font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox),	true,		healOptionRowBlock);
 	BlockAlignElementsHorizontally* passOptionRowBlock   = new BlockAlignElementsHorizontally(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges());
 	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),														TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER,	bullet,		bullet,					Edges(0, 0,  10, 10)),																styleManager.white),	passOptionRowBlock);
 	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("PASS TURN",					whenToShow), ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER,	maxWidth,	maxHeight / maxLines,	Edges()),				font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox),	true,		passOptionRowBlock);
 	actionsBlock->mpSubBlocks.push_back(attackOptionRowBlock);
 	actionsBlock->mpSubBlocks.push_back(defendOptionRowBlock);
+	actionsBlock->mpSubBlocks.push_back(healOptionRowBlock);
 	actionsBlock->mpSubBlocks.push_back(passOptionRowBlock);
 	characterOptionsDetailsBlock->mpSubBlocks.push_back(actionsBlock);
 

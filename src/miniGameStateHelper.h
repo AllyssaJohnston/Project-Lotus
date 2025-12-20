@@ -105,6 +105,15 @@ struct MiniGamePlayerTakeActionDefend : public MiniGameState
     void postTick();
 };
 
+struct MiniGamePlayerTakeActionHeal : public MiniGameState
+{
+    MiniGamePlayerTakeActionHeal(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
+
+    void tick() override;
+
+    void postTick();
+};
+
 struct MiniGameEnemyMoveCharacter : public MiniGameState
 {
     MiniGameEnemyMoveCharacter(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
@@ -124,6 +133,7 @@ struct MiniGameEnemyTakeAction : public MiniGameState
 
     bool shouldAttack();
     bool shouldDefend();
+    bool shouldHeal();
 
     void performAttack();
 

@@ -61,6 +61,7 @@ public:
 
     bool                mAttacked = false;
     bool                mDefended = false;
+    bool                mHealed   = false;
     std::string         mDebugLine = " ";
 
     EMiniGameState      mNextMiniGameState = EMiniGameState_INVALID;

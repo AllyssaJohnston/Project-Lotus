@@ -18,3 +18,5 @@ struct SpecialEffectStun : public SpecialEffectPreset { SpecialEffectStun(int nu
 struct SpecialEffectSelfStun : public SpecialEffectPreset { SpecialEffectSelfStun(int numTurns = 1); };
 
 struct SpecialEffectAttackMultiplier : public SpecialEffectPreset { SpecialEffectAttackMultiplier(float multiplier, int turns, EAttackTargetType attackTargetType);  };
+
+struct SpecialEffectHeal : public SpecialEffectPreset { SpecialEffectHeal(int amount, EAttackTargetType attackTargetType); };

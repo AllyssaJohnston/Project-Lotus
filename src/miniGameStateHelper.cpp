@@ -198,6 +198,22 @@ void MiniGamePlayerTakeActionDefend::postTick()
 }
 
 
+MiniGamePlayerTakeActionHeal::MiniGamePlayerTakeActionHeal(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData) { ; }
+
+void MiniGamePlayerTakeActionHeal::tick()
+{
+	// self heal
+	mData.getCharacter()->heal(mData.getCharacter()->getHealAmount());
+	postTick();
+}
+
+void MiniGamePlayerTakeActionHeal::postTick()
+{
+	setUpForBufferState(mWorldData, mData);
+	mData.mHealed = true;
+}
+
+
 
 MiniGameEnemyMoveCharacter::MiniGameEnemyMoveCharacter(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
@@ -303,7 +319,7 @@ MiniGameEnemyTakeAction:: MiniGameEnemyTakeAction(KeyboardData& keyboardData, Mi
 
 void MiniGameEnemyTakeAction::tick()
 {
-	if (mData.mTicks == int(mData.mTicksBeforeAction / 2))
+	if (!shouldHeal() && mData.mTicks == int(mData.mTicksBeforeAction / 2))
 	{
 		mData.mGoingToAttack = shouldAttack();
 	}
@@ -314,13 +330,19 @@ void MiniGameEnemyTakeAction::tick()
 	}
 	else
 	{
-		if (mData.mGoingToAttack)
+		if (shouldHeal())
+		{
+			mData.getCharacter()->heal(mData.getCharacter()->getHealAmount());
+			mData.mHealed = true;
+		}
+		else if (mData.mGoingToAttack)
 		{
 			performAttack();
 			mData.mAttacked = true;
 		}
 		else if (shouldDefend())
 		{
+			mData.getCharacter()->defend();
 			mData.mDefended = true;
 		}
 		postTick();
@@ -392,10 +414,10 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 
 bool MiniGameEnemyTakeAction::shouldDefend()
 {
-	MiniGameStage*	pStage			= mWorldData.getStage();
-	Grid&			grid			= pStage->mGrid;
-	CombatManager&	combatManager	= pStage->mCombatManager;
-	Tile*			pCurTile		= mData.getCharacter()->mCombatMovementManager.getCurTile();
+	MiniGameStage* pStage = mWorldData.getStage();
+	Grid& grid = pStage->mGrid;
+	CombatManager& combatManager = pStage->mCombatManager;
+	Tile* pCurTile = mData.getCharacter()->mCombatMovementManager.getCurTile();
 
 	for (CombatCharacter* pCharacter : combatManager.mpCurAliveCombatCharacters)
 	{
@@ -414,6 +436,9 @@ bool MiniGameEnemyTakeAction::shouldDefend()
 	}
 	return false;
 }
+
+// can only heal if heal amount is greater than zero
+bool MiniGameEnemyTakeAction::shouldHeal() { return mData.getCharacter()->getHealAmount() > 0 && mData.getCharacter()->returnIsLowHealth(); }
 
 void MiniGameEnemyTakeAction::performAttack() { mWorldData.getStage()->mCombatManager.attackMultipleTiles(*mData.getCharacter(), mData.mpTilesToAttack, *mData.mpCurAttack); }
 
@@ -520,6 +545,7 @@ MiniGameStateManager::MiniGameStateManager(KeyboardData& keyboardData, MiniGameW
 				new MiniGamePlayerCompleteDirectionalAttack(keyboardData, mData.mStateData, mWorldData),
 				new MiniGamePlayerTakeActionAttack(			keyboardData, mData.mStateData, mWorldData),
 				new MiniGamePlayerTakeActionDefend(			keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerTakeActionHeal(			keyboardData, mData.mStateData, mWorldData),
 				new MiniGameEnemyMoveCharacter(				keyboardData, mData.mStateData, mWorldData),
 				new MiniGameEnemyTakeAction(				keyboardData, mData.mStateData, mWorldData),
 				new MiniGameCharacterStunned(				keyboardData, mData.mStateData, mWorldData),
@@ -749,12 +775,13 @@ void MiniGameStateManager::createDebugLog()
 				+ (mData.mStateData.mpCurAttack->mRequiresDirectionInput ? (" " + directionToString(mData.mStateData.mCurAttackDirection)) : "");
 
 		}
-		else if (mData.mStateData.mDefended)
+		else if (mData.mStateData.mDefended || mData.mStateData.mHealed)
 		{
 			// skip. Will be covered in character stat change section of the log
 		}
 		else
 		{
+			// passed
 			line = preTickStateData.getCharacter()->mName + " choose to pass.";
 		}
 		break;

@@ -358,6 +358,13 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 			pSpecificCurState->postTick(EMiniGameState_PLAYER_TAKE_ACTION_DEFEND);
 		}
 		break;
+	case ETextBoxFunction_HEAL_CUR_COMBAT_CHARACTER_BOX:
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
+		{
+			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
+			pSpecificCurState->postTick(EMiniGameState_PLAYER_TAKE_ACTION_HEAL);
+		}
+		break;
 	case ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX:
 		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
 		{

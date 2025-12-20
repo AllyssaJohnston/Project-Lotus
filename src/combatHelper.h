@@ -22,11 +22,16 @@ public:
 
     std::vector <CombatCharacter*> getCurAliveCharacters() const;
 
+    std::vector <CombatCharacter*> getCurAlivePlayers() const;
+
+    std::vector <CombatCharacter*> getCurAliveEnemies() const;
+
     CombatCharacter* returnNextAliveCharacter(CombatCharacter& curCharacter);
 
     CombatCharacter* returnNextAliveCharacter(CombatCharacter& curCharacter, int& outIndex);
 
     int getCharacterIndex(const CombatCharacter& givenCharacter) const;
+
 
     void tickAll();
 

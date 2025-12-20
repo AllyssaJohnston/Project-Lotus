@@ -22,3 +22,10 @@ SpecialEffectAttackMultiplier::SpecialEffectAttackMultiplier(float multiplier, i
     mTurns = turns;
     mName = "INCREASE ATTACK BY " + std::to_string(multiplier) + " FOR " + std::to_string(turns);
 }
+
+SpecialEffectHeal::SpecialEffectHeal(int amount, EAttackTargetType attackTargetType) : SpecialEffectPreset()
+{
+    mType = EMiniGameCombatSpecialEffectTypes_HEAL;
+    mName = "HEAL " + std::to_string(amount);
+    mTurns = 0;
+}

@@ -228,7 +228,11 @@ std::string getCharacterChangesString(const CombatManager& combatManager, const 
 		{
 			
 			int curDefense = pCharacter->getCurDefense();
-			if (curHealth < preTickCharacter.mCurHealth)
+			if (curHealth > preTickCharacter.mCurHealth) // healed
+			{
+				curLine += pCharacter->mName + " healed " + std::to_string(curHealth - preTickCharacter.mCurHealth) + " ";
+			}
+			else if (curHealth < preTickCharacter.mCurHealth)
 			{
 				if (curDefense < preTickCharacter.mCurDefense) // took damage and lost defense
 				{

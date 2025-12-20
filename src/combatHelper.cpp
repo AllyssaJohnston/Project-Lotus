@@ -49,6 +49,32 @@ std::vector <CombatCharacter*> CombatManager::getCurAliveCharacters() const
     return pCurAliveCombatCharacters;
 }
 
+std::vector <CombatCharacter*> CombatManager::getCurAlivePlayers() const
+{
+    std::vector <CombatCharacter*> pCurAliveCombatCharacters;
+    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
+    {
+        if (pCharacter->isAlive() && pCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
+        {
+            pCurAliveCombatCharacters.push_back(pCharacter);
+        }
+    }
+    return pCurAliveCombatCharacters;
+}
+
+std::vector <CombatCharacter*> CombatManager::getCurAliveEnemies() const
+{
+    std::vector <CombatCharacter*> pCurAliveCombatCharacters;
+    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
+    {
+        if (pCharacter->isAlive() && pCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
+        {
+            pCurAliveCombatCharacters.push_back(pCharacter);
+        }
+    }
+    return pCurAliveCombatCharacters;
+}
+
 CombatCharacter* CombatManager::returnNextAliveCharacter(CombatCharacter& curCharacter)
 {
     int i = -1;
@@ -206,6 +232,7 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
 {
     for (const SpecialEffect& specialEffect : attack.mSpecialEffects)
     {
+        std::vector<CombatCharacter*> pCharacters;
         switch (specialEffect.mType)
         {
         case EMiniGameCombatSpecialEffectTypes_STUN:
@@ -216,36 +243,52 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
             attackingCharacter.stun(specialEffect.mTurns + 1);
             break;
 
+        case EMiniGameCombatSpecialEffectTypes_HEAL:
+            switch (specialEffect.mAttackTargetType)
+            {
+            case EAttackTargetType_ALL_CHARACTERS:
+                pCharacters = getCurAliveCharacters();
+                break;
+            case EAttackTargetType_ALL_PLAYERS:
+                pCharacters = getCurAlivePlayers();
+                break;
+            case EAttackTargetType_ALL_ENEMIES:
+                pCharacters = getCurAliveEnemies();
+                break;
+            case EAttackTargetType_SELF:
+                pCharacters = { &attackingCharacter };
+            default:
+                SDL_assert(false);
+                break;
+            }
+            for (CombatCharacter* pCharacter : pCharacters)
+            {
+                pCharacter->heal((int)specialEffect.mAmount);
+            }
+            break;
+
         case EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER:
             switch (specialEffect.mAttackTargetType)
             {
             case EAttackTargetType_ALL_CHARACTERS:
-                for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
-                {
-                    pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
-                }
+                pCharacters = getCurAliveCharacters();
                 break;
             case EAttackTargetType_ALL_PLAYERS:
-                for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
-                {
-                    if (pCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
-                    {
-                        pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
-                    }
-                }
+                pCharacters = getCurAlivePlayers();
                 break;
             case EAttackTargetType_ALL_ENEMIES:
-                for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
-                {
-                    if (pCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
-                    {
-                        pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
-                    }
-                }
+                pCharacters = getCurAliveEnemies();
+                break;
+            case EAttackTargetType_SELF:
+                pCharacters = { &attackingCharacter };
                 break;
             default:
                 SDL_assert(false);
                 break;
+            }
+            for (CombatCharacter* pCharacter : pCharacters)
+            {
+                pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
             }
             break;
         default:

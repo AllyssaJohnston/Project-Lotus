@@ -56,6 +56,10 @@ public:
 
     std::vector<std::pair<float, int>> getHealthCapacityModifiers() const;
 
+    void heal(int amount);
+
+    int getHealAmount() const; // flat rate character heals at
+
 
     int getCurDefense() const;
 
@@ -86,6 +90,7 @@ private:
     int mStandardAttackDamage   = -1;
     std::vector<std::pair<float, int>> mAttackDamageModifiers;  // multiplier amount, num turns
 
+    int mHealAmount = -1;
     int mCurHealth = -1;
     int mStandardHealthCapacity = -1;
     std::vector<std::pair<float, int>> mHealthCapacityModifiers; // multiplier amount, num turns

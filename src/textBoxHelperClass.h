@@ -20,6 +20,7 @@ enum ETextBoxFunction
 	// For mini game
 	ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX,
 	ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX,
+	ETextBoxFunction_HEAL_CUR_COMBAT_CHARACTER_BOX,
 	ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX,
 
 	ETextBoxFunction_ATTACK_STYLE_BOX,

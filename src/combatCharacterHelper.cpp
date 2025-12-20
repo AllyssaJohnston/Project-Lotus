@@ -5,12 +5,11 @@ CombatCharacter::CombatCharacter(const std::string name, Tile* pCurTile, const C
     mName = name;
     mType = preset.mType;
 
-
-    mStandardAttackDamage    = preset.mAttackDamage;
-    mStandardHealthCapacity  = preset.mHealthCapacity;
-    mCurHealth          = preset.mHealthCapacity;
-
-    mStandardDefenseCapacity = preset.mDefenseCapacity;
+    mStandardAttackDamage       = preset.mAttackDamage;
+    mStandardHealthCapacity     = preset.mHealthCapacity;
+    mCurHealth                  = preset.mHealthCapacity;
+    mHealAmount                 = preset.mHealAmount;
+    mStandardDefenseCapacity    = preset.mDefenseCapacity;
 
     mModelFileName = preset.mModelFileName;
     mIconFileName = preset.mIconFileName;
@@ -123,6 +122,14 @@ void CombatCharacter::addHealthCapacityModifier(float multiplier, int numTurns) 
 
 std::vector<std::pair<float, int>> CombatCharacter::getHealthCapacityModifiers() const { return mHealthCapacityModifiers; }
 
+void CombatCharacter::heal(int amount)
+{
+    mCurHealth += amount;
+    mCurHealth = std::min(mCurHealth, getCurHealthCapacity());
+}
+
+int CombatCharacter::getHealAmount() const { return mHealAmount; }
+
 
 int CombatCharacter::getCurDefense() const { return mCurDefense; }
 
@@ -158,6 +165,8 @@ void CombatCharacter::stun(int numTurnsStunned) { mTurnsToPass += numTurnsStunne
 
 
 void CombatCharacter::move(Tile* pTileInput) { mCombatMovementManager.setCurTile(pTileInput); }
+
+
 
 void updateModifiers(std::vector<std::pair<float, int>>& modifierlist)
 {

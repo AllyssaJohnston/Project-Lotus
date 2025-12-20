@@ -24,6 +24,8 @@ PlayerCombatPreset::PlayerCombatPreset() : CombatCharacterPreset()
     attack2.mRequiresDirectionInput = true;
     mAttacks.push_back(attack2);
 
+    mHealAmount = 6;
+
     mMoveType = EMiniGameCombatMoveAttackTypes_CROSS2;
 
     mAttackDamage       = 12;

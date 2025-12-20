@@ -12,6 +12,7 @@ struct CombatCharacterPreset
     EMiniGameCombatMoveAttackTypes mMoveType    = EMiniGameCombatMoveAttackTypes_INVALID;
 
     int mAttackDamage                           = -1;
+    int mHealAmount                             = 0;
     int mHealthCapacity                         = -1;
     int mDefenseCapacity                        = -1;
 

@@ -35,6 +35,7 @@ enum EMiniGameCombatSpecialEffectTypes
     EMiniGameCombatSpecialEffectTypes_STUN,
     EMiniGameCombatSpecialEffectTypes_LOSE_TURN,
     EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER,
+    EMiniGameCombatSpecialEffectTypes_HEAL,
     EMiniGameCombatSpecialEffectTypes_MAX
 };
 
@@ -81,6 +82,7 @@ enum EAttackTargetType
     EAttackTargetType_INVALID = -1,
     EAttackTargetType_ALL_PLAYERS,
     EAttackTargetType_ALL_ENEMIES,
+    EAttackTargetType_SELF,
     EAttackTargetType_ONE_CHARACTER,
     EAttackTargetType_ALL_CHARACTERS,
     EAttackTargetType_MAX
