@@ -130,11 +130,19 @@ struct MiniGameEnemyTakeAction : public MiniGameState
     void postTick();
 };
 
+struct MiniGameCharacterStunned : public MiniGameState
+{
+    MiniGameCharacterStunned(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
+
+    void tick() override;
+    void postTick();
+};
+
 struct MiniGameBuffer : public MiniGameState
 {
     MiniGameBuffer(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
 
-    void tick();
+    void tick() override;
     void postTick();
 };
 

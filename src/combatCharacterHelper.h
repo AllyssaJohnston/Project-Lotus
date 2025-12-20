@@ -23,6 +23,8 @@ public:
 
     void preTick();
 
+    void postTick();
+
     void resetStats();
 
 

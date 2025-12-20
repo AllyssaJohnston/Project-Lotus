@@ -55,7 +55,7 @@ RatCombatPreset::RatCombatPreset() : CombatCharacterPreset()
     attack2.mDamagePercent = 1.0f;
     attack2.mDamageDistanceDependent = false;
     attack2.mRequiresDirectionInput = false;
-    attack2.mSpecialEffects.push_back(SpecialEffectSelfStun(2));
+    attack2.mSpecialEffects.push_back(SpecialEffectSelfStun(1));
     mAttacks.push_back(attack2);
 
     Attack attack3 = Attack(); // DRAGAUR GROWL (Inc attack)

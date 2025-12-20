@@ -190,6 +190,7 @@ enum EMiniGameState
 	EMiniGameState_PLAYER_TAKE_ACTION_DEFEND,
 	EMiniGameState_ENEMY_MOVE_CHARACTER,
 	EMiniGameState_ENEMY_TAKE_ACTION,
+	EMiniGameState_CHARACTER_STUNNED,
 	EMiniGameState_BUFFER,
 	EMiniGameState_EXIT,
 	EMiniGameState_BUILD_NEXT_LEVEL,

@@ -7,46 +7,33 @@ CombatManager::~CombatManager()
         delete pCharacter;
     }
     mpAllCombatCharacters.clear();
-    mpCurCombatCharacters.clear();
+    mpCurAliveCombatCharacters.clear();
 }
 
 void CombatManager::postTick()
 {
     // check if the cur alive character list needs to be updated
-    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
+    for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
     {
         if (pCharacter->getCurHealth() <= 0)
         {
-            createCurCharacterList();
+            createCurAliveCharacterList();
             break;
         }
     }
 }
 
 
-void CombatManager::createCurCharacterList()
+void CombatManager::createCurAliveCharacterList()
 {
-    mpCurCombatCharacters.clear();
+    mpCurAliveCombatCharacters.clear();
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
         if (pCharacter->isAlive())
         {
-            mpCurCombatCharacters.push_back(pCharacter);
+            mpCurAliveCombatCharacters.push_back(pCharacter);
         }
     }
-}
-
-std::vector <CombatCharacter*> CombatManager::getCurCharactersThatCanPlay() const
-{
-    std::vector <CombatCharacter*> pCurCombatCharactersThatCanPlay;
-    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
-    {
-        if (pCharacter->isAlive() && pCharacter->getStuns() == 0)
-        {
-            pCurCombatCharactersThatCanPlay.push_back(pCharacter);
-        }
-    }
-    return pCurCombatCharactersThatCanPlay;
 }
 
 std::vector <CombatCharacter*> CombatManager::getCurAliveCharacters() const
@@ -62,14 +49,14 @@ std::vector <CombatCharacter*> CombatManager::getCurAliveCharacters() const
     return pCurAliveCombatCharacters;
 }
 
-CombatCharacter* CombatManager::returnNextCharacter(CombatCharacter& curCharacter, bool preTick)
+CombatCharacter* CombatManager::returnNextAliveCharacter(CombatCharacter& curCharacter)
 {
     int i = -1;
-    return returnNextCharacter(curCharacter, i, preTick);
+    return returnNextAliveCharacter(curCharacter, i);
 }
 
 // out all index is the index of the new character im the all character list
-CombatCharacter* CombatManager::returnNextCharacter(CombatCharacter& curCharacter, int& outAllIndex, bool preTick)
+CombatCharacter* CombatManager::returnNextAliveCharacter(CombatCharacter& curCharacter, int& outAllIndex)
 {
     CombatCharacter* pNextCharacter = getNextCharacter(curCharacter);
     if (pNextCharacter == nullptr)
@@ -92,7 +79,7 @@ CombatCharacter* CombatManager::returnNextCharacter(CombatCharacter& curCharacte
     }
 
     // pretick characters after the old character up to and including the new one
-    preTickRange(indexOfOldCharInAllChars, outAllIndex, preTick);
+    preTickRange(indexOfOldCharInAllChars, outAllIndex);
 
     return pNextCharacter;
 }
@@ -100,7 +87,7 @@ CombatCharacter* CombatManager::returnNextCharacter(CombatCharacter& curCharacte
 
 CombatCharacter* CombatManager::getNextCharacter(const CombatCharacter& curCharacter)
 {
-    std::vector <CombatCharacter*> curCharactersThatCanPlay = getCurCharactersThatCanPlay();
+    std::vector <CombatCharacter*> curCharactersThatCanPlay = getCurAliveCharacters();
     if (curCharactersThatCanPlay.size() == 0)
     {
         return nullptr;
@@ -128,35 +115,38 @@ CombatCharacter* CombatManager::getNextCharacter(const CombatCharacter& curChara
     }
 }
 
-void CombatManager::preTickRange(int startIndex, int endIndex, bool tickLast)
+void CombatManager::preTickRange(int startIndex, int endIndex)
 {
-    if (!tickLast) 
-    { 
-        endIndex--;  
-    }
-
+    // posttick cur character up to the start of the new oen
     // pretick characters after the old character up to and including the new one
     if (startIndex < endIndex)
     {
-        for (int count = startIndex + 1; count <= endIndex; count++)
+        mpAllCombatCharacters[startIndex]->postTick();
+        for (int count = startIndex + 1; count < endIndex; count++)
         {
             mpAllCombatCharacters[count]->preTick();
+            mpAllCombatCharacters[count]->postTick();
         }
+        mpAllCombatCharacters[endIndex]->preTick();
     }
     else
     {
-        for (int count = endIndex; count < mpAllCombatCharacters.size(); count++)
+        mpAllCombatCharacters[startIndex]->postTick();
+        for (int count = startIndex + 1; count < mpAllCombatCharacters.size(); count++)
         {
             mpAllCombatCharacters[count]->preTick();
+            mpAllCombatCharacters[count]->postTick();
         }
-        for (int count = 0; count < startIndex; count++)
+        for (int count = 0; count < endIndex; count++)
         {
             mpAllCombatCharacters[count]->preTick();
+            mpAllCombatCharacters[count]->postTick();
         }
+        mpAllCombatCharacters[endIndex]->preTick();
     }
 }
 
-int CombatManager::returnCharacterIndex(const CombatCharacter& givenCharacter) const
+int CombatManager::getCharacterIndex(const CombatCharacter& givenCharacter) const
 {
     for (int count = 0; count < mpAllCombatCharacters.size(); count++)
     {
@@ -174,7 +164,7 @@ void CombatManager::tickAll()
     {
         pCharacter->preTick();
     }
-    createCurCharacterList();
+    createCurAliveCharacterList();
 }
 
 void CombatManager::attackMultipleTiles(CombatCharacter& attackingCharacter, std::vector <Tile*>& pTilesToAttack, const Attack& characterAttack)
@@ -187,7 +177,7 @@ void CombatManager::attackMultipleTiles(CombatCharacter& attackingCharacter, std
 
 void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile, const Attack& attack)
 {
-    for (CombatCharacter* pCurCharacter : mpCurCombatCharacters)
+    for (CombatCharacter* pCurCharacter : mpCurAliveCombatCharacters)
     {
         if (pCurCharacter != &attackingCharacter and (pCurCharacter->mCombatMovementManager.getCurTile()->mRow == givenTile.mRow) 
                     and  (pCurCharacter->mCombatMovementManager.getCurTile()->mCol == givenTile.mCol))
@@ -223,20 +213,20 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
             break;
 
         case EMiniGameCombatSpecialEffectTypes_LOSE_TURN: // self stun
-            attackingCharacter.stun(specialEffect.mTurns);
+            attackingCharacter.stun(specialEffect.mTurns + 1);
             break;
 
         case EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER:
             switch (specialEffect.mAttackTargetType)
             {
             case EAttackTargetType_ALL_CHARACTERS:
-                for (CombatCharacter* pCharacter : mpCurCombatCharacters)
+                for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
                 {
                     pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
                 }
                 break;
             case EAttackTargetType_ALL_PLAYERS:
-                for (CombatCharacter* pCharacter : mpCurCombatCharacters)
+                for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
                 {
                     if (pCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
                     {
@@ -245,7 +235,7 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
                 }
                 break;
             case EAttackTargetType_ALL_ENEMIES:
-                for (CombatCharacter* pCharacter : mpCurCombatCharacters)
+                for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
                 {
                     if (pCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
                     {
@@ -270,7 +260,7 @@ GameOverStats CombatManager::getGameOverStats()
     GameOverStats stats = GameOverStats();
     int numPlayers = 0;
     int numEnemies = 0;
-    for (CombatCharacter* pCurCharacter : mpCurCombatCharacters)
+    for (CombatCharacter* pCurCharacter : mpCurAliveCombatCharacters)
     {
         switch (pCurCharacter->mType)
         {
@@ -307,5 +297,5 @@ void CombatManager::resetStats()
     {
         pCharacter->resetStats();
     }
-    createCurCharacterList();
+    createCurAliveCharacterList();
 }

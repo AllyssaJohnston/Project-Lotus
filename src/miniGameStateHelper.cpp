@@ -59,7 +59,7 @@ void MiniGamePlayerWaitForMoveInput::selectTile(const Vect2 pos)
 void MiniGamePlayerWaitForMoveInput::moveToTile(Tile& givenTile)
 {
 	mData.getCharacter()->mCombatMovementManager.setMoveTiles();
-	if (mData.getCharacter()->mCombatMovementManager.isTileInMoveRange(givenTile) && !characterOnTile(givenTile, mWorldData.getStage()->mCombatManager.mpCurCombatCharacters) && isPlayableTile(givenTile))
+	if (mData.getCharacter()->mCombatMovementManager.isTileInMoveRange(givenTile) && !characterOnTile(givenTile, mWorldData.getStage()->mCombatManager.mpCurAliveCombatCharacters) && isPlayableTile(givenTile))
 	{
 		postTick(givenTile);
 	}
@@ -95,18 +95,7 @@ void MiniGamePlayerWaitForActionInput::postTick(EMiniGameState nextStateEnum)
 {
 	if (nextStateEnum == EMiniGameState_BUFFER)
 	{
-		int index = -1;
-		CombatCharacter* pNextCharacter = mWorldData.getStage()->mCombatManager.returnNextCharacter(*mData.getCharacter(), index);
-		if (pNextCharacter == nullptr)
-		{
-			// all players stunned, must stall for rounds
-			mData.mPostBufferGameState = EMiniGameState_BUFFER;
-		}
-		else
-		{
-			mData.setCharacter(pNextCharacter, index);
-			mData.mPostBufferGameState = getPostBufferState(*pNextCharacter);
-		}
+		setUpForBufferState(mWorldData, mData);
 	}
 	mData.mNextMiniGameState = nextStateEnum;
 }
@@ -165,25 +154,7 @@ void MiniGamePlayerCompleteDirectionalAttack::attackTiles()
 
 void MiniGamePlayerCompleteDirectionalAttack::postTick()
 {
-	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
-
-	combatManager.postTick();
-	int index = -1;
-	CombatCharacter* pNextCharacter = combatManager.returnNextCharacter(*mData.getCharacter(), index);
-	if (pNextCharacter == nullptr)
-	{
-		// all players stunned, must stall for rounds
-		mData.mPostBufferGameState = EMiniGameState_BUFFER;
-	}
-	else
-	{
-		mData.setCharacter(pNextCharacter, index);
-		mData.mPostBufferGameState = getPostBufferState(*pNextCharacter);
-	}
-	mData.mTicks = 0;
-	mData.mpTileToAttack = nullptr;
-	mData.mpTilesToAttack.clear();
-	mData.mNextMiniGameState = EMiniGameState_BUFFER;
+	setUpForBufferState(mWorldData, mData);
 	mData.mAttacked = true;
 }
 
@@ -206,24 +177,7 @@ void MiniGamePlayerTakeActionAttack::selectTile(const Vect2 pos)
 
 void MiniGamePlayerTakeActionAttack::postTick()
 {
-	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
-	combatManager.postTick();
-	int index = -1;
-	CombatCharacter* pNextCharacter = combatManager.returnNextCharacter(*mData.getCharacter(), index);
-	if (pNextCharacter == nullptr)
-	{
-		// all players stunned, must stall for rounds
-		mData.mPostBufferGameState = EMiniGameState_BUFFER;
-	}
-	else
-	{
-		mData.setCharacter(pNextCharacter, index);
-		mData.mPostBufferGameState = getPostBufferState(*pNextCharacter);
-	}
-	mData.mTicks = 0;
-	mData.mpTileToAttack = nullptr;
-	mData.mpTilesToAttack.clear();
-	mData.mNextMiniGameState = EMiniGameState_BUFFER;
+	setUpForBufferState(mWorldData, mData);
 	mData.mAttacked = true;
 }
 
@@ -239,24 +193,8 @@ void MiniGamePlayerTakeActionDefend::tick()
 
 void MiniGamePlayerTakeActionDefend::postTick()
 {
-	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
-
-	combatManager.postTick();
-	int index = -1;
-	CombatCharacter* pNextCharacter = combatManager.returnNextCharacter(*mData.getCharacter(), index);
-	if (pNextCharacter == nullptr)
-	{
-		// all players stunned, must stall for rounds
-		mData.mPostBufferGameState = EMiniGameState_BUFFER;
-	}
-	else
-	{
-		mData.setCharacter(pNextCharacter, index);
-		mData.mPostBufferGameState = getPostBufferState(*pNextCharacter);
-	}
-	mData.mNextMiniGameState = EMiniGameState_BUFFER;
+	setUpForBufferState(mWorldData, mData);
 	mData.mDefended = true;
-	mData.mTicks = 0;
 }
 
 
@@ -296,7 +234,7 @@ void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 	for (TileCoords& curTileCoords : curEnemy.mCombatMovementManager.getMoveTiles())
 	{
 		Tile* pCurTile = findTile(grid, curTileCoords);
-		if (pCurTile != nullptr && isPlayableTile(*pCurTile) && !characterOnTile(*pCurTile, combatManager.mpCurCombatCharacters))
+		if (pCurTile != nullptr && isPlayableTile(*pCurTile) && !characterOnTile(*pCurTile, combatManager.mpCurAliveCombatCharacters))
 		{
 			pAllPossibleMoveTiles.push_back(pCurTile);
 		}
@@ -338,15 +276,15 @@ void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 
 	// No tiles enemy can attack from
 	// move closer to a player
-	std::vector <TileDistance> tileDistances = returnListOfTileDistances(combatManager.mpCurCombatCharacters, pAllPossibleMoveTiles, &curEnemy);
+	std::vector <TileDistance> tileDistances = returnListOfTileDistances(combatManager.mpCurAliveCombatCharacters, pAllPossibleMoveTiles, &curEnemy);
 	minDistanceFromPlayer = std::numeric_limits<int>::max();
 	Tile* pCurTile = &curEnemyTile;
 	for (TileDistance& curTileDistance : tileDistances)
 	{
-		if (minDistanceFromPlayer > curTileDistance.mDistance && curTileDistance.mpTile != &curEnemyTile)
+		if (minDistanceFromPlayer > curTileDistance.mDistance)
 		{
 			minDistanceFromPlayer = (int)curTileDistance.mDistance;
-			pCurTile = curTileDistance.mpTile;
+			pCurTile = &curTileDistance.mTile2;
 		}
 	}
 	mData.mpTileToMoveTo = pCurTile;
@@ -365,7 +303,6 @@ MiniGameEnemyTakeAction:: MiniGameEnemyTakeAction(KeyboardData& keyboardData, Mi
 
 void MiniGameEnemyTakeAction::tick()
 {
-	
 	if (mData.mTicks == int(mData.mTicksBeforeAction / 2))
 	{
 		mData.mGoingToAttack = shouldAttack();
@@ -460,9 +397,9 @@ bool MiniGameEnemyTakeAction::shouldDefend()
 	CombatManager&	combatManager	= pStage->mCombatManager;
 	Tile*			pCurTile		= mData.getCharacter()->mCombatMovementManager.getCurTile();
 
-	for (CombatCharacter* pCharacter : combatManager.mpCurCombatCharacters)
+	for (CombatCharacter* pCharacter : combatManager.mpCurAliveCombatCharacters)
 	{
-		if (pCharacter->mType != EMiniGameCombatCharacterType_PLAYER)
+		if (pCharacter->mType != EMiniGameCombatCharacterType_PLAYER || pCharacter->getStuns() > 0)
 		{
 			continue;
 		}
@@ -483,27 +420,28 @@ void MiniGameEnemyTakeAction::performAttack() { mWorldData.getStage()->mCombatMa
 void MiniGameEnemyTakeAction::postTick()
 {
 	mData.mpTileLastMovedTo = nullptr;
-	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
-	combatManager.postTick();
-	int index = -1;
-	CombatCharacter* pNextCharacter = combatManager.returnNextCharacter(*mData.getCharacter(), index);
-	if (pNextCharacter == nullptr)
+	setUpForBufferState(mWorldData, mData);
+}
+
+
+
+MiniGameCharacterStunned::MiniGameCharacterStunned(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData) { ; }
+
+void MiniGameCharacterStunned::tick()
+{
+
+	if (mData.mTicks < mData.mTicksBeforeAction)
 	{
-		// all players stunned, must stall for rounds
-		mData.mPostBufferGameState = EMiniGameState_BUFFER;
+		mData.mTicks += 1;
 	}
 	else
 	{
-		mData.setCharacter(pNextCharacter, index);
-		mData.mPostBufferGameState = getPostBufferState(*pNextCharacter);
+		postTick();
 	}
-
-	mData.mNextMiniGameState = EMiniGameState_BUFFER;
-	mData.mGoingToAttack = false;
-	mData.mpTileToAttack = nullptr;
-	mData.mpTilesToAttack.clear();
-	mData.mTicks = 0;
 }
+
+void MiniGameCharacterStunned::postTick() { setUpForBufferState(mWorldData, mData); }
+
 
 
 
@@ -515,10 +453,9 @@ void MiniGameBuffer::tick()
 	{
 		mData.mTickYet = true;
 	}
-	else if (mData.mPostBufferGameState == EMiniGameState_BUFFER && mData.mTicks < mData.mTicksBeforeAction)
+	else if (mData.mTicks < (mData.mTicksBeforeAction * 2))
 	{
 		mData.mTicks++;
-		mData.mForcePrintLog = true;
 	}
 	else
 	{
@@ -554,33 +491,7 @@ void MiniGameBuffer::postTick()
 	}
 	else 
 	{
-		if (mData.mPostBufferGameState == EMiniGameState_BUFFER)
-		{
-			
-			// force tick a round, to drain turns to pass
-			CombatManager& combatManager = pStage->mCombatManager;
-			combatManager.tickAll();
-			int index = -1;
-			CombatCharacter* pNextCharacter = combatManager.returnNextCharacter(*mData.getCharacter(), index, false);
-			mData.setCharacter(pNextCharacter, index);
-			if (pNextCharacter == nullptr)
-			{
-				mData.mForcePrintLog = true;
-				// all players stunned, must continue to stall for rounds
-				mData.mPostBufferGameState = EMiniGameState_BUFFER;
-				mData.mTicks = 0;
-				return;
-			}
-			else
-			{
-				mData.mNextMiniGameState = getPostBufferState(*pNextCharacter);;
-			}
-			pNextCharacter = nullptr;
-		}
-		else
-		{
-			mData.mNextMiniGameState = mData.mPostBufferGameState;
-		}
+		mData.mNextMiniGameState = mData.mPostBufferGameState;
 	}
 
 	// continue game / set up for next time
@@ -588,6 +499,7 @@ void MiniGameBuffer::postTick()
 	pStage = nullptr;
 	pLevel = nullptr;
 }
+
 
 
 MiniGameBuildNextLevel::MiniGameBuildNextLevel(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData) { ; }
@@ -600,19 +512,20 @@ MiniGameExit::MiniGameExit(KeyboardData& keyboardData, MiniGameStateData& data, 
 //MINI GAME STATE MANAGER
 MiniGameStateManager::MiniGameStateManager(KeyboardData& keyboardData, MiniGameWorldData& miniGameWorldData) : mWorldData(miniGameWorldData)
 {
-	mpStates = {new MiniGamePlayerWaitForMoveInput(keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerMoveCharacter(keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerWaitForActionInput(keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerWaitForAttackInput(keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerWaitForAttackSubInput(keyboardData, mData.mStateData, mWorldData),
+	mpStates = {new MiniGamePlayerWaitForMoveInput(			keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerMoveCharacter(			keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerWaitForActionInput(		keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerWaitForAttackInput(		keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerWaitForAttackSubInput(	keyboardData, mData.mStateData, mWorldData),
 				new MiniGamePlayerCompleteDirectionalAttack(keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerTakeActionAttack(keyboardData, mData.mStateData, mWorldData),
-				new MiniGamePlayerTakeActionDefend(keyboardData, mData.mStateData, mWorldData),
-				new MiniGameEnemyMoveCharacter(keyboardData, mData.mStateData, mWorldData),
-				new MiniGameEnemyTakeAction(keyboardData, mData.mStateData, mWorldData),
-				new MiniGameBuffer(keyboardData, mData.mStateData, mWorldData),
-				new MiniGameExit(keyboardData, mData.mStateData, mWorldData),
-				new MiniGameBuildNextLevel(keyboardData, mData.mStateData, mWorldData) 
+				new MiniGamePlayerTakeActionAttack(			keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerTakeActionDefend(			keyboardData, mData.mStateData, mWorldData),
+				new MiniGameEnemyMoveCharacter(				keyboardData, mData.mStateData, mWorldData),
+				new MiniGameEnemyTakeAction(				keyboardData, mData.mStateData, mWorldData),
+				new MiniGameCharacterStunned(				keyboardData, mData.mStateData, mWorldData),
+				new MiniGameBuffer(							keyboardData, mData.mStateData, mWorldData),
+				new MiniGameExit(							keyboardData, mData.mStateData, mWorldData),
+				new MiniGameBuildNextLevel(					keyboardData, mData.mStateData, mWorldData) 
 	};
 	mData.mCurStateEnum = EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
 
@@ -632,7 +545,7 @@ MiniGameStateManager::~MiniGameStateManager()
 void MiniGameStateManager::start() 
 {
 	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
-	combatManager.createCurCharacterList();
+	combatManager.createCurAliveCharacterList();
 	mWorldData.resetStage();
 	mData.mStateData.reset();
 	mData.mStateData.setCharacter(combatManager.mpAllCombatCharacters[0], 0);
@@ -673,7 +586,10 @@ void MiniGameStateManager::preTick()
 
 void MiniGameStateManager::tick()
 {
-	if (!setUp) { start(); }
+	if (!setUp) 
+	{ 
+		start(); 
+	}
 	mpCurState->tick();
 }
 
@@ -684,11 +600,6 @@ void MiniGameStateManager::postTick()
 		if (mData.mCurStateEnum != mData.mStateData.mNextMiniGameState)
 		{
 			createDebugLog();
-		}
-		else if (mData.mStateData.mForcePrintLog)
-		{
-			mData.mStateData.mDebugLine = "EVERYONE is stunned";
-			mData.mStateData.mForcePrintLog = false;
 		}
 		
 		mData.mCurStateEnum = mData.mStateData.mNextMiniGameState;
@@ -708,7 +619,7 @@ void MiniGameStateManager::printCharacters(ScreenObject& screenObject, const Sty
 {
 	Grid& grid = mWorldData.getStage()->mGrid;
 	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
-	for (CombatCharacter* pCurCombatCharacter : combatManager.mpCurCombatCharacters)
+	for (CombatCharacter* pCurCombatCharacter : combatManager.mpCurAliveCombatCharacters)
 	{
 		Tile* pCurTile = pCurCombatCharacter->mCombatMovementManager.getCurTile();
 
@@ -749,66 +660,62 @@ void MiniGameStateManager::updateTileColors(const StyleManager& styleManager)
 	}
 
 	// SHOW MOVE and ATTACK TILES
-	for (CombatCharacter* pCurCombatCharacter : combatManager.mpCurCombatCharacters)
+	CombatCharacter* pCurCombatCharacter = mData.mStateData.getCharacter();
+	EMiniGameCombatActionType tileType = EMiniGameCombatActionType_MOVE;
+	std::vector <TileCoords> tileCoordsList;
+	switch (mData.mCurStateEnum)
 	{
-		if (pCurCombatCharacter == mData.mStateData.getCharacter())
+	case EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT:
+	case EMiniGameState_ENEMY_MOVE_CHARACTER:
+		tileCoordsList = pCurCombatCharacter->mCombatMovementManager.getMoveTiles();
+		tileType = EMiniGameCombatActionType_MOVE;
+		break;
+	case EMiniGameState_PLAYER_TAKE_ACTION_ATTACK:
+	case EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK:
+	case EMiniGameState_ENEMY_TAKE_ACTION:
+		tileType = EMiniGameCombatActionType_ATTACK;
+		if (mData.mStateData.mpCurAttack != nullptr)
 		{
-			EMiniGameCombatActionType tileType = EMiniGameCombatActionType_MOVE;
-			std::vector <TileCoords> tileCoordsList;
-			switch (mData.mCurStateEnum)
+			if (mData.mStateData.mpCurAttack->mRequiresDirectionInput and mData.mStateData.mCurAttackDirection != EDirection_NONE and mData.mStateData.mCurAttackDirection != EDirection_INVALID)
 			{
-			case EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT:
-			case EMiniGameState_ENEMY_MOVE_CHARACTER:
-				tileCoordsList = pCurCombatCharacter->mCombatMovementManager.getMoveTiles();
-				tileType = EMiniGameCombatActionType_MOVE;
-				break;
-			case EMiniGameState_PLAYER_TAKE_ACTION_ATTACK:
-			case EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK:
-			case EMiniGameState_ENEMY_TAKE_ACTION:
-				tileType = EMiniGameCombatActionType_ATTACK;
-				if (mData.mStateData.mpCurAttack != nullptr)
+				tileCoordsList = returnTileCoords(*pCurCombatCharacter->mCombatMovementManager.getCurTile(), mData.mStateData.mpCurAttack->mType, mData.mStateData.mCurAttackDirection);
+			}
+			else
+			{
+				tileCoordsList = returnTileCoords(*pCurCombatCharacter->mCombatMovementManager.getCurTile(), mData.mStateData.mpCurAttack->mType, EDirection_ALL);
+			}
+		}
+		break;
+	default:
+		break;
+	}
+
+	for (TileCoords& tileCoord : tileCoordsList)
+	{
+		Tile* pTile = findTile(grid, tileCoord);
+		if (pTile != nullptr && isPlayableTile(*pTile))
+		{
+			SDL_Color& curColor = pTile->mCurColor;
+			SDL_Color otherColor;
+			switch (tileType)
+			{
+			case EMiniGameCombatActionType_MOVE:
+				if (characterOnTile(*pTile, combatManager.mpCurAliveCombatCharacters))
 				{
-					if (mData.mStateData.mpCurAttack->mRequiresDirectionInput and mData.mStateData.mCurAttackDirection != EDirection_NONE and mData.mStateData.mCurAttackDirection != EDirection_INVALID)
-					{
-						tileCoordsList = returnTileCoords(*pCurCombatCharacter->mCombatMovementManager.getCurTile(), mData.mStateData.mpCurAttack->mType, mData.mStateData.mCurAttackDirection);
-					}
-					else
-					{
-						tileCoordsList = returnTileCoords(*pCurCombatCharacter->mCombatMovementManager.getCurTile(), mData.mStateData.mpCurAttack->mType, EDirection_ALL);
-					}
+					continue;
 				}
+				otherColor = styleManager.sunYellow;
+				break;
+			case EMiniGameCombatActionType_ATTACK:
+				otherColor = styleManager.red;
 				break;
 			default:
+				SDL_assert(false);
 				break;
 			}
-
-			for (TileCoords& tileCoord : tileCoordsList)
-			{
-				int row = tileCoord.mRow;
-				int col = tileCoord.mCol;
-
-				if (grid.isLegalCoords(row, col))
-				{
-					Tile* curTile = grid.mpTiles[grid.getIndex(row, col)];
-					SDL_Color& curColor = curTile->mCurColor;
-					SDL_Color otherColor;
-					switch (tileType)
-					{
-					case EMiniGameCombatActionType_MOVE:
-						otherColor = styleManager.sunYellow;
-						break;
-					case EMiniGameCombatActionType_ATTACK:
-						otherColor = styleManager.red;
-						break;
-					default:
-						SDL_assert(false);
-						break;
-					}
-					float alpha = .25;
-					SDL_Color updatedColor = blendColors(&curColor, &otherColor, alpha);
-					curTile->setCurColor(updatedColor);
-				}
-			}
+			float alpha = .25;
+			SDL_Color updatedColor = blendColors(&curColor, &otherColor, alpha);
+			pTile->setCurColor(updatedColor);
 		}
 	}
 }
@@ -826,6 +733,7 @@ void MiniGameStateManager::createDebugLog()
 	MiniGameStateData& preTickStateData = mData.mPreviousStateDatas.top();
 	// current state data is post tick
 	std::string line;
+
 	switch (mData.mCurStateEnum)
 	{
 	case EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT:
@@ -861,6 +769,12 @@ void MiniGameStateManager::createDebugLog()
 	case EMiniGameState_ENEMY_MOVE_CHARACTER:
 		line = mData.mStateData.getCharacter()->mName + " moved to " + std::to_string(mData.mStateData.mpTileLastMovedTo->mRow) + ", " + std::to_string(mData.mStateData.mpTileLastMovedTo->mCol);
 		break;	
+	case EMiniGameState_BUFFER:
+		if (mData.mStateData.mNextMiniGameState == EMiniGameState_CHARACTER_STUNNED)
+		{
+			line = preTickStateData.getCharacter()->mName + " is stunned";
+		}
+		
 	}
 
 	std::string characterChanges =  getCharacterChangesString(mWorldData.getStage()->mCombatManager, mData.mPreTickCharacterSnapShots.top());

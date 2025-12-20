@@ -23,6 +23,14 @@ void CombatCharacter::preTick()
     if (mAmAlive)
     {
         mCombatMovementManager.preTick();
+    }
+}
+
+void CombatCharacter::postTick()
+{
+    if (mAmAlive)
+    {
+        mCombatMovementManager.preTick();
         mTurnsToPass = std::max(0, mTurnsToPass - 1);
 
         updateModifiers(mAttackDamageModifiers);
@@ -151,7 +159,7 @@ void CombatCharacter::move(Tile* pTileInput) { mCombatMovementManager.setCurTile
 
 void updateModifiers(std::vector<std::pair<float, int>>& modifierlist)
 {
-    for (int i = modifierlist.size() - 1; i > -1; i--)
+    for (int i = (int)modifierlist.size() - 1; i > -1; i--)
     {
         std::pair<float, int>& modifier = modifierlist[i];
         modifier.second -= 1;

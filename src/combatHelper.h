@@ -9,7 +9,7 @@
 class CombatManager
 {
 public:
-    std::vector <CombatCharacter*> mpCurCombatCharacters;
+    std::vector <CombatCharacter*> mpCurAliveCombatCharacters;
     std::vector <CombatCharacter*> mpAllCombatCharacters;
 
     CombatManager(){}
@@ -18,17 +18,15 @@ public:
 
     void postTick();
 
-    void createCurCharacterList();
-
-    std::vector <CombatCharacter*> getCurCharactersThatCanPlay() const;
+    void createCurAliveCharacterList();
 
     std::vector <CombatCharacter*> getCurAliveCharacters() const;
 
-    CombatCharacter* returnNextCharacter(CombatCharacter& curCharacter, bool preTick = true);
+    CombatCharacter* returnNextAliveCharacter(CombatCharacter& curCharacter);
 
-    CombatCharacter* returnNextCharacter(CombatCharacter& curCharacter, int& outIndex, bool preTick = true);
+    CombatCharacter* returnNextAliveCharacter(CombatCharacter& curCharacter, int& outIndex);
 
-    int returnCharacterIndex(const CombatCharacter& givenCharacter) const;
+    int getCharacterIndex(const CombatCharacter& givenCharacter) const;
 
     void tickAll();
 
@@ -45,5 +43,5 @@ public:
 private:
     CombatCharacter* getNextCharacter(const CombatCharacter& curCharacter);
 
-    void preTickRange(int startIndex, int endIndex, bool tickLast);
+    void preTickRange(int startIndex, int endIndex);
 };

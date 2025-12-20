@@ -21,7 +21,7 @@ MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool 
 	mData.mMiniGameStateWhenToShowList	= { EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT, EMiniGameState_PLAYER_MOVE_CHARACTER, EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT,
 											EMiniGameState_PLAYER_WAIT_FOR_ATTACK_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_SUB_INPUT,
 											EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK, EMiniGameState_PLAYER_TAKE_ACTION_ATTACK, EMiniGameState_PLAYER_TAKE_ACTION_DEFEND,
-											EMiniGameState_ENEMY_MOVE_CHARACTER, EMiniGameState_ENEMY_TAKE_ACTION, EMiniGameState_BUFFER, };
+											EMiniGameState_ENEMY_MOVE_CHARACTER, EMiniGameState_ENEMY_TAKE_ACTION, EMiniGameState_BUFFER, EMiniGameState_CHARACTER_STUNNED };
 	mData.mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
 }
 

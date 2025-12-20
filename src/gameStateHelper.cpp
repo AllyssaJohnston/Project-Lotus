@@ -659,10 +659,10 @@ void GameStatePlayMiniGame::tick(GameStateManagerData& gameStateManagerData, Min
 	SDL_PumpEvents();
 	CombatManager& combatManager = mMiniGameStateManager.mWorldData.getStage()->mCombatManager;
 
-	if (combatManager.mpCurCombatCharacters.size() == 0)
+	if (combatManager.mpCurAliveCombatCharacters.size() == 0)
 	{
-		combatManager.createCurCharacterList();
-		mMiniGameStateManager.mData.mStateData.setCharacter(combatManager.mpCurCombatCharacters[0], 0);
+		combatManager.createCurAliveCharacterList();
+		mMiniGameStateManager.mData.mStateData.setCharacter(combatManager.mpCurAliveCombatCharacters[0], 0);
 	}
 
 	getInput();

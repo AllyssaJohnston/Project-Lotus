@@ -37,25 +37,11 @@ struct CombatCharacterSnapShot
 
 struct TileDistance
 {
-    Tile* mpTile;
-    CombatCharacter* mpCharacter1;
-    CombatCharacter* mpCharacter2;
-    float            mDistance;
+    Tile&  mTile1;
+    Tile&  mTile2;
+    float  mDistance;
 
-    TileDistance(Tile* pTile, CombatCharacter* pCharacter1, CombatCharacter* pCharacter2, float distance)
-    {
-        mpTile = pTile;
-        mpCharacter1 = pCharacter1;
-        mpCharacter2 = pCharacter2;
-        mDistance = distance;
-    }
-
-    ~TileDistance()
-    {
-        mpTile = nullptr;
-        mpCharacter1 = nullptr;
-        mpCharacter2 = nullptr;
-    }
+    TileDistance(Tile& tile1, Tile& tile2);
 };
 
 class MiniGameStateData
@@ -81,10 +67,8 @@ public:
     EMiniGameState      mPostBufferGameState = EMiniGameState_INVALID;
 
     int                 mTicks = 0;
-    int                 mTicksBeforeAction = 40;
+    int                 mTicksBeforeAction = 50;
     bool                mTickYet = false;
-
-    bool                mForcePrintLog = false;
 
     ~MiniGameStateData();
 
@@ -123,5 +107,7 @@ std::vector <TileDistance> returnListOfTileDistances(std::vector <CombatCharacte
 std::vector<CombatCharacterSnapShot> createCombatCharacterSnapShots(const CombatManager& combatManager);
 
 std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacterSnapShot>& preTickCharacters);
+
+void setUpForBufferState(const MiniGameWorldData& worldData, MiniGameStateData& data);
 
 EMiniGameState getPostBufferState(const CombatCharacter& character);
