@@ -8,7 +8,7 @@
 struct AttackTile
 {
     Tile&  mTile;
-    Attack mAttack;
+    Attack& mAttack;
 
     AttackTile(Tile& tile, Attack& attack);
 };
@@ -22,8 +22,5 @@ struct AttackAndCorrespondingTilesCoords
     AttackAndCorrespondingTilesCoords(std::vector <TileCoords>& tileCoords, const Attack& attack);
 };
 
-AttackAndCorrespondingTilesCoords returnAttackTileCoordsBasedOnAttack(const Tile& givenTile, const Attack& curAttack);
+std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombatMoveAttackTypes moveAttackType, EDirection direction);
 
-AttackAndCorrespondingTilesCoords returnAttackTileCoordsBasedOnAttackAndDirection(const Tile& givenTile, const Attack& curAttack, EDirection givenDirection);
-
-std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombatMoveAttackTypes moveAttackType);

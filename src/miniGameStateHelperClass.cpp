@@ -5,19 +5,23 @@
 
 CombatCharacterSnapShot::CombatCharacterSnapShot(CombatCharacter* pCharacter) : mpCharacter(pCharacter)
 {
-	mAmAlive			= mpCharacter->mAmAlive;
+	mAmAlive					= mpCharacter->isAlive();
 
-	mCurAttackDamage	= mpCharacter->mCurAttackDamage;
+	mCurDamage					= mpCharacter->getCurDamage();
+	mAttackDamageModifiers		= mpCharacter->getDamageModifiers();
 
-	mCurHealthCapacity	= mpCharacter->mCurHealthCapacity;
-	mCurHealth			= mpCharacter->mCurHealth;
+	mCurHealth					= mpCharacter->getCurHealth();
+	mCurHealthCapacity			= mpCharacter->getCurHealthCapacity();
+	mHealthCapacityModifiers	= mpCharacter->getHealthCapacityModifiers();
+	
 
-	mCurDefenseCapacity = mpCharacter->mCurDefenseCapacity;
-	mCurDefense			= mpCharacter->mCurDefense;
+	mCurDefense					= mpCharacter->getCurDefense();
+	mCurDefenseCapacity			= mpCharacter->getCurDefenseCapacity();
+	mDefenseCapacityModifiers	= mpCharacter->getDefenseCapacityModifiers();
+	
+	mTurnsToPass				= mpCharacter->getStuns();
 
-	mTurnsToPass		= mpCharacter->mTurnsToPass;
-
-	mpTile				= mpCharacter->mCombatMovementManager.getCurTile();
+	mpTile						= mpCharacter->mCombatMovementManager.getCurTile();
 }
 
 CombatCharacterSnapShot::~CombatCharacterSnapShot()
@@ -73,77 +77,79 @@ void MiniGameStateData::reset()
 
 
 
-std::vector <AttackTile> returnAttackTileCoordsWithPlayersOnThem(MiniGameWorldData& worldData, Tile* pReferenceTile, CombatCharacter* pCharacter)
+std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldData& worldData, const Tile* const pReferenceTile, const Attack& curAttack, EDirection direction)
 {
-	std::vector <AttackTile> attackTileCoordsWithPlayers;
+	std::vector <Tile*> pTilesWithPlayers;
 	MiniGameStage* pStage = worldData.getStage();
 	Grid& grid = pStage->mGrid;
 	CombatManager& combatManager = pStage->mCombatManager;
 
-	for (Attack& curAttack : pCharacter->mCombatMovementManager.getAttacks())
+	if (curAttack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
 	{
-		AttackAndCorrespondingTilesCoords curListOfAttackTileCoords = returnAttackTileCoordsBasedOnAttack(*pReferenceTile, curAttack);
-
-		for (TileCoords& curTileCoord : curListOfAttackTileCoords.mTileCoords)
+		// just return the tiles with players
+		for (CombatCharacter* pCurCharacterToTest : combatManager.mpCurCombatCharacters)
 		{
-			if (grid.isLegalCoords(curTileCoord.mRow, curTileCoord.mCol))
+			if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER)
 			{
-				Tile* pCurAttackTile = grid.mpTiles[grid.getIndex(curTileCoord.mRow, curTileCoord.mCol)];
-				for (CombatCharacter* pCurCharacterToTest : combatManager.mpCurCombatCharacters)
+				pTilesWithPlayers.push_back(pCurCharacterToTest->mCombatMovementManager.getCurTile());
+			}
+		}
+	}
+	else
+	{
+		for (TileCoords& curTileCoord : returnTileCoords(*pReferenceTile, curAttack.mType, direction))
+		{
+			Tile* pCurAttackTile = findTile(grid, curTileCoord);
+			if (pCurAttackTile == nullptr)
+			{
+				continue;
+			}
+			for (CombatCharacter* pCurCharacterToTest : combatManager.mpCurCombatCharacters)
+			{
+				if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER && pCurCharacterToTest->mCombatMovementManager.getCurTile() == pCurAttackTile)
 				{
-					if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER && pCurCharacterToTest->mCombatMovementManager.getCurTile() == pCurAttackTile)
-					{
-						attackTileCoordsWithPlayers.push_back(AttackTile(*pCurAttackTile, curListOfAttackTileCoords.mAttack));
-					}
+					pTilesWithPlayers.push_back(pCurAttackTile);
 				}
 			}
 		}
 	}
-	return attackTileCoordsWithPlayers;
+	return pTilesWithPlayers;
+}
+
+std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldData& worldData, const Tile* const pReferenceTile, const std::vector<Attack>& attacks, const EDirection direction)
+{
+	std::vector <Tile*> pTilesWithPlayers;
+	MiniGameStage* pStage = worldData.getStage();
+	Grid& grid = pStage->mGrid;
+	CombatManager& combatManager = pStage->mCombatManager;
+
+	for (const Attack& curAttack : attacks)
+	{
+		for (Tile* pCurTile : returnTilesFromAttackWithPlayersOnThem(worldData, pReferenceTile, curAttack, direction))
+		{
+			if (std::find(pTilesWithPlayers.begin(), pTilesWithPlayers.end(), pCurTile) == pTilesWithPlayers.end())
+			{
+				pTilesWithPlayers.push_back(pCurTile);
+			}
+		}
+	}
+	return pTilesWithPlayers;
 }
 
 
 
 
-bool tileInAttackRange(const Attack& attack, EDirection attackDirection, Grid& grid, Tile* pGivenTile, CombatCharacter* pGivenCharacter)
+bool tileInAttackRange(const Attack& attack, EDirection attackDirection, Grid& grid, Tile* pGivenTile, Tile* pTileToAttackFrom)
 {
-	std::vector <TileCoords> possibleAttackTileCoords;
-	if (attack.mRequiresDirectionInput)
+	for (TileCoords& coords : returnTileCoords(*pTileToAttackFrom, attack.mType, (attack.mRequiresDirectionInput ? attackDirection : EDirection_ALL)))
 	{
-		possibleAttackTileCoords = returnAttackTileCoordsBasedOnAttackAndDirection(*pGivenCharacter->mCombatMovementManager.getCurTile(), attack,
-			attackDirection).mTileCoords;
-	}
-	else
-	{
-		possibleAttackTileCoords = returnAttackTileCoordsBasedOnAttack(*pGivenCharacter->mCombatMovementManager.getCurTile(), attack).mTileCoords;
-	}
-
-	for (int count = 0; count < possibleAttackTileCoords.size(); count++)
-	{
-		Tile* pTile = findTile(grid, possibleAttackTileCoords[count]);
-		if (pTile == pGivenTile)
+		Tile* pTile = findTile(grid, coords);
+		if (pTile != nullptr && pTile == pGivenTile)
 		{
 			return true;
 		}
 	}
 	return false;
-}
-
-bool attackMultipleTiles(const Attack& attack, EDirection attackDirection, MiniGameWorldData& worldData, std::vector <Tile*>& pTilesToAttack, CombatCharacter* pGivenCharacter)
-{
-	MiniGameStage* pStage = worldData.getStage();
-	Grid& grid = pStage->mGrid;
-	CombatManager& combatManager = pStage->mCombatManager;
-	bool attacked = false;
-	for (Tile* pTile : pTilesToAttack)
-	{
-		if (tileInAttackRange(attack, attackDirection, grid, pTile, pGivenCharacter))
-		{
-			combatManager.attack(*pGivenCharacter, *pTile, attack);
-			attacked = true;
-		}
-	}
-	return attacked;
 }
 
 bool characterOnTile(const Tile& tile, const std::vector <CombatCharacter*>& pCharacters)
@@ -159,7 +165,7 @@ bool characterOnTile(const Tile& tile, const std::vector <CombatCharacter*>& pCh
 	return false;
 }
 
-std::vector <Tile*> returnListWithoutTilesWithCharacters(const CombatManager& combatManager, const std::vector <Tile*>& listOfTiles)
+std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& combatManager, const std::vector <Tile*>& listOfTiles)
 {
 	std::vector <Tile*> tilesWithoutCharacters = listOfTiles;
 	for (int countTile = (int)tilesWithoutCharacters.size() - 1; countTile > -1; countTile--)
@@ -176,15 +182,14 @@ std::vector <Tile*> returnListWithoutTilesWithCharacters(const CombatManager& co
 	return tilesWithoutCharacters;
 }
 
-std::vector <TileDistance> returnListOfTileDistances(std::vector <CombatCharacter*>& pCurCombatCharacters, std::vector <Tile*>& pMoveTiles, CombatCharacter* pCurEnemy)
+std::vector <TileDistance> returnListOfTileDistances(std::vector <CombatCharacter*>& pCurCombatCharacters, std::vector <Tile*>& pTiles, CombatCharacter* pCurEnemy)
 {
 	std::vector <TileDistance> tileDistances;
-
 	for (CombatCharacter* pCurCharacter : pCurCombatCharacters)
 	{
 		if (pCurCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
 		{
-			for (Tile* pCurTile : pMoveTiles)
+			for (Tile* pCurTile : pTiles)
 			{
 				int distanceRow = abs(pCurTile->mRow - pCurCharacter->mCombatMovementManager.getCurTile()->mRow);
 				int distanceCol = abs(pCurTile->mCol - pCurCharacter->mCombatMovementManager.getCurTile()->mCol);
@@ -218,65 +223,71 @@ std::string getCharacterChangesString(const CombatManager& combatManager, const 
 		CombatCharacter* pCharacter = combatManager.mpAllCombatCharacters[i];
 		const CombatCharacterSnapShot& preTickCharacter = preTickCharacters[i];
 
-		if (pCharacter->mAmAlive && preTickCharacter.mAmAlive)
+		int curHealth = pCharacter->getCurHealth();
+		if (pCharacter->isAlive() && preTickCharacter.mAmAlive)
 		{
-			if (pCharacter->mCurHealth < preTickCharacter.mCurHealth) 
+			
+			int curDefense = pCharacter->getCurDefense();
+			if (curHealth < preTickCharacter.mCurHealth)
 			{
-				if (pCharacter->mCurDefense < preTickCharacter.mCurDefense) // took damage and lost defense
+				if (curDefense < preTickCharacter.mCurDefense) // took damage and lost defense
 				{
-					curLine += pCharacter->mName + " lost " + std::to_string(preTickCharacter.mCurDefense - pCharacter->mCurDefense) + " defense and took "
-						+ std::to_string(preTickCharacter.mCurHealth - pCharacter->mCurHealth) + " damage";
+					curLine += pCharacter->mName + " lost " + std::to_string(preTickCharacter.mCurDefense - curDefense) + " defense and took "
+						+ std::to_string(preTickCharacter.mCurHealth - curHealth) + " damage";
 				}
 				else // just took damage
 				{
-					curLine += pCharacter->mName + " took " + std::to_string(preTickCharacter.mCurHealth - pCharacter->mCurHealth) + " damage";
+					curLine += pCharacter->mName + " took " + std::to_string(preTickCharacter.mCurHealth - curHealth) + " damage";
 				}
 			}
-			else if (pCharacter->mCurDefense < preTickCharacter.mCurDefense) // lost defense but not health
+			else if (curDefense < preTickCharacter.mCurDefense) // lost defense but not health
 			{
-				curLine += pCharacter->mName + " lost " + std::to_string(preTickCharacter.mCurDefense - pCharacter->mCurDefense) + " defense";
+				curLine += pCharacter->mName + " lost " + std::to_string(preTickCharacter.mCurDefense - curDefense) + " defense";
 			}
-			else if (pCharacter->mCurDefense > preTickCharacter.mCurDefense) // defended
+			else if (curDefense > preTickCharacter.mCurDefense) // defended
 			{
-				curLine += pCharacter->mName + " gained " + std::to_string(pCharacter->mCurDefense - preTickCharacter.mCurDefense) + " defense";
-			}
-
-
-			if (pCharacter->mCurHealthCapacity < preTickCharacter.mCurHealthCapacity)
-			{
-				curLine += pCharacter->mName + "'s total health capacity dropped to " + std::to_string(pCharacter->mCurHealthCapacity);
-			}
-			else if (pCharacter->mCurHealthCapacity > preTickCharacter.mCurHealthCapacity)
-			{
-				curLine += pCharacter->mName + "'s total health capacity increased to " + std::to_string(pCharacter->mCurHealthCapacity);
+				curLine += pCharacter->mName + " gained " + std::to_string(curDefense - preTickCharacter.mCurDefense) + " defense";
 			}
 
-			if (pCharacter->mCurDefenseCapacity < preTickCharacter.mCurDefenseCapacity)
+
+			int curHealthCapacity = pCharacter->getCurHealthCapacity();
+			if (curHealthCapacity < preTickCharacter.mCurHealthCapacity)
 			{
-				curLine += pCharacter->mName + "'s total defense capacity dropped to " + std::to_string(pCharacter->mCurDefenseCapacity);
+				curLine += pCharacter->mName + "'s total health capacity dropped to " + std::to_string(curHealthCapacity);
 			}
-			else if (pCharacter->mCurDefenseCapacity > preTickCharacter.mCurDefenseCapacity)
+			else if (curHealthCapacity > preTickCharacter.mCurHealthCapacity)
 			{
-				curLine += pCharacter->mName + "'s total defense capacity increased to " + std::to_string(pCharacter->mCurDefenseCapacity);
+				curLine += pCharacter->mName + "'s total health capacity increased to " + std::to_string(curHealthCapacity);
 			}
 
-			if (pCharacter->mCurAttackDamage < preTickCharacter.mCurAttackDamage)
+			int curDefenseCapacity = pCharacter->getCurDefenseCapacity();
+			if (curDefenseCapacity < preTickCharacter.mCurDefenseCapacity)
 			{
-				curLine += pCharacter->mName + "'s total attack damage dropped to " + std::to_string(pCharacter->mCurAttackDamage);
+				curLine += pCharacter->mName + "'s total defense capacity dropped to " + std::to_string(curDefenseCapacity);
 			}
-			else if (pCharacter->mCurAttackDamage > preTickCharacter.mCurAttackDamage)
+			else if (curDefenseCapacity > preTickCharacter.mCurDefenseCapacity)
 			{
-				curLine += pCharacter->mName + "'s total attack damage increased to " + std::to_string(pCharacter->mCurAttackDamage);
+				curLine += pCharacter->mName + "'s total defense capacity increased to " + std::to_string(curDefenseCapacity);
+			}
+
+			int curDamage = pCharacter->getCurDamage();
+			if (curDamage < preTickCharacter.mCurDamage)
+			{
+				curLine += pCharacter->mName + "'s total attack damage dropped to " + std::to_string(curDamage);
+			}
+			else if (curDamage > preTickCharacter.mCurDamage)
+			{
+				curLine += pCharacter->mName + "'s total attack damage increased to " + std::to_string(curDamage);
 			}
 
 		}
-		else if (pCharacter->mAmAlive && !preTickCharacter.mAmAlive)
+		else if (pCharacter->isAlive() && !preTickCharacter.mAmAlive)
 		{
-			curLine += pCharacter->mName + " revived";
+			curLine += pCharacter->mName + " revived with " + std::to_string(curHealth);
 		}
-		else if (!pCharacter->mAmAlive && preTickCharacter.mAmAlive)
+		else if (!pCharacter->isAlive() && preTickCharacter.mAmAlive)
 		{
-			curLine += pCharacter->mName + " took " + std::to_string(preTickCharacter.mCurHealth - pCharacter->mCurHealth) + " damage and died";
+			curLine += pCharacter->mName + " took " + std::to_string(preTickCharacter.mCurHealth - curHealth) + " damage and died";
 		}
 
 		if (curLine != "")

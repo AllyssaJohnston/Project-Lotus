@@ -85,7 +85,18 @@ std::vector<TileCoords> getCrossTiles(const Tile& centerTile, int startOut, int 
     return tileCoordsList;
 }
 
-
+std::vector<TileCoords> getGrid(int gridWidth, int gridHeight)
+{
+    std::vector <TileCoords> tileCoordsList;
+    for (int i = 0; i < gridHeight; i++)
+    {
+        for (int j = 0; j < gridWidth; j++)
+        {
+            tileCoordsList.push_back(TileCoords(i, j));
+        }
+    }
+    return tileCoordsList;
+}
 
 bool isPlayableTile(const Tile& givenTile)
 {

@@ -23,7 +23,7 @@ void CombatMovementManager::setCurTile(Tile* pTileInput)  { mpCurTile = pTileInp
 
 std::vector <TileCoords> CombatMovementManager::getMoveTiles() const { return mMoveTileCoords; }
 
-void CombatMovementManager::setMoveTiles() { mMoveTileCoords = returnTileCoords(*mpCurTile, mMoveType); }
+void CombatMovementManager::setMoveTiles() { mMoveTileCoords = returnTileCoords(*mpCurTile, mMoveType, EDirection_ALL); }
 
 bool CombatMovementManager::isTileInMoveRange(const Tile& givenTile) const
 {

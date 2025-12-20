@@ -12,17 +12,6 @@ public:
     EMiniGameCombatCharacterType mType = EMiniGameCombatCharacterType_INVALID;
     CombatMovementManager        mCombatMovementManager;
 
-    bool mAmAlive           = true;
-
-    int mCurAttackDamage    = -1;
-    int mCurHealthCapacity  = -1;
-    int mCurHealth          = -1;
-
-    int mCurDefenseCapacity = -1;
-    int mCurDefense         = 0;
-
-    int mTurnsToPass        = 0;
-
     std::string mModelFileName;
     std::string mIconFileName;
 
@@ -36,18 +25,76 @@ public:
 
     void resetStats();
 
+
+    bool isAlive() const;
+
+
+    int getCurDamage() const;
+    
+    int getBaseDamage()const ;
+
+    void addDamageModifier(float multiplier, int numTurns);
+
+    std::vector<std::pair<float, int>> getDamageModifiers() const;
+
     void takeDamage(int damageToTake);
 
-    void updateAmAlive();
 
-    void defend();
+    int getCurHealth() const;
 
-    void stun(int numTurnsStunned);
+    int getCurHealthCapacity() const;
 
-    void move(Tile* pTileInput);
+    int getBaseHealthCapacity() const;
 
-    bool returnIsLowLife() const;
+    bool returnIsLowHealth() const;
 
     float getHealthRatio() const;
 
+    void addHealthCapacityModifier(float multiplier, int numTurns);
+
+    std::vector<std::pair<float, int>> getHealthCapacityModifiers() const;
+
+
+    int getCurDefense() const;
+
+    int getCurDefenseCapacity() const;
+
+    int getBaseDefenseCapacity() const;
+
+    void defend();
+
+    void addDefenseCapacityModifier(float multiplier, int numTurns);
+
+    std::vector<std::pair<float, int>> getDefenseCapacityModifiers() const;
+
+
+    int getStuns() const;
+
+    void stun(int numTurnsStunned);
+
+
+    void move(Tile* pTile);
+
+private:
+
+    bool mAmAlive = true;
+
+    int mStandardAttackDamage   = -1;
+    std::vector<std::pair<float, int>> mAttackDamageModifiers;  // multiplier amount, num turns
+
+    int mCurHealth = -1;
+    int mStandardHealthCapacity = -1;
+    std::vector<std::pair<float, int>> mHealthCapacityModifiers; // multiplier amount, num turns
+    
+    int mCurDefense = 0;
+    int mStandardDefenseCapacity = -1;
+    std::vector<std::pair<float, int>> mDefenseCapacityModifiers; // multiplier amount, num turns
+    
+    int mTurnsToPass = 0;
+
+    void updateAmAlive();
+
+    
 };
+
+void updateModifiers(std::vector<std::pair<float, int>>& modifierlist);

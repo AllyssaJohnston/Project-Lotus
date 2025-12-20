@@ -30,10 +30,11 @@ public:
 
     int returnCharacterIndex(const CombatCharacter& givenCharacter) const;
 
-    void tickAllAlive();
-
+    void tickAll();
 
     void attack(CombatCharacter& attackingCharacter, Tile& givenTile, const Attack& attack);
+
+    void attackMultipleTiles(CombatCharacter& attackingCharacter, std::vector <Tile*>& pTilesToAttack, const Attack& attack);
 
     void specialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, Tile& givenTile, const Attack& attack);
     

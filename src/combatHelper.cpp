@@ -12,15 +12,14 @@ CombatManager::~CombatManager()
 
 void CombatManager::postTick()
 {
+    // check if the cur alive character list needs to be updated
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        
-        if (pCharacter->mCurHealth <= 0)
+        if (pCharacter->getCurHealth() <= 0)
         {
             createCurCharacterList();
             break;
         }
-
     }
 }
 
@@ -30,7 +29,7 @@ void CombatManager::createCurCharacterList()
     mpCurCombatCharacters.clear();
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        if (pCharacter->mAmAlive)
+        if (pCharacter->isAlive())
         {
             mpCurCombatCharacters.push_back(pCharacter);
         }
@@ -42,7 +41,7 @@ std::vector <CombatCharacter*> CombatManager::getCurCharactersThatCanPlay() cons
     std::vector <CombatCharacter*> pCurCombatCharactersThatCanPlay;
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        if (pCharacter->mAmAlive && pCharacter->mTurnsToPass == 0)
+        if (pCharacter->isAlive() && pCharacter->getStuns() == 0)
         {
             pCurCombatCharactersThatCanPlay.push_back(pCharacter);
         }
@@ -55,7 +54,7 @@ std::vector <CombatCharacter*> CombatManager::getCurAliveCharacters() const
     std::vector <CombatCharacter*> pCurAliveCombatCharacters;
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        if (pCharacter->mAmAlive)
+        if (pCharacter->isAlive())
         {
             pCurAliveCombatCharacters.push_back(pCharacter);
         }
@@ -141,27 +140,18 @@ void CombatManager::preTickRange(int startIndex, int endIndex, bool tickLast)
     {
         for (int count = startIndex + 1; count <= endIndex; count++)
         {
-            if (mpAllCombatCharacters[count]->mAmAlive)
-            {
-                mpAllCombatCharacters[count]->preTick();
-            }
+            mpAllCombatCharacters[count]->preTick();
         }
     }
     else
     {
         for (int count = endIndex; count < mpAllCombatCharacters.size(); count++)
         {
-            if (mpAllCombatCharacters[count]->mAmAlive)
-            {
-                mpAllCombatCharacters[count]->preTick();
-            }
+            mpAllCombatCharacters[count]->preTick();
         }
         for (int count = 0; count < startIndex; count++)
         {
-            if (mpAllCombatCharacters[count]->mAmAlive)
-            {
-                mpAllCombatCharacters[count]->preTick();
-            }
+            mpAllCombatCharacters[count]->preTick();
         }
     }
 }
@@ -178,19 +168,22 @@ int CombatManager::returnCharacterIndex(const CombatCharacter& givenCharacter) c
     return -1;
 }
 
-void CombatManager::tickAllAlive()
+void CombatManager::tickAll()
 {
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        if (pCharacter->mAmAlive)
-        {
-            pCharacter->preTick();
-        }
+        pCharacter->preTick();
     }
     createCurCharacterList();
 }
 
-
+void CombatManager::attackMultipleTiles(CombatCharacter& attackingCharacter, std::vector <Tile*>& pTilesToAttack, const Attack& characterAttack)
+{
+    for (Tile* pTile : pTilesToAttack)
+    {
+        attack(attackingCharacter, *pTile, characterAttack);
+    }
+}
 
 void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile, const Attack& attack)
 {
@@ -199,7 +192,7 @@ void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile,
         if (pCurCharacter != &attackingCharacter and (pCurCharacter->mCombatMovementManager.getCurTile()->mRow == givenTile.mRow) 
                     and  (pCurCharacter->mCombatMovementManager.getCurTile()->mCol == givenTile.mCol))
         {
-            int damageToTake = int(attackingCharacter.mCurAttackDamage * attack.mDamagePercent);
+            int damageToTake = int(attackingCharacter.getCurDamage() * attack.mDamagePercent);
             if (attack.mDamageDistanceDependent)
             {
                 Tile* pCurCharacterTile = pCurCharacter->mCombatMovementManager.getCurTile();
@@ -214,6 +207,7 @@ void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile,
             }
             pCurCharacter->takeDamage(damageToTake);
             specialEffect(attackingCharacter, *pCurCharacter, givenTile, attack);
+            return;
         }
     }
 }
@@ -225,11 +219,44 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
         switch (specialEffect.mType)
         {
         case EMiniGameCombatSpecialEffectTypes_STUN:
-            attackedCharacter.stun(specialEffect.mAmount);
+            attackedCharacter.stun(specialEffect.mTurns);
             break;
-        case EMiniGameCombatSpecialEffectTypes_LOSE_TURN:
-            // self stun
-            attackingCharacter.stun(specialEffect.mAmount);
+
+        case EMiniGameCombatSpecialEffectTypes_LOSE_TURN: // self stun
+            attackingCharacter.stun(specialEffect.mTurns);
+            break;
+
+        case EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER:
+            switch (specialEffect.mAttackTargetType)
+            {
+            case EAttackTargetType_ALL_CHARACTERS:
+                for (CombatCharacter* pCharacter : mpCurCombatCharacters)
+                {
+                    pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
+                }
+                break;
+            case EAttackTargetType_ALL_PLAYERS:
+                for (CombatCharacter* pCharacter : mpCurCombatCharacters)
+                {
+                    if (pCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
+                    {
+                        pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
+                    }
+                }
+                break;
+            case EAttackTargetType_ALL_ENEMIES:
+                for (CombatCharacter* pCharacter : mpCurCombatCharacters)
+                {
+                    if (pCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
+                    {
+                        pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
+                    }
+                }
+                break;
+            default:
+                SDL_assert(false);
+                break;
+            }
             break;
         default:
             SDL_assert(false);

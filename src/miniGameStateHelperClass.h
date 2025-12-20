@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include <vector>
 #include <stack>
+
 #include "tileHelper.h"
 #include "tileCoordsHelper.h"
 #include "combatCharacterHelper.h"
@@ -13,16 +14,21 @@ struct CombatCharacterSnapShot
 {
     CombatCharacter* mpCharacter = nullptr;
     bool mAmAlive;
-    int mCurAttackDamage = -1;
-    int mCurHealthCapacity = -1;
-    int mCurHealth = -1;
+   
+    int mCurDamage = -1;
+    std::vector<std::pair<float, int>> mAttackDamageModifiers;  // multiplier amount, num turns
 
-    int mCurDefenseCapacity = -1;
+    int mCurHealth = -1;
+    int mCurHealthCapacity = -1;
+    std::vector<std::pair<float, int>> mHealthCapacityModifiers; // multiplier amount, num turns
+
     int mCurDefense = 0;
+    int mCurDefenseCapacity = -1;
+    std::vector<std::pair<float, int>> mDefenseCapacityModifiers; // multiplier amount, num turns
 
     int mTurnsToPass = 0;
 
-    Tile* mpTile = nullptr;
+    Tile* mpTile;
 
     CombatCharacterSnapShot(CombatCharacter* pCharacter);
 
@@ -101,18 +107,16 @@ struct MiniGameStateManagerData
 };
 
 
+std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldData& worldData, const Tile* const pReferenceTile, const Attack& curAttack, const EDirection direction);
 
+std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldData& worldData, const Tile* const pReferenceTile, const std::vector<Attack>& attacks, const EDirection direction);
 
-std::vector <AttackTile> returnAttackTileCoordsWithPlayersOnThem(MiniGameWorldData& worldData, Tile* pReferenceTile, CombatCharacter* pCharacter);
-
-bool tileInAttackRange(const Attack& attack, EDirection attackDirection, Grid& grid, Tile* pGivenTile, CombatCharacter* pGivenCharacter);
-
-bool attackMultipleTiles(const Attack& attack, EDirection attackDirection, MiniGameWorldData& worldData, std::vector <Tile*>& pTilesToAttack, CombatCharacter* pGivenCharacter);
+bool tileInAttackRange(const Attack& attack, EDirection attackDirection, Grid& grid, Tile* pGivenTile, Tile* pTileToAttackFrom);
 
 
 bool characterOnTile(const Tile& tile, const std::vector <CombatCharacter*>& pCharacters);
 
-std::vector <Tile*> returnListWithoutTilesWithCharacters(const CombatManager& pCombatManager, const std::vector <Tile*>& pListOfTiles);
+std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& pCombatManager, const std::vector <Tile*>& pListOfTiles);
 
 std::vector <TileDistance> returnListOfTileDistances(std::vector <CombatCharacter*>& pCurCombatCharacters, std::vector <Tile*>& pMoveTiles, CombatCharacter* pCurEnemy);
 

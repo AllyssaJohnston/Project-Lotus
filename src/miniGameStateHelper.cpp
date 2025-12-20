@@ -59,12 +59,9 @@ void MiniGamePlayerWaitForMoveInput::selectTile(const Vect2 pos)
 void MiniGamePlayerWaitForMoveInput::moveToTile(Tile& givenTile)
 {
 	mData.getCharacter()->mCombatMovementManager.setMoveTiles();
-	if (mData.getCharacter()->mCombatMovementManager.isTileInMoveRange(givenTile) && !characterOnTile(givenTile, mWorldData.getStage()->mCombatManager.mpCurCombatCharacters))
+	if (mData.getCharacter()->mCombatMovementManager.isTileInMoveRange(givenTile) && !characterOnTile(givenTile, mWorldData.getStage()->mCombatManager.mpCurCombatCharacters) && isPlayableTile(givenTile))
 	{
-		if (isPlayableTile(givenTile))
-		{
-			postTick(givenTile);
-		}
+		postTick(givenTile);
 	}
 }
 
@@ -152,15 +149,17 @@ void MiniGamePlayerCompleteDirectionalAttack::tick()
 
 void MiniGamePlayerCompleteDirectionalAttack::attackTiles()
 {
-	Grid& grid = mWorldData.getStage()->mGrid;
-	AttackAndCorrespondingTilesCoords attackTileCoords = returnAttackTileCoordsBasedOnAttackAndDirection(*mData.getCharacter()->mCombatMovementManager.getCurTile(), *mData.mpCurAttack, mData.mCurAttackDirection);
-	std::vector <Tile* > tilesToAttack;
-	for (const TileCoords& curTileCoord : attackTileCoords.mTileCoords)
+	std::vector <TileCoords> tileCoords = returnTileCoords(*mData.getCharacter()->mCombatMovementManager.getCurTile(), mData.mpCurAttack->mType, mData.mCurAttackDirection);
+	std::vector <Tile* > pTilesToAttack;
+	for (const TileCoords& curCoords : tileCoords)
 	{
-		Tile* pCurTile = grid.mpTiles[grid.getIndex(curTileCoord.mRow, curTileCoord.mCol)];
-		tilesToAttack.push_back(pCurTile);
+		Tile* pTile = findTile(mWorldData.getStage()->mGrid, curCoords);
+		if (pTile!= nullptr)
+		{
+			pTilesToAttack.push_back(pTile);
+		}
 	}
-	attackMultipleTiles(*mData.mpCurAttack, mData.mCurAttackDirection, mWorldData, tilesToAttack, mData.getCharacter());
+	mWorldData.getStage()->mCombatManager.attackMultipleTiles(*mData.getCharacter(), pTilesToAttack, *mData.mpCurAttack);
 	postTick();
 }
 
@@ -196,14 +195,12 @@ void MiniGamePlayerTakeActionAttack::selectTile(const Vect2 pos)
 {
 	Tile* pTile = mWorldData.getStage()->mGrid.getTileFromCoords(pos.getX(), pos.getY());
 
-	if (pTile != nullptr)
+	if (pTile != nullptr && tileInAttackRange(*mData.mpCurAttack, mData.mCurAttackDirection, mWorldData.getStage()->mGrid, pTile, mData.getCharacter()->mCombatMovementManager.getCurTile()))
 	{
 		pTile->setMode(EMiniGameCombatTileMode_SELECTED);
-		std::vector <Tile*> tilesToAttack = { pTile };
-		if (attackMultipleTiles(*mData.mpCurAttack, mData.mCurAttackDirection, mWorldData, tilesToAttack, mData.getCharacter()))
-		{
-			postTick();
-		}
+		std::vector <Tile*> pTilesToAttack = { pTile };
+		mWorldData.getStage()->mCombatManager.attackMultipleTiles(*mData.getCharacter(), pTilesToAttack, *mData.mpCurAttack);
+		postTick();
 	}
 }
 
@@ -287,36 +284,51 @@ void MiniGameEnemyMoveCharacter::tick()
 
 void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 {
-	MiniGameStage*	pCurStage		= mWorldData.getStage();
-	Grid&			grid			= pCurStage->mGrid;
-	CombatManager&  combatManager	= pCurStage->mCombatManager;
+	MiniGameStage*	 pCurStage		= mWorldData.getStage();
+	Grid&			 grid			= pCurStage->mGrid;
+	CombatManager&   combatManager	= pCurStage->mCombatManager;
+	CombatCharacter& curEnemy		= *mData.getCharacter();
+	Tile&			 curEnemyTile	= *curEnemy.mCombatMovementManager.getCurTile();
 	mData.mTicks = 0;
 
 	// get all tiles that enemy can actually move to
 	std::vector <Tile*> pAllPossibleMoveTiles;
-	for (TileCoords& curTileCoords : mData.getCharacter()->mCombatMovementManager.getMoveTiles())
+	for (TileCoords& curTileCoords : curEnemy.mCombatMovementManager.getMoveTiles())
 	{
-		if (grid.isLegalCoords(curTileCoords.mRow, curTileCoords.mCol))
+		Tile* pCurTile = findTile(grid, curTileCoords);
+		if (pCurTile != nullptr && isPlayableTile(*pCurTile) && !characterOnTile(*pCurTile, combatManager.mpCurCombatCharacters))
 		{
-			Tile *pCurTile = grid.mpTiles[grid.getIndex(curTileCoords.mRow, curTileCoords.mCol)];
-			if (isPlayableTile(*pCurTile))
-			{
-				pAllPossibleMoveTiles.push_back(pCurTile);
-			}
+			pAllPossibleMoveTiles.push_back(pCurTile);
 		}
 	}
 
-	// try to find a tile they can attack a player from
+	// now try to find the best tile they can attack from
 	int maxNumberOfCharactersCanAttack = 0;
+	int minDistanceFromPlayer = std::numeric_limits<int>::max();
 	Tile* pBestTileToMoveTo = nullptr;
 
-	for (Tile* pCurTile : pAllPossibleMoveTiles)
+	for (Tile* pMoveTile : pAllPossibleMoveTiles)
 	{
-		std::vector <AttackTile> allPossibleAttacksFromCurTile = returnAttackTileCoordsWithPlayersOnThem(mWorldData, pCurTile,  mData.getCharacter());
-		if (allPossibleAttacksFromCurTile.size() > maxNumberOfCharactersCanAttack)
+		std::vector<Tile*> playerTiles = returnTilesFromAttacksWithPlayersOnThem(mWorldData, pMoveTile, curEnemy.mCombatMovementManager.getAttacks(), EDirection_ALL);
+		int curNumCharactersCanAttack = playerTiles.size();
+		for (Tile* pPlayerTile : playerTiles)
 		{
-			pBestTileToMoveTo = pCurTile;
+			int curDistance = getDistanceBetweenTiles(*pMoveTile, *pPlayerTile);
+			if (curNumCharactersCanAttack > maxNumberOfCharactersCanAttack)
+			{
+				// can attack more things
+				pBestTileToMoveTo = pMoveTile;
+				maxNumberOfCharactersCanAttack = curNumCharactersCanAttack;
+				minDistanceFromPlayer = curDistance;
+			}
+			else if (curDistance < minDistanceFromPlayer)
+			{
+				// shorter distance to move
+				pBestTileToMoveTo = pMoveTile;
+				minDistanceFromPlayer = curDistance;
+			}
 		}
+		
 	}
 	if (pBestTileToMoveTo != nullptr)
 	{
@@ -326,14 +338,12 @@ void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 
 	// No tiles enemy can attack from
 	// move closer to a player
-	pAllPossibleMoveTiles = returnListWithoutTilesWithCharacters(combatManager, pAllPossibleMoveTiles);
-	std::vector <TileDistance> tileDistances = returnListOfTileDistances(combatManager.mpCurCombatCharacters, pAllPossibleMoveTiles, mData.getCharacter());
-	int minDistanceFromPlayer = std::numeric_limits<int>::max();
-	Tile* pCurTile = mData.getCharacter()->mCombatMovementManager.getCurTile();
-
+	std::vector <TileDistance> tileDistances = returnListOfTileDistances(combatManager.mpCurCombatCharacters, pAllPossibleMoveTiles, &curEnemy);
+	minDistanceFromPlayer = std::numeric_limits<int>::max();
+	Tile* pCurTile = &curEnemyTile;
 	for (TileDistance& curTileDistance : tileDistances)
 	{
-		if (minDistanceFromPlayer > curTileDistance.mDistance and curTileDistance.mpTile != mData.getCharacter()->mCombatMovementManager.getCurTile())
+		if (minDistanceFromPlayer > curTileDistance.mDistance && curTileDistance.mpTile != &curEnemyTile)
 		{
 			minDistanceFromPlayer = (int)curTileDistance.mDistance;
 			pCurTile = curTileDistance.mpTile;
@@ -382,72 +392,64 @@ void MiniGameEnemyTakeAction::tick()
 
 bool MiniGameEnemyTakeAction::shouldAttack()
 {
-	Tile* pRefTile = mData.getCharacter()->mCombatMovementManager.getCurTile();
-	std::vector <AttackTile> attackTilesWithCharacters = returnAttackTileCoordsWithPlayersOnThem(mWorldData, pRefTile, mData.getCharacter());
-	pRefTile = nullptr;
+	Grid& grid				= mWorldData.getStage()->mGrid;
+	Attack* pBestAttack		= nullptr;
+	std::vector<Tile*> pBestTilesToAttack;
+	float maxDamageOutput	= -1.0f;
+	EDirection attackDir	= EDirection_NONE;
 
-	Grid& grid = mWorldData.getStage()->mGrid;
-
-	AttackTile *pCurBestAttackTile = nullptr;
-	AttackAndCorrespondingTilesCoords curBestAttackTiles;
-	float maxDamageOutput = 0;
-	EDirection attackDir = EDirection_NONE;
-
-	for (AttackTile& curAttackTile : attackTilesWithCharacters)
+	// figure out if enemy can attack any characters
+	// choose the attack with the highest damage output
+	for (Attack& attack : mData.getCharacter()->mCombatMovementManager.getAttacks())
 	{
-		if (curAttackTile.mAttack.mRequiresDirectionInput)
+		if (attack.mRequiresDirectionInput)
 		{
-			EDirection attackDirection = getDirectionBetweenTiles(*mData.getCharacter()->mCombatMovementManager.getCurTile(), curAttackTile.mTile);
-			AttackAndCorrespondingTilesCoords allAttackTiles = returnAttackTileCoordsBasedOnAttackAndDirection(*mData.getCharacter()->mCombatMovementManager.getCurTile(), curAttackTile.mAttack, attackDirection);
-			for (int i = (int)allAttackTiles.mTileCoords.size() - 1;  i > -1; i --)
+			// choose direction that can attack the most characters
+			std::vector <Tile*> pTilesToAttackWithCharacters;
+			EDirection curBestDirection = EDirection_INVALID;
+			for (int i = 0; i < 4; i++)
 			{
-				if (!grid.isLegalCoords(allAttackTiles.mTileCoords[i].mRow, allAttackTiles.mTileCoords[i].mCol))
+				std::vector <Tile*> pCurTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, (EDirection)i);
+				if (pCurTilesToAttackWithCharacters.size() > pTilesToAttackWithCharacters.size())
 				{
-					allAttackTiles.mTileCoords.erase(allAttackTiles.mTileCoords.begin() + i);
+					pTilesToAttackWithCharacters = pCurTilesToAttackWithCharacters;
+					curBestDirection = (EDirection)i;
 				}
+
 			}
-			float damageOutput = allAttackTiles.mTileCoords.size() * allAttackTiles.mAttack.mDamagePercent * mData.getCharacter()->mCurAttackDamage;
-			if (damageOutput > maxDamageOutput)
+			
+			float damageOutput = pTilesToAttackWithCharacters.size() * attack.mDamagePercent * mData.getCharacter()->getCurDamage();
+			if (damageOutput > maxDamageOutput && !(pTilesToAttackWithCharacters.size() == 0))
 			{
 				maxDamageOutput = damageOutput;
-				curBestAttackTiles.mTileCoords.clear();
-				curBestAttackTiles = allAttackTiles;
-				pCurBestAttackTile = nullptr;
-				attackDir = attackDirection;
+				pBestTilesToAttack = pTilesToAttackWithCharacters;
+				pBestAttack = &attack;
+				attackDir = curBestDirection;
 			}
 		}
 		else
 		{
-			float damageOutput = curAttackTile.mAttack.mDamagePercent * mData.getCharacter()->mCurAttackDamage;
-			if (damageOutput > maxDamageOutput)
+			std::vector <Tile*> pTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, EDirection_ALL);
+			float damageOutput = pTilesToAttackWithCharacters.size() * attack.mDamagePercent * mData.getCharacter()->getCurDamage();
+			if (damageOutput > maxDamageOutput && !(pTilesToAttackWithCharacters.size() == 0))
 			{
-				maxDamageOutput = damageOutput;
-				pCurBestAttackTile = &curAttackTile;
-				curBestAttackTiles.mTileCoords.clear();
-				attackDir = EDirection_INVALID;
+				maxDamageOutput		= damageOutput;
+				pBestAttack			= &attack;
+				pBestTilesToAttack	= pTilesToAttackWithCharacters;
+				attackDir			= EDirection_ALL;
 			}
 		}
 	}
-	if (curBestAttackTiles.mTileCoords.size() == 0 and pCurBestAttackTile == nullptr)
+	
+
+	if (pBestTilesToAttack.size() == 0)
 	{
 		return false;
 	}
 
-	if (curBestAttackTiles.mTileCoords.size() == 0 and pCurBestAttackTile != nullptr) // do single tile attack
-	{
-		mData.mpTilesToAttack.push_back(&pCurBestAttackTile->mTile);
-		mData.mpCurAttack = new Attack(pCurBestAttackTile->mAttack);
-	}
-	else // do multi tile attack
-	{
-		mData.mpCurAttack = new Attack(curBestAttackTiles.mAttack);
-		for (TileCoords& coords : curBestAttackTiles.mTileCoords)
-		{
-			mData.mpTilesToAttack.push_back(grid.mpTiles[grid.getIndex(coords.mRow, coords.mCol)]);
-		}
-	}
-
-	mData.mCurAttackDirection = attackDir;
+	mData.mpCurAttack			= pBestAttack;
+	mData.mpTilesToAttack		= pBestTilesToAttack;
+	mData.mCurAttackDirection	= attackDir;
 	return true;
 }
 
@@ -458,19 +460,25 @@ bool MiniGameEnemyTakeAction::shouldDefend()
 	CombatManager&	combatManager	= pStage->mCombatManager;
 	Tile*			pCurTile		= mData.getCharacter()->mCombatMovementManager.getCurTile();
 
-	std::vector <AttackTile> attackTileListWithCharacters = returnAttackTileCoordsWithPlayersOnThem(mWorldData, pCurTile, mData.getCharacter());
-	for (AttackTile& attackTile : attackTileListWithCharacters)
+	for (CombatCharacter* pCharacter : combatManager.mpCurCombatCharacters)
 	{
-		Tile& curTileWithCharacter = attackTile.mTile;
-		if (grid.isLegalCoords(curTileWithCharacter.mRow, curTileWithCharacter.mCol) and curTileWithCharacter.mRow == pCurTile->mRow and curTileWithCharacter.mCol and pCurTile->mCol)
+		if (pCharacter->mType != EMiniGameCombatCharacterType_PLAYER)
 		{
-			return true;
+			continue;
+		}
+		for (Attack& attack : pCharacter->mCombatMovementManager.getAttacks())
+		{
+			if (tileInAttackRange(attack, EDirection_ALL, grid, pCurTile, pCharacter->mCombatMovementManager.getCurTile()) && attack.mDamagePercent > 0)
+			{
+				// enemy is in this player's attack range
+				return true;
+			}
 		}
 	}
 	return false;
 }
 
-void MiniGameEnemyTakeAction::performAttack() { attackMultipleTiles(*mData.mpCurAttack, mData.mCurAttackDirection, mWorldData, mData.mpTilesToAttack, mData.getCharacter()); }
+void MiniGameEnemyTakeAction::performAttack() { mWorldData.getStage()->mCombatManager.attackMultipleTiles(*mData.getCharacter(), mData.mpTilesToAttack, *mData.mpCurAttack); }
 
 void MiniGameEnemyTakeAction::postTick()
 {
@@ -551,7 +559,7 @@ void MiniGameBuffer::postTick()
 			
 			// force tick a round, to drain turns to pass
 			CombatManager& combatManager = pStage->mCombatManager;
-			combatManager.tickAllAlive();
+			combatManager.tickAll();
 			int index = -1;
 			CombatCharacter* pNextCharacter = combatManager.returnNextCharacter(*mData.getCharacter(), index, false);
 			mData.setCharacter(pNextCharacter, index);
@@ -717,8 +725,8 @@ void MiniGameStateManager::printCharacters(ScreenObject& screenObject, const Sty
 
 void MiniGameStateManager::updateTileColors(const StyleManager& styleManager)
 {
-	Grid& grid = mWorldData.getStage()->mGrid;
-	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
+	Grid& grid						= mWorldData.getStage()->mGrid;
+	CombatManager& combatManager	= mWorldData.getStage()->mCombatManager;
 
 	// figure out if SELECTED OR HIGHLIGHTED
 	for (Tile* pCurTile : grid.mpTiles)
@@ -756,41 +764,24 @@ void MiniGameStateManager::updateTileColors(const StyleManager& styleManager)
 				break;
 			case EMiniGameState_PLAYER_TAKE_ACTION_ATTACK:
 			case EMiniGameState_PLAYER_COMPLETE_DIRECTIONAL_ATTACK:
+			case EMiniGameState_ENEMY_TAKE_ACTION:
+				tileType = EMiniGameCombatActionType_ATTACK;
 				if (mData.mStateData.mpCurAttack != nullptr)
 				{
-					if (mData.mStateData.mpCurAttack->mRequiresDirectionInput and (mData.mStateData.mCurAttackDirection != EDirection_NONE)
-						and (mData.mStateData.mCurAttackDirection != EDirection_INVALID))
+					if (mData.mStateData.mpCurAttack->mRequiresDirectionInput and mData.mStateData.mCurAttackDirection != EDirection_NONE and mData.mStateData.mCurAttackDirection != EDirection_INVALID)
 					{
-						tileCoordsList = returnAttackTileCoordsBasedOnAttackAndDirection(*pCurCombatCharacter->mCombatMovementManager.getCurTile(),
-							*mData.mStateData.mpCurAttack, mData.mStateData.mCurAttackDirection).mTileCoords;
+						tileCoordsList = returnTileCoords(*pCurCombatCharacter->mCombatMovementManager.getCurTile(), mData.mStateData.mpCurAttack->mType, mData.mStateData.mCurAttackDirection);
 					}
 					else
 					{
-						tileCoordsList = returnAttackTileCoordsBasedOnAttack(*pCurCombatCharacter->mCombatMovementManager.getCurTile(), *mData.mStateData.mpCurAttack).mTileCoords;
+						tileCoordsList = returnTileCoords(*pCurCombatCharacter->mCombatMovementManager.getCurTile(), mData.mStateData.mpCurAttack->mType, EDirection_ALL);
 					}
-					tileType = EMiniGameCombatActionType_ATTACK;
-				}
-				break;
-			case EMiniGameState_ENEMY_TAKE_ACTION:
-				if (mData.mStateData.mGoingToAttack)
-				{
-					if (mData.mStateData.mpCurAttack->mRequiresDirectionInput)
-					{
-						tileCoordsList = returnAttackTileCoordsBasedOnAttackAndDirection(*pCurCombatCharacter->mCombatMovementManager.getCurTile(),
-							*mData.mStateData.mpCurAttack, mData.mStateData.mCurAttackDirection).mTileCoords;
-					}
-					else
-					{
-						tileCoordsList = returnAttackTileCoordsBasedOnAttack(*pCurCombatCharacter->mCombatMovementManager.getCurTile(), *mData.mStateData.mpCurAttack).mTileCoords;
-					}
-					tileType = EMiniGameCombatActionType_ATTACK;
 				}
 				break;
 			default:
 				break;
 			}
 
-			tileCoordsList = removeDuplicateTiles(tileCoordsList);
 			for (TileCoords& tileCoord : tileCoordsList)
 			{
 				int row = tileCoord.mRow;

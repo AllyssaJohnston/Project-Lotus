@@ -3,7 +3,7 @@
 
 std::string getAttackType(const Attack& attack) { return returnDescriptionOfMoveAttackType(attack.mType); }
 
-std::string getAttackDamage(const Attack& attack, int characterDamage) { return std::to_string(attack.mDamagePercent * characterDamage); }
+std::string getAttackDamage(const Attack& attack, int characterDamage) { return std::to_string((int)(attack.mDamagePercent * characterDamage)); }
 
 std::string getSpecialEffect(const Attack& attack)
 {
@@ -190,19 +190,19 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 	case ECharacterStatBoxValueToDisplay_CHARACTER_NAME:
 		return pCharacter->mName;
 	case ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH:
-		return std::to_string(pCharacter->mCurHealth);
+		return std::to_string(pCharacter->getCurHealth());
 	case ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE:
-		return std::to_string(pCharacter->mCurDefense);
+		return std::to_string(pCharacter->getCurDefense());
 	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK:
-		return std::to_string(pCharacter->mCurAttackDamage);
+		return std::to_string(pCharacter->getCurDamage());
 	case ECharacterStatBoxValueToDisplay_CHARACTER_STUN:
-		return std::to_string(pCharacter->mTurnsToPass);
+		return std::to_string(pCharacter->getStuns());
 	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME:
-		return pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum].mDescription;
+		return pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum].mName;
 	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TYPE:
 		return getAttackType(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]);
 	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE:
-		return getAttackDamage(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum], pCharacter->mCurAttackDamage);
+		return getAttackDamage(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum], pCharacter->getBaseDamage());
 	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES:
 		return getSpecialEffect(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]);
 	case ECharacterStatBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME:
@@ -218,4 +218,4 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 	return "error";
 }
 
-std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const MiniGameWorldData& worldData) { return std::to_string(worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->mCurHealth); }
+std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const MiniGameWorldData& worldData) { return std::to_string(worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->getCurHealth()); }

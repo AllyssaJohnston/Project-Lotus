@@ -24,6 +24,7 @@ enum EMiniGameCombatMoveAttackTypes
     EMiniGameCombatMoveAttackTypes_CROSS4,
     EMiniGameCombatMoveAttackTypes_CROSS5,
     EMiniGameCombatMoveAttackTypes_CHECKERBOARD2UNITS,
+    EMiniGameCombatMoveAttackTypes_WHOLE_GRID,
     EMiniGameCombatMoveAttackTypes_MAX
 };
 
@@ -31,9 +32,9 @@ enum EMiniGameCombatSpecialEffectTypes
 {
     EMiniGameCombatSpecialEffectTypes_INVALID = -1,
     EMiniGameCombatSpecialEffectTypes_NONE,
-    EMiniGameCombatSpecialEffectTypes_KNOCKBACK,
     EMiniGameCombatSpecialEffectTypes_STUN,
     EMiniGameCombatSpecialEffectTypes_LOSE_TURN,
+    EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER,
     EMiniGameCombatSpecialEffectTypes_MAX
 };
 
@@ -73,6 +74,16 @@ enum EMiniGameCombatTileMode
     EMiniGameCombatTileMode_SELECTED,
     EMiniGameCombatTileMode_HIGHLIGHTED,
     EMiniGameCombatTileMode_MAX
+};
+
+enum EAttackTargetType
+{
+    EAttackTargetType_INVALID = -1,
+    EAttackTargetType_ALL_PLAYERS,
+    EAttackTargetType_ALL_ENEMIES,
+    EAttackTargetType_ONE_CHARACTER,
+    EAttackTargetType_ALL_CHARACTERS,
+    EAttackTargetType_MAX
 };
 
 struct GameOverStats
