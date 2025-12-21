@@ -14,7 +14,7 @@ SpecialEffectSelfStun::SpecialEffectSelfStun(int numTurns) : SpecialEffectPreset
     mName = "LOSE " + std::to_string(numTurns) + ((numTurns == 1) ? " TURN" : " TURNS");
 }
 
-SpecialEffectAttackMultiplier::SpecialEffectAttackMultiplier(float multiplier, int turns, EAttackTargetType attackTargetType)
+SpecialEffectAttackMultiplier::SpecialEffectAttackMultiplier(float multiplier, int turns, EAttackTargetType attackTargetType) : SpecialEffectPreset()
 {
     mType = EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER;
     mAttackTargetType = attackTargetType;
@@ -23,7 +23,7 @@ SpecialEffectAttackMultiplier::SpecialEffectAttackMultiplier(float multiplier, i
     mName = "INCREASE ATTACK BY " + floatDecimalToString(multiplier) + ((turns == INT_MAX) ? "" : (" FOR " + std::to_string(turns)) + ((turns == 1) ? " TURN" : " TURNS"));
 }
 
-SpecialEffectDefenseCapacityMultiplier::SpecialEffectDefenseCapacityMultiplier(float multiplier, int turns, EAttackTargetType attackTargetType)
+SpecialEffectDefenseCapacityMultiplier::SpecialEffectDefenseCapacityMultiplier(float multiplier, int turns, EAttackTargetType attackTargetType) : SpecialEffectPreset()
 {
     mType = EMiniGameCombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER;
     mAttackTargetType = attackTargetType;
@@ -36,5 +36,16 @@ SpecialEffectHeal::SpecialEffectHeal(int amount, EAttackTargetType attackTargetT
 {
     mType = EMiniGameCombatSpecialEffectTypes_HEAL;
     mName = "HEAL " + std::to_string(amount);
+    mAmount = (float)amount;
     mTurns = 0;
+    mAttackTargetType = attackTargetType;
+}
+
+SpecialEffectFullHeal::SpecialEffectFullHeal(EAttackTargetType attackTargetType) : SpecialEffectPreset()
+{
+    mType = EMiniGameCombatSpecialEffectTypes_HEAL;
+    mName = "FULL HEAL";
+    mSpecial = true;
+    mTurns = 0;
+    mAttackTargetType = attackTargetType;
 }

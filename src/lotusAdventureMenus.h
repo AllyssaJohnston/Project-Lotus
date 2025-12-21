@@ -13,6 +13,8 @@ void createMiniGameMenu(MenuManager& menuManager, ScreenObject& screen, MiniGame
 
 void createMiniGameCharacterStatsMenu(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, const StyleManager& styleManager);
 
+void createMiniGameCharacterSelectionMenu(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, const StyleManager& styleManager);
+
 void createMiniGameCharacterAttackPanel(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, const StyleManager& styleManager);
 
 void createBlockDiagram(const EMiniGameCombatMoveAttackTypes diagramType, const int characterIndex, MenuPage* pPage, UIBlock* pBlock, const std::vector<EMiniGameState>& whenToShow, MenuManager& menuManager, const StyleManager& styleManager);

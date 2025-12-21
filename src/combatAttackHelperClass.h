@@ -13,14 +13,5 @@ struct AttackTile
     AttackTile(Tile& tile, Attack& attack);
 };
 
-struct AttackAndCorrespondingTilesCoords
-{
-    std::vector <TileCoords> mTileCoords;
-    Attack mAttack;
-
-    AttackAndCorrespondingTilesCoords() {}
-    AttackAndCorrespondingTilesCoords(std::vector <TileCoords>& tileCoords, const Attack& attack);
-};
-
 std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombatMoveAttackTypes moveAttackType, EDirection direction);
 

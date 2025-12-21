@@ -24,6 +24,7 @@ enum ETextBoxFunction
 	ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX,
 
 	ETextBoxFunction_ATTACK_STYLE_BOX,
+	ETextBoxFunction_ATTACK_CHARACTER_BOX,
 	ETextBoxFunction_ATTACK_DIRECTION_BOX,
 	
 	ETextBoxFunction_MAX

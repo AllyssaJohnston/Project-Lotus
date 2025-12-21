@@ -25,6 +25,9 @@ enum EMiniGameCombatMoveAttackTypes
     EMiniGameCombatMoveAttackTypes_CROSS5,
     EMiniGameCombatMoveAttackTypes_CHECKERBOARD2UNITS,
     EMiniGameCombatMoveAttackTypes_WHOLE_GRID,
+    EMiniGameCombatMoveAttackTypes_ONE_CHARACTER,
+    EMiniGameCombatMoveAttackTypes_ONE_PLAYER,
+    EMiniGameCombatMoveAttackTypes_ONE_ENEMY,
     EMiniGameCombatMoveAttackTypes_MAX
 };
 
@@ -85,6 +88,8 @@ enum EAttackTargetType
     EAttackTargetType_ALL_PLAYERS,
     EAttackTargetType_ALL_ENEMIES,
     EAttackTargetType_SELF,
+    EAttackTargetType_ONE_PLAYER,
+    EAttackTargetType_ONE_ENEMY,
     EAttackTargetType_ONE_CHARACTER,
     EAttackTargetType_ALL_CHARACTERS,
     EAttackTargetType_MAX

@@ -47,7 +47,7 @@ EzraCombatPreset::EzraCombatPreset() : CombatCharacterPreset()
     attack1.mDamagePercent = 0.0f;
     attack1.mDamageDistanceDependent = false;
     attack1.mRequiresDirectionInput = false;
-    attack1.mSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.25, INT_MAX, EAttackTargetType_ALL_PLAYERS));
+    attack1.mSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.25f, INT_MAX, EAttackTargetType_ALL_PLAYERS));
     mAttacks.push_back(attack1);
 
     Attack attack2 = Attack(); // ATTACK UP ++
@@ -57,27 +57,37 @@ EzraCombatPreset::EzraCombatPreset() : CombatCharacterPreset()
     attack2.mDamagePercent = 0.0f;
     attack2.mDamageDistanceDependent = false;
     attack2.mRequiresDirectionInput = false;
-    attack2.mSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.5, INT_MAX, EAttackTargetType_ALL_PLAYERS));
+    attack2.mSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.5f, INT_MAX, EAttackTargetType_ALL_PLAYERS));
     attack2.mSpecialEffects.push_back(SpecialEffectSelfStun(2));
     mAttacks.push_back(attack2);
 
     Attack attack3 = Attack(); // DEFENSE CAPACITY UP ++
     attack3.mType = EMiniGameCombatMoveAttackTypes_WHOLE_GRID;
     attack3.mName = "Defense Up ++";
-    attack3.mDescription = "Attack Up: Increase all player defense capacity";
+    attack3.mDescription = "Defense Up: Increase all player defense capacity";
     attack3.mDamagePercent = 0.0f;
     attack3.mDamageDistanceDependent = false;
     attack3.mRequiresDirectionInput = false;
-    attack3.mSpecialEffects.push_back(SpecialEffectDefenseCapacityMultiplier(1.5, INT_MAX, EAttackTargetType_ALL_PLAYERS));
+    attack3.mSpecialEffects.push_back(SpecialEffectDefenseCapacityMultiplier(1.3f, INT_MAX, EAttackTargetType_ALL_PLAYERS));
     mAttacks.push_back(attack3);
 
-    mHealAmount = 6;
+    Attack attack4 = Attack(); // FULL CHARACTER HEAL
+    attack4.mType = EMiniGameCombatMoveAttackTypes_ONE_PLAYER;
+    attack4.mName = "Full Heal";
+    attack4.mDescription = "Full Heal: Fully heal one player";
+    attack4.mDamagePercent = 0.0f;
+    attack4.mDamageDistanceDependent = false;
+    attack4.mRequiresDirectionInput = false;
+    attack4.mSpecialEffects.push_back(SpecialEffectFullHeal(EAttackTargetType_ONE_PLAYER));
+    mAttacks.push_back(attack4);
+
+    mHealAmount = 10;
 
     mMoveType = EMiniGameCombatMoveAttackTypes_CROSS3;
 
-    mAttackDamage = 12;
-    mHealthCapacity = 30;
-    mDefenseCapacity = 20;
+    mAttackDamage = 10;
+    mHealthCapacity = 25;
+    mDefenseCapacity = 25;
 
     mModelFileName = "MiniGameModels/Earth/MiniGameModelsEzra.bmp";
     mIconFileName = "MiniGameUI/Earth/EzraPortrait.bmp";

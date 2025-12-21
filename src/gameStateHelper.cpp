@@ -132,6 +132,7 @@ void GameStateManager::switchToMiniGame()
 	mpCurState->mMenuManager.setCurMenuPage(mpCurState->mMenuManager.mpMenuPages[int(EMenuPageType_MINI_GAME_MENU)]);
 	createMiniGameCharacterStatsMenu(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager);
 	createMiniGameCharacterAttackPanel(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager);
+	createMiniGameCharacterSelectionMenu(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager);
 	((GameStatePlayMiniGame*)mpCurState)->setUp();
 	((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.start();
 }
@@ -387,7 +388,15 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 			pSpecificCurState->postTick(pCurSelectedTextBox->mData.mAttackDirection);
 		}
 		break;
+	case ETextBoxFunction_ATTACK_CHARACTER_BOX:
+		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT)
+		{
+			MiniGamePlayerWaitForAttackCharacterInput* pSpecificCurState = (MiniGamePlayerWaitForAttackCharacterInput*)pCurState;
+			pSpecificCurState->postTick(miniStateManager.mWorldData.getStage()->mCombatManager.mpAllCombatCharacters[pCurSelectedTextBox->mData.mCombatCharacterIndex]);
+		}
+		break;
 	}
+
 	mMenuManager.mpCurMenuPage->setCurSelectedTextBox(nullptr);
 }
 

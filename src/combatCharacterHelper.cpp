@@ -149,6 +149,8 @@ void CombatCharacter::heal(int amount)
     mCurHealth = std::min(mCurHealth, getCurHealthCapacity());
 }
 
+void CombatCharacter::fullHeal() { mCurHealth = getCurHealthCapacity(); }
+
 int CombatCharacter::getHealAmount() const { return mHealAmount; }
 
 

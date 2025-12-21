@@ -111,16 +111,33 @@ void MiniGamePlayerWaitForAttackOptionInput::postTick(Attack attack)
 	{
 		mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT;
 	}
-	else if (attack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
-	{
-		mData.mCurAttackDirection = EDirection_ALL;
-		mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK;
-	}
 	else
 	{
-		mData.mCurAttackDirection = EDirection_ALL;
-		mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT;
+		switch (attack.mType)
+		{
+		case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
+			mData.mCurAttackDirection = EDirection_ALL;
+			mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK;
+			break;
+		case EMiniGameCombatMoveAttackTypes_ONE_CHARACTER:
+			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT;
+			mData.mTargetCharacterType = EMiniGameCombatCharacterType_CHARACTER;
+			break;
+		case EMiniGameCombatMoveAttackTypes_ONE_PLAYER:
+			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT;
+			mData.mTargetCharacterType = EMiniGameCombatCharacterType_PLAYER;
+			break;
+		case EMiniGameCombatMoveAttackTypes_ONE_ENEMY:
+			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT;
+			mData.mTargetCharacterType = EMiniGameCombatCharacterType_ENEMY;
+			break;
+		default:
+			mData.mCurAttackDirection = EDirection_ALL;
+			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT;
+			break;
+		}
 	}
+	
 }
 
 
@@ -155,6 +172,17 @@ void MiniGamePlayerWaitForAttackTileInput::postTick()
 }
 
 
+MiniGamePlayerWaitForAttackCharacterInput::MiniGamePlayerWaitForAttackCharacterInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData) { ; }
+
+void MiniGamePlayerWaitForAttackCharacterInput::postTick(CombatCharacter* pTarget)
+{
+	if (pTarget->mType == mData.mTargetCharacterType)
+	{
+		mData.mpTargetCharacter = pTarget;
+		mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK;
+	}
+}
+
 
 MiniGamePlayerCompleteActionAttack::MiniGamePlayerCompleteActionAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
@@ -172,17 +200,24 @@ void MiniGamePlayerCompleteActionAttack::tick()
 
 void MiniGamePlayerCompleteActionAttack::attackTiles()
 {
-	std::vector <TileCoords> tileCoords = returnTileCoords(*mData.getCharacter()->mCombatMovementManager.getCurTile(), mData.mpCurAttack->mType, mData.mCurAttackDirection);
-	std::vector <Tile* > pTilesToAttack;
-	for (const TileCoords& curCoords : tileCoords)
+	if (mData.mpTargetCharacter != nullptr)
 	{
-		Tile* pTile = findTile(mWorldData.getStage()->mGrid, curCoords);
-		if (pTile!= nullptr)
-		{
-			pTilesToAttack.push_back(pTile);
-		}
+		mWorldData.getStage()->mCombatManager.attack(*mData.getCharacter(), *mData.mpTargetCharacter, *mData.mpCurAttack);
 	}
-	mWorldData.getStage()->mCombatManager.attackMultipleTiles(*mData.getCharacter(), pTilesToAttack, *mData.mpCurAttack);
+	else
+	{
+		std::vector <TileCoords> tileCoords = returnTileCoords(*mData.getCharacter()->mCombatMovementManager.getCurTile(), mData.mpCurAttack->mType, mData.mCurAttackDirection);
+		std::vector <Tile* > pTilesToAttack;
+		for (const TileCoords& curCoords : tileCoords)
+		{
+			Tile* pTile = findTile(mWorldData.getStage()->mGrid, curCoords);
+			if (pTile != nullptr)
+			{
+				pTilesToAttack.push_back(pTile);
+			}
+		}
+		mWorldData.getStage()->mCombatManager.attackMultipleTiles(*mData.getCharacter(), pTilesToAttack, *mData.mpCurAttack);
+	}
 	postTick();
 }
 
@@ -510,6 +545,7 @@ void MiniGameBuffer::postTick()
 	mData.mDefended = false;
 
 	mData.mpCurAttack = nullptr;
+	mData.mpTargetCharacter = nullptr;
 	mData.mCurAttackDirection = EDirection_NONE;
 
 	// check if game is over
@@ -556,6 +592,7 @@ MiniGameStateManager::MiniGameStateManager(KeyboardData& keyboardData, MiniGameW
 				new MiniGamePlayerWaitForAttackOptionInput(		keyboardData, mData.mStateData, mWorldData),
 				new MiniGamePlayerWaitForAttackDirectionInput(	keyboardData, mData.mStateData, mWorldData),
 				new MiniGamePlayerWaitForAttackTileInput(		keyboardData, mData.mStateData, mWorldData),
+				new MiniGamePlayerWaitForAttackCharacterInput(	keyboardData, mData.mStateData, mWorldData),
 				new MiniGamePlayerCompleteActionAttack(			keyboardData, mData.mStateData, mWorldData),
 				new MiniGamePlayerCompleteActionDefend(			keyboardData, mData.mStateData, mWorldData),
 				new MiniGamePlayerCompleteActionHeal(			keyboardData, mData.mStateData, mWorldData),

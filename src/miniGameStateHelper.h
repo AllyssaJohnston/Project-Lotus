@@ -85,6 +85,13 @@ struct MiniGamePlayerWaitForAttackTileInput : public MiniGameState
     void postTick();
 };
 
+struct MiniGamePlayerWaitForAttackCharacterInput : public MiniGameState
+{
+    MiniGamePlayerWaitForAttackCharacterInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
+
+    void postTick(CombatCharacter* pTarget);
+};
+
 struct MiniGamePlayerCompleteActionAttack : public MiniGameState
 {
     MiniGamePlayerCompleteActionAttack(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);

@@ -208,7 +208,7 @@ void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile,
         if (pCurCharacter->mCombatMovementManager.getCurTile() == &givenTile)
         {
             int damageToTake = int(attackingCharacter.getCurDamage() * attack.mDamagePercent);
-            if (attack.mDamageDistanceDependent)
+            if (damageToTake > 0 && attack.mDamageDistanceDependent)
             {
                 Tile* pAttackingCharacterTile = attackingCharacter.mCombatMovementManager.getCurTile();
                 float distance = getDistanceBetweenTiles(givenTile, *pAttackingCharacterTile);
@@ -218,13 +218,29 @@ void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile,
                 damageToTake = std::max(damageToTake, 0);
             }
             pCurCharacter->takeDamage(damageToTake);
-            specialEffect(attackingCharacter, *pCurCharacter, givenTile, attack);
+            specialEffect(attackingCharacter, *pCurCharacter, attack);
             return;
         }
     }
 }
 
-void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, Tile& givenTile, const Attack& attack)
+void CombatManager::attack(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack)
+{
+    int damageToTake = int(attackingCharacter.getCurDamage() * attack.mDamagePercent);
+    if (damageToTake > 0 && attack.mDamageDistanceDependent)
+    {
+        Tile* pAttackingCharacterTile = attackingCharacter.mCombatMovementManager.getCurTile();
+        float distance = getDistanceBetweenTiles(*attackedCharacter.mCombatMovementManager.getCurTile(), *pAttackingCharacterTile);
+
+        // TODO move magic number
+        damageToTake -= int(.15f * distance);
+        damageToTake = std::max(damageToTake, 0);
+    }
+    attackedCharacter.takeDamage(damageToTake);
+    specialEffect(attackingCharacter, attackedCharacter, attack);
+}
+
+void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack)
 {
     for (const SpecialEffect& specialEffect : attack.mSpecialEffects)
     {
@@ -253,13 +269,27 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
                 break;
             case EAttackTargetType_SELF:
                 pCharacters = { &attackingCharacter };
+                break;
+            case EAttackTargetType_ONE_PLAYER:
+            case EAttackTargetType_ONE_ENEMY:
+            case EAttackTargetType_ONE_CHARACTER:
+                pCharacters = { &attackedCharacter };
+                break;
             default:
                 SDL_assert(false);
                 break;
             }
             for (CombatCharacter* pCharacter : pCharacters)
             {
-                pCharacter->heal((int)specialEffect.mAmount);
+                if (specialEffect.mSpecial)
+                {
+                    pCharacter->fullHeal();
+                }
+                else
+                {
+                    pCharacter->heal((int)specialEffect.mAmount);
+                }
+                
             }
             break;
 

@@ -37,9 +37,11 @@ public:
 
     void attack(CombatCharacter& attackingCharacter, Tile& givenTile, const Attack& attack);
 
+    void attack(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack);
+
     void attackMultipleTiles(CombatCharacter& attackingCharacter, std::vector <Tile*>& pTilesToAttack, const Attack& attack);
 
-    void specialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, Tile& givenTile, const Attack& attack);
+    void specialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack);
     
     GameOverStats getGameOverStats();
 

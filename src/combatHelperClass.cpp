@@ -29,6 +29,12 @@ std::string returnDescriptionOfMoveAttackType(int moveAttackType)
 		return "CHECKERBOARD 2 UNITS";
 	case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
 		return "WHOLE GRID";
+	case EMiniGameCombatMoveAttackTypes_ONE_CHARACTER:
+		return "ONE CHARACTER";
+	case EMiniGameCombatMoveAttackTypes_ONE_PLAYER:
+		return "ONE PLAYER";
+	case EMiniGameCombatMoveAttackTypes_ONE_ENEMY:
+		return "ONE ENEMY";
 	default:
 		SDL_assert(false);
 		break;

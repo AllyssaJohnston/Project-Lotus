@@ -3,7 +3,6 @@
 AttackTile::AttackTile(Tile& tile, Attack& attack) : mTile(tile), mAttack(attack) {}
 
 
-AttackAndCorrespondingTilesCoords::AttackAndCorrespondingTilesCoords(std::vector <TileCoords>& tileCoords, const Attack& attack) : mTileCoords(tileCoords), mAttack(attack) {}
 
 std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombatMoveAttackTypes moveAttackType, EDirection direction)
 {
@@ -29,6 +28,9 @@ std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombat
         return getSquareTiles(givenTile, 0, 2, direction);
     case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
         return getGrid(30, 30);
+    case EMiniGameCombatMoveAttackTypes_ONE_CHARACTER:
+    case EMiniGameCombatMoveAttackTypes_ONE_PLAYER:
+    case EMiniGameCombatMoveAttackTypes_ONE_ENEMY:
     case EMiniGameCombatMoveAttackTypes_NONE:
         break;
     default:

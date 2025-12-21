@@ -58,6 +58,8 @@ public:
 
     void heal(int amount);
 
+    void fullHeal();
+
     int getHealAmount() const; // flat rate character heals at
 
 
