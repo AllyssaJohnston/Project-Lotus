@@ -75,6 +75,7 @@ void createMainGameMenu(MenuManager& menuManager, ScreenObject& screen, const St
 
 	bool fill = true;
 
+
 	//MAIN GAME MENU PAGE
 	MenuPage* mainGameMenuPage = new MenuPage();
 
@@ -210,135 +211,124 @@ void createMiniGameMenu(MenuManager& menuManager, ScreenObject& screen,  MiniGam
 	SDL_Color highlightPanelColor	= styleManager.sunYellow;
 	SDL_Color standardPanelColor	= styleManager.lightPink;
 
-	bool fill = true;
-	
-	int maxWidth = 400;
-	int maxHeight = 300;
-	int curX = 1300;
-	int curY = 10;
+	const bool fill = true;
 	
 	//keyboard debug HUD
-	maxWidth = 200;
-	maxHeight = 100;
-	BlockAlignElementsVertically* debugHUDBlock = new BlockAlignElementsVertically(Hitbox(CoordsX1Y1WidthHeight(1200, 0, maxWidth, maxHeight)), ETextBoxPositionAlign_LEFT, EDirection_RIGHT, EDirection_DOWN, !fill, !fill, Edges());
-	miniGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_CUR_KEYBOARD), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, maxWidth, maxHeight, Edges(3, 0, 0, 0)), font, TextBoxSizeInfo(12, 12), white), false, debugHUDBlock);
+	BlockAlignElementsVertically* debugHUDBlock = new BlockAlignElementsVertically(Hitbox(CoordsX1Y1WidthHeight(1200, 0, 200, 50)), ETextBoxPositionAlign_LEFT, EDirection_RIGHT, EDirection_DOWN, !fill, !fill, Edges());
+	miniGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_CUR_KEYBOARD), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, 200, 50, Edges(3, 0, 0, 0)), font, TextBoxSizeInfo(12, 12), white), false, debugHUDBlock);
+	miniGameMenuPage->mpBlocks.push_back(debugHUDBlock); // block 1
 
+	const int& panelWidth = styleManager.panelWidth;
+	const int& panelHeight = styleManager.panelHeight;
+	const int& panelHeadingHeight = styleManager.panelHeadingHeight;
+	const int& panelBodyHeight = styleManager.panelBodyHeight;
 
-
+	const int& headingText = styleManager.headingText;
+	const int& optionText = styleManager.optionText;
+	const int& detailText = styleManager.detailText;
+	const int& bullet = styleManager.bullet;
 
 	std::vector <EMiniGameState> whenToShow;
-	curX = 700;
-	curY = 375;
-	maxWidth = 700;
-	maxHeight = 450;
-	int maxLines = 6; // for maxHeight
 
-	BlockAlignElementsVertically* characterOptionsBlock			= new BlockAlignElementsVertically(Hitbox(CoordsX1Y1WidthHeight(curX, curY, maxWidth, maxHeight)),	ETextBoxPositionAlign_LEFT,		EDirection_RIGHT, EDirection_DOWN,	fill, fill,	Edges(),	standardPanelColor);
-	BlockAlignElementsVertically* characterOptionsHeadingBlock	= new BlockAlignElementsVertically(maxWidth, (maxHeight / 3),										ETextBoxPositionAlign_CENTER,	EDirection_DOWN,					fill, fill,	Edges(),	highlightPanelColor);
-	BlockAlignElementsVertically* characterOptionsDetailsBlock	= new BlockAlignElementsVertically(maxWidth, ((2 * maxHeight) / 3),									ETextBoxPositionAlign_LEFT,		EDirection_DOWN,					fill, fill,	Edges(),	standardPanelColor);
+	BlockAlignElementsVertically* characterOptionsBlock			= new BlockAlignElementsVertically(Hitbox(CoordsX1Y1WidthHeight(700, 375, panelWidth, panelHeight)),	ETextBoxPositionAlign_LEFT,		EDirection_RIGHT, EDirection_DOWN,	fill, fill,	Edges(),	standardPanelColor,  "character panel box");
+	BlockAlignElementsVertically* characterOptionsHeadingBlock	= new BlockAlignElementsVertically(panelWidth, panelHeadingHeight,										ETextBoxPositionAlign_CENTER,	EDirection_DOWN,					fill, fill,	Edges(),	highlightPanelColor, "character panel heading box");
+	BlockAlignElementsVertically* characterOptionsDetailsBlock	= new BlockAlignElementsVertically(panelWidth, panelBodyHeight,											ETextBoxPositionAlign_LEFT,		EDirection_DOWN,					fill, fill,	Edges(),	standardPanelColor,  "character panel details box");
 	characterOptionsBlock->mpSubBlocks.push_back(characterOptionsHeadingBlock);
 	characterOptionsBlock->mpSubBlocks.push_back(characterOptionsDetailsBlock);
+	miniGameMenuPage->mpBlocks.push_back(characterOptionsBlock); // block 2
 
-	whenToShow = { EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT, EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK };
-	miniGameMenuPage->addBox(new TextBox(MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay_CHARACTER_NAME, whenToShow), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines, Edges(50, 10, 0, 0)), font, TextBoxSizeInfo(20, 20), black), false, characterOptionsHeadingBlock);
+	whenToShow = { EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT };
+	miniGameMenuPage->addBox(new TextBox(MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay_CHARACTER_NAME, whenToShow), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxTextAlign_CENTER, panelWidth, panelHeadingHeight / 2, Edges(18, 8, 0, 0)), font, TextBoxSizeInfo(20), black), false, characterOptionsHeadingBlock);
 
-	int headingText = 35;
-	int optionText	= 30;
-	int detailText	= 20;
-	int bullet		= 20;
+	
 
 	//SELECT TILE TO MOVE TO
 	whenToShow = { EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT };
 
-	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("Select a Tile to Move To", whenToShow), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines, Edges(0, 10, 0, 0)), font, TextBoxSizeInfo(headingText, headingText), darkPink),	false, characterOptionsHeadingBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("Select a Tile to Move To", whenToShow), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxTextAlign_CENTER, panelWidth, panelHeadingHeight / 2, Edges(0, 10, 0, 0)), font, TextBoxSizeInfo(headingText), darkPink),	false, characterOptionsHeadingBlock);
 	
-	BlockAlignElementsHorizontally* moveRowBlock = new BlockAlignElementsHorizontally(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(10, 0, 0, 0), standardPanelColor);
-	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,									whenToShow),								TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxTextAlign_CENTER, bullet,		bullet,					Edges(0, 0,  10, 5)),														styleManager.white),			moveRowBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("Move Style:",												whenToShow), ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,	  ETextBoxTextAlign_CENTER, maxWidth,	maxHeight / maxLines,	Edges(0, 0,  0,  0)), font, TextBoxSizeInfo(optionText,	optionText),		white),					false,	moveRowBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay_CHARACTER_MOVE_TYPE,	whenToShow), ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,	  ETextBoxTextAlign_CENTER, maxWidth,	maxHeight / maxLines,	Edges(0, 0,  0,  5)), font, TextBoxSizeInfo(optionText,	optionText),		white),					false,	moveRowBlock);
-	characterOptionsDetailsBlock->mpSubBlocks.push_back(moveRowBlock);
+	BlockAlignElementsHorizontally* moveRowBlock = new BlockAlignElementsHorizontally(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(10, 0, 0, 0), standardPanelColor);
+	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,									whenToShow),								TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxTextAlign_CENTER, bullet,		bullet,					Edges(0, 0,  10, 5)),										styleManager.white),			moveRowBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("Move Style:",												whenToShow), ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,	  ETextBoxTextAlign_CENTER, panelWidth,	panelBodyHeight,		Edges(0, 0,  0,  0)), font, TextBoxSizeInfo(optionText),	white),					false,	moveRowBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay_CHARACTER_MOVE_TYPE,	whenToShow), ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,	  ETextBoxTextAlign_CENTER, panelWidth,	panelBodyHeight,		Edges(0, 0,  0,  5)), font, TextBoxSizeInfo(optionText),	white),					false,	moveRowBlock);
+	characterOptionsDetailsBlock->mpSubBlocks.push_back(moveRowBlock); // 2, 0
 
 	//CHOOSE ACTION
 	whenToShow = { EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT };
-	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("Select an action",  whenToShow), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines, Edges(0, 10, 0, 0)), font, TextBoxSizeInfo(headingText, headingText),	darkPink),	false, characterOptionsHeadingBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("Select an action",  whenToShow), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, panelWidth, panelHeadingHeight / 2, Edges(0, 5, 0, 0)), font, TextBoxSizeInfo(headingText, headingText),	darkPink),	false, characterOptionsHeadingBlock);
 	
-	BlockAlignElementsVertically* actionsBlock	= new BlockAlignElementsVertically(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges(),	standardPanelColor);
-	BlockAlignElementsHorizontally* attackOptionRowBlock = new BlockAlignElementsHorizontally(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(0, 10, 0, 0));
-	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),														TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER,	bullet,		bullet,					Edges(0, 0,  10, 10)),																styleManager.white),	attackOptionRowBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("ATTACK",					whenToShow), ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER,	maxWidth,	maxHeight / maxLines,	Edges()),				font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox),	true,		attackOptionRowBlock);
-	BlockAlignElementsHorizontally* defendOptionRowBlock = new BlockAlignElementsHorizontally(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(0, 10, 0, 0));
-	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),														TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER,	bullet,		bullet,					Edges(0, 0,  10, 10)),																styleManager.white),	defendOptionRowBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("DEFEND",					whenToShow), ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER,	maxWidth,	maxHeight / maxLines,	Edges()),				font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox),	true,		defendOptionRowBlock);
-	BlockAlignElementsHorizontally* healOptionRowBlock = new BlockAlignElementsHorizontally(  maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(0, 10, 0, 0));
-	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),														TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER,	bullet,		bullet,					Edges(0, 0,  10, 10)),																styleManager.white),	healOptionRowBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("HEAL",						whenToShow), ETextBoxFunction_HEAL_CUR_COMBAT_CHARACTER_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER,	maxWidth,	maxHeight / maxLines,	Edges()),				font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox),	true,		healOptionRowBlock);
-	BlockAlignElementsHorizontally* passOptionRowBlock   = new BlockAlignElementsHorizontally(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges());
-	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),														TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER,	bullet,		bullet,					Edges(0, 0,  10, 10)),																styleManager.white),	passOptionRowBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("PASS TURN",					whenToShow), ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER,	maxWidth,	maxHeight / maxLines,	Edges()),				font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox),	true,		passOptionRowBlock);
+	BlockAlignElementsVertically* actionsBlock	= new BlockAlignElementsVertically(panelWidth, panelBodyHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges(),	standardPanelColor);
+	BlockAlignElementsHorizontally* attackOptionRowBlock = new BlockAlignElementsHorizontally(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(0, 10, 0, 0));
+	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),														TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER,	bullet,		bullet,					Edges(0, 0,  10, 10)),															styleManager.white),	attackOptionRowBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("ATTACK",					whenToShow), ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER,	panelWidth,	panelBodyHeight,	Edges()),				font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox),	true,		attackOptionRowBlock);
+	BlockAlignElementsHorizontally* defendOptionRowBlock = new BlockAlignElementsHorizontally(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(0, 10, 0, 0));
+	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),														TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER,	bullet,		bullet,					Edges(0, 0,  10, 10)),															styleManager.white),	defendOptionRowBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("DEFEND",					whenToShow), ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER,	panelWidth,	panelBodyHeight,	Edges()),				font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox),	true,		defendOptionRowBlock);
+	BlockAlignElementsHorizontally* healOptionRowBlock = new BlockAlignElementsHorizontally(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(0, 10, 0, 0));
+	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),														TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER,	bullet,		bullet,					Edges(0, 0,  10, 10)),															styleManager.white),	healOptionRowBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("HEAL",						whenToShow), ETextBoxFunction_HEAL_CUR_COMBAT_CHARACTER_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER,	panelWidth,	panelBodyHeight,	Edges()),				font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox),	true,		healOptionRowBlock);
+	BlockAlignElementsHorizontally* passOptionRowBlock   = new BlockAlignElementsHorizontally(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges());
+	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),														TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER,	bullet,		bullet,					Edges(0, 0,  10, 10)),															styleManager.white),	passOptionRowBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("PASS TURN",					whenToShow), ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER,	panelWidth,	panelBodyHeight,	Edges()),				font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox),	true,		passOptionRowBlock);
 	actionsBlock->mpSubBlocks.push_back(attackOptionRowBlock);
 	actionsBlock->mpSubBlocks.push_back(defendOptionRowBlock);
 	actionsBlock->mpSubBlocks.push_back(healOptionRowBlock);
 	actionsBlock->mpSubBlocks.push_back(passOptionRowBlock);
-	characterOptionsDetailsBlock->mpSubBlocks.push_back(actionsBlock);
+	characterOptionsDetailsBlock->mpSubBlocks.push_back(actionsBlock); // 2, 1
+
+	//CHOOSE ATTACK
+	whenToShow = { EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT };
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("Choose an attack", whenToShow), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, panelWidth, panelHeadingHeight / 2, Edges(0, 5, 0, 0)), font, TextBoxSizeInfo(headingText, headingText), darkPink), false, characterOptionsHeadingBlock);
+	createMiniGameCharacterAttackPanel(menuManager, screen, worldData, styleManager); // 2, 2
 
 	//CHOOSE ATTACK DIRECTION
 	whenToShow = { EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT };
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("Choose Attack Direction",						whenToShow), ETextBoxFunction_NO_FUNCTION,					TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, panelWidth, panelHeadingHeight / 4,	Edges()),			font, TextBoxSizeInfo(headingText - 7),	darkPink),	false, characterOptionsHeadingBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("All tiles in the direction will be attacked",	whenToShow), ETextBoxFunction_NO_FUNCTION,					TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, panelWidth, panelHeadingHeight / 4,	Edges(0, 8, 0, 0)), font, TextBoxSizeInfo(detailText - 7),	black),		false, characterOptionsHeadingBlock);
 
-	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("Choose Attack Direction",										whenToShow), ETextBoxFunction_NO_FUNCTION,					TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines, Edges(0, 10, 0, 0)), font, TextBoxSizeInfo(headingText,	headingText),	darkPink),	false, characterOptionsHeadingBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("All tiles in the direction will be attacked",					whenToShow), ETextBoxFunction_NO_FUNCTION,					TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines, Edges(0, 10, 0, 0)), font, TextBoxSizeInfo(detailText, detailText),		black),		false, characterOptionsHeadingBlock);
-
-	BlockAlignElementsVertically* attackDirectionBlock = new BlockAlignElementsVertically(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges(), standardPanelColor);
-	BlockAlignElementsVertically* attackDetailsBlock = new BlockAlignElementsVertically(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges());
-	miniGameMenuPage->addBox(new TextBox(MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME, whenToShow), ETextBoxFunction_NO_FUNCTION,					TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines, Edges(5, 5, 0, 0)), font, TextBoxSizeInfo(detailText,	detailText),		black),		false, attackDetailsBlock);
-	BlockAlignElementsHorizontally* leftOptionRowBlock = new BlockAlignElementsHorizontally(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges());
-	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),																TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,		bullet,					Edges(0, 0,  10, 5)),														styleManager.white),	leftOptionRowBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGameDirectionBoxPreset("LEFT",				whenToShow, EDirection_LEFT),	ETextBoxFunction_ATTACK_DIRECTION_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, maxWidth,		maxHeight / maxLines,	Edges(0, 10, 0,  0)), font, TextBoxSizeInfo(optionText,	optionText, 2),		optionBox), true,		leftOptionRowBlock);
-	BlockAlignElementsHorizontally* rightOptionRowBlock = new BlockAlignElementsHorizontally(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges());
-	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),																TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,		bullet,					Edges(0, 0,  10, 5)),														styleManager.white),	rightOptionRowBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGameDirectionBoxPreset("RIGHT",			whenToShow, EDirection_RIGHT),	ETextBoxFunction_ATTACK_DIRECTION_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, maxWidth,		maxHeight / maxLines,	Edges(0, 10, 0,  0)), font, TextBoxSizeInfo(optionText,	optionText, 2),		optionBox), true,		rightOptionRowBlock);
-	BlockAlignElementsHorizontally* upOptionRowBlock = new BlockAlignElementsHorizontally(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges());
-	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),																TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,		bullet,					Edges(0, 0,  10, 5)),														styleManager.white),	upOptionRowBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGameDirectionBoxPreset("UP",				whenToShow, EDirection_UP),		ETextBoxFunction_ATTACK_DIRECTION_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, maxWidth,		maxHeight / maxLines,	Edges(0, 10, 0,  0)), font, TextBoxSizeInfo(optionText,	optionText, 2),		optionBox), true,		upOptionRowBlock);
-	BlockAlignElementsHorizontally* downOptionRowBlock = new BlockAlignElementsHorizontally(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges());
-	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),																TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,		bullet,					Edges(0, 0,  10, 5)),														styleManager.white),	downOptionRowBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGameDirectionBoxPreset("DOWN",				whenToShow, EDirection_DOWN),	ETextBoxFunction_ATTACK_DIRECTION_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, maxWidth,		maxHeight / maxLines,	Edges(0, 0,  0,  0)), font, TextBoxSizeInfo(optionText,	optionText, 2),		optionBox), true,		downOptionRowBlock);
+	BlockAlignElementsVertically* attackDirectionBlock = new BlockAlignElementsVertically(	panelWidth, panelBodyHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges(), standardPanelColor);
+	BlockAlignElementsVertically* attackDetailsBlock = new BlockAlignElementsVertically(	panelWidth, panelBodyHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges());
+	miniGameMenuPage->addBox(new TextBox(MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME, whenToShow), ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, panelWidth,	panelBodyHeight / 5,	Edges(5, 5, 0, 0)),	  font, TextBoxSizeInfo(optionText),						styleManager.white),  false,	attackDetailsBlock);
+	BlockAlignElementsHorizontally* leftOptionRowBlock = new BlockAlignElementsHorizontally(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges());
+	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),																	TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,		bullet,					Edges(0, 0,  10, 5)),															styleManager.white),			leftOptionRowBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameDirectionBoxPreset("LEFT",				whenToShow, EDirection_LEFT),	ETextBoxFunction_ATTACK_DIRECTION_BOX,			TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, panelWidth,	panelBodyHeight / 5,	Edges(0, 10, 0,  0)), font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox), true,				leftOptionRowBlock);
+	BlockAlignElementsHorizontally* rightOptionRowBlock = new BlockAlignElementsHorizontally(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges());
+	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),																	TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,		bullet,					Edges(0, 0,  10, 5)),															styleManager.white),			rightOptionRowBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameDirectionBoxPreset("RIGHT",			whenToShow, EDirection_RIGHT),	ETextBoxFunction_ATTACK_DIRECTION_BOX,			TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, panelWidth,	panelBodyHeight / 5,	Edges(0, 10, 0,  0)), font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox), true,				rightOptionRowBlock);
+	BlockAlignElementsHorizontally* upOptionRowBlock = new BlockAlignElementsHorizontally(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges());
+	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),																	TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,		bullet,					Edges(0, 0,  10, 5)),															styleManager.white),			upOptionRowBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameDirectionBoxPreset("UP",				whenToShow, EDirection_UP),		ETextBoxFunction_ATTACK_DIRECTION_BOX,			TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, panelWidth,	panelBodyHeight / 5,	Edges(0, 10, 0,  0)), font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox), true,				upOptionRowBlock);
+	BlockAlignElementsHorizontally* downOptionRowBlock = new BlockAlignElementsHorizontally(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges());
+	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	whenToShow),																	TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,		bullet,					Edges(0, 0,  10, 5)),															styleManager.white),			downOptionRowBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameDirectionBoxPreset("DOWN",				whenToShow, EDirection_DOWN),	ETextBoxFunction_ATTACK_DIRECTION_BOX,			TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, panelWidth,	panelBodyHeight / 5,	Edges(0, 0,  0,  0)), font, TextBoxSizeInfo(optionText,	optionText + 5, 2),		optionBox), true,				downOptionRowBlock);
 	attackDirectionBlock->mpSubBlocks.push_back(attackDetailsBlock);
 	attackDirectionBlock->mpSubBlocks.push_back(leftOptionRowBlock);
 	attackDirectionBlock->mpSubBlocks.push_back(rightOptionRowBlock);
 	attackDirectionBlock->mpSubBlocks.push_back(upOptionRowBlock);
 	attackDirectionBlock->mpSubBlocks.push_back(downOptionRowBlock);
-	characterOptionsDetailsBlock->mpSubBlocks.push_back(attackDirectionBlock);
+	characterOptionsDetailsBlock->mpSubBlocks.push_back(attackDirectionBlock); // 2, 3
 
 	//SELECT TILE TO ATTACK
 	whenToShow = { EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT };
-	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("Select a tile to Attack",										whenToShow), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines, Edges(0, 10, 0, 0)), font, TextBoxSizeInfo(headingText,	headingText),	darkPink),	false, characterOptionsHeadingBlock);
-	BlockAlignElementsHorizontally* attackTilesBlock = new BlockAlignElementsHorizontally(maxWidth, ((2 * maxHeight) / 3), ETextBoxPositionAlign_LEFT, EDirection_RIGHT, !fill, !fill, Edges(), standardPanelColor);
-	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,										whenToShow),								TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,		bullet,					Edges(0, 0,  10, 5)),															styleManager.white),	attackTilesBlock);
-	miniGameMenuPage->addBox(new TextBox(MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME, whenToShow), ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, maxWidth,		maxHeight / maxLines,	Edges(0, 10, 0,  0)), font, TextBoxSizeInfo(optionText,		optionText),		white),		false,		attackTilesBlock);
-	characterOptionsDetailsBlock->mpSubBlocks.push_back(attackTilesBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset("Select a tile to Attack",										whenToShow), ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, panelWidth, panelHeadingHeight / 2,	Edges(0, 5,  0,  0)), font, TextBoxSizeInfo(headingText),	darkPink),					false,		characterOptionsHeadingBlock);
+	BlockAlignElementsHorizontally* attackTilesBlock = new BlockAlignElementsHorizontally(panelWidth, panelBodyHeight, ETextBoxPositionAlign_LEFT, EDirection_RIGHT, !fill, !fill, Edges(), standardPanelColor);
+	miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,										whenToShow),								TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,	  bullet,					Edges(0, 0,  10, 5)),														styleManager.white),	attackTilesBlock);
+	miniGameMenuPage->addBox(new TextBox(MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME, whenToShow), ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, panelWidth, panelBodyHeight,			Edges(0, 10, 0,  0)), font, TextBoxSizeInfo(optionText,		optionText),	white),		false,		attackTilesBlock);
+	characterOptionsDetailsBlock->mpSubBlocks.push_back(attackTilesBlock); // 2, 4
 
 
 
 	//LOG
-	curX = 20;
-	curY = screen.mGameLevelChunkHeight - 15;
-	maxWidth = screen.mGameLevelChunkWidth - 15;
-	BlockAlignElementsVertically* debugStatLine = new BlockAlignElementsVertically(Hitbox(CoordsX1Y1WidthHeight(curX, curY, maxWidth, maxHeight)), ETextBoxPositionAlign_LEFT, EDirection_RIGHT, EDirection_UP, !fill, !fill, Edges(), highlightPanelColor);
-	miniGameMenuPage->addBox(new TextBox(MiniGameStatBoxPreset(EGameStatBoxValueToDisplay_MINI_GAME_DEBUG_LINE), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines, Edges()), font, TextBoxSizeInfo(detailText , detailText), darkPink), false, debugStatLine);
+	BlockAlignElementsVertically* debugStatLine = new BlockAlignElementsVertically(Hitbox(CoordsX1Y1WidthHeight(20, screen.mGameLevelChunkHeight - 15, screen.mGameLevelChunkWidth, 50)), ETextBoxPositionAlign_LEFT, EDirection_RIGHT, EDirection_UP, !fill, !fill, Edges(), highlightPanelColor);
+	miniGameMenuPage->addBox(new TextBox(MiniGameStatBoxPreset(EGameStatBoxValueToDisplay_MINI_GAME_DEBUG_LINE), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_CENTER, screen.mGameLevelChunkWidth - 15, 50, Edges()), font, TextBoxSizeInfo(detailText , detailText), darkPink), false, debugStatLine);
+	miniGameMenuPage->mpBlocks.push_back(debugStatLine); //block 3
 
-
-	miniGameMenuPage->mpBlocks.push_back(debugHUDBlock); //block 1
-	miniGameMenuPage->mpBlocks.push_back(characterOptionsBlock); //block 2
-	createMiniGameCharacterAttackPanel(menuManager, screen, worldData, styleManager); //block 3
-	miniGameMenuPage->mpBlocks.push_back(debugStatLine); //block 4
 
 	miniGameMenuPage = nullptr;
 	debugHUDBlock = nullptr;
 	characterOptionsBlock = nullptr;
 	characterOptionsHeadingBlock = nullptr;
 	characterOptionsDetailsBlock = nullptr;
-
-	
 }
 
 void createMiniGameCharacterStatsMenu(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, const StyleManager& styleManager)
@@ -424,37 +414,25 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, ScreenObject& 
 	MenuPage* miniGameMenuPage = menuManager.mpMenuPages[EMenuPageType_MINI_GAME_MENU];
 	const char* font = styleManager.fontName;
 
-	TextBoxColorInfo black = TextBoxColorInfo(styleManager.black);
-	TextBoxColorInfo darkPink = TextBoxColorInfo(styleManager.pink);
-	TextBoxColorInfo white = TextBoxColorInfo(styleManager.white);
-	TextBoxColorInfo colors = TextBoxColorInfo(styleManager.pink, styleManager.white, styleManager.sunYellow, styleManager.sunYellow);
-	TextBoxColorInfo optionBox = TextBoxColorInfo(styleManager.white, styleManager.sunYellow, styleManager.pink, styleManager.pink, styleManager.white, styleManager.sunYellow);
-	SDL_Color highlightPanelColor = styleManager.sunYellow;
-	SDL_Color standardPanelColor = styleManager.lightPink;
+	TextBoxColorInfo black			= TextBoxColorInfo(styleManager.black);
+	TextBoxColorInfo optionBox		= TextBoxColorInfo(styleManager.white, styleManager.sunYellow, styleManager.pink, styleManager.pink, styleManager.white, styleManager.sunYellow);
+
+	const int& panelWidth			= styleManager.panelWidth;
+	const int& panelHeight			= styleManager.panelHeight;
+	const int& panelHeadingHeight	= styleManager.panelHeadingHeight;
+	const int& panelBodyHeight		= styleManager.panelBodyHeight;
+
+	const int& optionText			= styleManager.optionText;
+	const int& detailText			= styleManager.detailText;
+	const int& bullet				= styleManager.bullet;
 
 	bool fill = true;
 
-	int curX = 700;
-	int curY = 375;
-	int maxWidth = 700;
-	int maxHeight = 450;
-	int maxLines = 6; // for maxHeight
+	BlockAlignElementsVertically* characterOptionsBlock = (BlockAlignElementsVertically*)miniGameMenuPage->mpBlocks[2];
+	BlockAlignElementsVertically* characterOptionsDetailsBlock = (BlockAlignElementsVertically*)characterOptionsBlock->mpSubBlocks[1];
 
-	// TODO pass in the character options blocks parameters to this method, so that they match
-	// since you can't render a background on these panels without overrendering all internal backgrounds
-	BlockAlignElementsVertically* characterOptionsBlock			= new BlockAlignElementsVertically(Hitbox(CoordsX1Y1WidthHeight(curX, curY, maxWidth, maxHeight)),	ETextBoxPositionAlign_LEFT,		EDirection_RIGHT, EDirection_DOWN,	fill,  fill,	Edges(),	styleManager.clear, "Attack panel - character options block");
-	BlockAlignElementsVertically* characterOptionsHeadingBlock	= new BlockAlignElementsVertically(maxWidth, (maxHeight / 3),										ETextBoxPositionAlign_CENTER,	EDirection_DOWN,					fill,  fill,	Edges(),	styleManager.clear, "Attack panel - headings block");
-	BlockAlignElementsVertically* characterOptionsDetailsBlock	= new BlockAlignElementsVertically(maxWidth, ((2 * maxHeight) / 3),									ETextBoxPositionAlign_LEFT,		EDirection_DOWN,					!fill, !fill,	Edges(),	styleManager.clear, "Attack panel - body block");
-
-	int headingText = 35;
-	int optionText = 30;
-	int detailText = 20;
-	int bullet = 20;
-
-	maxHeight = ((2 * maxHeight) / 3);
-
+	BlockAlignElementsVertically* pAttackPanel = new BlockAlignElementsVertically(panelWidth, panelBodyHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges(0, 0, 0, 0), styleManager.clear, "main attack panel block");
 	std::vector <EMiniGameState> whenToShow = { EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT };
-
 	if (worldData.mCurLevelNumber != -1)
 	{
 		CombatManager& combatManager = worldData.getStage()->mCombatManager;
@@ -467,59 +445,54 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, ScreenObject& 
 
 			//CHARACTER
 			//CHOOSE ATTACK
-			//OPTION NAME
+			//OPTION NAME, DIAGRAM
 			//OPTION TYPE
 			//OPTION DAMAGE
 			//OPTION SPECIAL EFFECTS / NOTES
-			miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(countCharacter, false, ECharacterStatBoxValueToDisplay_CHARACTER_NAME,	whenToShow), ETextBoxFunction_NO_FUNCTION,		TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines, Edges(50, 10, 0, 0)), font, TextBoxSizeInfo(20,		   20),				black),		false, characterOptionsHeadingBlock);
-			miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(countCharacter, false, "Choose Attack",									whenToShow), ETextBoxFunction_NO_FUNCTION,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines, Edges(0,  10, 0, 0)), font, TextBoxSizeInfo(headingText, headingText),	darkPink),	false, characterOptionsHeadingBlock);
-			BlockAlignElementsGrid* attackPanelBlock = new BlockAlignElementsGrid(maxWidth, maxHeight / 2, ETextBoxPositionAlign_CENTER, false, 3, !fill, !fill, Edges(0, 0, 0, 0), styleManager.clear, (combatManager.mpAllCombatCharacters[countCharacter]->mName + " Attack panel block"));
-			for (int countAttack = 0; countAttack < combatManager.mpAllCombatCharacters[countCharacter]->mCombatMovementManager.getAttacks().size(); countAttack++)
+			BlockAlignElementsGrid* pCharacterAttackBlock = new BlockAlignElementsGrid(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, false, 3, !fill, !fill, Edges(0, 0, 0, 0), styleManager.clear, (combatManager.mpAllCombatCharacters[countCharacter]->mName + " Attack panel block"));
+			const std::vector<Attack>& attacks = combatManager.mpAllCombatCharacters[countCharacter]->mCombatMovementManager.getAttacks();
+			for (int countAttack = 0; countAttack < attacks.size(); countAttack++)
 			{
-				BlockAlignElementsVertically* pShapeBlock		= new BlockAlignElementsVertically(maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges(12, 0, 0, 0));
-				miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,	countCharacter, false,	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME,										whenToShow),										TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,	bullet,					Edges(0, 0, 10, 10)),															styleManager.white),	pShapeBlock);
+				const Attack& curAttack = attacks[countAttack];
+				BlockAlignElementsVertically* pCharacterAttackShapeBlock = new BlockAlignElementsVertically(panelWidth, panelBodyHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges(12, 0, 0, 0));
+				miniGameMenuPage->addBox(new ShapeBox(MiniGameShapeBoxPreset(EShapeBoxClass_CIRCLE,						countCharacter, false,	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME,										whenToShow),										TextBoxPositionInfo(ETextBoxPositionAlign_CENTER,	ETextBoxTextAlign_CENTER, bullet,	bullet,					Edges(0,  0, 10, 10)),															styleManager.white),	pCharacterAttackShapeBlock);
 				
-				BlockAlignElementsVertically* pAttackTextBlock	= new BlockAlignElementsVertically(maxWidth, maxHeight, ETextBoxPositionAlign_LEFT,	EDirection_DOWN, !fill, !fill, Edges(0, 10, 0, 0));
-				miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(					countCharacter, false,	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME,						countAttack,	whenToShow), ETextBoxFunction_ATTACK_STYLE_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines,	Edges(0,  7, 0, 0)),  font, TextBoxSizeInfo(optionText,  optionText + 5, 2),	optionBox), true,		pAttackTextBlock);
-				miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(					countCharacter, false,	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TYPE,						countAttack,	whenToShow), ETextBoxFunction_NO_FUNCTION,			TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines,	Edges(0,  7, 0, 0)), font, TextBoxSizeInfo(detailText,  detailText),			black),		false,		pAttackTextBlock);
-				miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(					countCharacter, false,	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE,						countAttack,	whenToShow), ETextBoxFunction_NO_FUNCTION,			TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines,	Edges(0,  7, 0, 0)), font, TextBoxSizeInfo(detailText,  detailText),			black),		false,		pAttackTextBlock);
-				miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(					countCharacter, false,	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES,	countAttack,	whenToShow), ETextBoxFunction_NO_FUNCTION,			TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, maxWidth, maxHeight / maxLines,	Edges(0,  0,  0, 0)), font, TextBoxSizeInfo(detailText,  detailText),			black),		false,		pAttackTextBlock);
+				BlockAlignElementsVertically* pCharacterAttackTextBlock	 = new BlockAlignElementsVertically(panelWidth, panelBodyHeight, ETextBoxPositionAlign_LEFT,	EDirection_DOWN, !fill, !fill, Edges(3, 10, 0, 0));
+				miniGameMenuPage->addBox(										new TextBox(MiniGameCharacterBoxPreset( countCharacter, false,	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME,						countAttack,	whenToShow), ETextBoxFunction_ATTACK_STYLE_BOX,		TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, panelWidth, panelBodyHeight / 4,	Edges(0,  3, 0,  0)), font, TextBoxSizeInfo(optionText,  optionText + 5, 2),	optionBox), true,	pCharacterAttackTextBlock);
+				miniGameMenuPage->addBox(										new TextBox(MiniGameCharacterBoxPreset( countCharacter, false,	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TYPE,						countAttack,	whenToShow), ETextBoxFunction_NO_FUNCTION,			TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, panelWidth, panelBodyHeight / 4,	Edges(0,  3, 0,  0)), font, TextBoxSizeInfo(detailText,  detailText),			black),		false,	pCharacterAttackTextBlock);
+				if (curAttack.mDamagePercent != 0) { miniGameMenuPage->addBox(	new TextBox(MiniGameCharacterBoxPreset( countCharacter, false,  ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE,						countAttack,	whenToShow), ETextBoxFunction_NO_FUNCTION,			TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, panelWidth, panelBodyHeight / 4,	Edges(0,  3, 0,  0)), font, TextBoxSizeInfo(detailText,  detailText),			black),		false,	pCharacterAttackTextBlock); }
+				miniGameMenuPage->addBox(										new TextBox(MiniGameCharacterBoxPreset( countCharacter, false,	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES,	countAttack,	whenToShow), ETextBoxFunction_NO_FUNCTION,			TextBoxPositionInfo(ETextBoxPositionAlign_LEFT,		ETextBoxTextAlign_CENTER, panelWidth, panelBodyHeight/ 4,	Edges(0,  0,  0, 0)), font, TextBoxSizeInfo(detailText,  detailText),			black),		false,	pCharacterAttackTextBlock);
 				
-				attackPanelBlock->mpSubBlocks.push_back(pShapeBlock);
-				attackPanelBlock->mpSubBlocks.push_back(pAttackTextBlock);
+				pCharacterAttackBlock->mpSubBlocks.push_back(pCharacterAttackShapeBlock);
+				pCharacterAttackBlock->mpSubBlocks.push_back(pCharacterAttackTextBlock);
 
-				//block diagram
-				Attack& curAttack = combatManager.mpAllCombatCharacters[countCharacter]->mCombatMovementManager.getAttacks()[countAttack];
-				createBlockDiagram(curAttack.mType, countCharacter, miniGameMenuPage, attackPanelBlock, whenToShow, menuManager, styleManager);
+				createBlockDiagram(curAttack.mType, countCharacter, miniGameMenuPage, pCharacterAttackBlock, whenToShow, menuManager, styleManager);
 
-				pShapeBlock		 = nullptr;
-				pAttackTextBlock = nullptr;
+				pCharacterAttackTextBlock = nullptr;
+				pCharacterAttackShapeBlock = nullptr;
 			}
-			characterOptionsDetailsBlock->mpSubBlocks.push_back(attackPanelBlock);
-			attackPanelBlock = nullptr;
+			pAttackPanel->mpSubBlocks.push_back(pCharacterAttackBlock);
+			pCharacterAttackBlock = nullptr;
 			
 		}
-
-		characterOptionsBlock->mpSubBlocks.push_back(characterOptionsHeadingBlock);
-		characterOptionsBlock->mpSubBlocks.push_back(characterOptionsDetailsBlock);
 	}
 
-	int blockNum = 3;
-	if (miniGameMenuPage->mpBlocks.size() > blockNum && miniGameMenuPage->mpBlocks[blockNum])
+	int subBlockNum = 2;
+	if (characterOptionsDetailsBlock->mpSubBlocks.size() > subBlockNum && characterOptionsDetailsBlock->mpSubBlocks[subBlockNum])
 	{
-		//replace the character stat block
-		characterOptionsBlock->setAllTextures(screen.mpRenderer);
-		miniGameMenuPage->deleteBlock(miniGameMenuPage->mpBlocks[blockNum]);
-		miniGameMenuPage->mpBlocks[blockNum] = characterOptionsBlock;
+		//replace the attack panel block
+		pAttackPanel->setAllTextures(screen.mpRenderer);
+		miniGameMenuPage->deleteBlock(characterOptionsDetailsBlock->mpSubBlocks[subBlockNum]);
+		characterOptionsDetailsBlock->mpSubBlocks[subBlockNum] = pAttackPanel;
 	}
 	else
 	{
 		//first time through, place the block
-		miniGameMenuPage->mpBlocks.push_back(characterOptionsBlock);
+		characterOptionsDetailsBlock->mpSubBlocks.push_back(pAttackPanel);
 	}
 
+	pAttackPanel = nullptr;
 	characterOptionsBlock = nullptr;
-	characterOptionsHeadingBlock = nullptr;
 	characterOptionsDetailsBlock = nullptr;
 }
 

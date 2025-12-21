@@ -21,6 +21,17 @@ struct StyleManager
 	const static SDL_Color gold;
 	const static SDL_Color clear;
 
+	// combat menus
+	const int panelWidth			= 700;
+	const int panelHeight			= 450;
+	const int panelHeadingHeight	= 100;
+	const int panelBodyHeight		= 350;
+
+	const int headingText = 30;
+	const int optionText = 30;
+	const int detailText = 20;
+	const int bullet = 20;
+
 	StyleManager(){}
 
 	~StyleManager();

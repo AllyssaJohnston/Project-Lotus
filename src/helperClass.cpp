@@ -94,5 +94,14 @@ std::string directionToString(EDirection dir)
 	return "invalid";
 }
 
+std::string floatDecimalToString(float num)
+{
+	int numPercent = int(num * 100.0f);
+	return std::to_string(numPercent / 100) + "." + std::to_string(numPercent % 100);
+}
+
+
+
+
 
 KeyData::KeyData(int key, int repeat) : mKey(key), mRepeat(repeat) { ; }

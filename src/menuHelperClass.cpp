@@ -7,23 +7,13 @@ std::string getAttackDamage(const Attack& attack, int characterDamage) { return 
 
 std::string getSpecialEffect(const Attack& attack)
 {
-	std::string message;
-	std::string requiresDirectionalInput;
-	if (attack.mRequiresDirectionInput)
-	{
-		requiresDirectionalInput = "Requires directional input";
-	}
-	std::string specialEffects;
+	std::string message  = (attack.mRequiresDirectionInput ? "Requires directional input." : "");
+	message				+= (attack.mDamageDistanceDependent ? "Damage is distance dependent." : "");
 	for (SpecialEffect curSpecialEffect : attack.mSpecialEffects)
 	{
-		specialEffects += curSpecialEffect.mName + " ";
+		message += curSpecialEffect.mName + ". ";
 	}
-	std::string distanceDependent;
-	if (attack.mDamageDistanceDependent)
-	{
-		requiresDirectionalInput = "Damage is distance dependent";
-	}
-	message = requiresDirectionalInput + " " + specialEffects + " " + distanceDependent;
+	
 	// TODO trim start
 	return message;
 }

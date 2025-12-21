@@ -1,6 +1,6 @@
 #pragma once
-
 #include "combatHelperClass.h"
+#include "helperClass.h"
 
 struct SpecialEffectPreset
 {

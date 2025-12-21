@@ -342,3 +342,5 @@ void addToListIfUnique(std::vector<T*>& list, T* elementToAdd)
 }
 
 std::string directionToString(EDirection dir);
+
+std::string floatDecimalToString(float num);

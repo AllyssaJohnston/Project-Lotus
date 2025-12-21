@@ -20,7 +20,7 @@ SpecialEffectAttackMultiplier::SpecialEffectAttackMultiplier(float multiplier, i
     mAttackTargetType = attackTargetType;
     mAmount = multiplier;
     mTurns = turns;
-    mName = "INCREASE ATTACK BY " + std::to_string(multiplier) + ((turns == INT_MAX) ? "" : " FOR " + std::to_string(turns)) + ((turns == 1) ? " TURN" : " TURNS");
+    mName = "INCREASE ATTACK BY " + floatDecimalToString(multiplier) + ((turns == INT_MAX) ? "" : (" FOR " + std::to_string(turns)) + ((turns == 1) ? " TURN" : " TURNS"));
 }
 
 SpecialEffectDefenseCapacityMultiplier::SpecialEffectDefenseCapacityMultiplier(float multiplier, int turns, EAttackTargetType attackTargetType)
@@ -29,7 +29,7 @@ SpecialEffectDefenseCapacityMultiplier::SpecialEffectDefenseCapacityMultiplier(f
     mAttackTargetType = attackTargetType;
     mAmount = multiplier;
     mTurns = turns;
-    mName = "INCREASE DEFENSE CAPACITY BY " + std::to_string(multiplier) + ((turns == INT_MAX) ? "" : " FOR " + std::to_string(turns)) + ((turns == 1) ? " TURN" : " TURNS");
+    mName = "INCREASE DEFENSE CAPACITY BY " + floatDecimalToString(multiplier) + ((turns == INT_MAX) ? "" : (" FOR " + std::to_string(turns)) + ((turns == 1) ? " TURN" : " TURNS"));
 }
 
 SpecialEffectHeal::SpecialEffectHeal(int amount, EAttackTargetType attackTargetType) : SpecialEffectPreset()
