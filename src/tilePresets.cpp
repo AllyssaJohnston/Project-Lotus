@@ -9,7 +9,7 @@ RegularTilePreset::RegularTilePreset() : TilePreset()
 ImpassableTilePreset::ImpassableTilePreset() : TilePreset()
 {
     mType           = EMiniGameCombatTileType_IMPASSABLE;
-    mRegularColor   = StyleManager::black;
+    mRegularColor   = StyleManager::gray;
 }
 
 TeleporterTilePreset::TeleporterTilePreset(TileCoords* pTileToMoveTo) : TilePreset()

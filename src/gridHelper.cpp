@@ -1,7 +1,5 @@
 #include "gridHelper.h"
 
-Grid::Grid() { createGrid(); }
-
 void Grid::preTick()
 {
     for (Tile* pTile : mpTiles)
@@ -23,8 +21,10 @@ Tile* Grid::findTile(const TileCoords& tileCoords) const
     return nullptr;
 }
 
-void Grid::createGrid()
+void Grid::createGrid(int numRows, int numCols)
 {
+    mNumRows = numRows;
+    mNumCols = numCols;
     int curY = mStartY;
     int curX = 0;
     RegularTilePreset preset = RegularTilePreset();
@@ -38,6 +38,7 @@ void Grid::createGrid()
         }
         curY += mTileHeight + mSpacing;
     }
+    mIsSetup = true;
 }
 
 void Grid::setMouseTile(int mouseX, int mouseY)
@@ -99,4 +100,4 @@ void Grid::printGrid(SDL_Renderer* pRenderer, float gameScreenToGameLevelChunkRa
     }
 }
 
-
+bool Grid::isSetUp() const { return mIsSetup; }

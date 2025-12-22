@@ -16,6 +16,7 @@ struct StyleManager
 	const static SDL_Color red;
 	const static SDL_Color navy;
 	const static SDL_Color black;
+	const static SDL_Color gray;
 	const static SDL_Color teal;
 	const static SDL_Color hintBlue;
 	const static SDL_Color gold;
