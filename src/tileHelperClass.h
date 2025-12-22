@@ -4,15 +4,13 @@
 #include "tileCoordsHelper.h"
 #include "combatHelperClass.h"
 
-std::string createTileName(int row, int col);
+std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombatMoveAttackTypes moveAttackType, EDirection direction);
 
-std::vector<TileCoords> getSquareTiles(const Tile& centerTile, int startOut, int numOut, EDirection directions);
+std::vector<TileCoords> getSquareTiles(const Tile& centerTile, const int startOut, const int numOut, const EDirection directions);
 
-std::vector<TileCoords> getCrossTiles(const Tile& centerTile, int startOut, int numOut, EDirection directions);
+std::vector<TileCoords> getCrossTiles(const Tile& centerTile, const int startOut, const int numOut, const EDirection directions);
 
-std::vector<TileCoords> getCheckerboardTiles(const Tile& centerTile, int startOut, int numOut, EDirection directions);
-
-std::vector<TileCoords> getGrid(int gridWidth, int gridHeight);
+std::vector<TileCoords> getCheckerboardTiles(const Tile& centerTile, const int startOut, const int numOut, const EDirection directions);
 
 bool isPlayableTile(const Tile& gGivenTile);
 

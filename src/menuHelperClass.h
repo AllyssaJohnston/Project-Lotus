@@ -7,11 +7,6 @@
 #include "settingsHelper.h"
 #include "worldDataHelper.h"
 
-std::string getAttackType(const Attack& attack);
-
-std::string getAttackDamage(const Attack& attack, int characterDamage);
-
-std::string getSpecialEffect(const Attack& attack);
 
 bool shouldShowTextBox(const TextBox& textBox, const MiniGameStateManagerData& data);
 

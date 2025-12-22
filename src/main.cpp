@@ -117,8 +117,8 @@ int main(int argc, char* args[])
 	}
 
 	createLevels(gameInstance.mWorldData, gameInstance.mMiniGameWorldData, gameInstance.mScreen); // PLATFORMING + MINI GAME
-	setUpFontSizeChart(gameInstance.mFontSizeChart, gameInstance.mStyleManager, gameInstance.mScreen.mpRenderer);
-	createMenus(gameInstance.mMenuManager, gameInstance.mScreen, gameInstance.mMiniGameWorldData, gameInstance.mStyleManager);
+	setUpFontSizeChart(gameInstance.mFontSizeChart, gameInstance.mScreen.mpRenderer);
+	createMenus(gameInstance.mMenuManager, gameInstance.mScreen, gameInstance.mMiniGameWorldData);
 	setUpAllTextures();
 
 	player.getMovementManager().setStartPosition(gameInstance.mWorldData.mpWorlds[gameInstance.mWorldData.mCurWorldNumber]->mpLevels[gameInstance.mWorldData.mCurLevelNumber]->mPlayerStartingPosition);

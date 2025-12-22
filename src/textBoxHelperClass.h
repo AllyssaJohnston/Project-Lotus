@@ -119,6 +119,7 @@ struct TextBoxData
 {
 	EGameStatBoxValueToDisplay			mGameStatToDisplay = EGameStatBoxValueToDisplay_INVALID;
 	int									mCombatCharacterIndex = -1;
+	EMiniGameCombatCharacterType        mCombatCharacterType = EMiniGameCombatCharacterType_CHARACTER;
 	bool								mShowDuringAllCharacters = false;
 	ECharacterStatBoxValueToDisplay		mCharacterStatToDisplay = ECharacterStatBoxValueToDisplay_INVALID;
 	int									mAttackNum = -1;

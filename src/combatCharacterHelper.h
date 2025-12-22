@@ -105,7 +105,7 @@ private:
 
     void updateAmAlive();
 
-    
+    void updateModifiers(std::vector<std::pair<float, int>>& modifierlist);
 };
 
-void updateModifiers(std::vector<std::pair<float, int>>& modifierlist);
+

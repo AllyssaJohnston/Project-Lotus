@@ -4,10 +4,46 @@
 #include "helperClass.h"
 
 
-std::string createTileName(int row, int col) { return std::to_string(row) + " " + std::to_string(col); }
 
+std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombatMoveAttackTypes moveAttackType, EDirection direction)
+{
+    switch (moveAttackType)
+    {
+    case EMiniGameCombatMoveAttackTypes_CROSS1:
+        return getCrossTiles(givenTile, 0, 1, direction);
+    case EMiniGameCombatMoveAttackTypes_CROSS2:
+        return getCrossTiles(givenTile, 0, 2, direction);
+    case EMiniGameCombatMoveAttackTypes_CROSS2_2UNIT_OUT:
+        return getCrossTiles(givenTile, 2, 2, direction);
+    case EMiniGameCombatMoveAttackTypes_CROSS3:
+        return getCrossTiles(givenTile, 0, 3, direction);
+    case EMiniGameCombatMoveAttackTypes_CROSS3_1UNIT_OUT:
+        return getCrossTiles(givenTile, 1, 3, direction);
+    case EMiniGameCombatMoveAttackTypes_CROSS4:
+        return getCrossTiles(givenTile, 0, 4, direction);
+    case EMiniGameCombatMoveAttackTypes_CROSS5:
+        return getCrossTiles(givenTile, 0, 5, direction);
+    case EMiniGameCombatMoveAttackTypes_SQUARE1:
+        return getSquareTiles(givenTile, 0, 1, direction);
+    case EMiniGameCombatMoveAttackTypes_SQUARE2:
+        return getSquareTiles(givenTile, 0, 2, direction);
+    case EMiniGameCombatMoveAttackTypes_CHECKERBOARD2:
+        return getCheckerboardTiles(givenTile, 0, 2, direction);
+    case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
+        SDL_assert(false);
+    case EMiniGameCombatMoveAttackTypes_ONE_CHARACTER:
+    case EMiniGameCombatMoveAttackTypes_ONE_PLAYER:
+    case EMiniGameCombatMoveAttackTypes_ONE_ENEMY:
+    case EMiniGameCombatMoveAttackTypes_NONE:
+        break;
+    default:
+        SDL_assert(false);
+        break;
+    }
+    return std::vector <TileCoords>();
+}
 
-std::vector<TileCoords> getSquareTiles(const Tile& centerTile, int startOut, int squareSize, EDirection directions)
+std::vector<TileCoords> getSquareTiles(const Tile& centerTile, const int startOut, const int squareSize, const EDirection directions)
 {
     const int& curRow = centerTile.mRow;
     const int& curCol = centerTile.mCol;
@@ -48,7 +84,7 @@ std::vector<TileCoords> getSquareTiles(const Tile& centerTile, int startOut, int
     return tileCoordsList;
 }
 
-std::vector<TileCoords> getCrossTiles(const Tile& centerTile, int startOut, int squareSize, EDirection directions)
+std::vector<TileCoords> getCrossTiles(const Tile& centerTile, const int startOut, const int squareSize, const EDirection directions)
 {
     const int& curRow = centerTile.mRow;
     const int& curCol = centerTile.mCol;
@@ -85,7 +121,7 @@ std::vector<TileCoords> getCrossTiles(const Tile& centerTile, int startOut, int 
     return tileCoordsList;
 }
 
-std::vector<TileCoords> getCheckerboardTiles(const Tile& centerTile, int startOut, int squareSize, EDirection directions)
+std::vector<TileCoords> getCheckerboardTiles(const Tile& centerTile, const int startOut, const int squareSize, const EDirection directions)
 {
     const int& curRow = centerTile.mRow;
     const int& curCol = centerTile.mCol;
@@ -121,19 +157,6 @@ std::vector<TileCoords> getCheckerboardTiles(const Tile& centerTile, int startOu
                 continue;
             }
             tileCoordsList.push_back(TileCoords(rowI + curRow, colI + curCol));
-        }
-    }
-    return tileCoordsList;
-}
-
-std::vector<TileCoords> getGrid(int gridWidth, int gridHeight)
-{
-    std::vector <TileCoords> tileCoordsList;
-    for (int i = 0; i < gridHeight; i++)
-    {
-        for (int j = 0; j < gridWidth; j++)
-        {
-            tileCoordsList.push_back(TileCoords(i, j));
         }
     }
     return tileCoordsList;

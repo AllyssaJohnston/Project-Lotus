@@ -231,9 +231,6 @@
     <ClInclude Include="src\miniGameStateHelperClass.h">
       <Filter>Source Files\MiniGame</Filter>
     </ClInclude>
-    <ClInclude Include="src\tileCoordsHelperClass.h">
-      <Filter>Source Files\MiniGame\Tile</Filter>
-    </ClInclude>
     <ClInclude Include="src\animationHelper.h">
       <Filter>Source Files\Structural</Filter>
     </ClInclude>
@@ -424,9 +421,6 @@
     </ClCompile>
     <ClCompile Include="src\miniGameStateHelperClass.cpp">
       <Filter>Source Files\MiniGame</Filter>
-    </ClCompile>
-    <ClCompile Include="src\tileCoordsHelperClass.cpp">
-      <Filter>Source Files\MiniGame\Tile</Filter>
     </ClCompile>
     <ClCompile Include="src\animationhelper.cpp">
       <Filter>Source Files\Structural</Filter>

@@ -12,7 +12,7 @@ public:
     std::vector <CombatCharacter*> mpCurAliveCombatCharacters;
     std::vector <CombatCharacter*> mpAllCombatCharacters;
 
-    CombatManager(){}
+    CombatManager() { ; }
 
     ~CombatManager();
 
@@ -32,7 +32,6 @@ public:
 
     int getCharacterIndex(const CombatCharacter& givenCharacter) const;
 
-
     void tickAll();
 
     void attack(CombatCharacter& attackingCharacter, Tile& givenTile, const Attack& attack);
@@ -43,12 +42,14 @@ public:
 
     void specialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack);
     
+    bool characterOnTile(const Tile& tile);
+
     GameOverStats getGameOverStats();
 
     void resetStats();
 
 private:
-    CombatCharacter* getNextCharacter(const CombatCharacter& curCharacter);
+    CombatCharacter* getNextCharacter(const CombatCharacter& curCharacter) const;
 
     void preTickRange(int startIndex, int endIndex);
 };

@@ -6,7 +6,7 @@
 
 struct StyleManager
 {
-	const char* fontName = "fonts/Roboto-Regular.ttf";
+	const static char* fontName;
 	const static SDL_Color lightPink;
 	const static SDL_Color pink;
 	const static SDL_Color lightYellow;

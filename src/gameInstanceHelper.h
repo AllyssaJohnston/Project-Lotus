@@ -31,13 +31,12 @@ struct GameInstance
 	MiniGameStateManager			mMiniGameStateManager = MiniGameStateManager(mKeyboardData, mMiniGameWorldData);
 
 	// MANAGERS
-	StyleManager					mStyleManager;
 	SettingsManager					mSettingsManager;
 	FontSizeChart					mFontSizeChart;
 
 	GameStateManager				mGameStateManager = GameStateManager(mKeyboardData, mWorldData, mMenuManager, 
 																		mSettingsManager, mCollisionManager, mSlashManager,
-																		mStyleManager, mMiniGameStateManager);
+																		mMiniGameStateManager);
 	MenuManager						mMenuManager	  = MenuManager(mScreen, mWorldData, mSettingsManager, mFontSizeChart, mMiniGameStateManager.mData, mMiniGameWorldData); 
 
 	GameInstance();

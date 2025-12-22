@@ -3,7 +3,6 @@
 #include "combatAttackHelper.h"
 #include "combatAttackHelperClass.h"
 #include "tileCoordsHelper.h"
-#include "tileCoordsHelperClass.h"
 #include "helperClass.h"
 #include "menuHelper.h"
 #include "settingsHelper.h"
@@ -188,11 +187,13 @@ public:
     virtual void tick();
     virtual void postTick();
 
-    void printBoard(ScreenObject& screenObject, const StyleManager& styleManager);
+    void printBoard(ScreenObject& screenObject);
 
-    void printCharacters(ScreenObject& screenObject, const StyleManager& styleManager);
+    void printCharacters(ScreenObject& screenObject);
 
-    void updateTileColors(const StyleManager& styleManager);
+    void updateTileColors();
+
+    void colorTile(Tile& tile, const EMiniGameCombatActionType tileType);
 
     void updateCurState(EMiniGameState state);
 

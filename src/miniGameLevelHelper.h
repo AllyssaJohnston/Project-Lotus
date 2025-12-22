@@ -14,8 +14,6 @@ public:
 
     MiniGameStage(int stageNumber);
 
-    ~MiniGameStage() { ; }
-
     void preTick();
 
     void resetStats();

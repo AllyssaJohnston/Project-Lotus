@@ -10,18 +10,13 @@ extern const std::map<const EKeyboardInput, const std::string> keyboardToStringM
 extern const int numEventsToGrab;
 
 // GAME STATE MANAGER
-GameStateManager::GameStateManager(KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, 
-	SettingsManager& settingsManager, CollisionManager& collisionManager, SlashManager& slashManager,
-	StyleManager& styleManager, MiniGameStateManager& miniGameStateManager) : 
-	mMiniGameStateManager(miniGameStateManager), mWorldData(worldData)
+GameStateManager::GameStateManager(KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, SettingsManager& settingsManager, 
+	CollisionManager& collisionManager, SlashManager& slashManager, MiniGameStateManager& miniGameStateManager) : mMiniGameStateManager(miniGameStateManager), mWorldData(worldData)
 {
 	mGameStateData = GameStateData();
-	mStates.push_back(new GameStatePlay(mGameStateData, keyboardData, worldData, menuManager, settingsManager, collisionManager, 
-			slashManager, styleManager));
-	mStates.push_back(new GameStatePlayMiniGame(mGameStateData, keyboardData, miniGameStateManager, menuManager, 
-			worldData.mScreen, settingsManager, styleManager));
-	mStates.push_back(new GameStateMenu(mGameStateData, keyboardData, menuManager, settingsManager,
-			styleManager, worldData));
+	mStates.push_back(new GameStatePlay(mGameStateData, keyboardData, worldData, menuManager, settingsManager, collisionManager, slashManager));
+	mStates.push_back(new GameStatePlayMiniGame(mGameStateData, keyboardData, miniGameStateManager, menuManager, worldData.mScreen, settingsManager));
+	mStates.push_back(new GameStateMenu(mGameStateData, keyboardData, menuManager, settingsManager, worldData));
 	mData.mCurStateEnum			= EGameState_PLAY;
 	mData.mLastFrameStateEnum	= EGameState_INVALID;
 	mpCurState = mStates[mData.mCurStateEnum];
@@ -130,9 +125,9 @@ void GameStateManager::postTick()
 void GameStateManager::switchToMiniGame()
 {
 	mpCurState->mMenuManager.setCurMenuPage(mpCurState->mMenuManager.mpMenuPages[int(EMenuPageType_MINI_GAME_MENU)]);
-	createMiniGameCharacterStatsMenu(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager);
-	createMiniGameCharacterAttackPanel(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager);
-	createMiniGameCharacterSelectionMenu(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData, mpCurState->mStyleManager);
+	createMiniGameCharacterStatsMenu(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData);
+	createMiniGameCharacterAttackPanel(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData);
+	createMiniGameCharacterSelectionMenu(mpCurState->mMenuManager, mpCurState->mScreen, mMiniGameStateManager.mWorldData);
 	((GameStatePlayMiniGame*)mpCurState)->setUp();
 	((GameStatePlayMiniGame*)mpCurState)->mMiniGameStateManager.start();
 }
@@ -141,9 +136,8 @@ void GameStateManager::switchToMiniGame()
 
 
 // GAME STATE
-GameState::GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager,
-	SettingsManager& settingsManager, StyleManager& styleManager, ScreenObject& screen) : mGameStateData(gameStateData), mKeyboardData(keyboardData), 
-	mMenuManager(menuManager), mSettingsManager(settingsManager), mStyleManager(styleManager), mScreen(screen) {;}
+GameState::GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager, SettingsManager& settingsManager, ScreenObject& screen) 
+	: mGameStateData(gameStateData), mKeyboardData(keyboardData), mMenuManager(menuManager), mSettingsManager(settingsManager), mScreen(screen) {;}
 
 void GameState::preTick() 
 {
@@ -414,10 +408,8 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 
 
 // TYPES GAME STATES
-GameStatePlay::GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, 
-		WorldData& worldData, MenuManager& menuManager, SettingsManager& settingsManager, CollisionManager& collisionManager, 
-		SlashManager& slashManager, StyleManager& styleManager)
-		: GameState(gameStateData, keyboardData, menuManager, settingsManager, styleManager, worldData.mScreen), 
+GameStatePlay::GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, SettingsManager& settingsManager, 
+		CollisionManager& collisionManager, SlashManager& slashManager): GameState(gameStateData, keyboardData, menuManager, settingsManager, worldData.mScreen), 
 		mWorldData(worldData), mCollisionManager(collisionManager), mSlashManager(slashManager) {}
 
 void GameStatePlay::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager)
@@ -651,9 +643,8 @@ void GameStatePlay::render(EGameState curState)
 
 
 
-GameStatePlayMiniGame::GameStatePlayMiniGame(GameStateData& gameStateData, KeyboardData& keyboardData, 
-	MiniGameStateManager& miniGameStateManager, MenuManager& menuManager, ScreenObject& screen, SettingsManager& settingsManager, StyleManager& styleManager) 
-	: GameState(gameStateData, keyboardData, menuManager, settingsManager, styleManager, screen), mMiniGameStateManager(miniGameStateManager) { ; }
+GameStatePlayMiniGame::GameStatePlayMiniGame(GameStateData& gameStateData, KeyboardData& keyboardData, MiniGameStateManager& miniGameStateManager, MenuManager& menuManager,
+		ScreenObject& screen, SettingsManager& settingsManager) : GameState(gameStateData, keyboardData, menuManager, settingsManager, screen), mMiniGameStateManager(miniGameStateManager) { ; }
 
 void GameStatePlayMiniGame::setUp() { mTicks = 0; }
 
@@ -692,7 +683,7 @@ void GameStatePlayMiniGame::render(EGameState curState)
 	SDL_SetRenderDrawColor(mScreen.mpRenderer, 0, 0, 0, 1);
 	SDL_FRect screenRect {0.0f, 0.0f, float(mScreen.mGameScreenWidth), float(mScreen.mGameScreenHeight)};
 	SDL_RenderFillRect(mScreen.mpRenderer, &screenRect);
-	mMiniGameStateManager.printBoard(mScreen, mStyleManager);
+	mMiniGameStateManager.printBoard(mScreen);
 	mMenuManager.renderMenus(curState, mTicks <= 1, mKeyboardData.mCurKeysString);
 
 	SDL_SetRenderDrawColor(mScreen.mpRenderer, 50, 50, 50, 1);
@@ -707,9 +698,8 @@ void GameStatePlayMiniGame::render(EGameState curState)
 
 
 
-GameStateMenu::GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboardData, 
-	MenuManager& menuManager, SettingsManager& settingsManager, StyleManager& styleManager, WorldData& worldData) 
-	: GameState(gameStateData, keyboardData, menuManager, settingsManager, styleManager, worldData.mScreen), mWorldData(worldData) {;}
+GameStateMenu::GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager, SettingsManager& settingsManager, WorldData& worldData) 
+		: GameState(gameStateData, keyboardData, menuManager, settingsManager, worldData.mScreen), mWorldData(worldData) {;}
 
 void GameStateMenu::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager)
 {

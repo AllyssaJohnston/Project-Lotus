@@ -4,6 +4,10 @@
 #include <cmath>
 #include <SDL3/SDL.h>
 
+
+
+std::string createTileName(const int row, const int col);
+
 std::string returnDescriptionOfMoveAttackType(int moveAttackType);
 
 enum EMiniGameCombatMoveAttackTypes

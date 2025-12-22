@@ -14,25 +14,13 @@ void Grid::preTick()
 
 int Grid::getIndex(int x, int y) const { return x * (mNumCols) + y; }
 
-Tile* Grid::getTileFromCoords(int mouseX, int mouseY) const
+Tile* Grid::findTile(const TileCoords& tileCoords) const
 {
-
-    int endX = mStartX + ((mTileWidth  + mSpacing) * mNumCols);
-    int endY = mStartY + ((mTileHeight + mSpacing) * mNumRows);
-    if ((mouseX < mStartX) or (mouseX >= endX))
+    if (isLegalCoords(tileCoords.mRow, tileCoords.mCol))
     {
-        return nullptr;
+        return mpTiles[getIndex(tileCoords.mRow, tileCoords.mCol)];
     }
-
-    if ((mouseY < mStartY) or ( mouseY >= endY )) 
-    {
-        return nullptr;
-    }
-
-    int row = (mouseY - mStartY) / (mTileHeight + mSpacing);
-    int col = (mouseX - mStartX) / (mTileWidth  + mSpacing);
-
-    return mpTiles[getIndex(row, col)];
+    return nullptr;
 }
 
 void Grid::createGrid()
@@ -51,6 +39,33 @@ void Grid::createGrid()
         curY += mTileHeight + mSpacing;
     }
 }
+
+void Grid::setMouseTile(int mouseX, int mouseY)
+{
+    int endX = mStartX + ((mTileWidth + mSpacing) * mNumCols);
+    int endY = mStartY + ((mTileHeight + mSpacing) * mNumRows);
+    if ((mouseX < mStartX) or (mouseX >= endX) || (mouseY < mStartY) or (mouseY >= endY))
+    {
+        // out of range
+        mpMouseTile = nullptr;
+        return;
+    }
+
+    int row = (mouseY - mStartY) / (mTileHeight + mSpacing);
+    int col = (mouseX - mStartX) / (mTileWidth + mSpacing);
+
+    mpMouseTile = mpTiles[getIndex(row, col)];
+}
+
+void Grid::setMouseTileMode(EMiniGameCombatTileMode mode)
+{
+    if (mpMouseTile != nullptr)
+    {
+        mpMouseTile->setMode(mode);
+    }
+}
+
+Tile* Grid::getMouseTile() const { return mpMouseTile; }
 
 void Grid::resetTileColors()
 {
@@ -84,11 +99,4 @@ void Grid::printGrid(SDL_Renderer* pRenderer, float gameScreenToGameLevelChunkRa
     }
 }
 
-Tile* findTile(const Grid& grid, const TileCoords& tileCoords)
-{
-    if (grid.isLegalCoords(tileCoords.mRow, tileCoords.mCol))
-    {
-        return grid.mpTiles[grid.getIndex(tileCoords.mRow, tileCoords.mCol)];
-    }
-    return nullptr;
-}
+

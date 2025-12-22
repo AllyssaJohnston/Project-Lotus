@@ -201,7 +201,7 @@ void CombatCharacter::move(Tile* pTileInput) { mCombatMovementManager.setCurTile
 
 
 
-void updateModifiers(std::vector<std::pair<float, int>>& modifierlist)
+void CombatCharacter::updateModifiers(std::vector<std::pair<float, int>>& modifierlist)
 {
     for (int i = (int)modifierlist.size() - 1; i > -1; i--)
     {

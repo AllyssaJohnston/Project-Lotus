@@ -1,22 +1,6 @@
 #pragma once
 #include "menuHelperClass.h"
 
-std::string getAttackType(const Attack& attack) { return returnDescriptionOfMoveAttackType(attack.mType); }
-
-std::string getAttackDamage(const Attack& attack, int characterDamage) { return std::to_string((int)(attack.mDamagePercent * characterDamage)); }
-
-std::string getSpecialEffect(const Attack& attack)
-{
-	std::string message  = (attack.mRequiresDirectionInput ? "Requires directional input." : "");
-	message				+= (attack.mDamageDistanceDependent ? "Damage is distance dependent." : "");
-	for (SpecialEffect curSpecialEffect : attack.mSpecialEffects)
-	{
-		message += curSpecialEffect.mName + ". ";
-	}
-	
-	// TODO trim start
-	return message;
-}
 
 
 bool shouldShowTextBox(const TextBox& textBox, const MiniGameStateManagerData& data)
@@ -30,15 +14,17 @@ bool shouldShowTextBox(const TextBox& textBox, const MiniGameStateManagerData& d
 		{
 			return false;
 		}
+		if (textBox.mData.mCombatCharacterType != EMiniGameCombatCharacterType_CHARACTER && textBox.mData.mCombatCharacterType != data.mStateData.mTargetCharacterType)
+		{
+			return false;
+		}
 		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
-		break;
 	case ETextBoxType_MINI_GAME_PLAYER_BOX:
 		if (pCombatCharacter == nullptr or pCombatCharacter->mType != EMiniGameCombatCharacterType_PLAYER)
 		{
 			return false;
 		}
 		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
-		break;
 	case ETextBoxType_MINI_GAME_PLAYER_ATTACK_BOX:
 		if (textBox.mData.mCombatCharacterIndex != -1 && !textBox.mData.mShowDuringAllCharacters && textBox.mData.mCombatCharacterIndex != data.mStateData.getCharacterIndex())
 		{
@@ -49,11 +35,9 @@ bool shouldShowTextBox(const TextBox& textBox, const MiniGameStateManagerData& d
 			return data.mStateData.mAttackCategory == textBox.mData.mAttackCategory;
 		}
 		return false;
-		break;
 	case ETextBoxType_MINI_GAME_BOX:
 	case ETextBoxType_MINI_GAME_DIRECTION_BOX:
 		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
-		break;
 	default:
 		break;
 	}
@@ -68,6 +52,10 @@ bool shouldShowTextBox(const ShapeBox& shapeBox, const MiniGameStateManagerData&
 	{
 	case EShapeTypeShowType_MINI_GAME_CHARACTER_BOX:
 		if (shapeBox.mDataStorage.mCombatCharacterIndex != -1 && !shapeBox.mDataStorage.mShowDuringAllCharacters && shapeBox.mDataStorage.mCombatCharacterIndex != data.mStateData.getCharacterIndex())
+		{
+			return false;
+		}
+		if (shapeBox.mDataStorage.mCombatCharacterType != EMiniGameCombatCharacterType_CHARACTER && shapeBox.mDataStorage.mCombatCharacterType != data.mStateData.mTargetCharacterType)
 		{
 			return false;
 		}

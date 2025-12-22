@@ -17,9 +17,10 @@ struct MiniGameStatBoxPreset : public TextBoxPreset { MiniGameStatBoxPreset(EGam
 
 struct MiniGameCharacterBoxPreset : public TextBoxPreset
 {
-	MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay);
-	MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList);
-	MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameCharacterBoxPreset(int characterIndex,												bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay);
+	MiniGameCharacterBoxPreset(int characterIndex,												bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay,	std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameCharacterBoxPreset(int characterIndex, EMiniGameCombatCharacterType characterType,	bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay,	std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameCharacterBoxPreset(int characterIndex,												bool showDuringAllCharacters, std::string message,										std::vector <EMiniGameState> miniGameStateWhenToShowList);
 };
 
 struct MiniGamePlayerBoxPreset : public TextBoxPreset {	 MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList); };
@@ -47,6 +48,7 @@ struct ShapeBoxPreset
 {
 	EShapeTypeShowType					mShowType					= EShapeTypeShowType_STANDARD;
 	int									mCombatCharacterIndex		= -1;
+	EMiniGameCombatCharacterType		mCombatCharacterType		= EMiniGameCombatCharacterType_INVALID;
 	bool								mShowDuringAllCharacters	= false;
 	int									mAttackNum					= -1;
 	EMiniGameCombatAttackCategoryType	mAttackCategory				= EMiniGameCombatAttackCategoryType_INVALID;
@@ -59,8 +61,9 @@ struct ShapeBoxPreset
 
 struct MiniGameCharacterShapeBoxPreset : public ShapeBoxPreset 
 {
-	MiniGameCharacterShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters);
-	MiniGameCharacterShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters, std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameCharacterShapeBoxPreset(EShapeBoxClass type, int characterIndex,												bool showDuringAllCharacters);
+	MiniGameCharacterShapeBoxPreset(EShapeBoxClass type, int characterIndex,												bool showDuringAllCharacters, std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameCharacterShapeBoxPreset(EShapeBoxClass type, int characterIndex, EMiniGameCombatCharacterType characterType,	bool showDuringAllCharacters, std::vector <EMiniGameState> miniGameStateWhenToShowList);
 	MiniGameCharacterShapeBoxPreset(EShapeBoxClass type, std::vector <EMiniGameState> miniGameStateWhenToShowList);
 };
 

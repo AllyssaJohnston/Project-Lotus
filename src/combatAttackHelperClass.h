@@ -13,5 +13,11 @@ struct AttackTile
     AttackTile(Tile& tile, Attack& attack);
 };
 
-std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombatMoveAttackTypes moveAttackType, EDirection direction);
+std::string getAttackType(const Attack& attack);
+
+std::string getAttackDamage(const Attack& attack, int characterDamage);
+
+std::string getSpecialEffect(const Attack& attack);
+
+
 

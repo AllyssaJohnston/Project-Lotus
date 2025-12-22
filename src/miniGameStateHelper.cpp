@@ -24,21 +24,14 @@ void MiniGameState::useMouseInput(EMiniGameState curStateEnum, ScreenObject& scr
 void MiniGameState::highlightTile(Vect2 pos)
 {
 	Grid& grid = mWorldData.getStage()->mGrid;
-	for (Tile* pTile : grid.mpTiles)
+	grid.setMouseTileMode(EMiniGameCombatTileMode_NOT_SELECTED);
+	grid.setMouseTile(pos.getX(), pos.getY());
+	Tile* pMouseTile = grid.getMouseTile();
+	if (pMouseTile != nullptr)
 	{
-		if (pTile->getMode() == EMiniGameCombatTileMode_HIGHLIGHTED)
+		if (pMouseTile->getMode() != EMiniGameCombatTileMode_SELECTED)
 		{
-			pTile->setMode(EMiniGameCombatTileMode_NOT_SELECTED);
-		}
-	}
-
-	Tile* pTile = grid.getTileFromCoords(pos.getX(), pos.getY());
-
-	if (pTile != nullptr)
-	{
-		if (pTile->getMode() != EMiniGameCombatTileMode_SELECTED)
-		{
-			pTile->setMode(EMiniGameCombatTileMode_HIGHLIGHTED);
+			pMouseTile->setMode(EMiniGameCombatTileMode_HIGHLIGHTED);
 		}
 	}
 }
@@ -48,18 +41,20 @@ MiniGamePlayerWaitForMoveInput::MiniGamePlayerWaitForMoveInput(KeyboardData& key
 
 void MiniGamePlayerWaitForMoveInput::selectTile(const Vect2 pos)
 {
-	Tile* pCurTile = mWorldData.getStage()->mGrid.getTileFromCoords(pos.getX(), pos.getY());
-	if (pCurTile != nullptr && isPlayableTile(*pCurTile))
+	Grid& grid = mWorldData.getStage()->mGrid;
+	grid.setMouseTile(pos.getX(), pos.getY());
+	Tile* pMouseTile = grid.getMouseTile();
+	if (pMouseTile != nullptr && isPlayableTile(*pMouseTile))
 	{
-		pCurTile->setMode(EMiniGameCombatTileMode_SELECTED);
-		moveToTile(*pCurTile);
+		pMouseTile->setMode(EMiniGameCombatTileMode_SELECTED);
+		moveToTile(*pMouseTile);
 	}
 }
 
 void MiniGamePlayerWaitForMoveInput::moveToTile(Tile& givenTile)
 {
 	mData.getCharacter()->mCombatMovementManager.setMoveTiles();
-	if (mData.getCharacter()->mCombatMovementManager.isTileInMoveRange(givenTile) && !characterOnTile(givenTile, mWorldData.getStage()->mCombatManager.mpCurAliveCombatCharacters) && isPlayableTile(givenTile))
+	if (mData.getCharacter()->mCombatMovementManager.isTileInMoveRange(givenTile) && !mWorldData.getStage()->mCombatManager.characterOnTile(givenTile) && isPlayableTile(givenTile))
 	{
 		postTick(givenTile);
 	}
@@ -155,11 +150,13 @@ MiniGamePlayerWaitForAttackTileInput::MiniGamePlayerWaitForAttackTileInput(Keybo
 
 void MiniGamePlayerWaitForAttackTileInput::selectTile(const Vect2 pos)
 {
-	Tile* pTile = mWorldData.getStage()->mGrid.getTileFromCoords(pos.getX(), pos.getY());
-	if (pTile != nullptr && tileInAttackRange(*mData.mpCurAttack, mData.mCurAttackDirection, mWorldData.getStage()->mGrid, pTile, mData.getCharacter()->mCombatMovementManager.getCurTile()))
+	Grid& grid = mWorldData.getStage()->mGrid;
+	grid.setMouseTile(pos.getX(), pos.getY());
+	Tile* pMouseTile = grid.getMouseTile();
+	if (pMouseTile != nullptr && tileInAttackRange(*mData.mpCurAttack, mData.mCurAttackDirection, mWorldData.getStage()->mGrid, pMouseTile, mData.getCharacter()->mCombatMovementManager.getCurTile()))
 	{
-		pTile->setMode(EMiniGameCombatTileMode_SELECTED);
-		std::vector <Tile*> pTilesToAttack = { pTile };
+		pMouseTile->setMode(EMiniGameCombatTileMode_SELECTED);
+		std::vector <Tile*> pTilesToAttack = { pMouseTile };
 		mWorldData.getStage()->mCombatManager.attackMultipleTiles(*mData.getCharacter(), pTilesToAttack, *mData.mpCurAttack);
 		postTick();
 	}
@@ -200,23 +197,33 @@ void MiniGamePlayerCompleteActionAttack::tick()
 
 void MiniGamePlayerCompleteActionAttack::attackTiles()
 {
+	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
 	if (mData.mpTargetCharacter != nullptr)
 	{
-		mWorldData.getStage()->mCombatManager.attack(*mData.getCharacter(), *mData.mpTargetCharacter, *mData.mpCurAttack);
+		combatManager.attack(*mData.getCharacter(), *mData.mpTargetCharacter, *mData.mpCurAttack);
 	}
 	else
 	{
-		std::vector <TileCoords> tileCoords = returnTileCoords(*mData.getCharacter()->mCombatMovementManager.getCurTile(), mData.mpCurAttack->mType, mData.mCurAttackDirection);
+		Grid& grid = mWorldData.getStage()->mGrid;
 		std::vector <Tile* > pTilesToAttack;
-		for (const TileCoords& curCoords : tileCoords)
+		if (mData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
 		{
-			Tile* pTile = findTile(mWorldData.getStage()->mGrid, curCoords);
-			if (pTile != nullptr)
+			pTilesToAttack = grid.mpTiles;
+		}
+		else
+		{
+			std::vector <TileCoords> tileCoords = returnTileCoords(*mData.getCharacter()->mCombatMovementManager.getCurTile(), mData.mpCurAttack->mType, mData.mCurAttackDirection);
+
+			for (const TileCoords& curCoords : tileCoords)
 			{
-				pTilesToAttack.push_back(pTile);
+				Tile* pTile = grid.findTile(curCoords);
+				if (pTile != nullptr)
+				{
+					pTilesToAttack.push_back(pTile);
+				}
 			}
 		}
-		mWorldData.getStage()->mCombatManager.attackMultipleTiles(*mData.getCharacter(), pTilesToAttack, *mData.mpCurAttack);
+		combatManager.attackMultipleTiles(*mData.getCharacter(), pTilesToAttack, *mData.mpCurAttack);
 	}
 	postTick();
 }
@@ -297,8 +304,8 @@ void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 	std::vector <Tile*> pAllPossibleMoveTiles;
 	for (TileCoords& curTileCoords : curEnemy.mCombatMovementManager.getMoveTiles())
 	{
-		Tile* pCurTile = findTile(grid, curTileCoords);
-		if (pCurTile != nullptr && isPlayableTile(*pCurTile) && !characterOnTile(*pCurTile, combatManager.mpCurAliveCombatCharacters))
+		Tile* pCurTile = grid.findTile(curTileCoords);
+		if (pCurTile != nullptr && isPlayableTile(*pCurTile) && !combatManager.characterOnTile(*pCurTile))
 		{
 			pAllPossibleMoveTiles.push_back(pCurTile);
 		}
@@ -308,7 +315,6 @@ void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 	int maxNumberOfCharactersCanAttack = 0;
 	float minDistanceFromPlayer = FLT_MAX;
 	Tile* pBestTileToMoveTo = nullptr;
-
 	for (Tile* pMoveTile : pAllPossibleMoveTiles)
 	{
 		std::vector<Tile*> playerTiles = returnTilesFromAttacksWithPlayersOnThem(mWorldData, pMoveTile, curEnemy.mCombatMovementManager.getAttacks(), EDirection_ALL);
@@ -340,10 +346,9 @@ void MiniGameEnemyMoveCharacter::decideTileToMoveTo()
 
 	// No tiles enemy can attack from
 	// move closer to a player
-	std::vector <TileDistance> tileDistances = returnListOfTileDistances(combatManager.mpCurAliveCombatCharacters, pAllPossibleMoveTiles, &curEnemy);
 	minDistanceFromPlayer = FLT_MAX;
 	Tile* pCurTile = &curEnemyTile;
-	for (TileDistance& curTileDistance : tileDistances)
+	for (TileDistance& curTileDistance : returnListOfTileDistancesFromPlayers(combatManager.mpCurAliveCombatCharacters, pAllPossibleMoveTiles, &curEnemy))
 	{
 		if (minDistanceFromPlayer > curTileDistance.mDistance)
 		{
@@ -683,15 +688,14 @@ void MiniGameStateManager::postTick()
 	}
 }
 
-void MiniGameStateManager::printBoard(ScreenObject& screenObject, const StyleManager& styleManager)
+void MiniGameStateManager::printBoard(ScreenObject& screenObject)
 {
-	Grid& grid = mWorldData.getStage()->mGrid;
-	updateTileColors(styleManager);
-	grid.printGrid(screenObject.mpRenderer, screenObject.mGameScreenToGameLevelChunkRatio);
-	printCharacters(screenObject, styleManager);
+	updateTileColors();
+	mWorldData.getStage()->mGrid.printGrid(screenObject.mpRenderer, screenObject.mGameScreenToGameLevelChunkRatio);
+	printCharacters(screenObject);
 }
 
-void MiniGameStateManager::printCharacters(ScreenObject& screenObject, const StyleManager& styleManager)
+void MiniGameStateManager::printCharacters(ScreenObject& screenObject)
 {
 	Grid& grid = mWorldData.getStage()->mGrid;
 	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
@@ -710,10 +714,11 @@ void MiniGameStateManager::printCharacters(ScreenObject& screenObject, const Sty
 	}
 }
 
-void MiniGameStateManager::updateTileColors(const StyleManager& styleManager)
+void MiniGameStateManager::updateTileColors()
 {
 	Grid& grid						= mWorldData.getStage()->mGrid;
 	CombatManager& combatManager	= mWorldData.getStage()->mCombatManager;
+	bool colorWholeGrid = false;
 
 	// figure out if SELECTED OR HIGHLIGHTED
 	for (Tile* pCurTile : grid.mpTiles)
@@ -752,7 +757,11 @@ void MiniGameStateManager::updateTileColors(const StyleManager& styleManager)
 		tileType = EMiniGameCombatActionType_ATTACK;
 		if (mData.mStateData.mpCurAttack != nullptr)
 		{
-			if (mData.mStateData.mpCurAttack->mRequiresDirectionInput and mData.mStateData.mCurAttackDirection != EDirection_NONE and mData.mStateData.mCurAttackDirection != EDirection_INVALID)
+			if (mData.mStateData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
+			{
+				colorWholeGrid = true;
+			}
+			else if (mData.mStateData.mpCurAttack->mRequiresDirectionInput and mData.mStateData.mCurAttackDirection != EDirection_NONE and mData.mStateData.mCurAttackDirection != EDirection_INVALID)
 			{
 				tileCoordsList = returnTileCoords(*pCurCombatCharacter->mCombatMovementManager.getCurTile(), mData.mStateData.mpCurAttack->mType, mData.mStateData.mCurAttackDirection);
 			}
@@ -766,33 +775,53 @@ void MiniGameStateManager::updateTileColors(const StyleManager& styleManager)
 		break;
 	}
 
-	for (TileCoords& tileCoord : tileCoordsList)
+	if (colorWholeGrid)
 	{
-		Tile* pTile = findTile(grid, tileCoord);
-		if (pTile != nullptr && isPlayableTile(*pTile))
+		for (Tile* pTile : grid.mpTiles)
 		{
-			SDL_Color& curColor = pTile->mCurColor;
-			SDL_Color otherColor;
-			switch (tileType)
-			{
-			case EMiniGameCombatActionType_MOVE:
-				if (characterOnTile(*pTile, combatManager.mpCurAliveCombatCharacters))
-				{
-					continue;
-				}
-				otherColor = styleManager.sunYellow;
-				break;
-			case EMiniGameCombatActionType_ATTACK:
-				otherColor = styleManager.red;
-				break;
-			default:
-				SDL_assert(false);
-				break;
-			}
-			float alpha = .25;
-			SDL_Color updatedColor = blendColors(&curColor, &otherColor, alpha);
-			pTile->setCurColor(updatedColor);
+			colorTile(*pTile, tileType);
 		}
+	}
+	else
+	{
+		for (const TileCoords& tileCoord : tileCoordsList)
+		{
+			Tile* pTile = grid.findTile(tileCoord);
+			if (pTile == nullptr)
+			{
+				continue;
+			}
+			colorTile(*pTile, tileType);
+		}
+	}
+}
+
+void MiniGameStateManager::colorTile(Tile& tile, const EMiniGameCombatActionType tileType)
+{
+	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
+	if (isPlayableTile(tile))
+	{
+		SDL_Color& curColor = tile.mCurColor;
+		SDL_Color otherColor;
+		switch (tileType)
+		{
+		case EMiniGameCombatActionType_MOVE:
+			if (combatManager.characterOnTile(tile))
+			{
+				return;
+			}
+			otherColor = StyleManager::sunYellow;
+			break;
+		case EMiniGameCombatActionType_ATTACK:
+			otherColor = StyleManager::red;
+			break;
+		default:
+			SDL_assert(false);
+			break;
+		}
+		float alpha = .25;
+		SDL_Color updatedColor = blendColors(&curColor, &otherColor, alpha);
+		tile.setCurColor(updatedColor);
 	}
 }
 

@@ -5,18 +5,18 @@
 #include "textBoxHelper.h"
 #include "UIBlockHelper.h"
 
-void createMenus(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, const StyleManager& styleManager);
+void createMenus(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
 
-void createMainGameMenu(MenuManager& menuManager, ScreenObject& screen, const StyleManager& styleManager);
+void createMainGameMenu(MenuManager& menuManager, const ScreenObject& screen);
 
-void createMiniGameMenu(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, const StyleManager& styleManager);
+void createMiniGameMenu(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
 
-void createMiniGameCharacterStatsMenu(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, const StyleManager& styleManager);
+void createMiniGameCharacterStatsMenu(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
 
-void createMiniGameCharacterSelectionMenu(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, const StyleManager& styleManager);
+void createMiniGameCharacterSelectionMenu(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
 
-void createMiniGameCharacterAttackPanel(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, const StyleManager& styleManager);
+void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
 
 void createBlockDiagram(const EMiniGameCombatMoveAttackTypes diagramType, const int characterIndex, const int attackNum, EMiniGameCombatAttackCategoryType category, MenuPage* pPage, UIBlock* pBlock, const std::vector<EMiniGameState>& whenToShow, MenuManager& menuManager);
 
-void setUpFontSizeChart(FontSizeChart& fontSizeChart, const StyleManager& styleManager, SDL_Renderer* pRenderer);
+void setUpFontSizeChart(FontSizeChart& fontSizeChart, SDL_Renderer* pRenderer);

@@ -33,7 +33,6 @@ public:
     GameStateData&   mGameStateData;
     
     SettingsManager& mSettingsManager;
-    StyleManager&    mStyleManager;
     ScreenObject&    mScreen;
 
     int mTicksSinceInput = 0;
@@ -42,7 +41,7 @@ public:
     Vect2 mousePos;
 
 	GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager,
-        SettingsManager& settingsManager, StyleManager& styleManager, ScreenObject& screen);
+        SettingsManager& settingsManager, ScreenObject& screen);
     virtual ~GameState() { ; }
 
     virtual void preTick();
@@ -60,7 +59,6 @@ public:
     virtual void postTick(GameStateManagerData& gameStateManagerData,  MiniGameStateManager& miniGameStateManager){;}
 
     virtual void takeMenuAction(MiniGameStateManager& miniGameStateManager);
-
 };
 
 class GameStateManager
@@ -77,7 +75,7 @@ public:
 
     GameStateManager(KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, 
             SettingsManager& settingsManager, CollisionManager& collisionManager, SlashManager& slashManager, 
-            StyleManager& styleManager, MiniGameStateManager& miniGameStateManager);
+            MiniGameStateManager& miniGameStateManager);
     ~GameStateManager();
 
     void preTick();
@@ -102,7 +100,7 @@ public:
 
 	GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, WorldData& worldData, 
             MenuManager& menuManager, SettingsManager& settingsManager, CollisionManager& collisionManager, 
-            SlashManager& slashManager, StyleManager& styleManager);
+            SlashManager& slashManager);
 
     ~GameStatePlay() { ; }
 
@@ -123,7 +121,7 @@ public:
 
     GameStatePlayMiniGame(GameStateData& gameStateData, KeyboardData& keyboardData,
             MiniGameStateManager& miniGameStateManager, MenuManager& menuManager, ScreenObject& screen, 
-            SettingsManager& settingsManager, StyleManager& styleManager);
+            SettingsManager& settingsManager);
 
     ~GameStatePlayMiniGame() { ; }
 
@@ -141,7 +139,7 @@ class GameStateMenu : public GameState
 {
 public:
 	GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboardData, 
-            MenuManager& menuManager, SettingsManager& settingsManager, StyleManager& styleManager,
+            MenuManager& menuManager, SettingsManager& settingsManager,
             WorldData& worldData);
     
     ~GameStateMenu() { ; }

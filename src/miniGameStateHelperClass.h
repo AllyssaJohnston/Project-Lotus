@@ -103,14 +103,12 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 
 std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldData& worldData, const Tile* const pReferenceTile, const std::vector<Attack>& attacks, const EDirection direction);
 
-bool tileInAttackRange(const Attack& attack, EDirection attackDirection, Grid& grid, Tile* pGivenTile, Tile* pTileToAttackFrom);
 
-
-bool characterOnTile(const Tile& tile, const std::vector <CombatCharacter*>& pCharacters);
+bool tileInAttackRange(const Attack& attack, const EDirection attackDirection, const Grid& grid, const Tile* const pGivenTile, const Tile* const pTileToAttackFrom);
 
 std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& pCombatManager, const std::vector <Tile*>& pListOfTiles);
 
-std::vector <TileDistance> returnListOfTileDistances(std::vector <CombatCharacter*>& pCurCombatCharacters, std::vector <Tile*>& pMoveTiles, CombatCharacter* pCurEnemy);
+std::vector <TileDistance> returnListOfTileDistancesFromPlayers(const std::vector <CombatCharacter*>& pCurCombatCharacters, const std::vector <Tile*>& pMoveTiles, const CombatCharacter* const pCurEnemy);
 
 
 std::vector<CombatCharacterSnapShot> createCombatCharacterSnapShots(const CombatManager& combatManager);

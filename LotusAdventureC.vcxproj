@@ -86,7 +86,6 @@
     <ClInclude Include="src\textBoxHelperClass.h" />
     <ClInclude Include="src\textBoxPresets.h" />
     <ClInclude Include="src\tileCoordsHelper.h" />
-    <ClInclude Include="src\tileCoordsHelperClass.h" />
     <ClInclude Include="src\tileHelper.h" />
     <ClInclude Include="src\tileHelperClass.h" />
     <ClInclude Include="src\tilePresets.h" />
@@ -153,7 +152,6 @@
     <ClCompile Include="src\textBoxHelperClass.cpp" />
     <ClCompile Include="src\textBoxPresets.cpp" />
     <ClCompile Include="src\tileCoordsHelper.cpp" />
-    <ClCompile Include="src\tileCoordsHelperClass.cpp" />
     <ClCompile Include="src\tileHelper.cpp" />
     <ClCompile Include="src\tileHelperClass.cpp" />
     <ClCompile Include="src\tilePresets.cpp" />

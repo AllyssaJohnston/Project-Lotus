@@ -410,10 +410,10 @@ ShapeBox::ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positi
 void ShapeBox::shiftHitbox(const Vect2 shiftTopLeft) { mpCurHitbox->updateTopLeft(shiftTopLeft); }
 
 
-HealthBox::HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int healthSize, 
+HealthBox::HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int textSize, 
 		const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor) : UIBox(), 
 		mBoundingBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, backgroundColor)), mHealthLeftBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, healthColor)),
-		mHealthText(TextBox(StandardTextBoxPreset("temp"), ETextBoxFunction_NO_FUNCTION, positionInfo, font, healthSize, textColor)), mMaxWidth(positionInfo.mMaxWidth), 
+		mHealthText(TextBox(StandardTextBoxPreset("temp"), ETextBoxFunction_NO_FUNCTION, positionInfo, font, textSize, textColor)), mMaxWidth(positionInfo.mMaxWidth),
 		mCombatCharacterIndex(preset.mCombatCharacterIndex), mStatToDisplay(preset.mStatToDisplay)
 { 
 	mAutoShow = true;

@@ -162,8 +162,7 @@ public:
 	ECharacterStatBoxValueToDisplay mStatToDisplay;
 	int		 mCombatCharacterIndex = -1;
 
-	HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int healthSize, const SDL_Color healthColor, 
-			const SDL_Color backgroundColor, const SDL_Color textColor);
+	HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int textSize, const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor);
 
 	void shiftHitbox(const Vect2 shiftTopLeft) override;
 

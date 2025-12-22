@@ -111,7 +111,7 @@ CombatCharacter* CombatManager::returnNextAliveCharacter(CombatCharacter& curCha
 }
 
 
-CombatCharacter* CombatManager::getNextCharacter(const CombatCharacter& curCharacter)
+CombatCharacter* CombatManager::getNextCharacter(const CombatCharacter& curCharacter) const
 {
     std::vector <CombatCharacter*> curCharactersThatCanPlay = getCurAliveCharacters();
     if (curCharactersThatCanPlay.size() == 0)
@@ -346,6 +346,19 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
             break;
         }
     }
+}
+
+bool CombatManager::characterOnTile(const Tile& tile)
+{
+    for (CombatCharacter* pCurCharacterToTest : mpCurAliveCombatCharacters)
+    {
+        if (pCurCharacterToTest->mCombatMovementManager.getCurTile() == &tile)
+        {
+            // someone on this tile
+            return true;
+        }
+    }
+    return false;
 }
 
 GameOverStats CombatManager::getGameOverStats()

@@ -5,9 +5,6 @@
 #include <vector>
 
 
-
-
-
 struct CombatCharacterPreset
 {
     EMiniGameCombatCharacterType mType          = EMiniGameCombatCharacterType_INVALID;

@@ -7,6 +7,8 @@
 
 class Grid
 {
+private:
+    Tile* mpMouseTile = nullptr; // tile under mouse pointer
 public:
     const int           mNumRows = 16;
     const int           mNumCols = 16;
@@ -26,9 +28,15 @@ public:
 
     int getIndex(int x, int y) const;
 
-    Tile* getTileFromCoords(int mouseX, int mouseY) const;
+    Tile* findTile(const TileCoords& tileCoords) const;
 
     void createGrid();
+
+    void setMouseTile(int mouseX, int mouseY);
+
+    void setMouseTileMode(EMiniGameCombatTileMode mode);
+
+    Tile* getMouseTile() const;
 
     void resetTileColors();
 
@@ -39,4 +47,4 @@ public:
     void printGrid(SDL_Renderer* pRenderer, float gameScreenToGameLevelChunkRatio) const;
 };
 
-Tile* findTile(const Grid& grid, const TileCoords& tileCoords);
+

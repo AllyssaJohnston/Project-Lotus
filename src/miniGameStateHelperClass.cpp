@@ -105,7 +105,7 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 	{
 		for (TileCoords& curTileCoord : returnTileCoords(*pReferenceTile, curAttack.mType, direction))
 		{
-			Tile* pCurAttackTile = findTile(grid, curTileCoord);
+			Tile* pCurAttackTile = grid.findTile(curTileCoord);
 			if (pCurAttackTile == nullptr)
 			{
 				continue;
@@ -145,11 +145,15 @@ std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldD
 
 
 
-bool tileInAttackRange(const Attack& attack, EDirection attackDirection, Grid& grid, Tile* pGivenTile, Tile* pTileToAttackFrom)
+bool tileInAttackRange(const Attack& attack, const EDirection attackDirection, const Grid& grid, const Tile* const pGivenTile, const Tile* const pTileToAttackFrom)
 {
+	if (attack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
+	{
+		return true;
+	}
 	for (TileCoords& coords : returnTileCoords(*pTileToAttackFrom, attack.mType, (attack.mRequiresDirectionInput ? attackDirection : EDirection_ALL)))
 	{
-		Tile* pTile = findTile(grid, coords);
+		Tile* pTile = grid.findTile(coords);
 		if (pTile != nullptr && pTile == pGivenTile)
 		{
 			return true;
@@ -158,37 +162,25 @@ bool tileInAttackRange(const Attack& attack, EDirection attackDirection, Grid& g
 	return false;
 }
 
-bool characterOnTile(const Tile& tile, const std::vector <CombatCharacter*>& pCharacters)
-{
-	for (CombatCharacter* pCurCharacterToTest : pCharacters)
-	{
-		if (pCurCharacterToTest->mCombatMovementManager.getCurTile()->mRow == tile.mRow and pCurCharacterToTest->mCombatMovementManager.getCurTile()->mCol == tile.mCol)
-		{
-			// someone on this tile
-			return true;
-		}
-	}
-	return false;
-}
 
 std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& combatManager, const std::vector <Tile*>& listOfTiles)
 {
-	std::vector <Tile*> tilesWithoutCharacters = listOfTiles;
-	for (int countTile = (int)tilesWithoutCharacters.size() - 1; countTile > -1; countTile--)
+	std::vector <Tile*> pTilesWithoutCharacters = listOfTiles;
+	for (int countTile = (int)pTilesWithoutCharacters.size() - 1; countTile > -1; countTile--)
 	{
-		Tile* pCurTile = tilesWithoutCharacters[countTile];
+		Tile* pCurTile = pTilesWithoutCharacters[countTile];
 		for (CombatCharacter* pCurCharacter : combatManager.mpCurAliveCombatCharacters)
 		{
 			if (pCurCharacter->mCombatMovementManager.getCurTile() == pCurTile)
 			{
-				tilesWithoutCharacters.erase(listOfTiles.begin() + countTile);
+				pTilesWithoutCharacters.erase(listOfTiles.begin() + countTile);
 			}
 		}
 	}
-	return tilesWithoutCharacters;
+	return pTilesWithoutCharacters;
 }
 
-std::vector <TileDistance> returnListOfTileDistances(std::vector <CombatCharacter*>& pCurCombatCharacters, std::vector <Tile*>& pTiles, CombatCharacter* pCurEnemy)
+std::vector <TileDistance> returnListOfTileDistancesFromPlayers(const std::vector <CombatCharacter*>& pCurCombatCharacters, const std::vector <Tile*>& pTiles, const CombatCharacter* const pCurEnemy)
 {
 	std::vector <TileDistance> tileDistances;
 	for (CombatCharacter* pCurCharacter : pCurCombatCharacters)
@@ -215,7 +207,6 @@ std::vector<CombatCharacterSnapShot> createCombatCharacterSnapShots(const Combat
 	}
 	return snapShots;
 }
-
 
 std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacterSnapShot>& preTickCharacters)
 {

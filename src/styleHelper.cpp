@@ -1,5 +1,6 @@
 #include "styleHelper.h"
 
+const char* StyleManager::fontName = "fonts/Roboto-Regular.ttf";
 const SDL_Color StyleManager::lightPink     = {245, 108, 169, 1};
 const SDL_Color StyleManager::pink			= {170, 10,  80,  1};
 const SDL_Color StyleManager::lightYellow	= {255, 250, 200, 1};
