@@ -187,6 +187,8 @@ public:
     virtual void tick();
     virtual void postTick();
 
+    void undo();
+
     void printBoard(ScreenObject& screenObject);
 
     void printCharacters(ScreenObject& screenObject);

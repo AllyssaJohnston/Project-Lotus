@@ -1,6 +1,6 @@
 #include "combatCharacterHelper.h"
 
-CombatCharacter::CombatCharacter(const std::string name, Tile* pCurTile, const CombatCharacterPreset& preset) : mCombatMovementManager(CombatMovementManager(pCurTile, preset))
+CombatCharacter::CombatCharacter(const std::string name, Tile& curTile, const CombatCharacterPreset& preset) : mCombatMovementManager(CombatMovementManager(curTile, preset))
 {
     mName = name;
     mType = preset.mType;
@@ -199,6 +199,27 @@ void CombatCharacter::stun(int numTurnsStunned) { mTurnsToPass += numTurnsStunne
 
 void CombatCharacter::move(Tile* pTileInput) { mCombatMovementManager.setCurTile(pTileInput); }
 
+void CombatCharacter::revertToState(const CombatCharacter& prevState)
+{
+    mAmAlive                    = prevState.mAmAlive;
+
+    mStandardAttackDamage       = prevState.mStandardAttackDamage;
+    mAttackDamageModifiers      = prevState.mAttackDamageModifiers;
+
+    mHealAmount                 = prevState.mHealAmount;
+    mCurHealth                  = prevState.mCurHealth;
+    mStandardHealthCapacity     = prevState.mStandardHealthCapacity;
+    mHealthCapacityModifiers    = prevState.mHealthCapacityModifiers;
+
+    mCurDefense                 = prevState.mCurDefense;
+    mStandardDefenseCapacity    = prevState.mStandardDefenseCapacity;
+    mDefenseCapacityModifiers   = prevState.mDefenseCapacityModifiers;
+
+    mTurnsToPass                = prevState.mTurnsToPass;
+
+    mCombatMovementManager.setCurTile(prevState.mCombatMovementManager.getCurTile());
+    mCombatMovementManager.setMoveTiles();
+}
 
 
 void CombatCharacter::updateModifiers(std::vector<std::pair<float, int>>& modifierlist)

@@ -13,11 +13,11 @@ private:
     EMiniGameCombatMoveAttackTypes mMoveType = EMiniGameCombatMoveAttackTypes_INVALID;
     std::vector <TileCoords>       mMoveTileCoords;
 
-    Tile* mpStartingTile    = nullptr;
-    Tile* mpCurTile         = nullptr;
+    Tile& mStartingTile;
+    Tile* mpCurTile;
 
 public:
-    CombatMovementManager(Tile* pTile, const CombatCharacterPreset& preset);
+    CombatMovementManager(Tile& startingTile, const CombatCharacterPreset& preset);
 
     ~CombatMovementManager();
 

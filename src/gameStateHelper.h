@@ -40,8 +40,8 @@ public:
 
     Vect2 mousePos;
 
-	GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager,
-        SettingsManager& settingsManager, ScreenObject& screen);
+	GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager, SettingsManager& settingsManager, ScreenObject& screen);
+
     virtual ~GameState() { ; }
 
     virtual void preTick();

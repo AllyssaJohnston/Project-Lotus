@@ -19,6 +19,8 @@ enum ETextBoxFunction
 	ETextBoxFunction_NO_FUNCTION,
 
 	// For mini game
+	ETextBoxFunction_MINI_GAME_UNDO_BOX,
+
 	ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX,
 	ETextBoxFunction_SUPPORT_CUR_COMBAT_CHARACTER_BOX,
 	ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX,

@@ -1,39 +1,5 @@
 #include "miniGameStateHelperClass.h"
 
-
-
-
-CombatCharacterSnapShot::CombatCharacterSnapShot(CombatCharacter* pCharacter) : mpCharacter(pCharacter)
-{
-	mAmAlive					= mpCharacter->isAlive();
-
-	mBaseDamage					= mpCharacter->getBaseDamage();
-	mCurDamage					= mpCharacter->getCurDamage();
-	mAttackDamageModifiers		= mpCharacter->getDamageModifiers();
-
-	mCurHealth					= mpCharacter->getCurHealth();
-	mBaseHealthCapacity			= mpCharacter->getBaseHealthCapacity();
-	mCurHealthCapacity			= mpCharacter->getCurHealthCapacity();
-	mHealthCapacityModifiers	= mpCharacter->getHealthCapacityModifiers();
-	
-
-	mCurDefense					= mpCharacter->getCurDefense();
-	mBaseDefenseCapacity		= mpCharacter->getBaseDefenseCapacity();
-	mCurDefenseCapacity			= mpCharacter->getCurDefenseCapacity();
-	mDefenseCapacityModifiers	= mpCharacter->getDefenseCapacityModifiers();
-	
-	mTurnsToPass				= mpCharacter->getStuns();
-
-	mpTile						= mpCharacter->mCombatMovementManager.getCurTile();
-}
-
-CombatCharacterSnapShot::~CombatCharacterSnapShot()
-{
-	mpCharacter = nullptr;
-	mpTile = nullptr;
-}
-
-
 TileDistance::TileDistance(Tile& tile1, Tile& tile2) : mTile1(tile1), mTile2(tile2) { mDistance = getDistanceBetweenTiles(tile1, tile2); }
 
 
@@ -41,11 +7,13 @@ TileDistance::TileDistance(Tile& tile1, Tile& tile2) : mTile1(tile1), mTile2(til
 MiniGameStateData::~MiniGameStateData()
 {
 	mpCharacter = nullptr;
+	mpTargetCharacter = nullptr;
 	mpTileToMoveTo = nullptr;
+	mpTileLastMovedTo = nullptr;
 	mpTileToAttack = nullptr;
-	for (Tile* tile : mpTilesToAttack)
+	for (Tile* pTile : mpTilesToAttack)
 	{
-		tile = nullptr;
+		pTile = nullptr;
 	}
 	mpTilesToAttack.clear();
 }
@@ -77,8 +45,6 @@ void MiniGameStateData::reset()
 
 	mTickYet = false;
 }
-
-
 
 
 
@@ -198,127 +164,137 @@ std::vector <TileDistance> returnListOfTileDistancesFromPlayers(const std::vecto
 
 
 
-std::vector<CombatCharacterSnapShot> createCombatCharacterSnapShots(const CombatManager& combatManager) 
+std::vector<CombatCharacter> createCombatCharacterSnapShots(const CombatManager& combatManager) 
 {
-	std::vector<CombatCharacterSnapShot> snapShots;
+	std::vector<CombatCharacter> snapShots;
 	for (CombatCharacter* pCharacter : combatManager.mpAllCombatCharacters)
 	{
-		snapShots.push_back(CombatCharacterSnapShot(pCharacter));
+		snapShots.push_back(*pCharacter);
 	}
 	return snapShots;
 }
 
-std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacterSnapShot>& preTickCharacters)
+std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacter>& preTickCharacters)
 {
 	std::string line = "";
 	for (int i = 0; i < (int)combatManager.mpAllCombatCharacters.size(); i++)
 	{
 		std::string curLine = "";
 		CombatCharacter* pCharacter = combatManager.mpAllCombatCharacters[i];
-		const CombatCharacterSnapShot& preTickCharacter = preTickCharacters[i];
+		const CombatCharacter& preTickCharacter = preTickCharacters[i];
 
 		int curHealth = pCharacter->getCurHealth();
-		if (pCharacter->isAlive() && preTickCharacter.mAmAlive)
+		int prevHealth = preTickCharacter.getCurHealth();
+		if (pCharacter->isAlive() && preTickCharacter.isAlive())
 		{
 			
 			int curDefense = pCharacter->getCurDefense();
-			if (curHealth > preTickCharacter.mCurHealth) // healed
+			int prevDefense = preTickCharacter.getCurDefense();
+			if (curHealth > prevHealth) // healed
 			{
-				curLine += pCharacter->mName + " healed " + std::to_string(curHealth - preTickCharacter.mCurHealth) + " ";
+				curLine += pCharacter->mName + " healed " + std::to_string(curHealth - prevHealth) + " ";
 			}
-			else if (curHealth < preTickCharacter.mCurHealth)
+			else if (curHealth < prevHealth)
 			{
-				if (curDefense < preTickCharacter.mCurDefense) // took damage and lost defense
+				if (curDefense < prevDefense) // took damage and lost defense
 				{
-					curLine += pCharacter->mName + " lost " + std::to_string(preTickCharacter.mCurDefense - curDefense) + " defense and took "
-						+ std::to_string(preTickCharacter.mCurHealth - curHealth) + " damage";
+					curLine += pCharacter->mName + " lost " + std::to_string(prevDefense - curDefense) + " defense and took "
+						+ std::to_string(prevHealth - curHealth) + " damage";
 				}
 				else // just took damage
 				{
-					curLine += pCharacter->mName + " took " + std::to_string(preTickCharacter.mCurHealth - curHealth) + " damage ";
+					curLine += pCharacter->mName + " took " + std::to_string(prevHealth - curHealth) + " damage ";
 				}
 			}
-			else if (curDefense < preTickCharacter.mCurDefense) // lost defense but not health
+			else if (curDefense < prevDefense) // lost defense but not health
 			{
-				curLine += pCharacter->mName + " lost " + std::to_string(preTickCharacter.mCurDefense - curDefense) + " defense ";
+				curLine += pCharacter->mName + " lost " + std::to_string(prevDefense - curDefense) + " defense ";
 			}
-			else if (curDefense > preTickCharacter.mCurDefense) // defended
+			else if (curDefense > prevDefense) // defended
 			{
-				curLine += pCharacter->mName + " gained " + std::to_string(curDefense - preTickCharacter.mCurDefense) + " defense ";
+				curLine += pCharacter->mName + " gained " + std::to_string(curDefense - prevDefense) + " defense ";
 			}
 
 
 			int baseHealthCapacity = pCharacter->getBaseHealthCapacity();
+			int prevBaseHealthCapacity = preTickCharacter.getBaseHealthCapacity();
 			int curHealthCapacity = pCharacter->getCurHealthCapacity();
-			if (baseHealthCapacity < preTickCharacter.mBaseHealthCapacity)
+			int prevCurHealthCapacity = preTickCharacter.getBaseHealthCapacity();
+
+			if (baseHealthCapacity < prevBaseHealthCapacity)
 			{
 				curLine += pCharacter->mName + "'s total health capacity permanently dropped to " + std::to_string(baseHealthCapacity) + " ";
 			}
-			else if (baseHealthCapacity > preTickCharacter.mBaseHealthCapacity)
+			else if (baseHealthCapacity > prevBaseHealthCapacity)
 			{
 				curLine += pCharacter->mName + "'s total health capacity permanently increased to " + std::to_string(baseHealthCapacity) + " ";
 			}
-			else if (curHealthCapacity < preTickCharacter.mCurHealthCapacity)
+			else if (curHealthCapacity < prevCurHealthCapacity)
 			{
 				curLine += pCharacter->mName + "'s total health capacity dropped to " + std::to_string(curHealthCapacity) + " ";
 			}
-			else if (curHealthCapacity > preTickCharacter.mCurHealthCapacity)
+			else if (curHealthCapacity > prevCurHealthCapacity)
 			{
 				curLine += pCharacter->mName + "'s total health capacity increased to " + std::to_string(curHealthCapacity) + " ";
 			}
 
 			int baseDefenseCapacity = pCharacter->getBaseDefenseCapacity();
+			int prevBaseDefenseCapacity = preTickCharacter.getBaseDefenseCapacity();
 			int curDefenseCapacity = pCharacter->getCurDefenseCapacity();
-			if (baseDefenseCapacity < preTickCharacter.mBaseDefenseCapacity)
+			int prevDefenseCapacity = preTickCharacter.getCurDefenseCapacity();
+			if (baseDefenseCapacity < prevBaseDefenseCapacity)
 			{
 				curLine += pCharacter->mName + "'s total defense capacity permanently dropped to " + std::to_string(baseDefenseCapacity) + " ";
 			}
-			else if (baseDefenseCapacity > preTickCharacter.mBaseDefenseCapacity)
+			else if (baseDefenseCapacity > prevBaseDefenseCapacity)
 			{
 				curLine += pCharacter->mName + "'s total defense capacity permanently increased to " + std::to_string(baseDefenseCapacity) + " ";
 			}
-			else if (curDefenseCapacity < preTickCharacter.mCurDefenseCapacity)
+			else if (curDefenseCapacity < prevDefenseCapacity)
 			{
 				curLine += pCharacter->mName + "'s total defense capacity dropped to " + std::to_string(curDefenseCapacity) + " ";
 			}
-			else if (curDefenseCapacity > preTickCharacter.mCurDefenseCapacity)
+			else if (curDefenseCapacity > prevDefenseCapacity)
 			{
 				curLine += pCharacter->mName + "'s total defense capacity increased to " + std::to_string(curDefenseCapacity) + " ";
 			}
 
-			int baseDamage = pCharacter->getCurDamage();
+			int baseDamage = pCharacter->getBaseDamage();
+			int prevBaseDamage = preTickCharacter.getBaseDamage();
 			int curDamage = pCharacter->getCurDamage();
-			if (baseDamage < preTickCharacter.mBaseDamage)
+			int prevCurDamage = preTickCharacter.getCurDamage();
+			if (baseDamage < prevBaseDamage)
 			{
 				curLine += pCharacter->mName + "'s total attack damage permanently dropped to " + std::to_string(baseDamage) + " ";
 			}
-			else if (baseDamage > preTickCharacter.mBaseDamage)
+			else if (baseDamage > prevBaseDamage)
 			{
 				curLine += pCharacter->mName + "'s total attack damage permanently increased to " + std::to_string(baseDamage) + " ";
 			}
-			else if (curDamage < preTickCharacter.mCurDamage)
+			else if (curDamage < prevCurDamage)
 			{
 				curLine += pCharacter->mName + "'s total attack damage dropped to " + std::to_string(curDamage) + " ";
 			}
-			else if (curDamage > preTickCharacter.mCurDamage)
+			else if (curDamage > prevCurDamage)
 			{
 				curLine += pCharacter->mName + "'s total attack damage increased to " + std::to_string(curDamage) + " ";
 			}
 
 			int stuns = pCharacter->getStuns();
-			if (stuns > 0 && preTickCharacter.mTurnsToPass == 0)
+			int prevStuns = preTickCharacter.getStuns();
+			if (stuns > 0 && prevStuns == 0)
 			{
 				curLine += pCharacter->mName + " lost " + std::to_string(stuns) + (stuns == 1 ? " turn " : " turns ");
 			}
 
 		}
-		else if (pCharacter->isAlive() && !preTickCharacter.mAmAlive)
+		else if (pCharacter->isAlive() && !preTickCharacter.isAlive())
 		{
 			curLine += pCharacter->mName + " revived with " + std::to_string(curHealth);
 		}
-		else if (!pCharacter->isAlive() && preTickCharacter.mAmAlive)
+		else if (!pCharacter->isAlive() && preTickCharacter.isAlive())
 		{
-			curLine += pCharacter->mName + " took " + std::to_string(preTickCharacter.mCurHealth - curHealth) + " damage and died";
+			curLine += pCharacter->mName + " took " + std::to_string(prevHealth - curHealth) + " damage and died";
 		}
 
 		if (curLine != "")

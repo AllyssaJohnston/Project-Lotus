@@ -10,33 +10,6 @@
 #include "miniGameLevelHelper.h"
 #include "miniGameWorldDataHelper.h"
 
-struct CombatCharacterSnapShot
-{
-    CombatCharacter* mpCharacter = nullptr;
-    bool mAmAlive;
-   
-    int mBaseDamage = -1;
-    int mCurDamage = -1;
-    std::vector<std::pair<float, int>> mAttackDamageModifiers;  // multiplier amount, num turns
-
-    int mCurHealth = -1;
-    int mBaseHealthCapacity = -1;
-    int mCurHealthCapacity = -1;
-    std::vector<std::pair<float, int>> mHealthCapacityModifiers; // multiplier amount, num turns
-
-    int mCurDefense = 0;
-    int mBaseDefenseCapacity = -1;
-    int mCurDefenseCapacity = -1;
-    std::vector<std::pair<float, int>> mDefenseCapacityModifiers; // multiplier amount, num turns
-
-    int mTurnsToPass = 0;
-
-    Tile* mpTile;
-
-    CombatCharacterSnapShot(CombatCharacter* pCharacter);
-
-    ~CombatCharacterSnapShot();
-};
 
 struct TileDistance
 {
@@ -94,8 +67,9 @@ struct MiniGameStateManagerData
     EMiniGameState      mLastFrameStateEnum = EMiniGameState_INVALID;
     EMiniGameState	    mCurStateEnum = EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
     MiniGameStateData   mStateData = MiniGameStateData();
-    std::stack<MiniGameStateData> mPreviousStateDatas;
-    std::stack<std::vector<CombatCharacterSnapShot>> mPreTickCharacterSnapShots;
+    std::stack<std::pair<EMiniGameState, MiniGameStateData>> mPreviousStateDatas;
+    std::stack<std::vector<CombatCharacter>> mPreTickCharacters;
+    int mTicksSinceUndo = 0;
 };
 
 
@@ -111,9 +85,9 @@ std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& pCombatMan
 std::vector <TileDistance> returnListOfTileDistancesFromPlayers(const std::vector <CombatCharacter*>& pCurCombatCharacters, const std::vector <Tile*>& pMoveTiles, const CombatCharacter* const pCurEnemy);
 
 
-std::vector<CombatCharacterSnapShot> createCombatCharacterSnapShots(const CombatManager& combatManager);
+std::vector<CombatCharacter> createCombatCharacterSnapShots(const CombatManager& combatManager);
 
-std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacterSnapShot>& preTickCharacters);
+std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacter>& preTickCharacters);
 
 
 void setUpForBufferState(const MiniGameWorldData& worldData, MiniGameStateData& data);

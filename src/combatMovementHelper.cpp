@@ -1,11 +1,10 @@
 #include "combatMovementHelper.h"
 
-CombatMovementManager::CombatMovementManager(Tile* pTile, const CombatCharacterPreset& preset) : mAttacks(preset.mAttacks), mMoveType(preset.mMoveType), 
-        mpStartingTile(pTile), mpCurTile(pTile) {}
+CombatMovementManager::CombatMovementManager(Tile& startingTile, const CombatCharacterPreset& preset) : mAttacks(preset.mAttacks), mMoveType(preset.mMoveType), 
+        mStartingTile(startingTile), mpCurTile(&startingTile) {}
 
 CombatMovementManager::~CombatMovementManager()
 {
-    mpStartingTile  = nullptr;
     mpCurTile       = nullptr;
 }
 
@@ -16,7 +15,7 @@ void CombatMovementManager::CombatMovementManager::preTick()
 
 void CombatMovementManager::resetStats()
 {
-    mpCurTile = mpStartingTile;
+    mpCurTile = &mStartingTile;
 }
 
 void CombatMovementManager::setCurTile(Tile* pTileInput)  { mpCurTile = pTileInput; }

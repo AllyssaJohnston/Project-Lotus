@@ -636,15 +636,9 @@ void MiniGameStateManager::start()
 	mpCurState = mpStates[mData.mCurStateEnum];
 	while (!mData.mPreviousStateDatas.empty())
 	{
-		mData.mPreviousStateDatas.top().~MiniGameStateData();
+		mData.mPreviousStateDatas.top().second.~MiniGameStateData();
 		mData.mPreviousStateDatas.pop();
-		for (int i = (int)mData.mPreTickCharacterSnapShots.top().size() - 1; i > -1; i--)
-		{
-			mData.mPreTickCharacterSnapShots.top()[i].~CombatCharacterSnapShot();
-			mData.mPreTickCharacterSnapShots.top().erase(mData.mPreTickCharacterSnapShots.top().begin() + i);
-			
-		}
-		mData.mPreTickCharacterSnapShots.pop();
+		mData.mPreTickCharacters.pop();
 	}
 	mData.mStateData.mDebugLine = " ";
 	setUp = true;
@@ -653,11 +647,11 @@ void MiniGameStateManager::start()
 void MiniGameStateManager::preTick() 
 {
 	MiniGameStage* pStage = mWorldData.getStage();
-	if (mData.mLastFrameStateEnum != mData.mCurStateEnum)
+	if (mData.mLastFrameStateEnum != mData.mCurStateEnum || mData.mPreviousStateDatas.empty())
 	{
 		// changed state
-		mData.mPreTickCharacterSnapShots.push(createCombatCharacterSnapShots(pStage->mCombatManager));
-		mData.mPreviousStateDatas.push(mData.mStateData);
+		mData.mPreTickCharacters.push(createCombatCharacterSnapShots(pStage->mCombatManager));
+		mData.mPreviousStateDatas.push(std::pair<EMiniGameState, MiniGameStateData>(mData.mCurStateEnum, mData.mStateData));
 	}
 	mData.mLastFrameStateEnum = mData.mCurStateEnum; 
 	
@@ -686,6 +680,40 @@ void MiniGameStateManager::postTick()
 		mData.mCurStateEnum = mData.mStateData.mNextMiniGameState;
 		mpCurState = mpStates[mData.mStateData.mNextMiniGameState];
 	}
+	mData.mTicksSinceUndo = 0;
+}
+
+void MiniGameStateManager::undo()
+{
+	bool doneOnce = false;
+	if (mData.mPreviousStateDatas.empty())
+	{
+		return;
+	}
+	mData.mPreviousStateDatas.pop();
+	mData.mPreTickCharacters.pop();
+
+	while (!mData.mPreviousStateDatas.empty() && mData.mCurStateEnum != EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT && mData.mCurStateEnum != EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT &&
+		mData.mCurStateEnum != EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT && mData.mCurStateEnum != EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT
+		&& mData.mCurStateEnum != EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT && mData.mCurStateEnum != EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT 
+		|| !mData.mPreviousStateDatas.empty() && !doneOnce)
+	{
+		doneOnce = true;
+		mData.mCurStateEnum = mData.mPreviousStateDatas.top().first;
+		mData.mStateData = mData.mPreviousStateDatas.top().second;
+		mData.mPreviousStateDatas.pop();
+		mData.mLastFrameStateEnum = mData.mPreviousStateDatas.empty() ? EMiniGameState_INVALID : mData.mPreviousStateDatas.top().first;
+		
+		const std::vector<CombatCharacter>& preTickCharacters = mData.mPreTickCharacters.top();
+		CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
+		for (int i = 0; i < (int)combatManager.mpAllCombatCharacters.size(); i++)
+		{
+			combatManager.mpAllCombatCharacters[i]->revertToState(preTickCharacters[i]);
+		}
+		mData.mPreTickCharacters.pop();
+		mData.mTicksSinceUndo++;
+	}
+	updateCurState(mData.mCurStateEnum);
 }
 
 void MiniGameStateManager::printBoard(ScreenObject& screenObject)
@@ -835,7 +863,13 @@ void MiniGameStateManager::updateCurState(EMiniGameState state)
 void MiniGameStateManager::createDebugLog()
 {
 	// state data at the start of the tick
-	MiniGameStateData& preTickStateData = mData.mPreviousStateDatas.top();
+	if (mData.mPreviousStateDatas.empty())
+	{
+		mData.mStateData.mDebugLine = " ";
+		return;
+	}
+
+	MiniGameStateData& preTickStateData = mData.mPreviousStateDatas.top().second;
 	// current state data is post tick
 	std::string line;
 
@@ -882,7 +916,7 @@ void MiniGameStateManager::createDebugLog()
 		
 	}
 
-	std::string characterChanges =  getCharacterChangesString(mWorldData.getStage()->mCombatManager, mData.mPreTickCharacterSnapShots.top());
+	std::string characterChanges =  getCharacterChangesString(mWorldData.getStage()->mCombatManager, mData.mPreTickCharacters.top());
 	if (line != "" && characterChanges != "")
 	{
 		line += ". " + characterChanges;

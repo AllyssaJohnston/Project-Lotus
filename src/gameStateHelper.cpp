@@ -398,6 +398,10 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 			pSpecificCurState->postTick(miniStateManager.mWorldData.getStage()->mCombatManager.mpAllCombatCharacters[pCurSelectedTextBox->mData.mCombatCharacterIndex]);
 		}
 		break;
+	
+	case ETextBoxFunction_MINI_GAME_UNDO_BOX:
+		miniStateManager.undo();
+		break;
 	}
 
 	mMenuManager.mpCurMenuPage->setCurSelectedTextBox(nullptr);

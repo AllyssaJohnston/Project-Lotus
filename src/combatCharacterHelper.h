@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <stack>
 #include "tileHelper.h"
 #include "combatCharacterPresets.h"
 #include "combatMovementHelper.h"
@@ -17,7 +18,7 @@ public:
 
     ImageObject mModel = ImageObject();
 
-    CombatCharacter(const std::string name, Tile* pCurTile, const CombatCharacterPreset& preset);
+    CombatCharacter(const std::string name, Tile& curTile, const CombatCharacterPreset& preset);
 
     ~CombatCharacter() { ; }
 
@@ -84,6 +85,8 @@ public:
 
 
     void move(Tile* pTile);
+
+    void revertToState(const CombatCharacter& prevState);
 
 private:
 

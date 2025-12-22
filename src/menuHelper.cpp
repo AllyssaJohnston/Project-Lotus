@@ -522,7 +522,7 @@ void MenuManager::printBoxes()
 bool MenuManager::shouldUpdateTextBoxShowState(EGameState curState, bool forceUpdate)
 {	
 	// Mini Game Option Boxes have a whenToShowList 
-	bool didMiniGameStateChange = (mMiniGameStateManagerData.mLastFrameStateEnum != mMiniGameStateManagerData.mCurStateEnum);
+	bool didMiniGameStateChange = (mMiniGameStateManagerData.mLastFrameStateEnum != mMiniGameStateManagerData.mCurStateEnum || mMiniGameStateManagerData.mTicksSinceUndo <= 2);
 	bool isMiniGame             = (curState == EGameState_PLAY_MINI_GAME);
 
 	return (isMiniGame and didMiniGameStateChange) or forceUpdate;
