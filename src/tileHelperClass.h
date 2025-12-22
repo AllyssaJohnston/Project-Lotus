@@ -10,6 +10,8 @@ std::vector<TileCoords> getSquareTiles(const Tile& centerTile, int startOut, int
 
 std::vector<TileCoords> getCrossTiles(const Tile& centerTile, int startOut, int numOut, EDirection directions);
 
+std::vector<TileCoords> getCheckerboardTiles(const Tile& centerTile, int startOut, int numOut, EDirection directions);
+
 std::vector<TileCoords> getGrid(int gridWidth, int gridHeight);
 
 bool isPlayableTile(const Tile& gGivenTile);

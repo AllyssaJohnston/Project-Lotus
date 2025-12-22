@@ -100,6 +100,7 @@
     <ClCompile Include="src\collectibleHelper.cpp" />
     <ClCompile Include="src\collectiblePreset.cpp" />
     <ClCompile Include="src\collisionHelper.cpp" />
+    <ClCompile Include="src\combatAttackHelper.cpp" />
     <ClCompile Include="src\combatAttackHelperClass.cpp" />
     <ClCompile Include="src\combatAttackPresets.cpp" />
     <ClCompile Include="src\combatCharacterHelper.cpp" />

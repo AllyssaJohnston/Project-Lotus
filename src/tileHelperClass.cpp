@@ -85,6 +85,47 @@ std::vector<TileCoords> getCrossTiles(const Tile& centerTile, int startOut, int 
     return tileCoordsList;
 }
 
+std::vector<TileCoords> getCheckerboardTiles(const Tile& centerTile, int startOut, int squareSize, EDirection directions)
+{
+    const int& curRow = centerTile.mRow;
+    const int& curCol = centerTile.mCol;
+    std::vector <TileCoords> tileCoordsList;
+
+    int rowStart    = -squareSize;
+    int rowEnd      = squareSize;
+    int colStart    = -squareSize;
+    int colEnd      = squareSize;
+
+    switch (directions)
+    {
+    case EDirection_LEFT:
+        colEnd = startOut - 1;
+        break;
+    case EDirection_RIGHT:
+        colStart = startOut + 1;
+        break;
+    case EDirection_UP:
+        rowEnd = startOut - 1;
+        break;
+    case EDirection_DOWN:
+        rowStart = startOut + 1;
+        break;
+    }
+
+    for (int rowI = rowStart; rowI <= rowEnd; rowI++)
+    {
+        for (int colI = colStart; colI <= colEnd; colI++)
+        {
+            if ((std::abs(rowI) < startOut && std::abs(colI) < startOut) ||  std::abs(rowI % 2) == std::abs(colI % 2))
+            {
+                continue;
+            }
+            tileCoordsList.push_back(TileCoords(rowI + curRow, colI + curCol));
+        }
+    }
+    return tileCoordsList;
+}
+
 std::vector<TileCoords> getGrid(int gridWidth, int gridHeight)
 {
     std::vector <TileCoords> tileCoordsList;

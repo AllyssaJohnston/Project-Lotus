@@ -39,6 +39,17 @@ bool shouldShowTextBox(const TextBox& textBox, const MiniGameStateManagerData& d
 		}
 		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
 		break;
+	case ETextBoxType_MINI_GAME_PLAYER_ATTACK_BOX:
+		if (textBox.mData.mCombatCharacterIndex != -1 && !textBox.mData.mShowDuringAllCharacters && textBox.mData.mCombatCharacterIndex != data.mStateData.getCharacterIndex())
+		{
+			return false;
+		}
+		if (std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end())
+		{
+			return data.mStateData.mAttackCategory == textBox.mData.mAttackCategory;
+		}
+		return false;
+		break;
 	case ETextBoxType_MINI_GAME_BOX:
 	case ETextBoxType_MINI_GAME_DIRECTION_BOX:
 		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
@@ -61,6 +72,17 @@ bool shouldShowTextBox(const ShapeBox& shapeBox, const MiniGameStateManagerData&
 			return false;
 		}
 		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
+		break;
+	case EShapeTypeShowType_MINI_GAME_PLAYER_ATTACK_BOX:
+		if (shapeBox.mDataStorage.mCombatCharacterIndex != -1 && !shapeBox.mDataStorage.mShowDuringAllCharacters && shapeBox.mDataStorage.mCombatCharacterIndex != data.mStateData.getCharacterIndex())
+		{
+			return false;
+		}
+		if (std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end())
+		{
+			return data.mStateData.mAttackCategory == shapeBox.mDataStorage.mAttackCategory;
+		}
+		return false;
 		break;
 	default:
 		break;

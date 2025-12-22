@@ -25,8 +25,8 @@ std::string returnDescriptionOfMoveAttackType(int moveAttackType)
 		return "CROSS 3";
 	case EMiniGameCombatMoveAttackTypes_CROSS4:
 		return "CROSS 4";
-	case EMiniGameCombatMoveAttackTypes_CHECKERBOARD2UNITS:
-		return "CHECKERBOARD 2 UNITS";
+	case EMiniGameCombatMoveAttackTypes_CHECKERBOARD2:
+		return "CHECKERBOARD 2";
 	case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
 		return "WHOLE GRID";
 	case EMiniGameCombatMoveAttackTypes_ONE_CHARACTER:

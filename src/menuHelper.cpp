@@ -355,6 +355,7 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 			break;
 		case ETextBoxType_MINI_GAME_PLAYER_BOX:
 		case ETextBoxType_MINI_GAME_CHARACTER_BOX:
+		case ETextBoxType_MINI_GAME_PLAYER_ATTACK_BOX:
 			updatedMessage = updateCharacterStatBoxCurTextBoxMessage(*pCurTextBox, mMiniGameStateManagerData, mMiniGameWorldData);
 			break;
 		default:
@@ -466,7 +467,7 @@ void MenuManager::printBoxes()
 	// shape boxes
 	for (ShapeBox* pShapeBox : mpCurMenuPage->mpShapeBoxes)
 	{
-		if (pShapeBox->mShow)
+		if (pShapeBox->mShow && pShapeBox->mColor.a != 0)
 		{
 			SDL_FRect rect;
 

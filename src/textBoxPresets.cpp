@@ -35,17 +35,6 @@ MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool 
 	mData.mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
 }
 
-MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, int attackNum,
-	std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
-{
-	mData.mCombatCharacterIndex			= characterIndex;
-	mData.mCharacterStatToDisplay		= characterStatToDisplay;
-	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
-	mData.mAttackNum					= attackNum;
-	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
-	mData.mType							= ETextBoxType_MINI_GAME_CHARACTER_BOX;
-}
-
 MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList) 
 	: TextBoxPreset()
 {
@@ -61,6 +50,18 @@ MiniGamePlayerBoxPreset::MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay
 	mData.mCharacterStatToDisplay		= characterStatToDisplay;
 	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
 	mData.mType							= ETextBoxType_MINI_GAME_PLAYER_BOX;
+}
+
+MiniGamePlayerAttackBoxPreset::MiniGamePlayerAttackBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, int attackNum,
+	EMiniGameCombatAttackCategoryType attackCategory, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
+{
+	mData.mCombatCharacterIndex			= characterIndex;
+	mData.mCharacterStatToDisplay		= characterStatToDisplay;
+	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
+	mData.mAttackNum					= attackNum;
+	mData.mAttackCategory				= attackCategory;
+	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
+	mData.mType							= ETextBoxType_MINI_GAME_PLAYER_ATTACK_BOX;
 }
 
 MiniGameBoxPreset::MiniGameBoxPreset(std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
@@ -96,14 +97,14 @@ DontAutoShowImageBoxPreset::DontAutoShowImageBoxPreset(ETextBoxID id) : ImageBox
 // SHAPE BOXES
 ShapeBoxPreset::ShapeBoxPreset(EShapeBoxClass type) : mType(type) { ; }
 
-MiniGameShapeBoxPreset::MiniGameShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters) : ShapeBoxPreset(type)
+MiniGameCharacterShapeBoxPreset::MiniGameCharacterShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters) : ShapeBoxPreset(type)
 {
 	mShowType = EShapeTypeShowType_MINI_GAME_CHARACTER_BOX;
 	mCombatCharacterIndex = characterIndex;
 	mShowDuringAllCharacters = showDuringAllCharacters;
 }
 
-MiniGameShapeBoxPreset::MiniGameShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters, 
+MiniGameCharacterShapeBoxPreset::MiniGameCharacterShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters,
 		std::vector <EMiniGameState> miniGameStateWhenToShowList) : ShapeBoxPreset(type)
 {
 	mShowType = EShapeTypeShowType_MINI_GAME_CHARACTER_BOX;
@@ -112,20 +113,21 @@ MiniGameShapeBoxPreset::MiniGameShapeBoxPreset(EShapeBoxClass type, int characte
 	mMiniGameStateWhenToShowList = miniGameStateWhenToShowList;
 }
 
-MiniGameShapeBoxPreset::MiniGameShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters, int attackNum, 
-		std::vector <EMiniGameState> miniGameStateWhenToShowList) : ShapeBoxPreset(type)
+MiniGameCharacterShapeBoxPreset::MiniGameCharacterShapeBoxPreset(EShapeBoxClass type, std::vector <EMiniGameState> miniGameStateWhenToShowList) : ShapeBoxPreset(type)
 {
 	mShowType = EShapeTypeShowType_MINI_GAME_CHARACTER_BOX;
-	mCombatCharacterIndex = characterIndex;
-	mShowDuringAllCharacters = showDuringAllCharacters;
-	mAttackNum = attackNum;
 	mMiniGameStateWhenToShowList = miniGameStateWhenToShowList;
 }
 
-MiniGameShapeBoxPreset::MiniGameShapeBoxPreset(EShapeBoxClass type, std::vector <EMiniGameState> miniGameStateWhenToShowList) : ShapeBoxPreset(type)
+MiniGamePlayerAttackShapeBoxPreset::MiniGamePlayerAttackShapeBoxPreset(EShapeBoxClass type, int characterIndex, bool showDuringAllCharacters, int attackNum,
+	EMiniGameCombatAttackCategoryType attackCategory, std::vector <EMiniGameState> miniGameStateWhenToShowList) : ShapeBoxPreset(type)
 {
-	mShowType = EShapeTypeShowType_MINI_GAME_CHARACTER_BOX;
-	mMiniGameStateWhenToShowList = miniGameStateWhenToShowList;
+	mShowType						= EShapeTypeShowType_MINI_GAME_PLAYER_ATTACK_BOX;
+	mCombatCharacterIndex			= characterIndex;
+	mShowDuringAllCharacters		= showDuringAllCharacters;
+	mAttackNum						= attackNum;
+	mAttackCategory					= attackCategory;
+	mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
 }
 
 

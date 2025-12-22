@@ -1,6 +1,7 @@
 #pragma once
 #include "helperClass.h"
 #include "hitboxHelper.h"
+#include "combatHelperClass.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_ttf.h>
 #include <string>
@@ -19,6 +20,7 @@ enum ETextBoxFunction
 
 	// For mini game
 	ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX,
+	ETextBoxFunction_SUPPORT_CUR_COMBAT_CHARACTER_BOX,
 	ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX,
 	ETextBoxFunction_HEAL_CUR_COMBAT_CHARACTER_BOX,
 	ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX,
@@ -39,6 +41,7 @@ enum ETextBoxType
 	ETextBoxType_MINI_GAME_DIRECTION_BOX,
 	ETextBoxType_MINI_GAME_STAT_BOX,
 	ETextBoxType_MINI_GAME_CHARACTER_BOX,
+	ETextBoxType_MINI_GAME_PLAYER_ATTACK_BOX,
 	ETextBoxType_MINI_GAME_PLAYER_BOX,
 	ETextBoxType_MAX
 };
@@ -114,19 +117,20 @@ enum ETextBoxTextAlign
 
 struct TextBoxData 
 {
-	EGameStatBoxValueToDisplay		mGameStatToDisplay = EGameStatBoxValueToDisplay_INVALID;
-	int								mCombatCharacterIndex = -1;
-	bool							mShowDuringAllCharacters = false;
-	ECharacterStatBoxValueToDisplay mCharacterStatToDisplay = ECharacterStatBoxValueToDisplay_INVALID;
-	int								mAttackNum = -1;
-	EDirection						mAttackDirection = EDirection_INVALID;
-	ETextBoxType					mType = ETextBoxType_INVALID;
-	std::vector <EMiniGameState>	mMiniGameStateWhenToShowList;
+	EGameStatBoxValueToDisplay			mGameStatToDisplay = EGameStatBoxValueToDisplay_INVALID;
+	int									mCombatCharacterIndex = -1;
+	bool								mShowDuringAllCharacters = false;
+	ECharacterStatBoxValueToDisplay		mCharacterStatToDisplay = ECharacterStatBoxValueToDisplay_INVALID;
+	int									mAttackNum = -1;
+	EMiniGameCombatAttackCategoryType	mAttackCategory = EMiniGameCombatAttackCategoryType_INVALID;
+	EDirection							mAttackDirection = EDirection_INVALID;
+	ETextBoxType						mType = ETextBoxType_INVALID;
+	std::vector <EMiniGameState>		mMiniGameStateWhenToShowList;
 
 	TextBoxData() { ; }
 
 	TextBoxData(EGameStatBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, 
-			int attackNum, ETextBoxType mType, std::vector <EMiniGameState>& miniGameStateWhenToShowList);
+			int attackNum, EMiniGameCombatAttackCategoryType attackCategory, ETextBoxType mType, std::vector <EMiniGameState>& miniGameStateWhenToShowList);
 };
 
 struct TextBoxPositionInfo
@@ -211,6 +215,7 @@ enum EShapeTypeShowType
 	EShapeTypeShowType_MINI_GAME_BOX,
 	EShapeTypeShowType_MINI_GAME_CHARACTER_BOX,
 	EShapeTypeShowType_MINI_GAME_PLAYER_BOX,
+	EShapeTypeShowType_MINI_GAME_PLAYER_ATTACK_BOX,
 	EShapeTypeShowTypee_MAX
 };
 

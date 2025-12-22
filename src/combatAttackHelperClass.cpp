@@ -26,6 +26,8 @@ std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombat
         return getSquareTiles(givenTile, 0, 1, direction);
     case EMiniGameCombatMoveAttackTypes_SQUARE2:
         return getSquareTiles(givenTile, 0, 2, direction);
+    case EMiniGameCombatMoveAttackTypes_CHECKERBOARD2:
+        return getCheckerboardTiles(givenTile, 0, 2, direction);
     case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
         return getGrid(30, 30);
     case EMiniGameCombatMoveAttackTypes_ONE_CHARACTER:

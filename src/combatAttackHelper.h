@@ -20,13 +20,14 @@ struct SpecialEffect
 
 struct Attack
 {
-    EMiniGameCombatMoveAttackTypes   mType                      = EMiniGameCombatMoveAttackTypes_INVALID;
-    float                            mDamagePercent             = -1.0f;
-    bool                             mDamageDistanceDependent   = false;
-    std::vector <SpecialEffect>      mSpecialEffects;
-    bool                             mRequiresDirectionInput    = false;
-    std::string                      mName;
-    std::string                      mDescription;
+    EMiniGameCombatMoveAttackTypes      mType;
+    EMiniGameCombatAttackCategoryType   mCategory;
+    float                               mDamagePercent;
+    bool                                mDamageDistanceDependent   = false;
+    std::vector <SpecialEffect>         mSpecialEffects;
+    bool                                mRequiresDirectionInput    = false;
+    std::string                         mName;
+    std::string                         mDescription;
    
-    Attack() { ; }
+    Attack(EMiniGameCombatMoveAttackTypes type, EMiniGameCombatAttackCategoryType category, float damagePercent, std::string name, std::string description);
 };

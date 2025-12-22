@@ -17,6 +17,6 @@ void createMiniGameCharacterSelectionMenu(MenuManager& menuManager, ScreenObject
 
 void createMiniGameCharacterAttackPanel(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, const StyleManager& styleManager);
 
-void createBlockDiagram(const EMiniGameCombatMoveAttackTypes diagramType, const int characterIndex, MenuPage* pPage, UIBlock* pBlock, const std::vector<EMiniGameState>& whenToShow, MenuManager& menuManager, const StyleManager& styleManager);
+void createBlockDiagram(const EMiniGameCombatMoveAttackTypes diagramType, const int characterIndex, const int attackNum, EMiniGameCombatAttackCategoryType category, MenuPage* pPage, UIBlock* pBlock, const std::vector<EMiniGameState>& whenToShow, MenuManager& menuManager);
 
 void setUpFontSizeChart(FontSizeChart& fontSizeChart, const StyleManager& styleManager, SDL_Renderer* pRenderer);

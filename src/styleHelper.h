@@ -6,7 +6,7 @@
 
 struct StyleManager
 {
-	const char * fontName = "fonts/Roboto-Regular.ttf";
+	const char* fontName = "fonts/Roboto-Regular.ttf";
 	const static SDL_Color lightPink;
 	const static SDL_Color pink;
 	const static SDL_Color lightYellow;
@@ -22,17 +22,17 @@ struct StyleManager
 	const static SDL_Color clear;
 
 	// combat menus
-	const int panelWidth			= 700;
-	const int panelHeight			= 450;
-	const int panelHeadingHeight	= 100;
-	const int panelBodyHeight		= 350;
+	const static int panelWidth			= 700;
+	const static int panelHeight		= 450;
+	const static int panelHeadingHeight	= 100;
+	const static int panelBodyHeight	= 350;
 
-	const int headingText = 30;
-	const int optionText = 30;
-	const int detailText = 20;
-	const int bullet = 20;
+	const static int headingText = 30;
+	const static int optionText = 30;
+	const static int detailText = 18;
+	const static int bullet = 20;
 
-	StyleManager(){}
+	StyleManager() { ; }
 
 	~StyleManager();
 };

@@ -56,11 +56,12 @@ public:
     Tile* mpTileToMoveTo    = nullptr;
     Tile* mpTileLastMovedTo = nullptr;
 
-    bool                mGoingToAttack      = false;
-    Tile*               mpTileToAttack      = nullptr;
-    std::vector <Tile*> mpTilesToAttack;
-    Attack*             mpCurAttack         = nullptr;
-    EDirection          mCurAttackDirection = EDirection_INVALID;
+    bool                                mGoingToAttack      = false;
+    Tile*                               mpTileToAttack      = nullptr;
+    std::vector <Tile*>                 mpTilesToAttack;
+    Attack*                             mpCurAttack         = nullptr;
+    EMiniGameCombatAttackCategoryType   mAttackCategory     = EMiniGameCombatAttackCategoryType_INVALID;
+    EDirection                          mCurAttackDirection = EDirection_INVALID;
 
     EMiniGameCombatCharacterType mTargetCharacterType = EMiniGameCombatCharacterType_INVALID;
     CombatCharacter* mpTargetCharacter = nullptr;

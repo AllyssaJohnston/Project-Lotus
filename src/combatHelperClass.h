@@ -23,7 +23,7 @@ enum EMiniGameCombatMoveAttackTypes
     EMiniGameCombatMoveAttackTypes_CROSS3_1UNIT_OUT,
     EMiniGameCombatMoveAttackTypes_CROSS4,
     EMiniGameCombatMoveAttackTypes_CROSS5,
-    EMiniGameCombatMoveAttackTypes_CHECKERBOARD2UNITS,
+    EMiniGameCombatMoveAttackTypes_CHECKERBOARD2,
     EMiniGameCombatMoveAttackTypes_WHOLE_GRID,
     EMiniGameCombatMoveAttackTypes_ONE_CHARACTER,
     EMiniGameCombatMoveAttackTypes_ONE_PLAYER,
@@ -53,6 +53,17 @@ enum EMiniGameCombatActionType
     EMiniGameCombatActionType_DEFEND,
     EMiniGameCombatActionType_PASS,
     EMiniGameCombatActionType_MAX
+};
+
+// under the hood, attack and support, are implemented as attacks,
+// however I separate these in the menu into categories that will make more sense
+// to the player
+enum EMiniGameCombatAttackCategoryType
+{
+    EMiniGameCombatAttackCategoryType_INVALID = -1,
+    EMiniGameCombatAttackCategoryType_ATTACK,
+    EMiniGameCombatAttackCategoryType_SUPPORT,
+    EMiniGameCombatAttackCategoryType_MAX
 };
 
 enum EMiniGameCombatCharacterType

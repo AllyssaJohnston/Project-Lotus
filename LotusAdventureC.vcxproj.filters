@@ -437,5 +437,8 @@
     <ClCompile Include="src\combatAttackPresets.cpp">
       <Filter>Source Files\MiniGame\Attack</Filter>
     </ClCompile>
+    <ClCompile Include="src\combatAttackHelper.cpp">
+      <Filter>Source Files\MiniGame\Attack</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
