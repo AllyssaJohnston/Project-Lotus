@@ -1,11 +1,6 @@
 #pragma once
-#include "SDL3/SDL.h"
-#include "vector"
-#include "helperClass.h"
-#include "imageHelper.h"
-#include "hitboxHelper.h"
 #include "entityPresets.h"
-#include "worldHelperClass.h"
+#include "worldHelpers.h"
 
 struct CCollectiblePreset : public EntityPreset { CCollectiblePreset(); };
 

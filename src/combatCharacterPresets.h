@@ -1,7 +1,7 @@
 #pragma once
-#include "combatAttackHelper.h"
+#include "combatAttack.h"
 #include "combatAttackPresets.h"
-#include "combatHelperClass.h"
+#include "combatHelpers.h"
 #include <vector>
 
 enum EMiniGameCombatCharacterSpecies
@@ -41,7 +41,7 @@ struct CombatCharacterPreset
     int mMaxWidth  = 30;
     int mMaxHeight = 75;
 
-    void setMove(EMiniGameCombatMoveAttackTypes type, int num, int out);
+    void setMove(const EMiniGameCombatMoveAttackTypes type, const int num, const int out);
 };
 
 

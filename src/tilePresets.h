@@ -1,8 +1,8 @@
 #pragma once
 #include <SDL3/SDL.h>
-#include "combatHelperClass.h"
-#include "styleHelper.h"
-#include "tileCoordsHelper.h"
+#include "combatHelpers.h"
+#include "styleManager.h"
+#include "tileCoords.h"
 
 struct TilePreset
 {

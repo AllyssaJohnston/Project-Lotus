@@ -1,6 +1,8 @@
 #pragma once
-#include "hitboxHelper.h"
-#include "entityHelper.h"
+#include "hitbox.h"
+#include "entity.h"
+#include "platform.h"
+#include "helpers.h"
 
 class EntityQuadTree
 {

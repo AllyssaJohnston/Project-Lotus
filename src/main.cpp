@@ -8,11 +8,13 @@
 #include <chrono>
 
 #include "globals.h"
-#include "playerHelper.h"
-#include "imageHelper.h"
-#include "platformHelper.h"
-#include "screenHelper.h"
-#include "gameInstanceHelper.h"
+#include "player.h"
+#include "image.h"
+#include "platform.h"
+#include "screen.h"
+#include "gameInstance.h"
+#include "world.h"
+#include "gameStateManager.h"
 
 #if DEMO == 0
 #include "lotusAdventureLevels.h"
@@ -21,9 +23,7 @@
 #endif
 
 #include "lotusAdventureMenus.h"
-#include "hitboxHelper.h"
-#include "worldHelper.h"
-#include "gameStateHelper.h"
+
 
 GameInstance gameInstance	= {};
 Player& player				= gameInstance.mWorldData.mPlayer;

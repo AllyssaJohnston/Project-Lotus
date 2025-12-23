@@ -1,6 +1,6 @@
 #pragma once
-#include "combatHelperClass.h"
-#include "helperClass.h"
+#include "combatHelpers.h"
+#include "helpers.h"
 
 struct SpecialEffectPreset
 {
@@ -14,14 +14,14 @@ struct SpecialEffectPreset
     SpecialEffectPreset() {}
 };
 
-struct SpecialEffectStun : public SpecialEffectPreset { SpecialEffectStun(int numTurns = 1); };
+struct SpecialEffectStun : public SpecialEffectPreset { SpecialEffectStun(const int numTurns = 1); };
 
-struct SpecialEffectSelfStun : public SpecialEffectPreset { SpecialEffectSelfStun(int numTurns = 1); };
+struct SpecialEffectSelfStun : public SpecialEffectPreset { SpecialEffectSelfStun(const int numTurns = 1); };
 
-struct SpecialEffectAttackMultiplier : public SpecialEffectPreset { SpecialEffectAttackMultiplier(float multiplier, int turns, EAttackTargetType attackTargetType); };
+struct SpecialEffectAttackMultiplier : public SpecialEffectPreset { SpecialEffectAttackMultiplier(const float multiplier, const int turns, const EAttackTargetType attackTargetType); };
 
-struct SpecialEffectDefenseCapacityMultiplier : public SpecialEffectPreset { SpecialEffectDefenseCapacityMultiplier(float multiplier, int turns, EAttackTargetType attackTargetType); };
+struct SpecialEffectDefenseCapacityMultiplier : public SpecialEffectPreset { SpecialEffectDefenseCapacityMultiplier(const float multiplier, const int turns, const EAttackTargetType attackTargetType); };
 
-struct SpecialEffectHeal : public SpecialEffectPreset { SpecialEffectHeal(int amount, EAttackTargetType attackTargetType); };
+struct SpecialEffectHeal : public SpecialEffectPreset { SpecialEffectHeal(const int amount, EAttackTargetType attackTargetType); };
 
-struct SpecialEffectFullHeal : public SpecialEffectPreset { SpecialEffectFullHeal(EAttackTargetType attackTargetType); };
+struct SpecialEffectFullHeal : public SpecialEffectPreset { SpecialEffectFullHeal(const EAttackTargetType attackTargetType); };

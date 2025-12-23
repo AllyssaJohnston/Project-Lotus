@@ -385,9 +385,9 @@ void createMiniGameCharacterStatsMenu(MenuManager& menuManager, const ScreenObje
 			BlockAlignElementsVertically*	curIconBlock = new BlockAlignElementsVertically(	maxWidth, maxHeight, ETextBoxPositionAlign_CENTER, EDirection_DOWN,  !fill, !fill, Edges());
 			miniGameMenuPage->addBox(new ImageBox(MiniGameCharacterImageBoxPreset(count, true), ImageBoxPositionInfo(0, ETextBoxPositionAlign_CENTER, iconWidth, iconHeight, Edges()), pCurChar->mIconFileName), curIconBlock);
 
-			BlockAlignElementsVertically* curInfoBlock = new BlockAlignElementsVertically(maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges());
+			BlockAlignElementsVertically* curInfoBlock = new BlockAlignElementsVertically(		maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges());
 
-			BlockAlignElementsVertically* curNameBlock = new BlockAlignElementsVertically(maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges());
+			BlockAlignElementsVertically* curNameBlock = new BlockAlignElementsVertically(		maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges());
 			miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(count, true, ECharacterStatBoxValueToDisplay_CHARACTER_NAME),	ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth,		maxHeight / 4, Edges(padding,	8,			0, 0)), font, TextBoxSizeInfo(headingSize), colors), false, curNameBlock);
 
 			BlockAlignElementsHorizontally* curTextBlock	= new BlockAlignElementsHorizontally(maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_RIGHT, !fill, !fill, Edges());
@@ -399,7 +399,7 @@ void createMiniGameCharacterStatsMenu(MenuManager& menuManager, const ScreenObje
 			BlockAlignElementsVertically*	curNumsBlock = new BlockAlignElementsVertically(	maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN,  !fill, !fill, Edges());
 			miniGameMenuPage->addBox(new HealthBox(HealthBoxPreset(			count,		 ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH),									TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth - 50,	maxHeight / 4, Edges(0,			3,			0, 0)), font, detailSize, healthColor, healthBackgroundColor, healthTextColor), curNumsBlock);
 			miniGameMenuPage->addBox(new HealthBox(HealthBoxPreset(			count,		 ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE),								TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth - 50,	maxHeight / 4, Edges(0,			3,			0, 0)), font, detailSize, healthColor, healthBackgroundColor, healthTextColor), curNumsBlock);
-			miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(count, true, ECharacterStatBoxValueToDisplay_CHARACTER_STUN),	ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth,		maxHeight / 4, Edges(0,			padding,	0, 0)), font, TextBoxSizeInfo(detailSize), colors), false, curNumsBlock);
+			miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(count, true, ECharacterStatBoxValueToDisplay_CHARACTER_STUN),	ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth - 50,	maxHeight / 4, Edges(0,			padding,	0, 0)), font, TextBoxSizeInfo(detailSize), colors), false, curNumsBlock);
 			curTextBlock->mpSubBlocks.push_back(curTitlesBlock);
 			curTextBlock->mpSubBlocks.push_back(curNumsBlock);
 

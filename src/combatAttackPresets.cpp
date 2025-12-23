@@ -1,20 +1,20 @@
 #include "combatAttackPresets.h"
 
-SpecialEffectStun::SpecialEffectStun(int numTurns) : SpecialEffectPreset()
+SpecialEffectStun::SpecialEffectStun(const int numTurns) : SpecialEffectPreset()
 {
     mType = EMiniGameCombatSpecialEffectTypes_STUN;
     mName = "STUN " + std::to_string(numTurns) + ((numTurns == 1) ? " TURN" : " TURNS");
     mTurns = numTurns;
 }
 
-SpecialEffectSelfStun::SpecialEffectSelfStun(int numTurns) : SpecialEffectPreset()
+SpecialEffectSelfStun::SpecialEffectSelfStun(const int numTurns) : SpecialEffectPreset()
 {
     mType = EMiniGameCombatSpecialEffectTypes_LOSE_TURN;
     mTurns = numTurns;
     mName = "LOSE " + std::to_string(numTurns) + ((numTurns == 1) ? " TURN" : " TURNS");
 }
 
-SpecialEffectAttackMultiplier::SpecialEffectAttackMultiplier(float multiplier, int turns, EAttackTargetType attackTargetType) : SpecialEffectPreset()
+SpecialEffectAttackMultiplier::SpecialEffectAttackMultiplier(const float multiplier, const int turns, const EAttackTargetType attackTargetType) : SpecialEffectPreset()
 {
     mType = EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER;
     mAttackTargetType = attackTargetType;
@@ -23,7 +23,7 @@ SpecialEffectAttackMultiplier::SpecialEffectAttackMultiplier(float multiplier, i
     mName = "INCREASE ATTACK BY " + floatDecimalToString(multiplier) + ((turns == INT_MAX) ? "" : (" FOR " + std::to_string(turns)) + ((turns == 1) ? " TURN" : " TURNS"));
 }
 
-SpecialEffectDefenseCapacityMultiplier::SpecialEffectDefenseCapacityMultiplier(float multiplier, int turns, EAttackTargetType attackTargetType) : SpecialEffectPreset()
+SpecialEffectDefenseCapacityMultiplier::SpecialEffectDefenseCapacityMultiplier(const float multiplier, const int turns, const EAttackTargetType attackTargetType) : SpecialEffectPreset()
 {
     mType = EMiniGameCombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER;
     mAttackTargetType = attackTargetType;
@@ -32,7 +32,7 @@ SpecialEffectDefenseCapacityMultiplier::SpecialEffectDefenseCapacityMultiplier(f
     mName = "INCREASE DEFENSE CAPACITY BY " + floatDecimalToString(multiplier) + ((turns == INT_MAX) ? "" : (" FOR " + std::to_string(turns)) + ((turns == 1) ? " TURN" : " TURNS"));
 }
 
-SpecialEffectHeal::SpecialEffectHeal(int amount, EAttackTargetType attackTargetType) : SpecialEffectPreset()
+SpecialEffectHeal::SpecialEffectHeal(const int amount, const EAttackTargetType attackTargetType) : SpecialEffectPreset()
 {
     mType = EMiniGameCombatSpecialEffectTypes_HEAL;
     mName = "HEAL " + std::to_string(amount);
@@ -41,7 +41,7 @@ SpecialEffectHeal::SpecialEffectHeal(int amount, EAttackTargetType attackTargetT
     mAttackTargetType = attackTargetType;
 }
 
-SpecialEffectFullHeal::SpecialEffectFullHeal(EAttackTargetType attackTargetType) : SpecialEffectPreset()
+SpecialEffectFullHeal::SpecialEffectFullHeal(const EAttackTargetType attackTargetType) : SpecialEffectPreset()
 {
     mType = EMiniGameCombatSpecialEffectTypes_HEAL;
     mName = "FULL HEAL";

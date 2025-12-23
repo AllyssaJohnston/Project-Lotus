@@ -1,5 +1,4 @@
 #pragma once
-#include "helperClass.h"
 #include "EntityPresets.h"
 #include "globals.h"
 

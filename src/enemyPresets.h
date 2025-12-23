@@ -1,9 +1,4 @@
 #pragma once
-#include <SDL3/SDL.h>
-#include "helperClass.h"
-#include "hitboxHelper.h"
-#include "movementHelperClass.h"
-#include "imageHelper.h"
 #include "entityPresets.h"
 
 

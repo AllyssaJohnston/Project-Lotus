@@ -1,6 +1,6 @@
 #include "combatCharacterPresets.h"
 
-void CombatCharacterPreset::setMove(EMiniGameCombatMoveAttackTypes type, int num, int out)
+void CombatCharacterPreset::setMove(const EMiniGameCombatMoveAttackTypes type, const int num, const int out)
 {
     mMoveType = type;
     mMoveNum = num;

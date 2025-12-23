@@ -1,0 +1,35 @@
+#pragma once
+#include <string>
+#include "combatAttack.h"
+#include "combatAttackHelpers.h"
+#include "uiBox.h"
+#include "gameStateHelpers.h"
+#include "miniGameStateHelpers.h"
+#include "settingsManager.h"
+#include "worldData.h"
+
+enum EMenuPageType
+{
+	EMenuPageType_INVALID = -1,
+	EMenuPageType_MAIN_MENU,
+	EMenuPageType_MAIN_GAME_MENU,
+	EMenuPageType_MINI_GAME_MENU,
+	EMenuPageType_SETTINGS_MENU,
+	EMenuPageType_MAX
+};
+
+
+bool shouldShowUIBox(const UIBoxData& data, const MiniGameStateManagerData& managerData, const CombatManager& combatManager);
+
+void drawCircle(const SDL_Color& color, const Vect2& center, int radius, ScreenObject& screen);
+
+
+std::string updateGameStatBoxCurTextBoxMessage(const TextBox& textBox, const std::string& curKeys, const WorldData& worldData, const SettingsManager& settingsManager);
+
+std::string updateMiniGameStatBoxCurTextBoxMessage(const TextBox& textBox, const MiniGameStateManagerData& managerData, const MiniGameWorldData& worldData);
+
+std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, const MiniGameStateManagerData& managerData, const MiniGameWorldData& worldData);
+
+std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const MiniGameWorldData& worldData);
+
+float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const MiniGameWorldData& worldData);

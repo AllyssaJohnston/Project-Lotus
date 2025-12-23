@@ -1,5 +1,5 @@
 #pragma once
-#include "hitboxHelper.h"
+#include "hitbox.h"
 
 class CircleEffect
 {

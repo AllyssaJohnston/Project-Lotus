@@ -1,9 +1,7 @@
 #pragma once
-#include "miniGameWorldDataHelper.h"
-#include "menuHelper.h"
-#include "textBoxPresets.h"
-#include "textBoxHelper.h"
-#include "UIBlockHelper.h"
+#include "miniGameWorldData.h"
+#include "menuManager.h"
+#include "uiBoxPresets.h"
 
 void createMenus(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
 

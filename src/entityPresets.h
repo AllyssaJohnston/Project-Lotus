@@ -1,10 +1,10 @@
 #pragma once
-#include <SDL3/SDL.h>
-#include "helperClass.h"
-#include "hitboxHelper.h"
-#include "movementHelperClass.h"
-#include "imageHelper.h"
-#include "animationHelper.h"
+#include "vector"
+#include "helpers.h"
+#include "hitbox.h"
+#include "movementHelpers.h"
+#include "image.h"
+#include "animationManager.h"
 
 
 struct EntityPreset
