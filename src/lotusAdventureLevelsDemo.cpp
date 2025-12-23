@@ -27,7 +27,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 	static PSpikePreset spikePreset;
 	static PLavaPreset  lavaPreset;
 
-
+	// MAIN GAME
 	int curWorldNumber;
 	int curLevelNumber;
 	Vect2 playerStartingPosition;
@@ -77,11 +77,16 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 
 
 	// MINI GAME
-	PlayerCombatPreset	mgPlayerPreset = PlayerCombatPreset();;
-	RatCombatPreset		mgRatPreset = RatCombatPreset();
-	FrogCombatPreset	mgFrogPreset = FrogCombatPreset();
+	static LotusCombatPreset		mgLotusPreset		= LotusCombatPreset();
+	static EzraCombatPreset			mgEzraPreset		= EzraCombatPreset();
+	static RatCombatPreset			mgRatPreset			= RatCombatPreset();
+	static BouncyRatCombatPreset	mgBouncyRatPreset	= BouncyRatCombatPreset();
+	static FrogCombatPreset			mgFrogPreset		= FrogCombatPreset();
+	static BouncyFrogCombatPreset	mgBouncyFrogPreset	= BouncyFrogCombatPreset();
+	static HidingRatCombatPreset	mgHidingRatPreset	= HidingRatCombatPreset();
+	static FastRatCombatPreset		mgFastRatPreset		= FastRatCombatPreset();
 
-	ImpassableTilePreset mgImpassiblePreset = ImpassableTilePreset();
+	static ImpassableTilePreset mgImpassiblePreset = ImpassableTilePreset();
 
 
 	int mgWorldNumber = 0;
@@ -259,7 +264,8 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(1475, 1550,     400, 425, levelBlockX, levelBlockY), preset 					));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(1500, 1525,     425, 600, levelBlockX, levelBlockY), preset 					));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(1200, 1225,     400, 600, levelBlockX, levelBlockY), preset 					));
-		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(900,  925,      400, 600, levelBlockX, levelBlockY), preset 					));
+		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(900,  950,      400, 425, levelBlockX, levelBlockY), preset 					));
+		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(900,  925,      425, 600, levelBlockX, levelBlockY), preset 					));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(600,  625,      300, 575, levelBlockX, levelBlockY), wallJumpablePreset		));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(300,  325,      200, 575, levelBlockX, levelBlockY), wallJumpablePreset		));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(25,   150,      300, 325, levelBlockX, levelBlockY), preset 					));
@@ -314,7 +320,8 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		levelBlockX = 2000;
 		levelBlockY = 0;
 
-		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(0,    2500,  700,    725,   levelBlockX, levelBlockY), solidPreset 		));
+		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(0,    2400,  700,    725,   levelBlockX, levelBlockY), solidPreset 		));
+		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(2400, 2500,  700,    725,   levelBlockX, levelBlockY), bouncyPreset 		));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(0,    25,    400,    1850,  levelBlockX, levelBlockY), preset 			    ));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(25,   100,   1000,   1025,  levelBlockX, levelBlockY), preset 				));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(25,   500,   1200,   1225,  levelBlockX, levelBlockY), preset 				));
@@ -362,7 +369,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllNonStaticPlatforms.push_back(new Crate(CoordsX1X2Y1Y2(325,  400,   1425,   1500,  levelBlockX, levelBlockY), cratePreset	 		));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(300,  600,   1725,   1750,  levelBlockX, levelBlockY), bouncyPreset 		));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(2550, 2800,  850,    875,   levelBlockX, levelBlockY), preset		 		));
-		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(2350, 2375,  625,    700,   levelBlockX, levelBlockY), preset				));
+		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(2350, 2375,  575,    700,   levelBlockX, levelBlockY), preset				));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(2200, 2325,  675,    700,   levelBlockX, levelBlockY), spikePreset			));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1700, 1725,  125,    700,   levelBlockX, levelBlockY), preset		 		));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1700, 3025,  100,    125,   levelBlockX, levelBlockY), solidPreset		 	));
@@ -399,11 +406,11 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpPlatforms.push_back(new Platform(CoordsX1X2Y1Y2(700,	725,     25,    675, levelBlockX, levelBlockY), preset));
 
 		
-		curLevel->mpAllCollectibles.push_back(new MiniGameLevelCollectible(Vect2(675 + levelBlockX, 700 + levelBlockY), CMiniGameLevelPreset((int)EEntityCharacterTypes_E_RAT, LevelData(0, 0, 0))));
+		curLevel->mpAllCollectibles.push_back(new MiniGameLevelCollectible(Vect2(675 + levelBlockX, 700 + levelBlockY), CMiniGameLevelPreset(EEntityCharacterTypes_E_RAT, LevelData(mgWorldNumber, mgLevelNumber, mgStageNumber))));
 		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(	 900 + levelBlockX, 700 + levelBlockY), endOfLevelPreset));
 	}
 
-	// MG LEVEL 0 (0,0,0)
+	// MG LEVEL 0
 	if (build)
 	{
 		pMGCurWorld->mpLevels.push_back(new MiniGameLevel(mgLevelNumber, LevelData(GO_TO_MAIN_WORLD, GO_TO_MAIN_WORLD)));
@@ -415,9 +422,10 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		pMGCurStage		= pMGCurLevel->mpStages[mgStageNumber];
 		pCombatManager	= &pMGCurStage->mCombatManager;
 		pGrid			= &pMGCurStage->mGrid;
-
-		pCombatManager->mpAllCombatCharacters.push_back(new CombatCharacter("LOTUS",	pGrid->mpTiles[pGrid->getIndex(0, 8)], mgPlayerPreset));
-		pCombatManager->mpAllCombatCharacters.push_back(new CombatCharacter("DRAGAUR",	pGrid->mpTiles[pGrid->getIndex(2, 5)], mgRatPreset));
+		
+		pGrid->createGrid(8, 8);
+		pCombatManager->addCharacter(0, new CombatCharacter("LOTUS",	*pGrid->mpTiles[pGrid->getIndex(1, 1)], mgLotusPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("DRAGAUR",	*pGrid->mpTiles[pGrid->getIndex(1, 5)], mgRatPreset));
 
 		// STAGE 1
 		mgStageNumber = 1;
@@ -426,9 +434,10 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		pCombatManager	= &pMGCurStage->mCombatManager;
 		pGrid			= &pMGCurStage->mGrid;
 
-
-		pCombatManager->mpAllCombatCharacters.push_back(new CombatCharacter("LOTUS",	pGrid->mpTiles[pGrid->getIndex(1, 1)], mgPlayerPreset));
-		pCombatManager->mpAllCombatCharacters.push_back(new CombatCharacter("DRAGAUR",	pGrid->mpTiles[pGrid->getIndex(1, 6)], mgRatPreset));
+		pGrid->createGrid(8, 8);
+		pCombatManager->addCharacter(0, new CombatCharacter("LOTUS",		*pGrid->mpTiles[pGrid->getIndex(1, 1)], mgLotusPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("DRAGAUR 1",	*pGrid->mpTiles[pGrid->getIndex(1, 5)], mgRatPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("DRAGAUR 2",	*pGrid->mpTiles[pGrid->getIndex(5, 1)], mgRatPreset));
 
 		pGrid->mpTiles[pGrid->getIndex(1, 3)]->setType(mgImpassiblePreset);
 		pGrid->mpTiles[pGrid->getIndex(3, 4)]->setType(mgImpassiblePreset);
@@ -440,18 +449,43 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		pCombatManager	= &pMGCurStage->mCombatManager;
 		pGrid			= &pMGCurStage->mGrid;
 
-		pCombatManager->mpAllCombatCharacters.push_back(new CombatCharacter("LOTUS",		pGrid->mpTiles[pGrid->getIndex(1, 1)], mgPlayerPreset));
-		pCombatManager->mpAllCombatCharacters.push_back(new CombatCharacter("DRAGAUR 1",	pGrid->mpTiles[pGrid->getIndex(1, 6)], mgRatPreset));
-		pCombatManager->mpAllCombatCharacters.push_back(new CombatCharacter("DRAGAUR 2",	pGrid->mpTiles[pGrid->getIndex(4, 1)], mgRatPreset));
+		pGrid->createGrid(12, 12);
+		pCombatManager->addCharacter(0, new CombatCharacter("LOTUS",	*pGrid->mpTiles[pGrid->getIndex(1, 1)], mgLotusPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("DRAGAUR",	*pGrid->mpTiles[pGrid->getIndex(1, 6)], mgRatPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("SEEDLING",	*pGrid->mpTiles[pGrid->getIndex(4, 1)], mgFastRatPreset));
 
-		pGrid->mpTiles[pGrid->getIndex(2, 3)]->setType(mgImpassiblePreset);
-		pGrid->mpTiles[pGrid->getIndex(3, 4)]->setType(mgImpassiblePreset);
-		pGrid->mpTiles[pGrid->getIndex(5, 6)]->setType(mgImpassiblePreset);
+		pGrid->mpTiles[pGrid->getIndex(1, 4)]->setType(mgImpassiblePreset);
+		pGrid->mpTiles[pGrid->getIndex(3, 2)]->setType(mgImpassiblePreset);
+		pGrid->mpTiles[pGrid->getIndex(3, 6)]->setType(mgImpassiblePreset);
+
+		// STAGE 3
+		mgStageNumber = 3;
+		pMGCurLevel->mpStages.push_back(new MiniGameStage(mgStageNumber));
+		pMGCurStage		= pMGCurLevel->mpStages[mgStageNumber];
+		pCombatManager	= &pMGCurStage->mCombatManager;
+		pGrid			= &pMGCurStage->mGrid;
+
+		pGrid->createGrid(10, 10);
+		pCombatManager->addCharacter(0,  new CombatCharacter("LOTUS",		*pGrid->mpTiles[pGrid->getIndex(2, 2)], mgLotusPreset));
+		pCombatManager->addCharacter(0,  new CombatCharacter("SEEDLING",	*pGrid->mpTiles[pGrid->getIndex(0, 6)], mgFastRatPreset));
+		pCombatManager->addCharacter(0,  new CombatCharacter("DRAGAUR",		*pGrid->mpTiles[pGrid->getIndex(4, 5)], mgRatPreset));
+
+		pCombatManager->addCharacter(15, new CombatCharacter("SEEDLING 1",	*pGrid->mpTiles[pGrid->getIndex(1, 1)], mgFastRatPreset));
+		
+		pCombatManager->addCharacter(27, new CombatCharacter("DRAGAUR 2",	*pGrid->mpTiles[pGrid->getIndex(6, 1)], mgRatPreset));
+		pCombatManager->addCharacter(27, new CombatCharacter("DRAGAUR 3",	*pGrid->mpTiles[pGrid->getIndex(1, 5)], mgRatPreset));
+
+		pGrid->mpTiles[pGrid->getIndex(1, 4)]->setType(mgImpassiblePreset);
+		pGrid->mpTiles[pGrid->getIndex(3, 2)]->setType(mgImpassiblePreset);
+		pGrid->mpTiles[pGrid->getIndex(3, 6)]->setType(mgImpassiblePreset);
 	}
 
-	// LEVEL 3
+	// LEVEL 3 (--> MG 1)
 	if (build)
 	{
+		mgLevelNumber = 1;
+		mgStageNumber = 0;
+
 		curLevelNumber = 3;
 		playerStartingPosition = Vect2(75, 275);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
@@ -515,9 +549,9 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(0,    25,   225,   1500,  levelBlockX, levelBlockY), preset 			));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1000, 1025, 25,    1200,  levelBlockX, levelBlockY), preset 			));
-		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1000, 1025, 1425,  1625,  levelBlockX, levelBlockY), preset 			));
-		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1000, 1200, 1400,  1425,  levelBlockX, levelBlockY), preset 			));
-		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1175, 1200, 1225,  1400,  levelBlockX, levelBlockY), preset 			));
+		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1000, 1025, 1400,  1625,  levelBlockX, levelBlockY), preset 			));
+		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1000, 1200, 1375,  1400,  levelBlockX, levelBlockY), preset 			));
+		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1175, 1200, 1225,  1375,  levelBlockX, levelBlockY), preset 			));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(0,    150,  200,   225,   levelBlockX, levelBlockY), preset 			));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(25,   400,  400,   425,   levelBlockX, levelBlockY), preset 			));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(435,  800,  400,   425,   levelBlockX, levelBlockY), preset 			));
@@ -535,14 +569,83 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(935,  1000, 975,   1000,  levelBlockX, levelBlockY), preset 			));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(25,   765,  1200,  1225,  levelBlockX, levelBlockY), solidPreset 		));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(800,  1200, 1200,  1225,  levelBlockX, levelBlockY), solidPreset 		));
-		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(650,  850,  1400,  1425,  levelBlockX, levelBlockY), preset 			));
+		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(650,  850,  1375,  1400,  levelBlockX, levelBlockY), preset 			));
 
 		curLevel->mpAllEnemies.push_back(new Enemy(Vect2(300 + levelBlockX, 350 + levelBlockY), frogPreset));
 		curLevel->mpAllEnemies.push_back(new Enemy(Vect2(800 + levelBlockX, 750 + levelBlockY), frogPreset));
 		curLevel->mpAllEnemies.push_back(new Enemy(Vect2(400 + levelBlockX,1150 + levelBlockY), frogPreset));
 
 		curLevel->mpAllCollectibles.push_back(new SavePoint(Vect2(  100 + levelBlockX,  150 + levelBlockY)));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1100 + levelBlockX, 1300 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new MiniGameLevelCollectible( Vect2(975  + levelBlockX, 1275 + levelBlockY), CMiniGameLevelPreset(EEntityCharacterTypes_E_FROG, LevelData(mgWorldNumber, mgLevelNumber, mgStageNumber))));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(	Vect2(1100 + levelBlockX, 1275 + levelBlockY), endOfLevelPreset));
+	}
+
+	// MG LEVEL 1
+	if (build)
+	{
+		pMGCurWorld->mpLevels.push_back(new MiniGameLevel(mgLevelNumber, LevelData(GO_TO_MAIN_WORLD, GO_TO_MAIN_WORLD)));
+		pMGCurLevel = pMGCurWorld->mpLevels[mgLevelNumber];
+
+		// STAGE 0
+		mgStageNumber = 0;
+		pMGCurLevel->mpStages.push_back(new MiniGameStage(mgStageNumber));
+		pMGCurStage = pMGCurLevel->mpStages[mgStageNumber];
+		pCombatManager = &pMGCurStage->mCombatManager;
+		pGrid = &pMGCurStage->mGrid;
+
+		pGrid->createGrid(10, 10);
+		pCombatManager->addCharacter(0, new CombatCharacter("LOTUS",		*pGrid->mpTiles[pGrid->getIndex(3, 3)], mgLotusPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("DRAGAUR",		*pGrid->mpTiles[pGrid->getIndex(1, 5)], mgRatPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("FROCODILE",	*pGrid->mpTiles[pGrid->getIndex(5, 2)], mgFrogPreset));
+
+		pCombatManager->addCharacter(15, new CombatCharacter("SEEDLING",	*pGrid->mpTiles[pGrid->getIndex(8, 7)], mgFastRatPreset));
+		
+		pCombatManager->addCharacter(24, new CombatCharacter("SEEDLING 2",	*pGrid->mpTiles[pGrid->getIndex(5, 9)], mgFastRatPreset));
+		pCombatManager->addCharacter(24, new CombatCharacter("SEEDLING 3",	*pGrid->mpTiles[pGrid->getIndex(1, 1)], mgFastRatPreset));
+		
+		pCombatManager->addCharacter(30, new CombatCharacter("DRAGAUR 2",	*pGrid->mpTiles[pGrid->getIndex(9, 9)], mgRatPreset));
+
+		// STAGE 1
+		mgStageNumber = 1;
+		pMGCurLevel->mpStages.push_back(new MiniGameStage(mgStageNumber));
+		pMGCurStage = pMGCurLevel->mpStages[mgStageNumber];
+		pCombatManager = &pMGCurStage->mCombatManager;
+		pGrid = &pMGCurStage->mGrid;
+
+		pGrid->createGrid(10, 10);
+		pCombatManager->addCharacter(0, new CombatCharacter("LOTUS",		*pGrid->mpTiles[pGrid->getIndex(8, 3)], mgLotusPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("DRAGAUR",		*pGrid->mpTiles[pGrid->getIndex(5, 1)], mgRatPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("SEEDLING",		*pGrid->mpTiles[pGrid->getIndex(3, 2)], mgFastRatPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("FROCODILE",	*pGrid->mpTiles[pGrid->getIndex(3, 5)], mgFrogPreset));
+
+		pCombatManager->addCharacter(30, new CombatCharacter("DRAGAUR 2",	*pGrid->mpTiles[pGrid->getIndex(5, 5)], mgRatPreset));
+		
+		pCombatManager->addCharacter(50, new CombatCharacter("SEEDLING 2",  *pGrid->mpTiles[pGrid->getIndex(9, 9)], mgFastRatPreset));
+
+		pGrid->mpTiles[pGrid->getIndex(1, 3)]->setType(mgImpassiblePreset);
+		pGrid->mpTiles[pGrid->getIndex(3, 4)]->setType(mgImpassiblePreset);
+
+		// STAGE 2
+		mgStageNumber = 2;
+		pMGCurLevel->mpStages.push_back(new MiniGameStage(mgStageNumber));
+		pMGCurStage = pMGCurLevel->mpStages[mgStageNumber];
+		pCombatManager = &pMGCurStage->mCombatManager;
+		pGrid = &pMGCurStage->mGrid;
+
+		pGrid->createGrid(12, 12);
+		pCombatManager->addCharacter(0, new CombatCharacter("LOTUS",		*pGrid->mpTiles[pGrid->getIndex(7, 1)], mgLotusPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("DRAGAUR",		*pGrid->mpTiles[pGrid->getIndex(9, 5)], mgRatPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("FROCODILE 1",	*pGrid->mpTiles[pGrid->getIndex(1, 1)], mgFrogPreset));
+		pCombatManager->addCharacter(0, new CombatCharacter("FROCODILE 2",	*pGrid->mpTiles[pGrid->getIndex(3, 9)], mgFrogPreset));
+		
+		pCombatManager->addCharacter(20, new CombatCharacter("FROCODILE 3", *pGrid->mpTiles[pGrid->getIndex(0, 2)], mgFrogPreset));
+		pCombatManager->addCharacter(20, new CombatCharacter("DRAGAUR 2",	*pGrid->mpTiles[pGrid->getIndex(2, 5)], mgRatPreset));
+		pCombatManager->addCharacter(20, new CombatCharacter("DRAGAUR 3",	*pGrid->mpTiles[pGrid->getIndex(4, 5)], mgRatPreset));
+
+		pGrid->mpTiles[pGrid->getIndex(3, 1)]->setType(mgImpassiblePreset);
+		pGrid->mpTiles[pGrid->getIndex(3, 2)]->setType(mgImpassiblePreset);
+		pGrid->mpTiles[pGrid->getIndex(7, 7)]->setType(mgImpassiblePreset);
+		pGrid->mpTiles[pGrid->getIndex(8, 7)]->setType(mgImpassiblePreset);
 	}
 
 	// LEVEL 4
@@ -1730,6 +1833,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllCollectibles.push_back(new SavePoint(			Vect2(2200 + levelBlockX, 100 + levelBlockY)));
 		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1900 + levelBlockX, 750 + levelBlockY), endOfLevelPreset));
 	}
+
 
 
 	for (World* pWorld : worldData.mpWorlds)

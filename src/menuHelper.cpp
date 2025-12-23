@@ -169,22 +169,32 @@ std::vector <UIBlock*> MenuPage::getAllBlocks() const
 
 
 
-void MenuPage::updateAllTextBoxShowState(MiniGameStateManagerData& data)
+void MenuPage::updateAllUIBoxesShowState(MiniGameStateManagerData& data, const CombatManager& combatManager)
 {
 	// update show state for all textboxes
 	for (TextBox* pCurTextBox : mpAllSelectableTextBoxes)
 	{
-		pCurTextBox->mShow = shouldShowTextBox(*pCurTextBox, data);
+		pCurTextBox->mShow = shouldShowUIBox(pCurTextBox->mData, data, combatManager);
 	}
 
 	for (TextBox* pCurTextBox : mpAllDisplayOnlyTextBoxes)
 	{
-		pCurTextBox->mShow = shouldShowTextBox(*pCurTextBox, data);
+		pCurTextBox->mShow = shouldShowUIBox(pCurTextBox->mData, data, combatManager);
+	}
+
+	for (ImageBox* pImageBox : mpImageBoxes)
+	{
+		pImageBox->mShow = shouldShowUIBox(pImageBox->mData, data, combatManager);
 	}
 
 	for (ShapeBox* pShapeBox : mpShapeBoxes)
 	{
-		pShapeBox->mShow = shouldShowTextBox(*pShapeBox, data);
+		pShapeBox->mShow = shouldShowUIBox(pShapeBox->mData, data, combatManager);
+	}
+
+	for (HealthBox* pHealthBox : mpHealthBoxes)
+	{
+		pHealthBox->mShow = shouldShowUIBox(pHealthBox->mData, data, combatManager);
 	}
 }
 
@@ -331,7 +341,7 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 	if (shouldUpdateTextBoxShowState(curState, forceUpdate))
 	{
 		updated = true;
-		mpCurMenuPage->updateAllTextBoxShowState(mMiniGameStateManagerData);
+		mpCurMenuPage->updateAllUIBoxesShowState(mMiniGameStateManagerData, mMiniGameWorldData.getStage()->mCombatManager);
 	}
 	if (mpCurMenuPage->getCurTextBox() == nullptr) 
 	{
@@ -347,15 +357,15 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 		std::string updatedMessage = pCurTextBox->mMessage;
 		switch (pCurTextBox->mData.mType)
 		{
-		case ETextBoxType_GAME_STAT_BOX:
+		case EUIBoxType_GAME_STAT_BOX:
 			updatedMessage = updateGameStatBoxCurTextBoxMessage(*pCurTextBox, curKeys, mWorldData, mSettingsManager);
 			break;
-		case ETextBoxType_MINI_GAME_STAT_BOX:
+		case EUIBoxType_MINI_GAME_STAT_BOX:
 			updatedMessage = updateMiniGameStatBoxCurTextBoxMessage(*pCurTextBox, mMiniGameStateManagerData, mMiniGameWorldData);
 			break;
-		case ETextBoxType_MINI_GAME_PLAYER_BOX:
-		case ETextBoxType_MINI_GAME_CHARACTER_BOX:
-		case ETextBoxType_MINI_GAME_PLAYER_ATTACK_BOX:
+		case EUIBoxType_MINI_GAME_PLAYER_BOX:
+		case EUIBoxType_MINI_GAME_CHARACTER_BOX:
+		case EUIBoxType_MINI_GAME_PLAYER_ATTACK_BOX:
 			updatedMessage = updateCharacterStatBoxCurTextBoxMessage(*pCurTextBox, mMiniGameStateManagerData, mMiniGameWorldData);
 			break;
 		default:
@@ -368,6 +378,7 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 			updated = true;
 		}
 	}
+
 	for (HealthBox* pHealthBox : mpCurMenuPage->mpHealthBoxes)
 	{
 		std::string updatedMessage = updateHealthStatBoxCurTextBoxMessage(*pHealthBox, mMiniGameWorldData);
@@ -492,29 +503,32 @@ void MenuManager::printBoxes()
 	// health boxes
 	for (HealthBox* pHealthBox : mpCurMenuPage->mpHealthBoxes)
 	{
-		SDL_SetRenderDrawColor(pRenderer, pHealthBox->mBoundingBox.mColor.r, pHealthBox->mBoundingBox.mColor.g, pHealthBox->mBoundingBox.mColor.b, pHealthBox->mBoundingBox.mColor.a);
-		SDL_FRect boundingRect = {	pHealthBox->mBoundingBox.mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
-									pHealthBox->mBoundingBox.mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
-									pHealthBox->mBoundingBox.mpCurHitbox->getWidth()  * mScreen.mGameScreenToGameLevelChunkRatio,
-									pHealthBox->mBoundingBox.mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
-		SDL_RenderFillRect(pRenderer, &boundingRect);
-
-		SDL_SetRenderDrawColor(pRenderer, pHealthBox->mHealthLeftBox.mColor.r, pHealthBox->mHealthLeftBox.mColor.g, pHealthBox->mHealthLeftBox.mColor.b, pHealthBox->mHealthLeftBox.mColor.a);
-		SDL_FRect healthRect = {	pHealthBox->mHealthLeftBox.mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
-									pHealthBox->mHealthLeftBox.mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
-									pHealthBox->mHealthLeftBox.mpCurHitbox->getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
-									pHealthBox->mHealthLeftBox.mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
-		SDL_RenderFillRect(pRenderer, &healthRect);
-
-		// text
-		for (int i = 0; i < (*(pHealthBox->mHealthText.mpCurTextures)).size(); i++)
+		if (pHealthBox->mShow)
 		{
-			const Hitbox& curLineBox = (*(pHealthBox->mHealthText.mpCurLineHitboxes))[i];
-			SDL_FRect destinationText = {	curLineBox.getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
-											curLineBox.getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
-											curLineBox.getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
-											curLineBox.getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
-			SDL_RenderTexture(pRenderer, (*(pHealthBox->mHealthText.mpCurTextures))[i], NULL, &destinationText);
+			SDL_SetRenderDrawColor(pRenderer, pHealthBox->mBoundingBox.mColor.r, pHealthBox->mBoundingBox.mColor.g, pHealthBox->mBoundingBox.mColor.b, pHealthBox->mBoundingBox.mColor.a);
+			SDL_FRect boundingRect = { pHealthBox->mBoundingBox.mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
+										pHealthBox->mBoundingBox.mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
+										pHealthBox->mBoundingBox.mpCurHitbox->getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
+										pHealthBox->mBoundingBox.mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
+			SDL_RenderFillRect(pRenderer, &boundingRect);
+
+			SDL_SetRenderDrawColor(pRenderer, pHealthBox->mHealthLeftBox.mColor.r, pHealthBox->mHealthLeftBox.mColor.g, pHealthBox->mHealthLeftBox.mColor.b, pHealthBox->mHealthLeftBox.mColor.a);
+			SDL_FRect healthRect = { pHealthBox->mHealthLeftBox.mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
+										pHealthBox->mHealthLeftBox.mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
+										pHealthBox->mHealthLeftBox.mpCurHitbox->getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
+										pHealthBox->mHealthLeftBox.mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
+			SDL_RenderFillRect(pRenderer, &healthRect);
+
+			// text
+			for (int i = 0; i < (*(pHealthBox->mHealthText.mpCurTextures)).size(); i++)
+			{
+				const Hitbox& curLineBox = (*(pHealthBox->mHealthText.mpCurLineHitboxes))[i];
+				SDL_FRect destinationText = { curLineBox.getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
+												curLineBox.getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
+												curLineBox.getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
+												curLineBox.getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
+				SDL_RenderTexture(pRenderer, (*(pHealthBox->mHealthText.mpCurTextures))[i], NULL, &destinationText);
+			}
 		}
 	}
 }
@@ -536,21 +550,21 @@ void MenuManager::updateUIElements()
 	for (int count = 0; count < mpCurMenuPage->mpImageBoxes.size(); count++)
 	{
 		ImageBox* pCurImageBox = mpCurMenuPage->mpImageBoxes[count];
-		switch (pCurImageBox->mID)
+		switch (pCurImageBox->mData.mType)
 		{
-		case ETextBoxID_TAKE_DAMAGE_SCREEN:
+		case EUIBoxType_TAKE_DAMAGE_SCREEN:
 			pCurImageBox->mShow = mWorldData.mPlayer.takingDamage();
 			break;
-		case ETextBoxID_PROJECTILE_UI:
+		case EUIBoxType_PROJECTILE_UI:
 			if (curProjectileBoxIndex == -1)
 			{
 				curProjectileBoxIndex = count;
 			}
 			break;
-		case ETextBoxID_DOUBLE_JUMP_UI:
+		case EUIBoxType_DOUBLE_JUMP_UI:
 			pCurImageBox->mShow = pCurLevel->mDoubleJumpAllowed;
 			break;
-		case ETextBoxID_SLASH_UI:
+		case EUIBoxType_SLASH_UI:
 			pCurImageBox->mShow = pCurLevel->mSlashAllowed;
 			break;
 		default:

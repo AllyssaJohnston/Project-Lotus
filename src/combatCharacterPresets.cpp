@@ -161,7 +161,7 @@ FrogCombatPreset::FrogCombatPreset() : CombatCharacterPreset()
     mType = EMiniGameCombatCharacterType_ENEMY;
 
     // JUMP STRIKE
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, 5, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.5f, "Jump Strike");
+    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, 5, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.4f, "Jump Strike");
     attack1.mDamageDistanceDependent = true;
     attack1.mRequiresDirectionInput = false;
     mAttacks.push_back(attack1);
@@ -273,8 +273,8 @@ FastRatCombatPreset::FastRatCombatPreset() : CombatCharacterPreset()
 
     setMove(EMiniGameCombatMoveAttackTypes_SQUARE, 2, 0);
 
-    mAttackDamage = 6;
-    mHealthCapacity = 30;
+    mAttackDamage = 2;
+    mHealthCapacity = 24;
     mDefenseCapacity = 6;
 
     mModelFileName = "MiniGameModels/Earth/MiniGameModelsSeedling.bmp";

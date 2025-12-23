@@ -1,5 +1,6 @@
 #include "textBoxHelper.h"
 
+UIBox::UIBox(const UIBoxData data) : mData(data) { ; }
 
 UIBox::~UIBox()
 {
@@ -7,7 +8,7 @@ UIBox::~UIBox()
 }
 
 TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, TextBoxPositionInfo positionInfo, const char* fileName, TextBoxSizeInfo sizeInfo,
-		TextBoxColorInfo colorInfo) : mData(preset.mData), mFunction(textBoxFunction), mMessage(preset.mMessage),
+		TextBoxColorInfo colorInfo) : UIBox(preset.mData), mFunction(textBoxFunction), mMessage(preset.mMessage),
 		mMaxWidth(positionInfo.mMaxWidth), mMaxHeight(positionInfo.mMaxHeight), mFontFile(fileName), mStandardFontSize(sizeInfo.mStandardFontSize), 
 		mHighlightedFontSize(sizeInfo.mHighlightedFontSize), mOutlineWidth(sizeInfo.mOutlineWidth), 
 		mStandardTextBoxColor(colorInfo.mStandardTextBoxColor), mHighlightedTextBoxColor(colorInfo.mHighlightedTextBoxColor), 
@@ -37,8 +38,6 @@ TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, T
 		SDL_assert(false);
 		break;
 	}
-
-	mAutoShow = (mData.mType == ETextBoxType_MINI_GAME_BOX or mData.mType == ETextBoxType_MINI_GAME_PLAYER_BOX or mData.mType == ETextBoxType_MINI_GAME_CHARACTER_BOX) ? false : true;
 
 	mStandardHitbox			= Hitbox(x, positionInfo.mMaxWidth + x, y, positionInfo.mMaxHeight + y);
 	mHighlightedHitbox		= Hitbox(x, positionInfo.mMaxWidth + x, y, positionInfo.mMaxHeight + y);
@@ -84,14 +83,16 @@ void TextBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChar
 	{
 		std::cout << "Font size too big: " + textMessage + "\n max size: " + std::to_string(mMaxFontSizeGivenText) + " requested size: " + std::to_string(mHighlightedFontSize)<<"\n";
 	}
-	mHighlightedFontSize = std::min(mHighlightedFontSize, mMaxFontSizeGivenText);
-	mStandardFontSize	= std::min(mStandardFontSize, mMaxFontSizeGivenText);
+	if (mHighlightedFontSize > mMaxFontSizeGivenText)
+	{
+		mHighlightedFontSize = mMaxFontSizeGivenText;
+		mStandardFontSize = mMaxFontSizeGivenText;
+	}
 
 	updateTextLines(textMessage, fontSizeChart);
 	setTextBoxTexture(pRenderer);
 	updateHitboxes();
 	mSetUp = true;
-
 }
 
 void TextBox::calcMaxFontSizeGivenText(FontSizeChart& fontSizeChart)
@@ -332,7 +333,7 @@ void TextBox::shiftHitbox(const Vect2 shiftTopLeft)
 
 
 
-ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo positionInfo, const std::string fileName) 
+ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo positionInfo, const std::string fileName) : UIBox(preset.mData)
 {
 	mClassType		= EUIBoxClass_IMAGEBOX;
 	mImageObject	= ImageObject(fileName, positionInfo.mMaxWidth, positionInfo.mMaxHeight, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
@@ -365,7 +366,6 @@ ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo posit
 
 	mRotation      = positionInfo.mRotation;
 	mAutoShow      = preset.mAutoShow;
-	mID            = preset.mID;
 }
 
 void ImageBox::shiftHitbox(const Vect2 shiftTopLeft) { mpCurHitbox->updateTopLeft(shiftTopLeft); }
@@ -373,7 +373,7 @@ void ImageBox::shiftHitbox(const Vect2 shiftTopLeft) { mpCurHitbox->updateTopLef
 
 
 
-ShapeBox::ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positionInfo, const SDL_Color color) : mShapeType(preset.mType), mDataStorage(preset), mColor(color) 
+ShapeBox::ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positionInfo, const SDL_Color color) : UIBox(preset.mData), mShapeType(preset.mType), mColor(color)
 {
 	mClassType = EUIBoxClass_SHAPEBOX;
 	mPositionAlign = positionInfo.mPositionAlign;
@@ -400,9 +400,6 @@ ShapeBox::ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positi
 		break;
 	}
 
-	mAutoShow = (mDataStorage.mType == ETextBoxType_MINI_GAME_BOX or mDataStorage.mType == ETextBoxType_MINI_GAME_PLAYER_BOX or
-		mDataStorage.mType == ETextBoxType_MINI_GAME_CHARACTER_BOX) ? false : true;
-
 	mpCurHitbox = new Hitbox(x, positionInfo.mMaxWidth + x, y, positionInfo.mMaxHeight + y);
 	mMargins = positionInfo.mMargins;
 }
@@ -410,13 +407,12 @@ ShapeBox::ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positi
 void ShapeBox::shiftHitbox(const Vect2 shiftTopLeft) { mpCurHitbox->updateTopLeft(shiftTopLeft); }
 
 
+
 HealthBox::HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int textSize, 
-		const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor) : UIBox(), 
+		const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor) : UIBox(preset.mData),
 		mBoundingBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, backgroundColor)), mHealthLeftBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, healthColor)),
-		mHealthText(TextBox(StandardTextBoxPreset("temp"), ETextBoxFunction_NO_FUNCTION, positionInfo, font, textSize, textColor)), mMaxWidth(positionInfo.mMaxWidth),
-		mCombatCharacterIndex(preset.mCombatCharacterIndex), mStatToDisplay(preset.mStatToDisplay)
+		mHealthText(TextBox(StandardTextBoxPreset("temp"), ETextBoxFunction_NO_FUNCTION, positionInfo, font, textSize, textColor)), mMaxWidth(positionInfo.mMaxWidth)
 { 
-	mAutoShow = true;
 	mPositionAlign = positionInfo.mPositionAlign;
 	mClassType = EUIBoxClass_HEALTHBOX;
 	mpCurHitbox = mBoundingBox.mpCurHitbox;

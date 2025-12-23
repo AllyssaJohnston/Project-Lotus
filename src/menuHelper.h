@@ -70,7 +70,7 @@ public:
 
 	std::vector <UIBlock*> getAllBlocks() const;
 
-	void updateAllTextBoxShowState(MiniGameStateManagerData& data);
+	void updateAllUIBoxesShowState(MiniGameStateManagerData& data, const CombatManager& combatManager);
 
 	void setDefaultSelectedBox();
 

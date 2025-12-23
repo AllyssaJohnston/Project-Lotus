@@ -157,11 +157,11 @@ std::vector<CombatCharacter> createCombatCharacterSnapShots(const CombatManager&
 std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacter>& preTickCharacters)
 {
 	std::string line = "";
-	std::vector<CombatCharacter*> pCurAliveCharacters = combatManager.getCurAliveCharacters();
+	const std::vector<CombatCharacter*> pCurAliveCharacters = combatManager.getAllCharacters();
 	for (int i = 0; i < (int)pCurAliveCharacters.size(); i++)
 	{
 		std::string curLine = "";
-		CombatCharacter* pCharacter = pCurAliveCharacters[i];
+		const CombatCharacter* pCharacter = pCurAliveCharacters[i];
 		const CombatCharacter& preTickCharacter = preTickCharacters[i];
 
 		int curHealth = pCharacter->getCurHealth();

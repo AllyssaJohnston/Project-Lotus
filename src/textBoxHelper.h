@@ -29,14 +29,14 @@ enum EUIBoxClass
 class UIBox
 {
 public:
-	bool					mAutoShow		= true;
+	const UIBoxData			mData;
 	bool					mShow			= true;
 	ETextBoxPositionAlign	mPositionAlign	= ETextBoxPositionAlign_CENTER; //only affects x coord
 	Hitbox*					mpCurHitbox		= nullptr;
 	Edges					mMargins		= Edges();
 	EUIBoxClass				mClassType		= EUIBoxClass_INVALID;
 
-	UIBox() { ; }
+	UIBox(const UIBoxData data);
 	virtual ~UIBox();
 
 	virtual void shiftHitbox(const Vect2 shiftTopLeft) = 0;
@@ -45,7 +45,6 @@ public:
 class TextBox : public UIBox
 {
 public:
-	const TextBoxData		mData;
 	ETextBoxFunction		mFunction			= ETextBoxFunction_INVALID;
 	std::string				mMessage			= "invalid";
 
@@ -128,10 +127,10 @@ private:
 class ImageBox : public UIBox
 {
 public:
+	bool					mAutoShow = true;
 	int						mRotation		= 0;
 	ETextBoxPositionAlign	mPositionAlign	= ETextBoxPositionAlign_INVALID;
 	ImageObject				mImageObject;
-	ETextBoxID				mID				= ETextBoxID_INVALID;
 
 	ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo positionInfo, const std::string fileName);
 
@@ -143,9 +142,8 @@ public:
 class ShapeBox : public UIBox
 {
 public:
-	EShapeBoxClass mShapeType = EShapeBoxClass_INVALID;
-	SDL_Color	   mColor;
-	ShapeBoxPreset mDataStorage;
+	EShapeBoxClass  mShapeType = EShapeBoxClass_INVALID;
+	SDL_Color	    mColor;
 
 	ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positionInfo, const SDL_Color color);
 
@@ -159,8 +157,6 @@ public:
 	ShapeBox mBoundingBox;
 	ShapeBox mHealthLeftBox;
 	TextBox	 mHealthText;
-	ECharacterStatBoxValueToDisplay mStatToDisplay;
-	int		 mCombatCharacterIndex = -1;
 
 	HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int textSize, const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor);
 

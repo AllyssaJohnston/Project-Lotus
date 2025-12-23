@@ -34,18 +34,22 @@ enum ETextBoxFunction
 	ETextBoxFunction_MAX
 };
 
-enum ETextBoxType
+enum EUIBoxType
 {
-	ETextBoxType_INVALID = -1,
-	ETextBoxType_TEXT_BOX,
-	ETextBoxType_GAME_STAT_BOX,
-	ETextBoxType_MINI_GAME_BOX,
-	ETextBoxType_MINI_GAME_DIRECTION_BOX,
-	ETextBoxType_MINI_GAME_STAT_BOX,
-	ETextBoxType_MINI_GAME_CHARACTER_BOX,
-	ETextBoxType_MINI_GAME_PLAYER_ATTACK_BOX,
-	ETextBoxType_MINI_GAME_PLAYER_BOX,
-	ETextBoxType_MAX
+	EUIBoxType_INVALID = -1,
+	EUIBoxType_STANDARD,
+	EUIBoxType_GAME_STAT_BOX,
+	EUIBoxType_MINI_GAME_BOX,
+	EUIBoxType_MINI_GAME_DIRECTION_BOX,
+	EUIBoxType_MINI_GAME_STAT_BOX,
+	EUIBoxType_MINI_GAME_CHARACTER_BOX,
+	EUIBoxType_MINI_GAME_PLAYER_ATTACK_BOX,
+	EUIBoxType_MINI_GAME_PLAYER_BOX,
+	EUIBoxType_PROJECTILE_UI,
+	EUIBoxType_DOUBLE_JUMP_UI,
+	EUIBoxType_SLASH_UI,
+	EUIBoxType_TAKE_DAMAGE_SCREEN,
+	EUIBoxType_MAX
 };
 
 enum EGameStatBoxValueToDisplay
@@ -88,17 +92,6 @@ enum ECharacterStatBoxValueToDisplay
 	ECharacterStatBoxValueToDisplay_MAX
 };
 
-enum ETextBoxID
-{
-	ETextBoxID_INVALID = -1,
-	ETextBoxID_NA,
-	ETextBoxID_PROJECTILE_UI,
-	ETextBoxID_DOUBLE_JUMP_UI,
-	ETextBoxID_SLASH_UI,
-	ETextBoxID_TAKE_DAMAGE_SCREEN,
-	ETextBoxID_MAX
-};
-
 enum ETextBoxPositionAlign
 {
 	ETextBoxPositionAlign_INVALID = -1,
@@ -117,23 +110,23 @@ enum ETextBoxTextAlign
 	ETextBoxTextAlign_MAX
 };
 
-struct TextBoxData 
+struct UIBoxData 
 {
-	EGameStatBoxValueToDisplay			mGameStatToDisplay = EGameStatBoxValueToDisplay_INVALID;
-	int									mCombatCharacterIndex = -1;
-	EMiniGameCombatCharacterType        mCombatCharacterType = EMiniGameCombatCharacterType_CHARACTER;
-	bool								mShowDuringAllCharacters = false;
-	ECharacterStatBoxValueToDisplay		mCharacterStatToDisplay = ECharacterStatBoxValueToDisplay_INVALID;
-	int									mAttackNum = -1;
-	EMiniGameCombatAttackCategoryType	mAttackCategory = EMiniGameCombatAttackCategoryType_INVALID;
-	EDirection							mAttackDirection = EDirection_INVALID;
-	ETextBoxType						mType = ETextBoxType_INVALID;
+	EGameStatBoxValueToDisplay			mGameStatToDisplay			= EGameStatBoxValueToDisplay_INVALID;
+	int									mCombatCharacterIndex		= -1;
+	EMiniGameCombatCharacterType        mCombatCharacterType		= EMiniGameCombatCharacterType_CHARACTER;
+	bool								mShowDuringAllCharacters	= false;
+	ECharacterStatBoxValueToDisplay		mCharacterStatToDisplay		= ECharacterStatBoxValueToDisplay_INVALID;
+	int									mAttackNum					= -1;
+	EMiniGameCombatAttackCategoryType	mAttackCategory				= EMiniGameCombatAttackCategoryType_INVALID;
+	EDirection							mAttackDirection			= EDirection_INVALID;
+	EUIBoxType							mType						= EUIBoxType_INVALID;
 	std::vector <EMiniGameState>		mMiniGameStateWhenToShowList;
 
-	TextBoxData() { ; }
+	UIBoxData() { ; }
 
-	TextBoxData(EGameStatBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, 
-			int attackNum, EMiniGameCombatAttackCategoryType attackCategory, ETextBoxType mType, std::vector <EMiniGameState>& miniGameStateWhenToShowList);
+	UIBoxData(EGameStatBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay,
+			int attackNum, EMiniGameCombatAttackCategoryType attackCategory, EUIBoxType mType, std::vector <EMiniGameState>& miniGameStateWhenToShowList);
 };
 
 struct TextBoxPositionInfo
@@ -209,17 +202,6 @@ enum EShapeBoxClass
 	EShapeBoxClass_CIRCLE,
 	EShapeBoxClass_RECT,
 	EShapeBoxClass_MAX
-};
-
-enum EShapeTypeShowType
-{
-	EShapeTypeShowType_INVALID = -1,
-	EShapeTypeShowType_STANDARD,
-	EShapeTypeShowType_MINI_GAME_BOX,
-	EShapeTypeShowType_MINI_GAME_CHARACTER_BOX,
-	EShapeTypeShowType_MINI_GAME_PLAYER_BOX,
-	EShapeTypeShowType_MINI_GAME_PLAYER_ATTACK_BOX,
-	EShapeTypeShowTypee_MAX
 };
 
 struct FontSizeChart

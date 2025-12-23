@@ -1,8 +1,8 @@
 #include "textBoxHelperClass.h"
 
 
-TextBoxData::TextBoxData(EGameStatBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay,
-	int attackNum, EMiniGameCombatAttackCategoryType attackCategory, ETextBoxType type, std::vector <EMiniGameState>& miniGameStateWhenToShowList) : mGameStatToDisplay(gameStatToDisplay), mCombatCharacterIndex(combatCharacterIndex),
+UIBoxData::UIBoxData(EGameStatBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay,
+	int attackNum, EMiniGameCombatAttackCategoryType attackCategory, EUIBoxType type, std::vector <EMiniGameState>& miniGameStateWhenToShowList) : mGameStatToDisplay(gameStatToDisplay), mCombatCharacterIndex(combatCharacterIndex),
 	mShowDuringAllCharacters(showDuringAllCharacters), mCharacterStatToDisplay(characterStatToDisplay), mAttackNum(attackNum), mAttackCategory(attackCategory), mType(type), mMiniGameStateWhenToShowList(miniGameStateWhenToShowList) { ; }
 
 

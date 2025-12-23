@@ -3,41 +3,45 @@
 
 
 
-bool shouldShowTextBox(const TextBox& textBox, const MiniGameStateManagerData& data)
+bool shouldShowUIBox(const UIBoxData& data, const MiniGameStateManagerData& managerData, const CombatManager& combatManager)
 {
-	CombatCharacter* pCombatCharacter = data.mStateData.getCharacter();
-	const std::vector<EMiniGameState>& miniGameStateWhenToShowList = textBox.mData.mMiniGameStateWhenToShowList;
-	switch (textBox.mData.mType)
+	CombatCharacter* pCombatCharacter = managerData.mStateData.getCharacter();
+	const std::vector<EMiniGameState>& miniGameStateWhenToShowList = data.mMiniGameStateWhenToShowList;
+	switch (data.mType)
 	{
-	case ETextBoxType_MINI_GAME_CHARACTER_BOX:
-		if (textBox.mData.mCombatCharacterIndex != -1 && !textBox.mData.mShowDuringAllCharacters && textBox.mData.mCombatCharacterIndex != data.mStateData.getCharacterIndex()) 
+	case EUIBoxType_MINI_GAME_CHARACTER_BOX:
+		if (data.mCombatCharacterIndex != -1 && !data.mShowDuringAllCharacters && data.mCombatCharacterIndex != managerData.mStateData.getCharacterIndex())
 		{
 			return false;
 		}
-		if (textBox.mData.mCombatCharacterType != EMiniGameCombatCharacterType_CHARACTER && textBox.mData.mCombatCharacterType != data.mStateData.mTargetCharacterType)
+		if (data.mCombatCharacterIndex != -1 && !combatManager.getFromAllCharacters(data.mCombatCharacterIndex)->isAlive())
 		{
 			return false;
 		}
-		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
-	case ETextBoxType_MINI_GAME_PLAYER_BOX:
+		if (data.mCombatCharacterType != EMiniGameCombatCharacterType_CHARACTER && data.mCombatCharacterType != managerData.mStateData.mTargetCharacterType)
+		{
+			return false;
+		}
+		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), managerData.mCurStateEnum) != miniGameStateWhenToShowList.end();
+	case EUIBoxType_MINI_GAME_PLAYER_BOX:
 		if (pCombatCharacter == nullptr or pCombatCharacter->mType != EMiniGameCombatCharacterType_PLAYER)
 		{
 			return false;
 		}
-		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
-	case ETextBoxType_MINI_GAME_PLAYER_ATTACK_BOX:
-		if (textBox.mData.mCombatCharacterIndex != -1 && !textBox.mData.mShowDuringAllCharacters && textBox.mData.mCombatCharacterIndex != data.mStateData.getCharacterIndex())
+		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), managerData.mCurStateEnum) != miniGameStateWhenToShowList.end();
+	case EUIBoxType_MINI_GAME_PLAYER_ATTACK_BOX:
+		if (data.mCombatCharacterIndex != -1 && !data.mShowDuringAllCharacters && data.mCombatCharacterIndex != managerData.mStateData.getCharacterIndex())
 		{
 			return false;
 		}
-		if (std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end())
+		if (std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), managerData.mCurStateEnum) != miniGameStateWhenToShowList.end())
 		{
-			return data.mStateData.mAttackCategory == textBox.mData.mAttackCategory;
+			return data.mAttackCategory == data.mAttackCategory;
 		}
 		return false;
-	case ETextBoxType_MINI_GAME_BOX:
-	case ETextBoxType_MINI_GAME_DIRECTION_BOX:
-		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
+	case EUIBoxType_MINI_GAME_BOX:
+	case EUIBoxType_MINI_GAME_DIRECTION_BOX:
+		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), managerData.mCurStateEnum) != miniGameStateWhenToShowList.end();
 	default:
 		break;
 	}
@@ -45,39 +49,7 @@ bool shouldShowTextBox(const TextBox& textBox, const MiniGameStateManagerData& d
 	return true;
 }
 
-bool shouldShowTextBox(const ShapeBox& shapeBox, const MiniGameStateManagerData& data)
-{
-	const std::vector<EMiniGameState>& miniGameStateWhenToShowList = shapeBox.mDataStorage.mMiniGameStateWhenToShowList;
-	switch (shapeBox.mDataStorage.mShowType)
-	{
-	case EShapeTypeShowType_MINI_GAME_CHARACTER_BOX:
-		if (shapeBox.mDataStorage.mCombatCharacterIndex != -1 && !shapeBox.mDataStorage.mShowDuringAllCharacters && shapeBox.mDataStorage.mCombatCharacterIndex != data.mStateData.getCharacterIndex())
-		{
-			return false;
-		}
-		if (shapeBox.mDataStorage.mCombatCharacterType != EMiniGameCombatCharacterType_CHARACTER && shapeBox.mDataStorage.mCombatCharacterType != data.mStateData.mTargetCharacterType)
-		{
-			return false;
-		}
-		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end();
-		break;
-	case EShapeTypeShowType_MINI_GAME_PLAYER_ATTACK_BOX:
-		if (shapeBox.mDataStorage.mCombatCharacterIndex != -1 && !shapeBox.mDataStorage.mShowDuringAllCharacters && shapeBox.mDataStorage.mCombatCharacterIndex != data.mStateData.getCharacterIndex())
-		{
-			return false;
-		}
-		if (std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), data.mCurStateEnum) != miniGameStateWhenToShowList.end())
-		{
-			return data.mStateData.mAttackCategory == shapeBox.mDataStorage.mAttackCategory;
-		}
-		return false;
-		break;
-	default:
-		break;
-	}
 
-	return true;
-}
 
 void drawCircle(const SDL_Color& color, const Vect2& center, int radius, ScreenObject& screen)
 {
@@ -221,12 +193,12 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 
 std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const MiniGameWorldData& worldData) 
 { 
-	switch (healthBox.mStatToDisplay)
+	switch (healthBox.mData.mCharacterStatToDisplay)
 	{
 	case ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH:
-		return std::to_string(worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mCombatCharacterIndex)->getCurHealth());
+		return std::to_string(worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getCurHealth());
 	case ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE:
-		return std::to_string(worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mCombatCharacterIndex)->getCurDefense());
+		return std::to_string(worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getCurDefense());
 	default:
 		SDL_assert(false);
 		break;
@@ -237,12 +209,12 @@ std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, con
 
 float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const MiniGameWorldData& worldData)
 {
-	switch (healthBox.mStatToDisplay)
+	switch (healthBox.mData.mCharacterStatToDisplay)
 	{
 	case ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH:
-		return worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mCombatCharacterIndex)->getHealthRatio();
+		return worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getHealthRatio();
 	case ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE:
-		return worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mCombatCharacterIndex)->getDefenseRatio();
+		return worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getDefenseRatio();
 	default:
 		SDL_assert(false);
 		break;

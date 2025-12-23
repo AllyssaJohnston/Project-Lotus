@@ -13,14 +13,23 @@ CombatManager::~CombatManager()
 void CombatManager::postTick()
 {
     mRounds++;
+    bool recreateList = false;
+    if (mpCharactersToSpawnInRound[mRounds].size() > 0 || (mLastRoundSuccessfullySpawned < mRounds - 1))
+    {
+        recreateList = true;
+    }
     // check if the cur alive character list needs to be updated
     for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
     {
         if (pCharacter->getCurHealth() <= 0)
         {
-            createCurAliveCharacterList();
+            recreateList = true;
             break;
         }
+    }
+    if (recreateList)
+    {
+        createCurAliveCharacterList();
     }
 }
 
@@ -32,6 +41,7 @@ void CombatManager::addCharacter(int roundNum, CombatCharacter* pCharacter)
 
 void CombatManager::createCurAliveCharacterList()
 {
+    bool done = false;
     mpCurAliveCombatCharacters.clear();
     for (int i = 0; i <= mRounds; i++)
     {
@@ -39,8 +49,29 @@ void CombatManager::createCurAliveCharacterList()
         {
             if (pCharacter->isAlive())
             {
-                mpCurAliveCombatCharacters.push_back(pCharacter);
+                if (characterOnTile(*pCharacter->mCombatMovementManager.getCurTile()))
+                {
+                    done = true;
+                    break;
+                }
+                else
+                {
+                    mpCurAliveCombatCharacters.push_back(pCharacter);
+                }
             }
+            if (mpCurAliveCombatCharacters.size() == mMaxCharactersInPlay)
+            {
+                done = true;
+                break;
+            }
+        }
+        if (done) 
+        {
+            break;
+        }
+        else
+        {
+            mLastRoundSuccessfullySpawned = i;
         }
     }
 }

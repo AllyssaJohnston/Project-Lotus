@@ -8,9 +8,7 @@
 #include "worldDataHelper.h"
 
 
-bool shouldShowTextBox(const TextBox& textBox, const MiniGameStateManagerData& data);
-
-bool shouldShowTextBox(const ShapeBox& shapeBox, const MiniGameStateManagerData& data);
+bool shouldShowUIBox(const UIBoxData& data, const MiniGameStateManagerData& managerData, const CombatManager& combatManager);
 
 void drawCircle(const SDL_Color& color, const Vect2& center, int radius, ScreenObject& screen);
 

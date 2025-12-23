@@ -13,6 +13,9 @@ private:
     std::vector <CombatCharacter*> mpAllCombatCharacters;
     int mRounds = 0;
 
+    int mLastRoundSuccessfullySpawned = 0;
+    const int mMaxCharactersInPlay = 5;
+
     // int round number to spawn the list of characters
     std::map<int, std::vector<CombatCharacter*>> mpCharactersToSpawnInRound;
 
