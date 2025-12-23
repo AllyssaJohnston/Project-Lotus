@@ -10,8 +10,10 @@ class CombatMovementManager
 {
 private:
     std::vector <Attack>           mAttacks;
-    EMiniGameCombatMoveAttackTypes mMoveType = EMiniGameCombatMoveAttackTypes_INVALID;
-    std::vector <TileCoords>       mMoveTileCoords;
+    EMiniGameCombatMoveAttackTypes mType = EMiniGameCombatMoveAttackTypes_INVALID;
+    int                            mNum;
+    int                            mOut;
+    std::vector <TileCoords>       mTileCoords;
 
     Tile& mStartingTile;
     Tile* mpCurTile;
@@ -29,7 +31,7 @@ public:
 
     void setMoveTiles();
 
-    std::vector <TileCoords> getMoveTiles() const;
+    std::vector <TileCoords> getMoveTileCoords() const;
 
     bool isTileInMoveRange(const Tile& givenTile) const;
 
@@ -38,4 +40,8 @@ public:
     Tile* getCurTile() const;
 
     EMiniGameCombatMoveAttackTypes getMoveType() const;
+
+    int getMoveNum() const;
+
+    int getMoveOut() const;
 };

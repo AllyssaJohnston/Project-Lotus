@@ -1,8 +1,5 @@
 #include "miniGameStateHelperClass.h"
 
-TileDistance::TileDistance(Tile& tile1, Tile& tile2) : mTile1(tile1), mTile2(tile2) { mDistance = getDistanceBetweenTiles(tile1, tile2); }
-
-
 
 MiniGameStateData::~MiniGameStateData()
 {
@@ -56,10 +53,10 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 	Grid& grid = pStage->mGrid;
 	CombatManager& combatManager = pStage->mCombatManager;
 
-	if (curAttack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
+	if (curAttack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID || curAttack.mType == EMiniGameCombatMoveAttackTypes_ONE_CHARACTER || curAttack.mType == EMiniGameCombatMoveAttackTypes_ONE_PLAYER)
 	{
 		// just return the tiles with players
-		for (CombatCharacter* pCurCharacterToTest : combatManager.mpCurAliveCombatCharacters)
+		for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())
 		{
 			if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER)
 			{
@@ -69,14 +66,14 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 	}
 	else
 	{
-		for (TileCoords& curTileCoord : returnTileCoords(*pReferenceTile, curAttack.mType, direction))
+		for (TileCoords& curTileCoord : returnTileCoords(*pReferenceTile, curAttack.mType, curAttack.mNum, curAttack.mOut, direction))
 		{
 			Tile* pCurAttackTile = grid.findTile(curTileCoord);
 			if (pCurAttackTile == nullptr)
 			{
 				continue;
 			}
-			for (CombatCharacter* pCurCharacterToTest : combatManager.mpCurAliveCombatCharacters)
+			for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())
 			{
 				if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER && pCurCharacterToTest->mCombatMovementManager.getCurTile() == pCurAttackTile)
 				{
@@ -117,7 +114,7 @@ bool tileInAttackRange(const Attack& attack, const EDirection attackDirection, c
 	{
 		return true;
 	}
-	for (TileCoords& coords : returnTileCoords(*pTileToAttackFrom, attack.mType, (attack.mRequiresDirectionInput ? attackDirection : EDirection_ALL)))
+	for (TileCoords& coords : returnTileCoords(*pTileToAttackFrom, attack.mType, attack.mNum, attack.mOut, (attack.mRequiresDirectionInput ? attackDirection : EDirection_ALL)))
 	{
 		Tile* pTile = grid.findTile(coords);
 		if (pTile != nullptr && pTile == pGivenTile)
@@ -135,7 +132,7 @@ std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& combatMana
 	for (int countTile = (int)pTilesWithoutCharacters.size() - 1; countTile > -1; countTile--)
 	{
 		Tile* pCurTile = pTilesWithoutCharacters[countTile];
-		for (CombatCharacter* pCurCharacter : combatManager.mpCurAliveCombatCharacters)
+		for (CombatCharacter* pCurCharacter : combatManager.getCurAliveCharacters())
 		{
 			if (pCurCharacter->mCombatMovementManager.getCurTile() == pCurTile)
 			{
@@ -146,28 +143,11 @@ std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& combatMana
 	return pTilesWithoutCharacters;
 }
 
-std::vector <TileDistance> returnListOfTileDistancesFromPlayers(const std::vector <CombatCharacter*>& pCurCombatCharacters, const std::vector <Tile*>& pTiles, const CombatCharacter* const pCurEnemy)
-{
-	std::vector <TileDistance> tileDistances;
-	for (CombatCharacter* pCurCharacter : pCurCombatCharacters)
-	{
-		if (pCurCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
-		{
-			for (Tile* pCurTile : pTiles)
-			{
-				tileDistances.push_back(TileDistance(*pCurEnemy->mCombatMovementManager.getCurTile(), *pCurCharacter->mCombatMovementManager.getCurTile()));
-			}
-		}
-	}
-	return tileDistances;
-}
-
-
 
 std::vector<CombatCharacter> createCombatCharacterSnapShots(const CombatManager& combatManager) 
 {
 	std::vector<CombatCharacter> snapShots;
-	for (CombatCharacter* pCharacter : combatManager.mpAllCombatCharacters)
+	for (CombatCharacter* pCharacter : combatManager.getAllCharacters())
 	{
 		snapShots.push_back(*pCharacter);
 	}
@@ -177,10 +157,11 @@ std::vector<CombatCharacter> createCombatCharacterSnapShots(const CombatManager&
 std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacter>& preTickCharacters)
 {
 	std::string line = "";
-	for (int i = 0; i < (int)combatManager.mpAllCombatCharacters.size(); i++)
+	std::vector<CombatCharacter*> pCurAliveCharacters = combatManager.getCurAliveCharacters();
+	for (int i = 0; i < (int)pCurAliveCharacters.size(); i++)
 	{
 		std::string curLine = "";
-		CombatCharacter* pCharacter = combatManager.mpAllCombatCharacters[i];
+		CombatCharacter* pCharacter = pCurAliveCharacters[i];
 		const CombatCharacter& preTickCharacter = preTickCharacters[i];
 
 		int curHealth = pCharacter->getCurHealth();
@@ -198,8 +179,7 @@ std::string getCharacterChangesString(const CombatManager& combatManager, const 
 			{
 				if (curDefense < prevDefense) // took damage and lost defense
 				{
-					curLine += pCharacter->mName + " lost " + std::to_string(prevDefense - curDefense) + " defense and took "
-						+ std::to_string(prevHealth - curHealth) + " damage";
+					curLine += pCharacter->mName + " lost " + std::to_string(prevDefense - curDefense) + " defense and took " + std::to_string(prevHealth - curHealth) + " damage";
 				}
 				else // just took damage
 				{
@@ -290,7 +270,7 @@ std::string getCharacterChangesString(const CombatManager& combatManager, const 
 		}
 		else if (pCharacter->isAlive() && !preTickCharacter.isAlive())
 		{
-			curLine += pCharacter->mName + " revived with " + std::to_string(curHealth);
+			curLine += pCharacter->mName + " spawned with " + std::to_string(curHealth);
 		}
 		else if (!pCharacter->isAlive() && preTickCharacter.isAlive())
 		{

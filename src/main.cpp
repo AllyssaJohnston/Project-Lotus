@@ -86,7 +86,7 @@ void setUpAllTextures()
 			for (MiniGameStage* pStage : pLevel->mpStages)
 			{
 				//Characters
-				for (CombatCharacter* pCharacter : pStage->mCombatManager.mpAllCombatCharacters)
+				for (CombatCharacter* pCharacter : pStage->mCombatManager.getAllCharacters())
 				{
 					pCharacter->mModel.setUpTexture(screen.mpRenderer);
 				}

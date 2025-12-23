@@ -21,6 +21,8 @@ struct SpecialEffect
 struct Attack
 {
     EMiniGameCombatMoveAttackTypes      mType;
+    int                                 mNum = -1;
+    int                                 mOut = -1;
     EMiniGameCombatAttackCategoryType   mCategory;
     float                               mDamagePercent;
     bool                                mDamageDistanceDependent   = false;
@@ -29,5 +31,11 @@ struct Attack
     std::string                         mName;
     std::string                         mDescription;
    
+    Attack(EMiniGameCombatMoveAttackTypes type, int num, int out, EMiniGameCombatAttackCategoryType category, float damagePercent, std::string name, std::string description);
+
+    Attack(EMiniGameCombatMoveAttackTypes type, int num, int out, EMiniGameCombatAttackCategoryType category, float damagePercent, std::string name);
+
     Attack(EMiniGameCombatMoveAttackTypes type, EMiniGameCombatAttackCategoryType category, float damagePercent, std::string name, std::string description);
+
+    Attack(EMiniGameCombatMoveAttackTypes type, EMiniGameCombatAttackCategoryType category, float damagePercent, std::string name);
 };

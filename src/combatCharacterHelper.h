@@ -111,4 +111,9 @@ private:
     void updateModifiers(std::vector<std::pair<float, int>>& modifierlist);
 };
 
+struct SortCharacterByTileRow
+{
+    bool operator()(const CombatCharacter* const pChar1, const CombatCharacter* const pChar2) const;
+};
+
 

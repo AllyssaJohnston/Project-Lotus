@@ -234,3 +234,9 @@ void CombatCharacter::updateModifiers(std::vector<std::pair<float, int>>& modifi
         }
     }
 }
+
+
+bool SortCharacterByTileRow::operator()(const CombatCharacter* const pChar1, const CombatCharacter* const pChar2) const
+{
+    return pChar2->mCombatMovementManager.getCurTile()->mRow > pChar1->mCombatMovementManager.getCurTile()->mRow;
+}

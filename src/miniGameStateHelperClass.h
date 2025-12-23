@@ -10,16 +10,6 @@
 #include "miniGameLevelHelper.h"
 #include "miniGameWorldDataHelper.h"
 
-
-struct TileDistance
-{
-    Tile&  mTile1;
-    Tile&  mTile2;
-    float  mDistance;
-
-    TileDistance(Tile& tile1, Tile& tile2);
-};
-
 class MiniGameStateData
 {
 private:
@@ -50,6 +40,7 @@ public:
     int                 mTicks = 0;
     int                 mTicksBeforeAction = 50;
     bool                mTickYet = false;
+    bool                mNeedToReset = false;
 
     ~MiniGameStateData();
 
@@ -81,9 +72,6 @@ std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldD
 bool tileInAttackRange(const Attack& attack, const EDirection attackDirection, const Grid& grid, const Tile* const pGivenTile, const Tile* const pTileToAttackFrom);
 
 std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& pCombatManager, const std::vector <Tile*>& pListOfTiles);
-
-std::vector <TileDistance> returnListOfTileDistancesFromPlayers(const std::vector <CombatCharacter*>& pCurCombatCharacters, const std::vector <Tile*>& pMoveTiles, const CombatCharacter* const pCurEnemy);
-
 
 std::vector<CombatCharacter> createCombatCharacterSnapShots(const CombatManager& combatManager);
 

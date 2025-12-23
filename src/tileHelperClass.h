@@ -4,7 +4,7 @@
 #include "tileCoordsHelper.h"
 #include "combatHelperClass.h"
 
-std::vector <TileCoords> returnTileCoords(const Tile& givenTile, EMiniGameCombatMoveAttackTypes moveAttackType, EDirection direction);
+std::vector <TileCoords> returnTileCoords(const Tile& givenTile, const EMiniGameCombatMoveAttackTypes moveAttackType, const int num, const int out, const EDirection direction);
 
 std::vector<TileCoords> getSquareTiles(const Tile& centerTile, const int startOut, const int numOut, const EDirection directions);
 

@@ -199,6 +199,8 @@ enum EMiniGameState
 	EMiniGameState_MAX
 };
 
+bool isWaitForInput(EMiniGameState state);
+
 enum EEntityCharacterTypes
 {
 	EEntityCharacterTypes_INVALID = -1,

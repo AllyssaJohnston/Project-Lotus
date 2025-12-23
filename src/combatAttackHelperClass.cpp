@@ -2,7 +2,7 @@
 
 AttackTile::AttackTile(Tile& tile, Attack& attack) : mTile(tile), mAttack(attack) {}
 
-std::string getAttackType(const Attack& attack) { return returnDescriptionOfMoveAttackType(attack.mType); }
+std::string getAttackType(const Attack& attack) { return returnDescriptionOfMoveAttackType(attack.mType, attack.mNum, attack.mOut); }
 
 std::string getAttackDamage(const Attack& attack, int characterDamage) { return std::to_string((int)(attack.mDamagePercent * characterDamage)); }
 
@@ -15,6 +15,5 @@ std::string getSpecialEffect(const Attack& attack)
 		message += curSpecialEffect.mName + ". ";
 	}
 
-	// TODO trim start
 	return message;
 }

@@ -12,6 +12,7 @@ CombatManager::~CombatManager()
 
 void CombatManager::postTick()
 {
+    mRounds++;
     // check if the cur alive character list needs to be updated
     for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
     {
@@ -23,56 +24,57 @@ void CombatManager::postTick()
     }
 }
 
+void CombatManager::addCharacter(int roundNum, CombatCharacter* pCharacter)
+{
+    mpAllCombatCharacters.push_back(pCharacter);
+    mpCharactersToSpawnInRound[roundNum].push_back(pCharacter);
+}
 
 void CombatManager::createCurAliveCharacterList()
 {
     mpCurAliveCombatCharacters.clear();
-    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
+    for (int i = 0; i <= mRounds; i++)
     {
-        if (pCharacter->isAlive())
+        for (CombatCharacter* pCharacter : mpCharactersToSpawnInRound[i])
         {
-            mpCurAliveCombatCharacters.push_back(pCharacter);
+            if (pCharacter->isAlive())
+            {
+                mpCurAliveCombatCharacters.push_back(pCharacter);
+            }
         }
     }
 }
 
-std::vector <CombatCharacter*> CombatManager::getCurAliveCharacters() const
-{
-    std::vector <CombatCharacter*> pCurAliveCombatCharacters;
-    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
-    {
-        if (pCharacter->isAlive())
-        {
-            pCurAliveCombatCharacters.push_back(pCharacter);
-        }
-    }
-    return pCurAliveCombatCharacters;
-}
+std::vector <CombatCharacter*> CombatManager::getAllCharacters() const { return mpAllCombatCharacters; }
+
+CombatCharacter* CombatManager::getFromAllCharacters(int index) const { return mpAllCombatCharacters[index]; }
+
+std::vector <CombatCharacter*> CombatManager::getCurAliveCharacters() const { return mpCurAliveCombatCharacters; }
 
 std::vector <CombatCharacter*> CombatManager::getCurAlivePlayers() const
 {
-    std::vector <CombatCharacter*> pCurAliveCombatCharacters;
-    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
+    std::vector <CombatCharacter*> pCurAliveCombatPlayers;
+    for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
     {
         if (pCharacter->isAlive() && pCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
         {
-            pCurAliveCombatCharacters.push_back(pCharacter);
+            pCurAliveCombatPlayers.push_back(pCharacter);
         }
     }
-    return pCurAliveCombatCharacters;
+    return pCurAliveCombatPlayers;
 }
 
 std::vector <CombatCharacter*> CombatManager::getCurAliveEnemies() const
 {
-    std::vector <CombatCharacter*> pCurAliveCombatCharacters;
-    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
+    std::vector <CombatCharacter*> pCurAliveCombatEnemies;
+    for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
     {
         if (pCharacter->isAlive() && pCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
         {
-            pCurAliveCombatCharacters.push_back(pCharacter);
+            pCurAliveCombatEnemies.push_back(pCharacter);
         }
     }
-    return pCurAliveCombatCharacters;
+    return pCurAliveCombatEnemies;
 }
 
 CombatCharacter* CombatManager::returnNextAliveCharacter(CombatCharacter& curCharacter)
@@ -399,6 +401,7 @@ GameOverStats CombatManager::getGameOverStats()
 
 void CombatManager::resetStats()
 {
+    mRounds = 0;
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
         pCharacter->resetStats();

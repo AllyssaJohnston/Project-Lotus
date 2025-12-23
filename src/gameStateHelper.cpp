@@ -395,7 +395,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT)
 		{
 			MiniGamePlayerWaitForAttackCharacterInput* pSpecificCurState = (MiniGamePlayerWaitForAttackCharacterInput*)pCurState;
-			pSpecificCurState->postTick(miniStateManager.mWorldData.getStage()->mCombatManager.mpAllCombatCharacters[pCurSelectedTextBox->mData.mCombatCharacterIndex]);
+			pSpecificCurState->postTick(miniStateManager.mWorldData.getStage()->mCombatManager.getFromAllCharacters(pCurSelectedTextBox->mData.mCombatCharacterIndex));
 		}
 		break;
 	
@@ -659,10 +659,10 @@ void GameStatePlayMiniGame::tick(GameStateManagerData& gameStateManagerData, Min
 	SDL_PumpEvents();
 	CombatManager& combatManager = mMiniGameStateManager.mWorldData.getStage()->mCombatManager;
 
-	if (combatManager.mpCurAliveCombatCharacters.size() == 0)
+	if (combatManager.getAllCharacters().size() == 0)
 	{
 		combatManager.createCurAliveCharacterList();
-		mMiniGameStateManager.mData.mStateData.setCharacter(combatManager.mpCurAliveCombatCharacters[0], 0);
+		mMiniGameStateManager.mData.mStateData.setCharacter(combatManager.getFromAllCharacters(0), 0);
 	}
 
 	getInput();

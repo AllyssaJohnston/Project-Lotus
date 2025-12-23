@@ -1,5 +1,10 @@
 #include "helperClass.h"
 
+bool isWaitForInput(EMiniGameState state) { return state == EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT || state == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT 
+		|| state == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT || state == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT || state == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT 
+		|| state == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT; }
+
+
 std::vector<std::string> tokenize(const std::string input, const std::string delimiter)
 {
 	std::vector<std::string> tokens;

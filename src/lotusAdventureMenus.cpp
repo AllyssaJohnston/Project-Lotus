@@ -359,7 +359,7 @@ void createMiniGameCharacterStatsMenu(MenuManager& menuManager, const ScreenObje
 	int curY = 20;
 	const int iconWidth  = 100;
 	const int iconHeight = 100;
-	const int spacing = 25;
+	const int spacing = 15;
 	const int padding = 10;
 
 	const int headingSize = 20;
@@ -373,9 +373,9 @@ void createMiniGameCharacterStatsMenu(MenuManager& menuManager, const ScreenObje
 	if (worldData.getStage()->mGrid.isSetUp())
 	{
 		CombatManager& combatManager = worldData.getStage()->mCombatManager;
-		for (int count = 0; count < combatManager.mpAllCombatCharacters.size(); count++)
+		for (int count = 0; count < combatManager.getAllCharacters().size(); count++)
 		{
-			CombatCharacter* pCurChar = combatManager.mpAllCombatCharacters[count];
+			CombatCharacter* pCurChar = combatManager.getFromAllCharacters(count);
 			maxWidth = 200;
 			int curPaddingLeft = (count == 0) ? padding : 0;
 
@@ -384,23 +384,36 @@ void createMiniGameCharacterStatsMenu(MenuManager& menuManager, const ScreenObje
 			BlockAlignElementsVertically*	curIconBlock = new BlockAlignElementsVertically(	maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN,  !fill, !fill, Edges());
 			miniGameMenuPage->addBox(new ImageBox(ImageBoxPreset(), ImageBoxPositionInfo(0, ETextBoxPositionAlign_LEFT, iconWidth, iconHeight, Edges(0, 8, 0, 0)), pCurChar->mIconFileName), curIconBlock);
 
-			
+			BlockAlignElementsVertically* curInfoBlock = new BlockAlignElementsVertically(maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges());
+
+			BlockAlignElementsVertically* curNameBlock = new BlockAlignElementsVertically(maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges());
+			miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(count, true, ECharacterStatBoxValueToDisplay_CHARACTER_NAME), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth, maxHeight / 4, Edges(padding, 8, 0, 0)), font, TextBoxSizeInfo(headingSize), colors), false, curNameBlock);
+
+			BlockAlignElementsHorizontally* curTextBlock = new BlockAlignElementsHorizontally(maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_RIGHT, !fill, !fill, Edges());
 			BlockAlignElementsVertically*	curTitlesBlock = new BlockAlignElementsVertically(	maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN,  !fill, !fill, Edges(0, 0, 0, 5));
-			miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(count, true, ECharacterStatBoxValueToDisplay_CHARACTER_NAME),	ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth,		maxHeight / 4, Edges(padding,		8,			0, 0)), font, TextBoxSizeInfo(headingSize), colors), false, curTitlesBlock);
-			miniGameMenuPage->addBox(new TextBox(StandardTextBoxPreset("HP: "),																ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth,		maxHeight / 4, Edges(0,				3,			0, 0)), font, TextBoxSizeInfo(detailSize),  colors), false, curTitlesBlock);
-			miniGameMenuPage->addBox(new TextBox(StandardTextBoxPreset("DEF: "),															ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth,		maxHeight / 4, Edges(0,				3,			0, 0)), font, TextBoxSizeInfo(detailSize),  colors), false, curTitlesBlock);
-			miniGameMenuPage->addBox(new TextBox(StandardTextBoxPreset("STUNS: "),															ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth,		maxHeight / 4, Edges(0,				padding,	0, 0)), font, TextBoxSizeInfo(detailSize),  colors), false, curTitlesBlock);
+			miniGameMenuPage->addBox(new TextBox(StandardTextBoxPreset("HP: "),																ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth,		maxHeight / 4, Edges(0,	3,			0, 0)), font, TextBoxSizeInfo(detailSize),  colors), false, curTitlesBlock);
+			miniGameMenuPage->addBox(new TextBox(StandardTextBoxPreset("DEF: "),															ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth,		maxHeight / 4, Edges(0,	3,			0, 0)), font, TextBoxSizeInfo(detailSize),  colors), false, curTitlesBlock);
+			miniGameMenuPage->addBox(new TextBox(StandardTextBoxPreset("STUNS: "),															ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth,		maxHeight / 4, Edges(0,	padding,	0, 0)), font, TextBoxSizeInfo(detailSize),  colors), false, curTitlesBlock);
 
 			BlockAlignElementsVertically*	curNumsBlock = new BlockAlignElementsVertically(	maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN,  !fill, !fill, Edges());
-			miniGameMenuPage->addBox(new HealthBox(HealthBoxPreset(			count,		 ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH),									TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth - 50,	maxHeight / 4, Edges(padding + 32,  3,			0, 0)), font, detailSize, healthColor, healthBackgroundColor, healthTextColor), curNumsBlock);
-			miniGameMenuPage->addBox(new HealthBox(HealthBoxPreset(			count,		 ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE),								TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth - 50,	maxHeight / 4, Edges(0,				3,			0, 0)), font, detailSize, healthColor, healthBackgroundColor, healthTextColor), curNumsBlock);
-			miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(count, true, ECharacterStatBoxValueToDisplay_CHARACTER_STUN),	ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth,		maxHeight / 4, Edges(0,				padding,	0, 0)), font, TextBoxSizeInfo(detailSize), colors), false, curNumsBlock);
+			miniGameMenuPage->addBox(new HealthBox(HealthBoxPreset(			count,		 ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH),									TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth - 50,	maxHeight / 4, Edges(0, 3,			0, 0)), font, detailSize, healthColor, healthBackgroundColor, healthTextColor), curNumsBlock);
+			miniGameMenuPage->addBox(new HealthBox(HealthBoxPreset(			count,		 ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE),								TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth - 50,	maxHeight / 4, Edges(0,	3,			0, 0)), font, detailSize, healthColor, healthBackgroundColor, healthTextColor), curNumsBlock);
+			miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(count, true, ECharacterStatBoxValueToDisplay_CHARACTER_STUN),	ETextBoxFunction_NO_FUNCTION,	TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxTextAlign_LEFT, maxWidth,		maxHeight / 4, Edges(0,	padding,	0, 0)), font, TextBoxSizeInfo(detailSize), colors), false, curNumsBlock);
+			curTextBlock->mpSubBlocks.push_back(curTitlesBlock);
+			curTextBlock->mpSubBlocks.push_back(curNumsBlock);
+
+			curInfoBlock->mpSubBlocks.push_back(curNameBlock);
+			curInfoBlock->mpSubBlocks.push_back(curTextBlock);
 
 			curCharBlock->mpSubBlocks.push_back(curIconBlock);
-			curCharBlock->mpSubBlocks.push_back(curTitlesBlock);
-			curCharBlock->mpSubBlocks.push_back(curNumsBlock);
+			curCharBlock->mpSubBlocks.push_back(curInfoBlock);
 			characterStatsLine->mpSubBlocks.push_back(curCharBlock);
 			curCharBlock = nullptr;
+			curInfoBlock = nullptr;
+			curNameBlock = nullptr;
+			curTextBlock = nullptr;
+			curTitlesBlock = nullptr;
+			curNumsBlock = nullptr;
 			pCurChar = nullptr;
 		}
 	}
@@ -457,9 +470,9 @@ void createMiniGameCharacterSelectionMenu(MenuManager& menuManager, const Screen
 	if (worldData.getStage()->mGrid.isSetUp())
 	{
 		CombatManager& combatManager = worldData.getStage()->mCombatManager;
-		for (int countCharacter = 0; countCharacter < combatManager.mpAllCombatCharacters.size(); countCharacter++)
+		for (int countCharacter = 0; countCharacter < combatManager.getAllCharacters().size(); countCharacter++)
 		{
-			EMiniGameCombatCharacterType characterType = combatManager.mpAllCombatCharacters[countCharacter]->mType;
+			EMiniGameCombatCharacterType characterType = combatManager.getFromAllCharacters(countCharacter)->mType;
 			BlockAlignElementsHorizontally* pCurCharacterBlock	= new BlockAlignElementsHorizontally(	panelWidth, panelBodyHeight, ETextBoxPositionAlign_LEFT, EDirection_RIGHT, !fill, !fill, Edges(12, 0, 0, 0));
 
 			BlockAlignElementsVertically* pShapeBlock			= new BlockAlignElementsVertically(		panelWidth, panelBodyHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN,  !fill, !fill, Edges(12, 0, 0, 0));
@@ -527,9 +540,10 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenOb
 	if (worldData.mCurLevelNumber != -1)
 	{
 		CombatManager& combatManager = worldData.getStage()->mCombatManager;
-		for (int countCharacter = 0; countCharacter < combatManager.mpAllCombatCharacters.size(); countCharacter++)
+		for (int countCharacter = 0; countCharacter < combatManager.getAllCharacters().size(); countCharacter++)
 		{
-			if (combatManager.mpAllCombatCharacters[countCharacter]->mType != EMiniGameCombatCharacterType_PLAYER)
+			CombatCharacter& character = *combatManager.getFromAllCharacters(countCharacter);
+			if (character.mType != EMiniGameCombatCharacterType_PLAYER)
 			{
 				continue;
 			}
@@ -540,8 +554,8 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenOb
 			//OPTION TYPE
 			//OPTION DAMAGE
 			//OPTION SPECIAL EFFECTS / NOTES
-			BlockAlignElementsGrid* pCharacterAttackBlock = new BlockAlignElementsGrid(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, false, 3, !fill, !fill, Edges(), clear, (combatManager.mpAllCombatCharacters[countCharacter]->mName + " Attack panel block"));
-			const std::vector<Attack>& attacks = combatManager.mpAllCombatCharacters[countCharacter]->mCombatMovementManager.getAttacks();
+			BlockAlignElementsGrid* pCharacterAttackBlock = new BlockAlignElementsGrid(panelWidth, panelBodyHeight, ETextBoxPositionAlign_CENTER, false, 3, !fill, !fill, Edges(), clear, (character.mName + " Attack panel block"));
+			const std::vector<Attack>& attacks = character.mCombatMovementManager.getAttacks();
 			for (int countAttack = 0; countAttack < attacks.size(); countAttack++)
 			{
 				const Attack& curAttack = attacks[countAttack];
@@ -558,14 +572,13 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenOb
 				pCharacterAttackBlock->mpSubBlocks.push_back(pCharacterAttackShapeBlock);
 				pCharacterAttackBlock->mpSubBlocks.push_back(pCharacterAttackTextBlock);
 
-				createBlockDiagram(curAttack.mType, countCharacter, countAttack, category, miniGameMenuPage, pCharacterAttackBlock, whenToShow, menuManager);
+				createBlockDiagram(curAttack, countCharacter, countAttack, miniGameMenuPage, pCharacterAttackBlock, whenToShow, menuManager);
 
 				pCharacterAttackTextBlock = nullptr;
 				pCharacterAttackShapeBlock = nullptr;
 			}
 			pAttackPanel->mpSubBlocks.push_back(pCharacterAttackBlock);
 			pCharacterAttackBlock = nullptr;
-			
 		}
 	}
 
@@ -588,7 +601,7 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenOb
 	characterOptionsDetailsBlock = nullptr;
 }
 
-void createBlockDiagram(const EMiniGameCombatMoveAttackTypes diagramType, const int characterIndex, const int attackNum, EMiniGameCombatAttackCategoryType category, MenuPage* pPage, UIBlock* pBlock, const std::vector<EMiniGameState>& whenToShow, MenuManager& menuManager)
+void createBlockDiagram(const Attack& attack, const int characterIndex, const int attackNum, MenuPage* pPage, UIBlock* pBlock, const std::vector<EMiniGameState>& whenToShow, MenuManager& menuManager)
 {
 	int blockSize = 15;
 	int spacing = 5;
@@ -596,73 +609,19 @@ void createBlockDiagram(const EMiniGameCombatMoveAttackTypes diagramType, const 
 	SDL_Color clear = StyleManager::clear;
 	bool fill = true;
 
-	int out = 0;
-	int num = 0;
-	bool square = false;
-	bool cross = false;
-	bool checkered = false;
-	bool wholeGrid = false;
+	int out = attack.mOut;
+	int num = attack.mNum;
 
 	int leftBlockMargin = 20;
 
-	switch (diagramType)
+	
+	if (attack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
 	{
-	case EMiniGameCombatMoveAttackTypes_SQUARE1:
-		num = 1;
-		square = true;
-		break;		
-	case EMiniGameCombatMoveAttackTypes_SQUARE2:
-		num = 2;
-		square = true;
-		break;
-	case EMiniGameCombatMoveAttackTypes_SQUARE2_1UNIT_OUT:
-		num = 3;
-		out = 1;
-		square = true;
-		break;
-	case EMiniGameCombatMoveAttackTypes_SQUARE3_2UNITS_OUT:
-		num = 5;
-		out = 2;
-		square = true;
-		break;
-	case EMiniGameCombatMoveAttackTypes_CROSS1:
-		num = 1;
-		cross = true;
-		break;
-	case EMiniGameCombatMoveAttackTypes_CROSS1_1UNIT_OUT:
-		num = 2;
-		cross = true;
-		break;
-	case EMiniGameCombatMoveAttackTypes_CROSS2:
-		num = 2;
-		cross = true;
-		break;
-	case EMiniGameCombatMoveAttackTypes_CROSS2_1UNIT_OUT:
-		num = 3;
-		cross = true;
-		break;
-	case EMiniGameCombatMoveAttackTypes_CROSS3_1UNIT_OUT:
 		num = 4;
-		cross = true;
-		break;
-	case EMiniGameCombatMoveAttackTypes_CROSS4:
-		num = 4;
-		cross = true;
-		break;
-	case EMiniGameCombatMoveAttackTypes_CHECKERBOARD2:
-		num = 2;
-		checkered = true;
-		break;
-	case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
-		num = 4;
-		square = true;
-		wholeGrid = true;
+		out = 0;
 		blockSize /= 3;
 		spacing /= 2;
 		leftBlockMargin = 5;
-		break;
-	default:
-		return;
 	}
 
 	int maxWidth = (2 * num + 1) * (blockSize + spacing);
@@ -671,10 +630,13 @@ void createBlockDiagram(const EMiniGameCombatMoveAttackTypes diagramType, const 
 	int maxBlockHeight = pBlock->mMaxHeight;
 	int outSpacing = out * (blockSize + spacing) + spacing;
 
+	const EMiniGameCombatAttackCategoryType& category = attack.mCategory;
 
 	BlockAlignElementsVertically* pDiagramBlock = new BlockAlignElementsVertically(200, maxBlockHeight, ETextBoxPositionAlign_LEFT, EDirection_DOWN, !fill, !fill, Edges(0, 0, leftBlockMargin, 0), clear, "block diagram");
-	if (square)
-	{
+	switch(attack.mType)
+	{ 
+	case EMiniGameCombatMoveAttackTypes_SQUARE:
+	case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
 		for (int i = 0; i < (2 * (num - out) + 1); i++)
 		{
 			BlockAlignElementsHorizontally* pCurRow = new BlockAlignElementsHorizontally(maxWidth, maxHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(), clear, "block diagram row " + i);
@@ -690,17 +652,13 @@ void createBlockDiagram(const EMiniGameCombatMoveAttackTypes diagramType, const 
 					// block 
 					pPage->addBox(new ShapeBox(MiniGamePlayerAttackShapeBoxPreset(EShapeBoxClass_RECT,	 characterIndex, false, attackNum, category, whenToShow), TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxTextAlign_CENTER, blockSize, blockSize, Edges(spacing,		spacing,	spacing,	spacing)),		blockColor), pCurRow);
 				}
-
-
 			}
 			pDiagramBlock->mpSubBlocks.push_back(pCurRow);
 		}
-	}
-	else if (cross)
-	{
+		break;
+	case EMiniGameCombatMoveAttackTypes_CROSS:
 		for (int i = 0; i < (2 * (num - out) + 1); i++)
 		{
-			
 			BlockAlignElementsHorizontally* pCurRow = new BlockAlignElementsHorizontally(maxWidth, maxHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(), clear, ("block diagram row " + std::to_string(i)));
 			if (i == num)
 			{
@@ -710,7 +668,6 @@ void createBlockDiagram(const EMiniGameCombatMoveAttackTypes diagramType, const 
 					{
 						// middle dot
 						pPage->addBox(new ShapeBox(MiniGamePlayerAttackShapeBoxPreset(EShapeBoxClass_CIRCLE,	characterIndex, false, attackNum, category, whenToShow), TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxTextAlign_CENTER, blockSize, blockSize, Edges(outSpacing,	outSpacing, outSpacing,			outSpacing)),		blockColor), pCurRow);
-
 					}
 					else 
 					{
@@ -728,9 +685,8 @@ void createBlockDiagram(const EMiniGameCombatMoveAttackTypes diagramType, const 
 			}
 			pDiagramBlock->mpSubBlocks.push_back(pCurRow);
 		}
-	}
-	else if (checkered)
-	{
+		break;
+	case EMiniGameCombatMoveAttackTypes_CHECKERBOARD:
 		for (int i = 0; i < (2 * (num - out) + 1); i++)
 		{
 			BlockAlignElementsHorizontally* pCurRow = new BlockAlignElementsHorizontally(maxWidth, maxHeight, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, !fill, !fill, Edges(), clear, "block diagram row " + i);
@@ -753,6 +709,9 @@ void createBlockDiagram(const EMiniGameCombatMoveAttackTypes diagramType, const 
 			}
 			pDiagramBlock->mpSubBlocks.push_back(pCurRow);
 		}
+		break;
+	default:
+		SDL_assert(false);
 	}
 	pBlock->mpSubBlocks.push_back(pDiagramBlock);
 }

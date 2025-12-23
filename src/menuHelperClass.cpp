@@ -179,7 +179,7 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 	CombatCharacter* pCharacter = managerData.mStateData.getCharacter(); // default to the cur character
 	if (textBox.mData.mCombatCharacterIndex != -1) // requested a specific character
 	{
-		pCharacter = worldData.getStage()->mCombatManager.mpAllCombatCharacters[textBox.mData.mCombatCharacterIndex];
+		pCharacter = worldData.getStage()->mCombatManager.getFromAllCharacters(textBox.mData.mCombatCharacterIndex);
 	}
 	if (pCharacter == nullptr) 
 	{
@@ -209,7 +209,7 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 	case ECharacterStatBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME:
 		return managerData.mStateData.mpCurAttack->mName;
 	case ECharacterStatBoxValueToDisplay_CHARACTER_MOVE_TYPE:
-		return returnDescriptionOfMoveAttackType(pCharacter->mCombatMovementManager.getMoveType());
+		return returnDescriptionOfMoveAttackType(pCharacter->mCombatMovementManager.getMoveType(), pCharacter->mCombatMovementManager.getMoveNum(), pCharacter->mCombatMovementManager.getMoveOut());
 	case ECharacterStatBoxValueToDisplay_INVALID:
 		return textBox.mMessage;
 	default:
@@ -224,9 +224,9 @@ std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, con
 	switch (healthBox.mStatToDisplay)
 	{
 	case ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH:
-		return std::to_string(worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->getCurHealth());
+		return std::to_string(worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mCombatCharacterIndex)->getCurHealth());
 	case ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE:
-		return std::to_string(worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->getCurDefense());
+		return std::to_string(worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mCombatCharacterIndex)->getCurDefense());
 	default:
 		SDL_assert(false);
 		break;
@@ -240,9 +240,9 @@ float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const MiniG
 	switch (healthBox.mStatToDisplay)
 	{
 	case ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH:
-		return worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->getHealthRatio();
+		return worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mCombatCharacterIndex)->getHealthRatio();
 	case ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE:
-		return worldData.getStage()->mCombatManager.mpAllCombatCharacters[healthBox.mCombatCharacterIndex]->getDefenseRatio();
+		return worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mCombatCharacterIndex)->getDefenseRatio();
 	default:
 		SDL_assert(false);
 		break;

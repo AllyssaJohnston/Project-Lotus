@@ -8,17 +8,28 @@
 
 class CombatManager
 {
-public:
+private:
     std::vector <CombatCharacter*> mpCurAliveCombatCharacters;
     std::vector <CombatCharacter*> mpAllCombatCharacters;
+    int mRounds = 0;
 
+    // int round number to spawn the list of characters
+    std::map<int, std::vector<CombatCharacter*>> mpCharactersToSpawnInRound;
+
+public:
     CombatManager() { ; }
 
     ~CombatManager();
 
     void postTick();
 
+    void addCharacter(int roundNum, CombatCharacter* pCharacter);
+
     void createCurAliveCharacterList();
+
+    std::vector <CombatCharacter*> getAllCharacters() const;
+
+    CombatCharacter* getFromAllCharacters(int index) const;
 
     std::vector <CombatCharacter*> getCurAliveCharacters() const;
 

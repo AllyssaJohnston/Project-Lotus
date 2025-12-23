@@ -8,26 +8,14 @@
 
 std::string createTileName(const int row, const int col);
 
-std::string returnDescriptionOfMoveAttackType(int moveAttackType);
 
 enum EMiniGameCombatMoveAttackTypes
 {
     EMiniGameCombatMoveAttackTypes_INVALID = -1,
     EMiniGameCombatMoveAttackTypes_NONE,
-    EMiniGameCombatMoveAttackTypes_SQUARE1,
-    EMiniGameCombatMoveAttackTypes_SQUARE2,
-    EMiniGameCombatMoveAttackTypes_SQUARE2_1UNIT_OUT,
-    EMiniGameCombatMoveAttackTypes_SQUARE3_2UNITS_OUT,
-    EMiniGameCombatMoveAttackTypes_CROSS1,
-    EMiniGameCombatMoveAttackTypes_CROSS1_1UNIT_OUT,
-    EMiniGameCombatMoveAttackTypes_CROSS2,
-    EMiniGameCombatMoveAttackTypes_CROSS2_1UNIT_OUT,
-    EMiniGameCombatMoveAttackTypes_CROSS2_2UNIT_OUT,
-    EMiniGameCombatMoveAttackTypes_CROSS3,
-    EMiniGameCombatMoveAttackTypes_CROSS3_1UNIT_OUT,
-    EMiniGameCombatMoveAttackTypes_CROSS4,
-    EMiniGameCombatMoveAttackTypes_CROSS5,
-    EMiniGameCombatMoveAttackTypes_CHECKERBOARD2,
+    EMiniGameCombatMoveAttackTypes_SQUARE,
+    EMiniGameCombatMoveAttackTypes_CROSS,
+    EMiniGameCombatMoveAttackTypes_CHECKERBOARD,
     EMiniGameCombatMoveAttackTypes_WHOLE_GRID,
     EMiniGameCombatMoveAttackTypes_ONE_CHARACTER,
     EMiniGameCombatMoveAttackTypes_ONE_PLAYER,
@@ -115,3 +103,5 @@ struct GameOverStats
     bool mGameOver = false;
     bool mWonGame = false;
 };
+
+std::string returnDescriptionOfMoveAttackType(const EMiniGameCombatMoveAttackTypes moveAttackType, const int num, const int out);
