@@ -11,6 +11,8 @@ void CombatCharacterPreset::setMove(EMiniGameCombatMoveAttackTypes type, int num
 LotusCombatPreset::LotusCombatPreset() : CombatCharacterPreset()
 {
     mType = EMiniGameCombatCharacterType_PLAYER;
+    mSpecies = EMiniGameCombatCharacterSpecies_LOTUS;
+    mName = "LOTUS";
 
     // OVERHEAD STRIKE
     Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, "Overhead Strike"); 
@@ -42,6 +44,8 @@ LotusCombatPreset::LotusCombatPreset() : CombatCharacterPreset()
 EzraCombatPreset::EzraCombatPreset() : CombatCharacterPreset()
 {
     mType = EMiniGameCombatCharacterType_PLAYER;
+    mSpecies = EMiniGameCombatCharacterSpecies_EZRA;
+    mName = "EZRA";
 
     // SUPPORT
     // ATTACK UP
@@ -97,6 +101,8 @@ EzraCombatPreset::EzraCombatPreset() : CombatCharacterPreset()
 RatCombatPreset::RatCombatPreset() : CombatCharacterPreset()
 {
     mType = EMiniGameCombatCharacterType_ENEMY;
+    mSpecies = EMiniGameCombatCharacterSpecies_RAT;
+    mName = "DRAGAUR";
 
     // SLASH
     Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, 2, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.6f, "Slash"); 
@@ -132,6 +138,8 @@ RatCombatPreset::RatCombatPreset() : CombatCharacterPreset()
 BouncyRatCombatPreset::BouncyRatCombatPreset() : CombatCharacterPreset()
 {
     mType = EMiniGameCombatCharacterType_ENEMY;
+    mSpecies = EMiniGameCombatCharacterSpecies_BOUNCY_RAT;
+    mName = "SHROOM VIPER";
 
     // CHOMP
     Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, 2, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, "Chomp");
@@ -159,6 +167,8 @@ BouncyRatCombatPreset::BouncyRatCombatPreset() : CombatCharacterPreset()
 FrogCombatPreset::FrogCombatPreset() : CombatCharacterPreset()
 {
     mType = EMiniGameCombatCharacterType_ENEMY;
+    mSpecies = EMiniGameCombatCharacterSpecies_FROG;
+    mName = "FROCODILE";
 
     // JUMP STRIKE
     Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, 5, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.4f, "Jump Strike");
@@ -187,6 +197,8 @@ FrogCombatPreset::FrogCombatPreset() : CombatCharacterPreset()
 BouncyFrogCombatPreset::BouncyFrogCombatPreset() : CombatCharacterPreset()
 {
     mType = EMiniGameCombatCharacterType_ENEMY;
+    mSpecies = EMiniGameCombatCharacterSpecies_BOUNCY_FROG;
+    mName = "FROG SHROOM";
 
     // TODO JUMP (teleport)
     // 3 turn cooldown
@@ -218,6 +230,8 @@ BouncyFrogCombatPreset::BouncyFrogCombatPreset() : CombatCharacterPreset()
 HidingRatCombatPreset::HidingRatCombatPreset() : CombatCharacterPreset()
 {
     mType = EMiniGameCombatCharacterType_ENEMY;
+    mSpecies = EMiniGameCombatCharacterSpecies_HIDING_RAT;
+    mName = "SPIDERIG";
 
     // WEB
     Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, 2, 0, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, "Web");
@@ -248,6 +262,8 @@ HidingRatCombatPreset::HidingRatCombatPreset() : CombatCharacterPreset()
 FastRatCombatPreset::FastRatCombatPreset() : CombatCharacterPreset()
 {
     mType = EMiniGameCombatCharacterType_ENEMY;
+    mSpecies = EMiniGameCombatCharacterSpecies_FAST_RAT;
+    mName = "SEEDLING";
 
     // Poke
     Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_ONE_PLAYER, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, "Poke");

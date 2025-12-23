@@ -9,16 +9,17 @@
 class CombatCharacter
 {
 public:
-    std::string                  mName = "invalid";
-    EMiniGameCombatCharacterType mType = EMiniGameCombatCharacterType_INVALID;
-    CombatMovementManager        mCombatMovementManager;
+    std::string                     mName = "invalid";
+    EMiniGameCombatCharacterType    mType = EMiniGameCombatCharacterType_INVALID;
+    EMiniGameCombatCharacterSpecies mSpecies = EMiniGameCombatCharacterSpecies_INVALID;
+    CombatMovementManager           mCombatMovementManager;
 
     std::string mModelFileName;
     std::string mIconFileName;
 
     ImageObject mModel = ImageObject();
 
-    CombatCharacter(const std::string name, Tile& curTile, const CombatCharacterPreset& preset);
+    CombatCharacter(Tile& curTile, const CombatCharacterPreset& preset);
 
     ~CombatCharacter() { ; }
 

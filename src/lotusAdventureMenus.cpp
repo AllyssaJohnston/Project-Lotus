@@ -345,10 +345,10 @@ void createMiniGameCharacterStatsMenu(MenuManager& menuManager, const ScreenObje
 
 	const char* font = StyleManager::fontName;
 	const TextBoxColorInfo colors = TextBoxColorInfo(StyleManager::pink);
-	const SDL_Color& panelColor			= StyleManager::sunYellow;
+	const SDL_Color& panelColor				= StyleManager::sunYellow;
 	const SDL_Color& healthColor			= StyleManager::lightYellow;
 	const SDL_Color& healthTextColor		= StyleManager::gold;
-	const SDL_Color& healthBackgroundColor = StyleManager::pink;
+	const SDL_Color& healthBackgroundColor	= StyleManager::pink;
 
 
 	const bool fill = true;

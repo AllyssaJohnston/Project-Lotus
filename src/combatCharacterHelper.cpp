@@ -1,9 +1,10 @@
 #include "combatCharacterHelper.h"
 
-CombatCharacter::CombatCharacter(const std::string name, Tile& curTile, const CombatCharacterPreset& preset) : mCombatMovementManager(CombatMovementManager(curTile, preset))
+CombatCharacter::CombatCharacter(Tile& curTile, const CombatCharacterPreset& preset) : mCombatMovementManager(CombatMovementManager(curTile, preset))
 {
-    mName = name;
+    mName = preset.mName;
     mType = preset.mType;
+    mSpecies = preset.mSpecies;
 
     mStandardAttackDamage       = preset.mAttackDamage;
     mStandardHealthCapacity     = preset.mHealthCapacity;

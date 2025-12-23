@@ -4,10 +4,26 @@
 #include "combatHelperClass.h"
 #include <vector>
 
+enum EMiniGameCombatCharacterSpecies
+{
+    EMiniGameCombatCharacterSpecies_INVALID = -1,
+    EMiniGameCombatCharacterSpecies_LOTUS,
+    EMiniGameCombatCharacterSpecies_EZRA,
+    EMiniGameCombatCharacterSpecies_RAT,
+    EMiniGameCombatCharacterSpecies_BOUNCY_RAT,
+    EMiniGameCombatCharacterSpecies_FROG,
+    EMiniGameCombatCharacterSpecies_BOUNCY_FROG,
+    EMiniGameCombatCharacterSpecies_HIDING_RAT,
+    EMiniGameCombatCharacterSpecies_FAST_RAT,
+    EMiniGameCombatCharacterSpecies_MAX
+};
+
 
 struct CombatCharacterPreset
 {
     EMiniGameCombatCharacterType mType          = EMiniGameCombatCharacterType_INVALID;
+    EMiniGameCombatCharacterSpecies mSpecies = EMiniGameCombatCharacterSpecies_INVALID;
+    std::string mName;
     std::vector <Attack> mAttacks;
 
     EMiniGameCombatMoveAttackTypes mMoveType    = EMiniGameCombatMoveAttackTypes_INVALID;
