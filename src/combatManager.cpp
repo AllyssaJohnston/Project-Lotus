@@ -55,6 +55,7 @@ void CombatManager::createCurAliveCharacterList()
                 }
                 else
                 {
+                    pCharacter->start();
                     mpCurAliveCombatCharacters.push_back(pCharacter);
                 }
             }
@@ -122,21 +123,19 @@ CombatCharacter* CombatManager::returnNextAliveCharacter(CombatCharacter& curCha
     int indexOfOldCharacter = getCharacterIndex(curCharacter);
     mpAllCombatCharacters[indexOfOldCharacter]->postTick();
 
-    int indexOfLastCharacterInPlay = getCharacterIndex(*mpCurAliveCombatCharacters[mpCurAliveCombatCharacters.size() - 1]);
-
     int indexOfNewCharacter = indexOfOldCharacter + 1;
-    if (indexOfOldCharacter + 1 > indexOfLastCharacterInPlay)
+    if (indexOfNewCharacter >= mpAllCombatCharacters.size())
     {
         indexOfNewCharacter = 0;
     }
 
-    while (!mpAllCombatCharacters[indexOfNewCharacter]->isAlive()) 
+    while (!mpAllCombatCharacters[indexOfNewCharacter]->isAlive() || !mpAllCombatCharacters[indexOfNewCharacter]->isStarted())
     {
         mpAllCombatCharacters[indexOfNewCharacter]->preTick();
         mpAllCombatCharacters[indexOfNewCharacter]->postTick();
         indexOfNewCharacter++;
         // don't choose a character that is spawned yet
-        if (indexOfOldCharacter + 1 > indexOfLastCharacterInPlay)
+        if (indexOfNewCharacter >= mpAllCombatCharacters.size())
         {
             indexOfNewCharacter = 0;
         }
@@ -177,25 +176,13 @@ void CombatManager::attackMultipleTiles(CombatCharacter& attackingCharacter, std
     }
 }
 
-void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile, const Attack& attack)
+void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile, const Attack& characterAttack)
 {
     for (CombatCharacter* pCurCharacter : mpCurAliveCombatCharacters)
     {
         if (pCurCharacter->mCombatMovementManager.getCurTile() == &givenTile)
         {
-            int damageToTake = int(attackingCharacter.getCurDamage() * attack.mDamagePercent);
-            if (damageToTake > 0 && attack.mDamageDistanceDependent)
-            {
-                Tile* pAttackingCharacterTile = attackingCharacter.mCombatMovementManager.getCurTile();
-                float distance = getDistanceBetweenTiles(givenTile, *pAttackingCharacterTile);
-
-                // TODO move magic number
-                damageToTake -= int(.15f * distance);
-                damageToTake = std::max(damageToTake, 0);
-            }
-            pCurCharacter->takeDamage(damageToTake);
-            specialEffect(attackingCharacter, *pCurCharacter, attack);
-            return;
+            attack(attackingCharacter, *pCurCharacter, characterAttack);
         }
     }
 }
@@ -208,8 +195,7 @@ void CombatManager::attack(CombatCharacter& attackingCharacter, CombatCharacter&
         Tile* pAttackingCharacterTile = attackingCharacter.mCombatMovementManager.getCurTile();
         float distance = getDistanceBetweenTiles(*attackedCharacter.mCombatMovementManager.getCurTile(), *pAttackingCharacterTile);
 
-        // TODO move magic number
-        damageToTake -= int(.15f * distance);
+        damageToTake -= int(attack.mDamageDropOff * distance);
         damageToTake = std::max(damageToTake, 0);
     }
     attackedCharacter.takeDamage(damageToTake);

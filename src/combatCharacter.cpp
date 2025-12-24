@@ -18,6 +18,8 @@ CombatCharacter::CombatCharacter(Tile& curTile, const CombatCharacterPreset& pre
     mModel.setupImageObject(mModelFileName, preset.mMaxWidth, preset.mMaxHeight, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
 }
 
+void CombatCharacter::start() { mStarted = true; }
+
 void CombatCharacter::preTick()
 {
     if (mAmAlive)
@@ -41,6 +43,7 @@ void CombatCharacter::postTick()
 
 void CombatCharacter::resetStats()
 {
+    mStarted        = false;
     mAmAlive        = true;
     mCurHealth      = mStandardHealthCapacity;
     mCurDefense     = 0;
@@ -51,6 +54,8 @@ void CombatCharacter::resetStats()
     mCombatMovementManager.resetStats();
 }
 
+
+bool CombatCharacter::isStarted() const { return mStarted;  }
 
 bool CombatCharacter::isAlive() const { return mAmAlive; }
 

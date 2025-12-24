@@ -14,7 +14,7 @@ bool shouldShowUIBox(const UIBoxData& data, const MiniGameStateManagerData& mana
 		{
 			return false;
 		}
-		if (data.mCombatCharacterIndex != -1 && !combatManager.getFromAllCharacters(data.mCombatCharacterIndex)->isAlive())
+		if (data.mCombatCharacterIndex != -1 && !combatManager.getFromAllCharacters(data.mCombatCharacterIndex)->isAlive() || data.mCombatCharacterIndex != -1 && !combatManager.getFromAllCharacters(data.mCombatCharacterIndex)->isStarted())
 		{
 			return false;
 		}

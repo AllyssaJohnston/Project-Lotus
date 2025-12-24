@@ -23,12 +23,16 @@ public:
 
     ~CombatCharacter() { ; }
 
+    void start();
+
     void preTick();
 
     void postTick();
 
     void resetStats();
 
+
+    bool isStarted() const;
 
     bool isAlive() const;
 
@@ -90,7 +94,7 @@ public:
     void revertToState(const CombatCharacter& prevState);
 
 private:
-
+    bool mStarted = false;
     bool mAmAlive = true;
 
     int mStandardAttackDamage   = -1;

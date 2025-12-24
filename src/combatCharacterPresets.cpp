@@ -22,11 +22,18 @@ LotusCombatPreset::LotusCombatPreset() : CombatCharacterPreset()
     attack1.mSpecialEffects.push_back(SpecialEffectSelfStun(1));
     mAttacks.push_back(attack1);
 
-    // SWORD SWIPE
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.5f, "Sword Swipe"); 
+    // CUT
+    // OVERHEAD STRIKE
+    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, .67f, "Cut");
     attack2.mDamageDistanceDependent = false;
-    attack2.mRequiresDirectionInput = true;
+    attack2.mRequiresDirectionInput = false;
     mAttacks.push_back(attack2);
+
+    // SWORD SWIPE
+    Attack attack3 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.5f, "Sword Swipe"); 
+    attack3.mDamageDistanceDependent = false;
+    attack3.mRequiresDirectionInput = true;
+    mAttacks.push_back(attack3);
 
     mHealAmount = 6;
 
@@ -171,22 +178,23 @@ FrogCombatPreset::FrogCombatPreset() : CombatCharacterPreset()
     mName = "FROCODILE";
 
     // JUMP STRIKE
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, 5, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.4f, "Jump Strike");
+    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, 5, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.6f, "Jump Strike");
     attack1.mDamageDistanceDependent = true;
-    attack1.mRequiresDirectionInput = false;
+    attack1.mDamageDropOff           = .25f;
+    attack1.mRequiresDirectionInput  = false;
+    attack1.mSpecialEffects.push_back(SpecialEffect(SpecialEffectSelfStun(1)));
     mAttacks.push_back(attack1);
 
     // SPIT
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, 2, 2, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, "Spit");
+    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, 1, 1, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, "Spit");
     attack2.mDamageDistanceDependent = false;
-    attack2.mRequiresDirectionInput = false;
-    attack2.mSpecialEffects.push_back(SpecialEffect(SpecialEffectStun(1)));
+    attack2.mRequiresDirectionInput  = false;
     mAttacks.push_back(attack2);
 
-    setMove(EMiniGameCombatMoveAttackTypes_CROSS, 3, 0);
+    setMove(EMiniGameCombatMoveAttackTypes_CROSS, 3, 1);
 
-    mAttackDamage = 8;
-    mHealthCapacity = 48;
+    mAttackDamage = 5;
+    mHealthCapacity = 40;
     mDefenseCapacity = 4;
 
     mModelFileName = "MiniGameModels/Earth/MiniGameModelsFrocodile.bmp";

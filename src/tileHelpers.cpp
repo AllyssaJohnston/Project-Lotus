@@ -30,10 +30,10 @@ std::vector<TileCoords> getSquareTiles(const Tile& centerTile, const int startOu
     const int& curCol = centerTile.mCol;
     std::vector <TileCoords> tileCoordsList;
 
-    int rowStart    = -squareSize;
-    int rowEnd      = squareSize;
-    int colStart    = -squareSize;
-    int colEnd      = squareSize;
+    int rowStart    = -squareSize - startOut;
+    int rowEnd      = squareSize + startOut;
+    int colStart    = -squareSize - startOut;
+    int colEnd      = squareSize + startOut;
 
     switch (directions)
     {
@@ -55,7 +55,7 @@ std::vector<TileCoords> getSquareTiles(const Tile& centerTile, const int startOu
     {
         for (int colI = colStart; colI <= colEnd; colI++)
         {
-            if (std::abs(rowI) < startOut && std::abs(colI) < startOut)
+            if (std::abs(rowI) <= startOut && std::abs(colI) <= startOut)
             {
                 continue;
             }

@@ -26,6 +26,7 @@ struct Attack
     EMiniGameCombatAttackCategoryType   mCategory;
     float                               mDamagePercent;
     bool                                mDamageDistanceDependent   = false;
+    float                               mDamageDropOff             = .25f;
     std::vector <SpecialEffect>         mSpecialEffects;
     bool                                mRequiresDirectionInput    = false;
     std::string                         mName;
