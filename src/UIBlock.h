@@ -9,8 +9,8 @@ public:
 	std::string mName;
 	bool   mIsHeadBlock						= false;
 	Hitbox mHitbox;
-	bool   mFillWidth;
-	bool   mFillHeight;
+	bool   mFillWidth						= false;
+	bool   mFillHeight						= false;
 	int	   mMaxWidth						= 1;
 	int	   mMaxHeight						= 1;
 	Vect2  mStartingPositionCenter;
@@ -44,6 +44,10 @@ protected:
 	void setAllTexturesInternal(SDL_Renderer* pRenderer);
 
 	void getAllBoxesInternal(std::vector<UIBox*>& list);
+
+	int getIndexOfFirstCurBlock();
+
+	int getIndexOfLastCurBlock();
 
 	int getIndexOfFirstCurBox();
 

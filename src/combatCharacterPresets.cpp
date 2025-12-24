@@ -78,7 +78,7 @@ EzraCombatPreset::EzraCombatPreset() : CombatCharacterPreset()
     mAttacks.push_back(attack3);
 
     // FULL CHARACTER HEAL
-    Attack attack4 = Attack(EMiniGameCombatMoveAttackTypes_WHOLE_GRID, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, "Full Heal");
+    Attack attack4 = Attack(EMiniGameCombatMoveAttackTypes_ONE_PLAYER, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, "Full Heal");
     attack4.mDamageDistanceDependent = false;
     attack4.mRequiresDirectionInput = false;
     attack4.mSpecialEffects.push_back(SpecialEffectFullHeal(EAttackTargetType_ONE_PLAYER));

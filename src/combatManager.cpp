@@ -207,6 +207,11 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
     for (const SpecialEffect& specialEffect : attack.mSpecialEffects)
     {
         std::vector<CombatCharacter*> pCharacters;
+        if (specialEffect.mAttackTargetType != EAttackTargetType_INVALID && specialEffect.mAttackTargetType != EAttackTargetType_ALL_CHARACTERS && specialEffect.mAttackTargetType != attackedCharacter.mType)
+        {
+            continue;
+        }
+    
         switch (specialEffect.mType)
         {
         case EMiniGameCombatSpecialEffectTypes_STUN:

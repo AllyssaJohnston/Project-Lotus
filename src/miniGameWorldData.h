@@ -17,8 +17,8 @@ struct MiniGameWorldData
     int                             mCurStageNumber = 0;
 #endif
 
-    int mCheatWorldNumber = 2;
-    int mCheatLevelNumber = 0;
+    int mCheatWorldNumber = 0;
+    int mCheatLevelNumber = 3;
     int mCheatStageNumber = 0;
 
     bool                            mGoToNextLevel = false;

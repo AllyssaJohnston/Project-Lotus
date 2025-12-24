@@ -7,6 +7,8 @@ UIBox::~UIBox()
 	mpCurHitbox = nullptr;
 }
 
+
+
 TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, TextBoxPositionInfo positionInfo, const char* fileName, TextBoxSizeInfo sizeInfo,
 		TextBoxColorInfo colorInfo) : UIBox(preset.mData), mFunction(textBoxFunction), mMessage(preset.mMessage),
 		mMaxWidth(positionInfo.mMaxWidth), mMaxHeight(positionInfo.mMaxHeight), mFontFile(fileName), mStandardFontSize(sizeInfo.mStandardFontSize), 
@@ -365,7 +367,6 @@ ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo posit
 	mMargins       = positionInfo.mMargins;
 
 	mRotation      = positionInfo.mRotation;
-	mAutoShow      = preset.mAutoShow;
 }
 
 void ImageBox::shiftHitbox(const Vect2 shiftTopLeft) { mpCurHitbox->updateTopLeft(shiftTopLeft); }

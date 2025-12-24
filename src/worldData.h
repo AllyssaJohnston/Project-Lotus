@@ -23,7 +23,7 @@ public:
     std::vector <World*>       mpWorlds;
 #if DEMO == 0
     int							mCurWorldNumber = 0;
-    int                         mCurLevelNumber = 4;
+    int                         mCurLevelNumber = 6;
 #else
     int							mCurWorldNumber = 0;
     int                         mCurLevelNumber = 0;

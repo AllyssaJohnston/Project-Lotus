@@ -139,7 +139,7 @@ void UIBlock::getAllBlocksInternal(std::vector<UIBlock*>& list)
 
 int UIBlock::getIndexOfFirstCurBox()
 {
-	for (int i = 0; i < mpAllBoxes.size(); i++) 
+	for (int i = 0; i < (int)mpAllBoxes.size(); i++) 
 	{
 		if (mpAllBoxes[i]->mShow) 
 		{
@@ -160,6 +160,32 @@ int UIBlock::getIndexOfLastCurBox()
 	}
 	return -1;
 }
+
+int UIBlock::getIndexOfFirstCurBlock()
+{
+	for (int i = 0; i < (int)mpSubBlocks.size(); i++)
+	{
+		if (mpSubBlocks[i]->mHitbox.getWidth() > 0 || mpSubBlocks[i]->mHitbox.getHeight() > 0)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+int UIBlock::getIndexOfLastCurBlock()
+{
+
+	for (int i = (int)mpSubBlocks.size() - 1; i > -1; i--)
+	{
+		if (mpSubBlocks[i]->mHitbox.getWidth() > 0 || mpSubBlocks[i]->mHitbox.getHeight() > 0)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 
 // HEAD BLOCK
 BlockAlignElementsVertically::BlockAlignElementsVertically(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection directionH, EDirection directionV,
@@ -241,11 +267,11 @@ void BlockAlignElementsVertically::adjustBlocksWidthHeight()
 
 		height = mFillHeight ? std::max(mMaxHeight, height) : height;
 
-		mHitbox.setWidth(std::max(maxWidth, 1));
-		mHitbox.setHeight(std::max(height, 1));
+		mHitbox.setWidth(std::max(maxWidth, 0));
+		mHitbox.setHeight(std::max(height, 0));
 	}
 
-	else if (mpAllBoxes.size() > 0)
+	if (mpAllBoxes.size() > 0)
 	{
 		int maxWidth = mFillWidth ? mMaxWidth : 0; // TODO cut after max
 		int height = 0;
@@ -290,8 +316,8 @@ void BlockAlignElementsVertically::adjustBlocksWidthHeight()
 			break;
 		}
 
-		mHitbox.setWidth(std::max(maxWidth, 1));
-		mHitbox.setHeight(std::max(height, 1));
+		mHitbox.setWidth(std::max(maxWidth, 0));
+		mHitbox.setHeight(std::max(height, 0));
 		mHitbox.setTopLeft(Vect2(updatedX, updatedY));
 	}
 }
@@ -323,12 +349,12 @@ void BlockAlignElementsVertically::moveBoxes()
 		pLastTextBox->shiftHitbox(Vect2(changeX, changeY));
 		for (int count = i + 1; count < mpAllBoxes.size(); count++)
 		{
-			if (!mpAllBoxes[count]->mShow)
+			UIBox* pCurTextBox = mpAllBoxes[count];
+			if (!pCurTextBox->mShow)
 			{
 				continue;
 			}
-			UIBox* pCurTextBox = mpAllBoxes[count];
-
+			
 			leftMargin = (mPositionAlign == ETextBoxPositionAlign_RIGHT) ? 0 : pCurTextBox->mMargins.mLeft;
 			rightMargin = (mPositionAlign == ETextBoxPositionAlign_LEFT) ? 0 : pCurTextBox->mMargins.mRight;
 
@@ -367,7 +393,7 @@ void BlockAlignElementsVertically::moveBoxes()
 		int changeX = x - pLastTextBox->mpCurHitbox->getTopLeft().getX() + centering;
 		int changeY = y - pLastTextBox->mpCurHitbox->getTopLeft().getY();
 		pLastTextBox->shiftHitbox(Vect2(changeX, changeY));
-		for (int count = i - 1; count > -1; count--) // int count = i  - 1
+		for (int count = i - 1; count > -1; count--)
 		{
 			if (!mpAllBoxes[count]->mShow)
 			{
@@ -399,14 +425,23 @@ void BlockAlignElementsVertically::moveSubBlocks()
 		if (mGrowthDirection == EDirection_DOWN or mGrowthDirection == EDirection_UP_AND_DOWN)
 		{
 			// top to bottom
-			UIBlock* pLastBlock = mpSubBlocks[0];
+			int i = getIndexOfFirstCurBlock();
+			if (i == -1)
+			{
+				return;
+			}
+			UIBlock* pLastBlock = mpSubBlocks[i];
 			int x = pLastBlock->mMargins.mLeft + mHitbox.getTopLeft().getX();
 			int y = pLastBlock->mMargins.mTop + mHitbox.getTopLeft().getY();
 			pLastBlock->mHitbox.setTopLeft(Vect2(x, y));
 			pLastBlock->moveSubBlocks();
-			for (int count = 1; count < mpSubBlocks.size(); count++)
+			for (int count = i + 1; count < mpSubBlocks.size(); count++)
 			{
 				UIBlock* pCurBlock = mpSubBlocks[count];
+				if (pCurBlock->mHitbox.getWidth() == 0 || pCurBlock->mHitbox.getHeight() == 0)
+				{
+					continue;
+				}
 				x = pCurBlock->mMargins.mLeft + mHitbox.getTopLeft().getX();
 				y = pLastBlock->mHitbox.getBottomRight().getY() + pCurBlock->mMargins.mTop + pLastBlock->mMargins.mBottom;
 				pCurBlock->mHitbox.setTopLeft(Vect2(x, y));
@@ -416,15 +451,24 @@ void BlockAlignElementsVertically::moveSubBlocks()
 		}
 		else
 		{
-			// bottom to top
-			UIBlock* pLastBlock = mpSubBlocks[mpSubBlocks.size() - 1];
+			// Bottom to top
+			int i = getIndexOfLastCurBlock();
+			if (i == -1)
+			{
+				return;
+			}
+			UIBlock* pLastBlock = mpSubBlocks[i];
 			int x = pLastBlock->mMargins.mLeft + mHitbox.getTopLeft().getX();
 			int y = -pLastBlock->mMargins.mBottom + mHitbox.getBottomRight().getY() - pLastBlock->mHitbox.getHeight();
 			pLastBlock->mHitbox.setTopLeft(Vect2(x, y));
 			pLastBlock->moveSubBlocks();
-			for (int count = (int)mpSubBlocks.size() - 2; count > -1; count--)
+			for (int count = i - 1; count > -1; count--)
 			{
 				UIBlock* pCurBlock = mpSubBlocks[count];
+				if (pCurBlock->mHitbox.getWidth() == 0 || pCurBlock->mHitbox.getHeight() == 0)
+				{
+					continue;
+				}
 				x = pCurBlock->mMargins.mLeft + mHitbox.getTopLeft().getX();
 				y = pLastBlock->mHitbox.getTopLeft().getY() - (pCurBlock->mMargins.mBottom + pLastBlock->mMargins.mTop) - pCurBlock->mHitbox.getHeight();
 				pCurBlock->mHitbox.setTopLeft(Vect2(x, y));
@@ -523,11 +567,11 @@ void BlockAlignElementsHorizontally::adjustBlocksWidthHeight()
 
 		width = mFillWidth ? std::max(mMaxWidth, width) : width;
 
-		mHitbox.setWidth(std::max(width, 1));
-		mHitbox.setHeight(std::max(maxHeight, 1));
+		mHitbox.setWidth(std::max(width, 0));
+		mHitbox.setHeight(std::max(maxHeight, 0));
 	}
 
-	else if (mpAllBoxes.size() > 0)
+	if (mpAllBoxes.size() > 0)
 	{
 		int maxHeight = mFillHeight ? mMaxHeight : 0; // TODO cut after max
 		int width = 0;
@@ -536,7 +580,6 @@ void BlockAlignElementsHorizontally::adjustBlocksWidthHeight()
 		{
 			if (pCurBox->mShow)
 			{
-
 				int curWidth = pCurBox->mpCurHitbox->getWidth();
 				if (curWidth != 0)
 				{
@@ -572,8 +615,8 @@ void BlockAlignElementsHorizontally::adjustBlocksWidthHeight()
 			break;
 		}
 
-		mHitbox.setWidth(std::max(width, 1));
-		mHitbox.setHeight(std::max(maxHeight, 1));
+		mHitbox.setWidth(std::max(width, 0));
+		mHitbox.setHeight(std::max(maxHeight, 0));
 		mHitbox.setTopLeft(Vect2(updatedX, updatedY));
 	}
 }
@@ -657,14 +700,23 @@ void BlockAlignElementsHorizontally::moveSubBlocks()
 		if (mGrowthDirection == EDirection_RIGHT or mGrowthDirection == EDirection_LEFT_AND_RIGHT)
 		{
 			// left to right
-			UIBlock* pLastBlock = mpSubBlocks[0];
+			int i = getIndexOfFirstCurBlock();
+			if (i == -1)
+			{
+				return;
+			}
+			UIBlock* pLastBlock = mpSubBlocks[i];
 			int x = pLastBlock->mMargins.mLeft + mHitbox.getTopLeft().getX();
 			int y = pLastBlock->mMargins.mTop - pLastBlock->mMargins.mBottom + mHitbox.getTopLeft().getY();
 			pLastBlock->mHitbox.setTopLeft(Vect2(x, y));
 			pLastBlock->moveSubBlocks();
-			for (int count = 1; count < mpSubBlocks.size(); count++) // count at 1
+			for (int count = i + 1; count < mpSubBlocks.size(); count++) 
 			{
 				UIBlock* pCurBlock = mpSubBlocks[count];
+				if (pCurBlock->mHitbox.getWidth() == 0 || pCurBlock->mHitbox.getHeight() == 0)
+				{
+					continue;
+				}
 				y = pCurBlock->mMargins.mTop - pLastBlock->mMargins.mBottom + mHitbox.getTopLeft().getY();
 				x = pLastBlock->mHitbox.getBottomRight().getX() + pCurBlock->mMargins.mLeft + pLastBlock->mMargins.mRight;
 				pCurBlock->mHitbox.setTopLeft(Vect2(x, y));
@@ -675,14 +727,23 @@ void BlockAlignElementsHorizontally::moveSubBlocks()
 		else
 		{
 			// right to left
-			UIBlock* pLastBlock = mpSubBlocks[mpSubBlocks.size() - 1];
+			int i = getIndexOfLastCurBlock();
+			if (i == -1)
+			{
+				return;
+			}
+			UIBlock* pLastBlock = mpSubBlocks[i];
 			int x = pLastBlock->mMargins.mLeft + mHitbox.getBottomRight().getX() - pLastBlock->mHitbox.getWidth() - pLastBlock->mMargins.mRight;
 			int y = pLastBlock->mMargins.mTop - pLastBlock->mMargins.mBottom + mHitbox.getTopLeft().getY();
 			pLastBlock->mHitbox.setTopLeft(Vect2(x, y));
 			pLastBlock->moveSubBlocks();
-			for (int count = (int)mpSubBlocks.size() - 2; count > -1; count--)
+			for (int count = i - 1; count > -1; count--)
 			{
 				UIBlock* pCurBlock = mpSubBlocks[count];
+				if (pCurBlock->mHitbox.getWidth() == 0 || pCurBlock->mHitbox.getHeight() == 0)
+				{
+					continue;
+				}
 				y = pCurBlock->mMargins.mTop - pLastBlock->mMargins.mBottom  + mHitbox.getTopLeft().getY();
 				x = pLastBlock->mHitbox.getTopLeft().getX() - (pCurBlock->mMargins.mRight + pLastBlock->mMargins.mLeft) - pCurBlock->mHitbox.getWidth();
 				pCurBlock->mHitbox.setTopLeft(Vect2(x, y));
@@ -803,11 +864,11 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 		width	= mFillWidth ? std::max(mMaxWidth, width) : width;
 		height	= mFillHeight ? std::max(mMaxHeight, height) : height;
 
-		mHitbox.setWidth(std::max(width, 1));
-		mHitbox.setHeight(std::max(height, 1));
+		mHitbox.setWidth(std::max(width, 0));
+		mHitbox.setHeight(std::max(height, 0));
 	}
 
-	else if (mpAllBoxes.size() > 0)
+	if (mpAllBoxes.size() > 0)
 	{
 		int width = 0;
 		int height = 0;
@@ -878,8 +939,8 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 			break;
 		}
 
-		mHitbox.setWidth(std::max(width, 1));
-		mHitbox.setHeight(std::max(height, 1));
+		mHitbox.setWidth(std::max(width, 0));
+		mHitbox.setHeight(std::max(height, 0));
 		mHitbox.setTopLeft(Vect2(updatedX, updatedY));
 	}
 }
@@ -887,7 +948,12 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 void BlockAlignElementsGrid::moveBoxes() 
 {
 	// left to right
-	UIBox* pLastTextBox = mpAllBoxes[0];
+	int i = getIndexOfFirstCurBox();
+	if (i == -1)
+	{
+		return;
+	}
+	UIBox* pLastTextBox = mpAllBoxes[i];
 
 	int curRow = 0;
 	int curCol = 0;
@@ -901,7 +967,7 @@ void BlockAlignElementsGrid::moveBoxes()
 	int changeX = x + pLastTextBox->mMargins.mLeft + centeringX - pLastTextBox->mpCurHitbox->getTopLeft().getX();
 	int changeY = y + pLastTextBox->mMargins.mTop + centeringY - pLastTextBox->mpCurHitbox->getTopLeft().getY();
 	pLastTextBox->shiftHitbox(Vect2(changeX, changeY));
-	for (int count = 1; count < mpAllBoxes.size(); count++)
+	for (int count = i + 1; count < mpAllBoxes.size(); count++)
 	{
 		if (!mpAllBoxes[count]->mShow)
 		{
@@ -943,18 +1009,27 @@ void BlockAlignElementsGrid::moveSubBlocks()
 	if (mpSubBlocks.size() > 0)
 	{
 		// left to right && top to bottom
-		UIBlock* pLastBlock = mpSubBlocks[0];
+		int i = getIndexOfFirstCurBlock();
+		if (i == -1)
+		{
+			return;
+		}
+		UIBlock* pLastBlock = mpSubBlocks[i];
 		
-		int curRow = 0;
-		int curCol = 0;
+		int curRow = i / mNumCols;
+		int curCol = i - (curRow * mNumCols);
 
 		int x = mHitbox.getTopLeft().getX();
 		int y = mHitbox.getTopLeft().getY();
 		pLastBlock->mHitbox.setTopLeft(Vect2(x + pLastBlock->mMargins.mLeft, y + pLastBlock->mMargins.mTop));
 		pLastBlock->moveSubBlocks();
-		for (int count = 1; count < mpSubBlocks.size(); count++) // count at 1
+		for (int count = i + 1; count < mpSubBlocks.size(); count++)
 		{
 			UIBlock* pCurBlock = mpSubBlocks[count];
+			if (pCurBlock->mHitbox.getWidth() == 0 || pCurBlock->mHitbox.getHeight() == 0)
+			{
+				continue;
+			}
 			curRow = count / mNumCols;
 			curCol = count - (curRow * mNumCols);
 

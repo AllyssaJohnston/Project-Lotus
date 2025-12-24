@@ -36,7 +36,7 @@ bool shouldShowUIBox(const UIBoxData& data, const MiniGameStateManagerData& mana
 		}
 		if (std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), managerData.mCurStateEnum) != miniGameStateWhenToShowList.end())
 		{
-			return data.mAttackCategory == data.mAttackCategory;
+			return data.mAttackCategory == managerData.mStateData.mAttackCategory;
 		}
 		return false;
 	case EUIBoxType_MINI_GAME_BOX:

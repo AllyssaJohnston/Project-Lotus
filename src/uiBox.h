@@ -117,7 +117,6 @@ private:
 class ImageBox : public UIBox
 {
 public:
-	bool					mAutoShow = true;
 	int						mRotation		= 0;
 	ETextBoxPositionAlign	mPositionAlign	= ETextBoxPositionAlign_INVALID;
 	ImageObject				mImageObject;

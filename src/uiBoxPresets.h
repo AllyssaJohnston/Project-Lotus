@@ -41,7 +41,6 @@ struct GameStatBoxPreset : public TextBoxPreset { GameStatBoxPreset(EGameStatBox
 struct ImageBoxPreset
 {
 	UIBoxData mData;
-	bool mAutoShow		= true;
 };
 
 struct DontAutoShowImageBoxPreset : public ImageBoxPreset { DontAutoShowImageBoxPreset(EUIBoxType id); };

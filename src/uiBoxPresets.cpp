@@ -120,11 +120,7 @@ GameStatBoxPreset::GameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueTo
 
 
 // IMAGE BOXES
-DontAutoShowImageBoxPreset::DontAutoShowImageBoxPreset(EUIBoxType id) : ImageBoxPreset()
-{
-	mAutoShow	= false;
-	mData.mType	= id;
-}
+DontAutoShowImageBoxPreset::DontAutoShowImageBoxPreset(EUIBoxType id) : ImageBoxPreset() { mData.mType	= id; }
 
 MiniGameCharacterImageBoxPreset::MiniGameCharacterImageBoxPreset(int characterIndex, bool showDuringAllCharacters) : ImageBoxPreset()
 {

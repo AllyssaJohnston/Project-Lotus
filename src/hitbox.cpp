@@ -256,7 +256,7 @@ void Hitbox::setCenter(Vect2 newCenter) { mCenterPos = newCenter; }
 
 void Hitbox::setWidth(int w)
 {
-	if (w <= 0)
+	if (w < 0)
 	{
 		SDL_assert(false);
 	}
@@ -270,7 +270,7 @@ void Hitbox::setWidth(int w)
 
 void Hitbox::setHeight(int h)
 {
-	if (h <= 0)
+	if (h < 0)
 	{
 		SDL_assert(false);
 	}
