@@ -99,7 +99,7 @@ void setUpAllTextures()
 	{
 		for (UIBlock* pBlock : pMenuPage->mpBlocks)
 		{
-			pBlock->setAllTextures(screen.mpRenderer);
+			pBlock->setTexture(screen.mpRenderer);
 		}
 	}
 }

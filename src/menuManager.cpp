@@ -67,7 +67,7 @@ void MenuManager::setUpBlocks()
 	{
 		for (UIBlock* pBlock : pPage->mpBlocks)
 		{
-			pBlock->setMaxForBoxes();
+			pBlock->setMaxSize();
 		}
 	}
 }
@@ -151,136 +151,43 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 
 void MenuManager::printBoxes()
 {
-	SDL_Renderer* pRenderer = mScreen.mpRenderer;
+	UIBox* pBox;
 
-	for (UIBlock* pBlock : mpCurMenuPage->getAllBlocks()) 
+	for (UIElement* pElem : mpCurMenuPage->getAllElems()) 
 	{
-		SDL_Color curTextBoxColor = pBlock->mBackgroundColor;
-		if (curTextBoxColor.a != 0)
+		if (!pElem->isActive())
 		{
-			SDL_SetRenderDrawColor(pRenderer, curTextBoxColor.r, curTextBoxColor.g, curTextBoxColor.b, curTextBoxColor.a);
-
-			const Hitbox& box = pBlock->mHitbox;
-			SDL_FRect rect = {	box.getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio,
-								box.getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
-								box.getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
-								box.getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
-			SDL_RenderFillRect(pRenderer, &rect);
+			continue;
 		}
-	}
+		switch (pElem->mClassType)
+		{
+		case EUIClass_BLOCK:
+			printBlock(mScreen, *(UIBlock*)pElem);
+			break;
+		case EUIClass_BOX:
+			pBox = (UIBox*)pElem;
+			switch (pBox->mBoxType)
+			{
+			case EUIBoxClass_TEXTBOX:
+				printTextBox(mScreen, *(TextBox*)pBox);
+				break;
 
-	std::vector<TextBox*> allTextBoxes = mpCurMenuPage->getCurTextBoxes();
-	for (TextBox* pCurTextBox : allTextBoxes)
-	{
-		SDL_Color curTextBoxColor = pCurTextBox->getTextBoxColor();
-		SDL_Color curOutlineColor = pCurTextBox->getIsHighlighted() ? pCurTextBox->mHighlightedOutlineColor : pCurTextBox->mOutlineColor;
+			case EUIBoxClass_IMAGEBOX:
+				printImageBox(mScreen, *(ImageBox*)pBox);
+				break;
+
+			case EUIBoxClass_SHAPEBOX:
+				printShapeBox(mScreen, *(ShapeBox*)pBox);
+				break;
+
+			case EUIBoxClass_HEALTHBOX:
+
+				printHealthBox(mScreen, *(HealthBox*)pBox);
+				break;
+			}
+			break;
+		}
 		
-		const Hitbox& box = *pCurTextBox->mpCurHitbox;
-		// outline box
-		if (pCurTextBox->mOutlineWidth != 0 && curOutlineColor.a != 0)
-		{
-			SDL_SetRenderDrawColor(pRenderer, curOutlineColor.r, curOutlineColor.g, curOutlineColor.b, curOutlineColor.a);
-			SDL_FRect rect = {	box.getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
-								box.getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
-								box.getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
-								box.getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
-			SDL_RenderFillRect(pRenderer, &rect);
-		}
-
-		// background box
-		if (curTextBoxColor.a != 0)
-		{
-			SDL_SetRenderDrawColor(pRenderer, curTextBoxColor.r, curTextBoxColor.g, curTextBoxColor.b, curTextBoxColor.a);
-			SDL_FRect rect = {	(box.getTopLeft().getX() + pCurTextBox->mOutlineWidth) * mScreen.mGameScreenToGameLevelChunkRatio ,
-								(box.getTopLeft().getY() + pCurTextBox->mOutlineWidth) * mScreen.mGameScreenToGameLevelChunkRatio,
-								(box.getWidth()  - 2 * pCurTextBox->mOutlineWidth) * mScreen.mGameScreenToGameLevelChunkRatio,
-								(box.getHeight() - 2 * pCurTextBox->mOutlineWidth) * mScreen.mGameScreenToGameLevelChunkRatio };
-			SDL_RenderFillRect(pRenderer, &rect);
-		}
-
-		// text
-		for (int i = 0; i < (*(pCurTextBox->mpCurTextures)).size(); i++)
-		{
-			const Hitbox& curLineBox = (*(pCurTextBox->mpCurLineHitboxes))[i];
-			SDL_FRect destinationText = {	curLineBox.getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
-											curLineBox.getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
-											curLineBox.getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
-											curLineBox.getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
-			SDL_RenderTexture(pRenderer, (*(pCurTextBox->mpCurTextures))[i], NULL, &destinationText);
-		}
-	}
-
-	// image boxes
-	for (ImageBox* pCurImageBox : mpCurMenuPage->mpImageBoxes)
-	{
-		if (pCurImageBox->mShow)
-		{
-			SDL_FRect rect = {  pCurImageBox->mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
-								pCurImageBox->mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
-								pCurImageBox->mpCurHitbox->getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
-								pCurImageBox->mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
-			int rotation = pCurImageBox->mRotation;
-
-			SDL_RenderTextureRotated(pRenderer, pCurImageBox->mImageObject.getTexture(), NULL, &rect, rotation, NULL, SDL_FLIP_NONE);
-		}
-
-	}
-
-	// shape boxes
-	for (ShapeBox* pShapeBox : mpCurMenuPage->mpShapeBoxes)
-	{
-		if (pShapeBox->mShow && pShapeBox->mColor.a != 0)
-		{
-			SDL_FRect rect;
-
-			switch (pShapeBox->mShapeType) 
-			{
-			case EShapeBoxClass_CIRCLE:
-				drawCircle(pShapeBox->mColor, pShapeBox->mpCurHitbox->getCenter(), pShapeBox->mpCurHitbox->getWidth() / 2, mScreen);
-				break;
-			case EShapeBoxClass_RECT:
-				rect = {	pShapeBox->mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
-							pShapeBox->mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
-							pShapeBox->mpCurHitbox->getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
-							pShapeBox->mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
-				SDL_RenderFillRect(pRenderer, &rect);
-				break;
-			default:
-				SDL_assert(false);
-			}
-		}
-	}
-
-	// health boxes
-	for (HealthBox* pHealthBox : mpCurMenuPage->mpHealthBoxes)
-	{
-		if (pHealthBox->mShow)
-		{
-			SDL_SetRenderDrawColor(pRenderer, pHealthBox->mBoundingBox.mColor.r, pHealthBox->mBoundingBox.mColor.g, pHealthBox->mBoundingBox.mColor.b, pHealthBox->mBoundingBox.mColor.a);
-			SDL_FRect boundingRect = { pHealthBox->mBoundingBox.mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
-										pHealthBox->mBoundingBox.mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
-										pHealthBox->mBoundingBox.mpCurHitbox->getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
-										pHealthBox->mBoundingBox.mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
-			SDL_RenderFillRect(pRenderer, &boundingRect);
-
-			SDL_SetRenderDrawColor(pRenderer, pHealthBox->mHealthLeftBox.mColor.r, pHealthBox->mHealthLeftBox.mColor.g, pHealthBox->mHealthLeftBox.mColor.b, pHealthBox->mHealthLeftBox.mColor.a);
-			SDL_FRect healthRect = { pHealthBox->mHealthLeftBox.mpCurHitbox->getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
-										pHealthBox->mHealthLeftBox.mpCurHitbox->getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
-										pHealthBox->mHealthLeftBox.mpCurHitbox->getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
-										pHealthBox->mHealthLeftBox.mpCurHitbox->getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
-			SDL_RenderFillRect(pRenderer, &healthRect);
-
-			// text
-			for (int i = 0; i < (*(pHealthBox->mHealthText.mpCurTextures)).size(); i++)
-			{
-				const Hitbox& curLineBox = (*(pHealthBox->mHealthText.mpCurLineHitboxes))[i];
-				SDL_FRect destinationText = { curLineBox.getTopLeft().getX() * mScreen.mGameScreenToGameLevelChunkRatio ,
-												curLineBox.getTopLeft().getY() * mScreen.mGameScreenToGameLevelChunkRatio,
-												curLineBox.getWidth() * mScreen.mGameScreenToGameLevelChunkRatio,
-												curLineBox.getHeight() * mScreen.mGameScreenToGameLevelChunkRatio };
-				SDL_RenderTexture(pRenderer, (*(pHealthBox->mHealthText.mpCurTextures))[i], NULL, &destinationText);
-			}
-		}
 	}
 }
 

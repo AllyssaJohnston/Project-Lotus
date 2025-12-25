@@ -55,7 +55,7 @@ public:
 
 	std::vector <TextBox*> getCurTextBoxes() const;
 
-	std::vector <UIBlock*> getAllBlocks() const;
+	std::vector <UIElement*> getAllElems() const;
 
 	void updateAllUIBoxesShowState(MiniGameStateManagerData& data, const CombatManager& combatManager);
 

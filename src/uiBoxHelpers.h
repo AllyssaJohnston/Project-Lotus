@@ -7,6 +7,15 @@
 #include <string>
 #include <map>
 
+enum EUIClass
+{
+	EUIClass_INVALID = -1,
+	EUIClass_ELEMENT,
+	EUIClass_BLOCK,
+	EUIClass_BOX,
+	EUIClass_MAX
+};
+
 enum EUIBoxClass
 {
 	EUIBoxClass_INVALID = -1,

@@ -1,12 +1,18 @@
 #include "uiBox.h"
 
-UIBox::UIBox(const UIBoxData data) : mData(data) { ; }
+UIBox::UIBox(const UIBoxData data) : mData(data) 
+{ 
+	mClassType = EUIClass_BOX;
+}
 
 UIBox::~UIBox()
 {
 	mpCurHitbox = nullptr;
 }
 
+Hitbox& UIBox::getHitbox() { return *mpCurHitbox; }
+
+bool UIBox::isActive() { return mShow; }
 
 
 TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, TextBoxPositionInfo positionInfo, const char* fileName, TextBoxSizeInfo sizeInfo,
@@ -16,7 +22,7 @@ TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, T
 		mStandardTextBoxColor(colorInfo.mStandardTextBoxColor), mHighlightedTextBoxColor(colorInfo.mHighlightedTextBoxColor), 
 		mOutlineColor(colorInfo.mOutlineColor), mHighlightedOutlineColor(colorInfo.mHighlightedOutlineColor)
 {
-	mClassType		= EUIBoxClass_TEXTBOX;
+	mBoxType = EUIBoxClass_TEXTBOX;
 	mPositionAlign	= positionInfo.mPositionAlign;
 	
 	// create hitbox
@@ -92,7 +98,7 @@ void TextBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChar
 	}
 
 	updateTextLines(textMessage, fontSizeChart);
-	setTextBoxTexture(pRenderer);
+	setTexture(pRenderer);
 	updateHitboxes();
 	mSetUp = true;
 }
@@ -135,11 +141,11 @@ void TextBox::updateTextLines(const std::string text, FontSizeChart& fontSizeCha
 
 void TextBox::updateTexture(SDL_Renderer* pRenderer)
 {
-	setTextBoxTexture(pRenderer);
+	setTexture(pRenderer);
 	updateHitboxes();
 }
 
-void TextBox::setTextBoxTexture(SDL_Renderer* pRenderer)
+void TextBox::setTexture(SDL_Renderer* pRenderer)
 {
 	for (SDL_Texture* pTexture : mpStandardTextures)
 	{
@@ -337,7 +343,7 @@ void TextBox::shiftHitbox(const Vect2 shiftTopLeft)
 
 ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo positionInfo, const std::string fileName) : UIBox(preset.mData)
 {
-	mClassType		= EUIBoxClass_IMAGEBOX;
+	mBoxType = EUIBoxClass_IMAGEBOX;
 	mImageObject	= ImageObject(fileName, positionInfo.mMaxWidth, positionInfo.mMaxHeight, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
 	mPositionAlign	= positionInfo.mPositionAlign;
 
@@ -371,12 +377,12 @@ ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo posit
 
 void ImageBox::shiftHitbox(const Vect2 shiftTopLeft) { mpCurHitbox->updateTopLeft(shiftTopLeft); }
 
-
+void ImageBox::setTexture(SDL_Renderer* pRenderer) { mImageObject.setUpTexture(pRenderer); }
 
 
 ShapeBox::ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positionInfo, const SDL_Color color) : UIBox(preset.mData), mShapeType(preset.mType), mColor(color)
 {
-	mClassType = EUIBoxClass_SHAPEBOX;
+	mBoxType = EUIBoxClass_SHAPEBOX;
 	mPositionAlign = positionInfo.mPositionAlign;
 
 	// create hitbox
@@ -417,7 +423,7 @@ HealthBox::HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo pos
 		mMaxWidth(positionInfo.mMaxWidth)
 { 
 	mPositionAlign = positionInfo.mPositionAlign;
-	mClassType = EUIBoxClass_HEALTHBOX;
+	mBoxType = EUIBoxClass_HEALTHBOX;
 	mpCurHitbox = mBoundingBox.mpCurHitbox;
 	mMargins = positionInfo.mMargins;
 }

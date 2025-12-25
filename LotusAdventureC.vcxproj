@@ -93,6 +93,7 @@
     <ClInclude Include="src\tileHelpers.h" />
     <ClInclude Include="src\tilePresets.h" />
     <ClInclude Include="src\UIBlock.h" />
+    <ClInclude Include="src\UIElement.h" />
     <ClInclude Include="src\worldData.h" />
     <ClInclude Include="src\world.h" />
     <ClInclude Include="src\worldHelpers.h" />
@@ -162,6 +163,7 @@
     <ClCompile Include="src\tileHelpers.cpp" />
     <ClCompile Include="src\tilePresets.cpp" />
     <ClCompile Include="src\UIBlock.cpp" />
+    <ClCompile Include="src\UIElement.cpp" />
     <ClCompile Include="src\worldData.cpp" />
     <ClCompile Include="src\world.cpp" />
     <ClCompile Include="src\worldHelpers.cpp" />

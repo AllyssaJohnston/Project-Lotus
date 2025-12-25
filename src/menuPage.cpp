@@ -31,7 +31,7 @@ void MenuPage::preTick()
 
 void MenuPage::addBox(TextBox* pTextBox, bool selectable, UIBlock* pBlock)
 {
-	pBlock->mpAllBoxes.push_back(pTextBox);
+	pBlock->mpSubElems.push_back(pTextBox);
 	if (selectable)
 	{
 		mpAllSelectableTextBoxes.push_back(pTextBox);
@@ -44,19 +44,19 @@ void MenuPage::addBox(TextBox* pTextBox, bool selectable, UIBlock* pBlock)
 
 void MenuPage::addBox(ImageBox* pBox, UIBlock* pBlock)
 {
-	pBlock->mpAllBoxes.push_back(pBox);
+	pBlock->mpSubElems.push_back(pBox);
 	mpImageBoxes.push_back(pBox);
 }
 
 void MenuPage::addBox(ShapeBox* pBox, UIBlock* pBlock)
 {
-	pBlock->mpAllBoxes.push_back(pBox);
+	pBlock->mpSubElems.push_back(pBox);
 	mpShapeBoxes.push_back(pBox);
 }
 
 void MenuPage::addBox(HealthBox* pBox, UIBlock* pBlock)
 {
-	pBlock->mpAllBoxes.push_back(pBox);
+	pBlock->mpSubElems.push_back(pBox);
 	mpHealthBoxes.push_back(pBox);
 }
 
@@ -162,12 +162,12 @@ std::vector <TextBox*> MenuPage::getCurTextBoxes() const
 	return allCurTextBoxes;
 }
 
-std::vector <UIBlock*> MenuPage::getAllBlocks() const
+std::vector <UIElement*> MenuPage::getAllElems() const
 {
-	std::vector <UIBlock*> list;
+	std::vector <UIElement*> list;
 	for (UIBlock* pBlock : mpBlocks)
 	{
-		pBlock->getAllBlocksInternal(list);
+		pBlock->getAllElems(list);
 	}
 	return list;
 }
@@ -226,10 +226,11 @@ void MenuPage::adjustBlocks()
 void MenuPage::deleteBlock(UIBlock* pBlock)
 {
 	std::vector<UIBox*> allBoxes = pBlock->getAllBoxes();
+	delete pBlock;
 	for (int i = (int)allBoxes.size() - 1; i > -1; i--)
 	{
 		UIBox* pBox = allBoxes[i];
-		switch (pBox->mClassType)
+		switch (pBox->mBoxType)
 		{
 		case EUIBoxClass_TEXTBOX:
 			mpAllDisplayOnlyTextBoxes.erase(std::remove(mpAllDisplayOnlyTextBoxes.begin(), mpAllDisplayOnlyTextBoxes.end(), pBox), mpAllDisplayOnlyTextBoxes.end());
@@ -248,7 +249,6 @@ void MenuPage::deleteBlock(UIBlock* pBlock)
 
 		delete pBox;
 	}
-	delete pBlock;
 }
 
 

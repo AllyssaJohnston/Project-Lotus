@@ -51,7 +51,7 @@ bool shouldShowUIBox(const UIBoxData& data, const MiniGameStateManagerData& mana
 
 
 
-void drawCircle(const SDL_Color& color, const Vect2& center, int radius, ScreenObject& screen)
+void drawCircle(const SDL_Color& color, const Vect2& center, int radius, const ScreenObject& screen)
 {
 	SDL_Renderer* pRenderer = screen.mpRenderer;
 
@@ -220,4 +220,112 @@ float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const MiniG
 		break;
 	}
 	return -1.0f;
+}
+
+void printBlock(const ScreenObject& screen, const UIBlock& block) 
+{
+	SDL_Renderer* pRenderer = screen.mpRenderer;
+	SDL_Color curBackgroundColor = block.mBackgroundColor;
+	if (curBackgroundColor.a != 0)
+	{
+		SDL_SetRenderDrawColor(pRenderer, curBackgroundColor.r, curBackgroundColor.g, curBackgroundColor.b, curBackgroundColor.a);
+
+		const Hitbox& box = block.mHitbox;
+		SDL_FRect rect = { box.getTopLeft().getX() * screen.mGameScreenToGameLevelChunkRatio,
+							box.getTopLeft().getY() * screen.mGameScreenToGameLevelChunkRatio,
+							box.getWidth() * screen.mGameScreenToGameLevelChunkRatio,
+							box.getHeight() * screen.mGameScreenToGameLevelChunkRatio };
+		SDL_RenderFillRect(pRenderer, &rect);
+	}
+	pRenderer = nullptr;
+}
+
+void printTextBox(const ScreenObject& screen, const TextBox& textBox)
+{
+	SDL_Renderer* pRenderer = screen.mpRenderer;
+	SDL_Color curTextBoxColor = textBox.getTextBoxColor();
+	SDL_Color curOutlineColor = textBox.getIsHighlighted() ? textBox.mHighlightedOutlineColor : textBox.mOutlineColor;
+
+	const Hitbox& hitbox = *textBox.mpCurHitbox;
+	// outline box
+	if (textBox.mOutlineWidth != 0 && curOutlineColor.a != 0)
+	{
+		SDL_SetRenderDrawColor(pRenderer, curOutlineColor.r, curOutlineColor.g, curOutlineColor.b, curOutlineColor.a);
+		SDL_FRect rect = { hitbox.getTopLeft().getX() * screen.mGameScreenToGameLevelChunkRatio ,
+							 hitbox.getTopLeft().getY() * screen.mGameScreenToGameLevelChunkRatio,
+							 hitbox.getWidth() * screen.mGameScreenToGameLevelChunkRatio,
+							 hitbox.getHeight() * screen.mGameScreenToGameLevelChunkRatio };
+		SDL_RenderFillRect(pRenderer, &rect);
+	}
+
+	// background box
+	if (curTextBoxColor.a != 0)
+	{
+		SDL_SetRenderDrawColor(pRenderer, curTextBoxColor.r, curTextBoxColor.g, curTextBoxColor.b, curTextBoxColor.a);
+		SDL_FRect rect = { (hitbox.getTopLeft().getX() + textBox.mOutlineWidth) * screen.mGameScreenToGameLevelChunkRatio ,
+							(hitbox.getTopLeft().getY() + textBox.mOutlineWidth) * screen.mGameScreenToGameLevelChunkRatio,
+							(hitbox.getWidth() - 2 * textBox.mOutlineWidth) * screen.mGameScreenToGameLevelChunkRatio,
+							(hitbox.getHeight() - 2 * textBox.mOutlineWidth) * screen.mGameScreenToGameLevelChunkRatio };
+		SDL_RenderFillRect(pRenderer, &rect);
+	}
+
+	// text
+	for (int i = 0; i < (*(textBox.mpCurTextures)).size(); i++)
+	{
+		const Hitbox& curLineBox = (*(textBox.mpCurLineHitboxes))[i];
+		SDL_FRect destinationText = { curLineBox.getTopLeft().getX() * screen.mGameScreenToGameLevelChunkRatio ,
+										curLineBox.getTopLeft().getY() * screen.mGameScreenToGameLevelChunkRatio,
+										curLineBox.getWidth() * screen.mGameScreenToGameLevelChunkRatio,
+										curLineBox.getHeight() * screen.mGameScreenToGameLevelChunkRatio };
+		SDL_RenderTexture(pRenderer, (*(textBox.mpCurTextures))[i], NULL, &destinationText);
+	}
+	pRenderer = nullptr;
+}
+
+void printImageBox(const ScreenObject& screen, const ImageBox& imageBox)
+{
+	SDL_Renderer* pRenderer = screen.mpRenderer;
+	const Hitbox& box = *imageBox.mpCurHitbox;
+	SDL_FRect rect = { box.getTopLeft().getX() * screen.mGameScreenToGameLevelChunkRatio ,
+						box.getTopLeft().getY() * screen.mGameScreenToGameLevelChunkRatio,
+						box.getWidth() * screen.mGameScreenToGameLevelChunkRatio,
+						box.getHeight() * screen.mGameScreenToGameLevelChunkRatio };
+	int rotation = imageBox.mRotation;
+
+	SDL_RenderTextureRotated(pRenderer, imageBox.mImageObject.getTexture(), NULL, &rect, rotation, NULL, SDL_FLIP_NONE);
+}
+
+void printShapeBox(const ScreenObject& screen, const ShapeBox& shapeBox)
+{
+	SDL_Renderer* pRenderer = screen.mpRenderer;
+	if (shapeBox.mColor.a != 0)
+	{
+		SDL_FRect rect;
+		const Hitbox& hitbox = *shapeBox.mpCurHitbox;
+		SDL_SetRenderDrawColor(pRenderer, shapeBox.mColor.r, shapeBox.mColor.g, shapeBox.mColor.b, shapeBox.mColor.a);
+		switch (shapeBox.mShapeType)
+		{
+		case EShapeBoxClass_CIRCLE:
+			drawCircle(shapeBox.mColor, hitbox.getCenter(), hitbox.getWidth() / 2, screen);
+			break;
+		case EShapeBoxClass_RECT:
+			rect = { hitbox.getTopLeft().getX() * screen.mGameScreenToGameLevelChunkRatio ,
+						hitbox.getTopLeft().getY() * screen.mGameScreenToGameLevelChunkRatio,
+						hitbox.getWidth() * screen.mGameScreenToGameLevelChunkRatio,
+						hitbox.getHeight() * screen.mGameScreenToGameLevelChunkRatio };
+			SDL_RenderFillRect(pRenderer, &rect);
+			break;
+		default:
+			SDL_assert(false);
+		}
+	}
+}
+
+void printHealthBox(const ScreenObject& screen, const HealthBox& healthBox)
+{
+	printShapeBox(screen, healthBox.mBoundingBox);
+	
+	printShapeBox(screen, healthBox.mHealthLeftBox);
+	
+	printTextBox(screen, healthBox.mHealthText);
 }

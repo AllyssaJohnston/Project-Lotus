@@ -1,57 +1,57 @@
 #pragma once
 #include "uiBox.h"
+#include "uiElement.h"
 
-class UIBlock
+class UIBlock : public UIElement
 {
 public:
-	std::vector<UIBlock*> mpSubBlocks;
-	std::vector<UIBox*> mpAllBoxes;
-	std::string mName;
+	std::string mName = "";
+	std::vector<UIElement*>					mpSubElems; // more blocks or ui boxes
 	bool   mIsHeadBlock						= false;
-	Hitbox mHitbox;
+	Hitbox mHitbox;										// for entire block
 	bool   mFillWidth						= false;
 	bool   mFillHeight						= false;
 	int	   mMaxWidth						= 1;
 	int	   mMaxHeight						= 1;
 	Vect2  mStartingPositionCenter;
-	Edges  mMargins;
 	ETextBoxPositionAlign mPositionAlign	= ETextBoxPositionAlign_INVALID;
 	SDL_Color mBackgroundColor				= { 0, 0, 0, 0 };
 	EDirection mGrowthDirection				= EDirection_INVALID;
 	// for head block
 	EDirection mGrowthDirectionHorizontal	= EDirection_INVALID;
 	EDirection mGrowthDirectionVertical		= EDirection_INVALID;
-
+	
 	~UIBlock();
+
+	Hitbox& getHitbox() override;
 
 	virtual void adjustBlocksWidthHeight() = 0;
 
-	virtual void moveBoxes() = 0;
-
-	virtual void moveSubBlocks() = 0;
+	virtual void moveElems() = 0;
 
 	void updateBlocks();
 
-	void setMaxForBoxes();
+	void setMaxSize();
 
-	void setAllTextures(SDL_Renderer* pRenderer);
+	bool isActive() override;
+
+	void setTexture(SDL_Renderer* pRenderer) override;
 
 	std::vector<UIBox*> getAllBoxes();
 
-	void getAllBlocksInternal(std::vector<UIBlock*>& list);
+	std::vector<UIElement*> getAllElems();
+
+	void getAllElems(std::vector<UIElement*>& list);
 
 protected:
-	void setAllTexturesInternal(SDL_Renderer* pRenderer);
 
 	void getAllBoxesInternal(std::vector<UIBox*>& list);
 
-	int getIndexOfFirstCurBlock();
+	void getAllElemsInternal(std::vector<UIElement*>& list);
 
-	int getIndexOfLastCurBlock();
+	int getIndexOfFirstActiveElem();
 
-	int getIndexOfFirstCurBox();
-
-	int getIndexOfLastCurBox();
+	int getIndexOfLastActiveElem();
 
 };
 
@@ -70,11 +70,9 @@ private:
 	void constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor);
 
 	// TODO cut off textboxes after max dimensiosn
-	void adjustBlocksWidthHeight();
+	void adjustBlocksWidthHeight() override;
 
-	void moveBoxes();
-
-	void moveSubBlocks();
+	void moveElems() override;
 };
 
 class BlockAlignElementsHorizontally : public UIBlock
@@ -92,11 +90,9 @@ private:
 	void constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor);
 
 	// TODO cut after max
-	void adjustBlocksWidthHeight();
+	void adjustBlocksWidthHeight() override;
 
-	void moveBoxes();
-
-	void moveSubBlocks();
+	void moveElems() override;
 };
 
 
@@ -123,11 +119,9 @@ private:
 	void constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor);
 
 	// TODO cut after max
-	void adjustBlocksWidthHeight();
+	void adjustBlocksWidthHeight() override;
 
-	void moveBoxes();
-
-	void moveSubBlocks();
+	void moveElems() override;
 
 	void updateNumRowsCols();
 };

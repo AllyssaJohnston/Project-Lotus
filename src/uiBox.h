@@ -9,6 +9,7 @@
 #include "hitbox.h"
 #include "uiBoxPresets.h"
 #include "image.h"
+#include "UIElement.h"
 #include "uiboxHelpers.h"
 
 
@@ -16,18 +17,22 @@
 //TODO 1. for scaling text size, have a percentage, and simply force all hitboxes to scale by that amount. Keep margins as is. 
 // 2. Then to fix gross text scaling, use font size chart to find an appropiate text size
 
-class UIBox
+class UIBox : public UIElement
 {
 public:
+
 	const UIBoxData			mData;
 	bool					mShow			= true;
 	ETextBoxPositionAlign	mPositionAlign	= ETextBoxPositionAlign_CENTER; //only affects x coord
 	Hitbox*					mpCurHitbox		= nullptr;
-	Edges					mMargins		= Edges();
-	EUIBoxClass				mClassType		= EUIBoxClass_INVALID;
+	EUIBoxClass				mBoxType		= EUIBoxClass_INVALID;
 
 	UIBox(const UIBoxData data);
 	virtual ~UIBox();
+
+	virtual Hitbox& getHitbox() override;
+
+	bool isActive() override;
 
 	virtual void shiftHitbox(const Vect2 shiftTopLeft) = 0;
 };
@@ -87,7 +92,7 @@ public:
 
 	void updateTexture(SDL_Renderer* pRenderer);
 
-	void setTextBoxTexture(SDL_Renderer* pRenderer);
+	void setTexture(SDL_Renderer* pRenderer) override;
 
 	bool getIsHighlighted() const;
 
@@ -126,6 +131,8 @@ public:
 	~ImageBox() { ; }
 
 	void shiftHitbox(Vect2 shiftTopLeft) override;
+
+	void setTexture(SDL_Renderer* pRenderer) override;
 };
 
 class ShapeBox : public UIBox
@@ -137,6 +144,8 @@ public:
 	ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positionInfo, const SDL_Color color);
 
 	void shiftHitbox(const Vect2 shiftTopLeft) override;
+
+	void setTexture(SDL_Renderer* pRenderer) override { ; }
 };
 
 class HealthBox : public UIBox
@@ -152,6 +161,8 @@ public:
 	void shiftHitbox(const Vect2 shiftTopLeft) override;
 
 	void updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, const std::string updatedMessage, float curRatio);
+
+	void setTexture(SDL_Renderer* pRenderer) override { ; }
 
 private:
 	int mMaxWidth;
