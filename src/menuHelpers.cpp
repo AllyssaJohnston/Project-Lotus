@@ -50,31 +50,6 @@ bool shouldShowUIBox(const UIBoxData& data, const MiniGameStateManagerData& mana
 }
 
 
-
-void drawCircle(const SDL_Color& color, const Vect2& center, int radius, const ScreenObject& screen)
-{
-	SDL_Renderer* pRenderer = screen.mpRenderer;
-
-	float actualCenterX = center.getX() * screen.mGameScreenToGameLevelChunkRatio;
-	float actualCenterY = center.getY() * screen.mGameScreenToGameLevelChunkRatio;
-	float actualRadius = radius * screen.mGameScreenToGameLevelChunkRatio;
-
-
-	for (int degrees = 0; degrees < 360; degrees++)
-	{
-		for (int curRadius = 0; curRadius < actualRadius; curRadius++)
-		{
-			float radians = (float)degToRad(degrees);
-			float curX = actualCenterX + (cos(radians) * curRadius);
-			float curY = actualCenterY + (sin(radians) * curRadius);
-			float alpha = (actualRadius - curRadius) / actualRadius;
-			SDL_SetRenderDrawColor(pRenderer, color.r, color.g, color.b, Uint8(alpha));
-			SDL_RenderPoint(pRenderer, curX, curY);
-		}
-	}
-}
-
-
 std::string updateGameStatBoxCurTextBoxMessage(const TextBox& textBox, const std::string& curKeys, const WorldData& worldData, const SettingsManager& settingsManager)
 {
 	switch (textBox.mData.mGameStatToDisplay)
@@ -222,6 +197,30 @@ float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const MiniG
 	return -1.0f;
 }
 
+
+void drawCircle(const SDL_Color& color, const Vect2& center, int radius, const ScreenObject& screen)
+{
+	SDL_Renderer* pRenderer = screen.mpRenderer;
+
+	float actualCenterX = center.getX() * screen.mGameScreenToGameLevelChunkRatio;
+	float actualCenterY = center.getY() * screen.mGameScreenToGameLevelChunkRatio;
+	float actualRadius = radius * screen.mGameScreenToGameLevelChunkRatio;
+
+
+	for (int degrees = 0; degrees < 360; degrees++)
+	{
+		for (int curRadius = 0; curRadius < actualRadius; curRadius++)
+		{
+			float radians = (float)degToRad(degrees);
+			float curX = actualCenterX + (cos(radians) * curRadius);
+			float curY = actualCenterY + (sin(radians) * curRadius);
+			float alpha = (actualRadius - curRadius) / actualRadius;
+			SDL_SetRenderDrawColor(pRenderer, color.r, color.g, color.b, Uint8(alpha));
+			SDL_RenderPoint(pRenderer, curX, curY);
+		}
+	}
+}
+
 void printBlock(const ScreenObject& screen, const UIBlock& block) 
 {
 	SDL_Renderer* pRenderer = screen.mpRenderer;
@@ -324,8 +323,6 @@ void printShapeBox(const ScreenObject& screen, const ShapeBox& shapeBox)
 void printHealthBox(const ScreenObject& screen, const HealthBox& healthBox)
 {
 	printShapeBox(screen, healthBox.mBoundingBox);
-	
 	printShapeBox(screen, healthBox.mHealthLeftBox);
-	
 	printTextBox(screen, healthBox.mHealthText);
 }

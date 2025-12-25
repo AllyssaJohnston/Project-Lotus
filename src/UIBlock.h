@@ -45,6 +45,8 @@ public:
 
 protected:
 
+	virtual void center(int width, int height);
+
 	void getAllBoxesInternal(std::vector<UIBox*>& list);
 
 	void getAllElemsInternal(std::vector<UIElement*>& list);
