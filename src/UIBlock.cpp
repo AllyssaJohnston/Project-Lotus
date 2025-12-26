@@ -92,19 +92,72 @@ void UIBlock::setMaxSize()
 
 bool UIBlock::isActive() { return mHitbox.getWidth() > 0 || mHitbox.getHeight() > 0; }
 
+void UIBlock::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor)
+{
+	mClassType = EUIClass_BLOCK;
+	mHitbox = hitbox;
+	mMaxWidth = hitbox.getWidth();
+	mMaxHeight = hitbox.getHeight();
+	mPositionAlignH = positionAlignH;
+	mPositionAlignV = positionAlignV;
+	int startX;
+	int startY;
+	switch (mPositionAlignH)
+	{
+	case ETextBoxPositionAlign_CENTER:
+		startX = hitbox.getCenter().getX();
+		break;
+	case ETextBoxPositionAlign_LEFT:
+		startX = hitbox.getTopLeft().getX();
+		break;
+	default:
+		SDL_assert(false);
+		break;
+	}
+	switch (mPositionAlignV)
+	{
+	case ETextBoxPositionAlign_CENTER:
+		startY = hitbox.getCenter().getY();
+		break;
+	case ETextBoxPositionAlign_TOP:
+		startY = hitbox.getTopLeft().getY();
+		break;
+	default:
+		SDL_assert(false);
+		break;
+	}
+	mStartingPositionCenter = Vect2(startX, startY);
+
+	mGrowthDirection = direction;
+	mMargins = margins;
+	mBackgroundColor = backgroundColor;
+	mFillWidth = fillWidth;
+	mFillHeight = fillHeight;
+}
+
 void UIBlock::center(int width, int height)
 {
 	int updatedX = 0;
 	int updatedY = 0;
-	switch (mPositionAlign)
+	switch (mPositionAlignH)
 	{
-	case ETextBoxPositionAlign_CENTER:
-		updatedX = mHitbox.getCenter().getX() - (width / 2);
-		updatedY = mHitbox.getCenter().getY() - (height / 2);
-		break;
 	case ETextBoxPositionAlign_LEFT:
 		updatedX = mHitbox.getTopLeft().getX();
+		break;
+	case ETextBoxPositionAlign_CENTER:
+		updatedX = mHitbox.getCenter().getX() - (width / 2);
+		break;
+	default:
+		SDL_assert(false);
+		break;
+	}
+	switch (mPositionAlignV)
+	{
+	case ETextBoxPositionAlign_TOP:
 		updatedY = mHitbox.getTopLeft().getY();
+		break;
+	case ETextBoxPositionAlign_CENTER:
+		updatedY = mHitbox.getCenter().getY() - (height / 2);
 		break;
 	default:
 		SDL_assert(false);
@@ -196,57 +249,34 @@ int UIBlock::getIndexOfLastActiveElem()
 
 
 // HEAD BLOCK
-BlockAlignElementsVertically::BlockAlignElementsVertically(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection directionH, EDirection directionV,
+BlockAlignElementsVertically::BlockAlignElementsVertically(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection directionH, EDirection directionV,
 		bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name) 
 {
 	mIsHeadBlock = true;
 	mGrowthDirectionHorizontal = directionH;
 	mGrowthDirectionVertical = directionV;
-	constructBlock(hitbox, positionAlign, directionV, fillWidth, fillHeight, margins, backgroundColor);
+	constructBlock(hitbox, positionAlignH, positionAlignV, directionV, fillWidth, fillHeight, margins, backgroundColor);
+	if ((directionH != EDirection_LEFT) and (directionH != EDirection_RIGHT) && (directionH != EDirection_LEFT_AND_RIGHT))
+	{
+		SDL_assert(false);
+	}
+	if ((directionV != EDirection_UP) and (directionV != EDirection_DOWN) && (directionV != EDirection_UP_AND_DOWN))
+	{
+		SDL_assert(false);
+	}
 	mName = name;
 }
 
 // SUB BLOCKS
-BlockAlignElementsVertically::BlockAlignElementsVertically(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlign, 
+BlockAlignElementsVertically::BlockAlignElementsVertically(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV,
 		EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name)
 {
-	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlign, direction, fillWidth, fillHeight, margins, backgroundColor);
-	mName = name;
-}
-
-void BlockAlignElementsVertically::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor)
-{
-	mClassType = EUIClass_BLOCK;
-	mHitbox = hitbox;
-	mMaxWidth = hitbox.getWidth();
-	mMaxHeight = hitbox.getHeight();
-	mPositionAlign = positionAlign;
-	switch (mPositionAlign)
-	{
-	case ETextBoxPositionAlign_CENTER:
-		if (direction == EDirection_UP_AND_DOWN) {
-			mStartingPositionCenter = hitbox.getCenter();
-			break;
-		}
-		mStartingPositionCenter = Vect2(hitbox.getCenter().getX(), hitbox.getTopLeft().getY());
-		break;
-	case ETextBoxPositionAlign_LEFT:
-		mStartingPositionCenter = hitbox.getTopLeft();
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
-
+	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlignH, positionAlignV, direction, fillWidth, fillHeight, margins, backgroundColor);
 	if ((direction != EDirection_UP) and (direction != EDirection_DOWN) && (direction != EDirection_UP_AND_DOWN))
 	{
 		SDL_assert(false);
 	}
-	mGrowthDirection = direction;
-	mMargins = margins;
-	mBackgroundColor = backgroundColor;
-	mFillWidth = fillWidth;
-	mFillHeight = fillHeight;
+	mName = name;
 }
 
 void BlockAlignElementsVertically::adjustBlocksWidthHeight()
@@ -290,8 +320,6 @@ void BlockAlignElementsVertically::adjustBlocksWidthHeight()
 	}
 }
 
-
-
 void BlockAlignElementsVertically::moveElems()
 {
 	if (mGrowthDirection == EDirection_DOWN or mGrowthDirection == EDirection_UP_AND_DOWN)
@@ -307,13 +335,13 @@ void BlockAlignElementsVertically::moveElems()
 		// if left aligned, take into account all left margins, ignore right margins
 		// if center aligned, start in the center and THEN push right by the left magin AND push left by the right margain
 		// if right aligned, ignore left margins, take into account the right margins
-		int leftMargin = (mPositionAlign == ETextBoxPositionAlign_RIGHT) ? 0 : pLastElem->mMargins.mLeft;
-		int rightMargin = (mPositionAlign == ETextBoxPositionAlign_LEFT) ? 0 : pLastElem->mMargins.mRight;
+		int leftMargin = (mPositionAlignH == ETextBoxPositionAlign_RIGHT) ? 0 : pLastElem->mMargins.mLeft;
+		int rightMargin = (mPositionAlignH == ETextBoxPositionAlign_LEFT) ? 0 : pLastElem->mMargins.mRight;
 		
 		int x = mHitbox.getTopLeft().getX() + leftMargin - rightMargin;
 		int y = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop;
 		
-		int centering = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pLastElem->getHitbox().getWidth()) / 2 : 0;
+		int centering = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pLastElem->getHitbox().getWidth()) / 2 : 0;
 		int changeX = x - pLastElem->getHitbox().getTopLeft().getX() + centering;
 		int changeY = y - pLastElem->getHitbox().getTopLeft().getY();
 
@@ -335,13 +363,13 @@ void BlockAlignElementsVertically::moveElems()
 				continue;
 			}
 			
-			leftMargin = (mPositionAlign == ETextBoxPositionAlign_RIGHT) ? 0 : pCurElem->mMargins.mLeft;
-			rightMargin = (mPositionAlign == ETextBoxPositionAlign_LEFT) ? 0 : pCurElem->mMargins.mRight;
+			leftMargin = (mPositionAlignH == ETextBoxPositionAlign_RIGHT) ? 0 : pCurElem->mMargins.mLeft;
+			rightMargin = (mPositionAlignH == ETextBoxPositionAlign_LEFT) ? 0 : pCurElem->mMargins.mRight;
 
 			x = mHitbox.getTopLeft().getX() + leftMargin - rightMargin;
 			y = pLastElem->getHitbox().getBottomRight().getY() + pLastElem->mMargins.mBottom + pCurElem->mMargins.mTop;
 			
-			centering = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pCurElem->getHitbox().getWidth()) / 2 : 0;
+			centering = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pCurElem->getHitbox().getWidth()) / 2 : 0;
 			changeX = x - pCurElem->getHitbox().getTopLeft().getX() + centering;
 			changeY = y - pCurElem->getHitbox().getTopLeft().getY();
 
@@ -371,13 +399,13 @@ void BlockAlignElementsVertically::moveElems()
 		// if left aligned, take into account all left margins, ignore right margins
 		// if center aligned, start in the center and THEN push right by the left magin AND push left by the right margain
 		// if right aligned, ignore left margins, take into account the right margins
-		int leftMargin = (mPositionAlign == ETextBoxPositionAlign_RIGHT) ? 0 : pLastElem->mMargins.mLeft;
-		int rightMargin = (mPositionAlign == ETextBoxPositionAlign_LEFT) ? 0 : pLastElem->mMargins.mRight;
+		int leftMargin = (mPositionAlignH == ETextBoxPositionAlign_RIGHT) ? 0 : pLastElem->mMargins.mLeft;
+		int rightMargin = (mPositionAlignH == ETextBoxPositionAlign_LEFT) ? 0 : pLastElem->mMargins.mRight;
 
 		int x = mHitbox.getTopLeft().getX() + leftMargin - rightMargin;
 		int y = mHitbox.getBottomRight().getY() - pLastElem->getHitbox().getHeight() - pLastElem->mMargins.mBottom;
 		
-		int centering = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pLastElem->getHitbox().getWidth()) / 2 : 0;
+		int centering = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pLastElem->getHitbox().getWidth()) / 2 : 0;
 		int changeX = x - pLastElem->getHitbox().getTopLeft().getX() + centering;
 		int changeY = y - pLastElem->getHitbox().getTopLeft().getY();
 
@@ -400,14 +428,14 @@ void BlockAlignElementsVertically::moveElems()
 			}
 			
 
-			leftMargin = (mPositionAlign == ETextBoxPositionAlign_RIGHT) ? 0 : pCurElem->mMargins.mLeft;
-			rightMargin = (mPositionAlign == ETextBoxPositionAlign_LEFT) ? 0 : pCurElem->mMargins.mRight;
+			leftMargin = (mPositionAlignH == ETextBoxPositionAlign_RIGHT) ? 0 : pCurElem->mMargins.mLeft;
+			rightMargin = (mPositionAlignH == ETextBoxPositionAlign_LEFT) ? 0 : pCurElem->mMargins.mRight;
 
 			x = mHitbox.getTopLeft().getX() + leftMargin - rightMargin;
 			y = pLastElem->getHitbox().getTopLeft().getY() - pCurElem->getHitbox().getHeight() -
 				(pCurElem->mMargins.mBottom + pLastElem->mMargins.mTop);
 			
-			centering = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pCurElem->getHitbox().getWidth()) / 2 : 0;
+			centering = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pCurElem->getHitbox().getWidth()) / 2 : 0;
 			changeX = x - pCurElem->getHitbox().getTopLeft().getX() + centering;
 			changeY = y - pCurElem->getHitbox().getTopLeft().getY();
 
@@ -429,59 +457,36 @@ void BlockAlignElementsVertically::moveElems()
 
 
 // HEAD BLOCK
-BlockAlignElementsHorizontally::BlockAlignElementsHorizontally(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection directionH, EDirection directionV, 
+BlockAlignElementsHorizontally::BlockAlignElementsHorizontally(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection directionH, EDirection directionV, 
 		bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name) 
 {
 	mIsHeadBlock = true;
 	mGrowthDirectionHorizontal = directionH;
 	mGrowthDirectionVertical = directionV;
-	constructBlock(hitbox, positionAlign, directionH, fillWidth, fillHeight, margins, backgroundColor);
+	constructBlock(hitbox, positionAlignH, positionAlignV, directionH, fillWidth, fillHeight, margins, backgroundColor);
+	if ((directionH != EDirection_LEFT) and (directionH != EDirection_RIGHT) && (directionH != EDirection_LEFT_AND_RIGHT))
+	{
+		SDL_assert(false);
+	}
+	if ((directionV != EDirection_UP) and (directionV != EDirection_DOWN) && (directionV != EDirection_UP_AND_DOWN))
+	{
+		SDL_assert(false);
+	}
 	mName = name;
 }
 
 // SUB BLOCKS
-BlockAlignElementsHorizontally::BlockAlignElementsHorizontally(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlign, 
+BlockAlignElementsHorizontally::BlockAlignElementsHorizontally(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, 
 		EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name)
 {
-	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlign, direction, fillWidth, fillHeight, margins, backgroundColor);
+	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlignH, positionAlignV, direction, fillWidth, fillHeight, margins, backgroundColor);
+	if ((direction != EDirection_LEFT) and (direction != EDirection_RIGHT) && (direction != EDirection_LEFT_AND_RIGHT))
+	{
+		SDL_assert(false);
+	}
 	mName = name;
 }
 
-void BlockAlignElementsHorizontally::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection direction, bool fillWidth, bool fillHeight, 
-		Edges margins, SDL_Color backgroundColor)
-{
-	mClassType = EUIClass_BLOCK;
-	mHitbox = hitbox;
-	mMaxWidth = hitbox.getWidth();
-	mMaxHeight = hitbox.getHeight();
-	mPositionAlign = positionAlign;
-	switch (positionAlign)
-	{
-	case ETextBoxPositionAlign_CENTER:
-		if (direction == EDirection_LEFT_AND_RIGHT) {
-			mStartingPositionCenter = hitbox.getCenter();
-			break;
-		}
-		mStartingPositionCenter = Vect2(hitbox.getTopLeft().getX(), hitbox.getCenter().getY());
-		break;
-	case ETextBoxPositionAlign_LEFT:
-		mStartingPositionCenter = hitbox.getTopLeft();
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
-	
-	if ((direction != EDirection_LEFT) and (direction != EDirection_RIGHT) and (direction != EDirection_LEFT_AND_RIGHT))
-	{
-		SDL_assert(false);
-	}
-	mGrowthDirection = direction;
-	mMargins = margins;
-	mBackgroundColor = backgroundColor;
-	mFillWidth = fillWidth;
-	mFillHeight = fillHeight;
-}
 
 void BlockAlignElementsHorizontally::adjustBlocksWidthHeight()
 {
@@ -541,7 +546,7 @@ void BlockAlignElementsHorizontally::moveElems()
 		int x = mHitbox.getTopLeft().getX() + pLastElem->mMargins.mLeft;
 		int y = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop - pLastElem->mMargins.mBottom;
 
-		int centering = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pLastElem->getHitbox().getHeight()) / 2 : 0;
+		int centering = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pLastElem->getHitbox().getHeight()) / 2 : 0;
 		int changeX = x - pLastElem->getHitbox().getTopLeft().getX();
 		int changeY = y - pLastElem->getHitbox().getTopLeft().getY() + centering;
 
@@ -566,7 +571,7 @@ void BlockAlignElementsHorizontally::moveElems()
 			y = mHitbox.getTopLeft().getY() + pCurElem->mMargins.mTop - pLastElem->mMargins.mBottom;
 			x = pLastElem->getHitbox().getBottomRight().getX() + pLastElem->mMargins.mRight + pCurElem->mMargins.mLeft;
 			
-			centering = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pCurElem->getHitbox().getHeight()) / 2 : 0;
+			centering = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pCurElem->getHitbox().getHeight()) / 2 : 0;
 			int changeX = x - pCurElem->getHitbox().getTopLeft().getX();
 			int changeY = y - pCurElem->getHitbox().getTopLeft().getY() + centering;
 
@@ -595,7 +600,7 @@ void BlockAlignElementsHorizontally::moveElems()
 		int x = mHitbox.getBottomRight().getX() - pLastElem->getHitbox().getWidth() - pLastElem->mMargins.mRight;
 		int y = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop - pLastElem->mMargins.mBottom;
 
-		int centering = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pLastElem->getHitbox().getHeight()) / 2 : 0;
+		int centering = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pLastElem->getHitbox().getHeight()) / 2 : 0;
 		int changeX = x - pLastElem->getHitbox().getTopLeft().getX();
 		int changeY = y - pLastElem->getHitbox().getTopLeft().getY() + centering;
 
@@ -620,7 +625,7 @@ void BlockAlignElementsHorizontally::moveElems()
 			y = mHitbox.getTopLeft().getY() + pCurElem->mMargins.mTop - pLastElem->mMargins.mBottom;
 			x = pLastElem->getHitbox().getTopLeft().getX() - pCurElem->getHitbox().getWidth() - (pCurElem->mMargins.mRight + pLastElem->mMargins.mLeft);
 			
-			centering = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pCurElem->getHitbox().getHeight()) / 2 : 0;
+			centering = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pCurElem->getHitbox().getHeight()) / 2 : 0;
 			changeX = x - pCurElem->getHitbox().getTopLeft().getX();
 			changeY = y - pCurElem->getHitbox().getTopLeft().getY() + centering;
 			
@@ -642,24 +647,24 @@ void BlockAlignElementsHorizontally::moveElems()
 
 
 // MASTER BLOCK
-BlockAlignElementsGrid::BlockAlignElementsGrid(Hitbox hitbox, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit, bool fillWidth, bool fillHeight,
-	Edges margins, int spacing, SDL_Color backgroundColor, std::string name)
+BlockAlignElementsGrid::BlockAlignElementsGrid(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, bool limitByRows, int limit, 
+	bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor, std::string name)
 {
 	mIsHeadBlock = true;
 	mName = name;
-	constructBlock(hitbox, positionAlign, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
+	constructBlock(hitbox, positionAlignH, positionAlignV, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
 }
 
 // MASTER BLOCK
-BlockAlignElementsGrid::BlockAlignElementsGrid(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit, bool fillWidth, bool fillHeight,
-	Edges margins, int spacing, SDL_Color backgroundColor, std::string name)
+BlockAlignElementsGrid::BlockAlignElementsGrid(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, bool limitByRows, int limit, 
+	bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor, std::string name)
 {
 	mIsHeadBlock = false;
 	mName = name;
-	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlign, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
+	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlignH, positionAlignV, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
 }
 
-void BlockAlignElementsGrid::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit,
+void BlockAlignElementsGrid::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, bool limitByRows, int limit,
 	bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor)
 {
 	mClassType = EUIClass_BLOCK;
@@ -672,7 +677,8 @@ void BlockAlignElementsGrid::constructBlock(Hitbox hitbox, ETextBoxPositionAlign
 	mLimitByRows = limitByRows;
 	mLimit = limit;
 
-	mPositionAlign = positionAlign;
+	mPositionAlignH = positionAlignH;
+	mPositionAlignV = positionAlignV;
 	mStartingPositionCenter = hitbox.getTopLeft();
 
 	mMargins = margins;
@@ -787,8 +793,8 @@ void BlockAlignElementsGrid::moveElems()
 		y += mRowHeights[r];
 	}
 	
-	int centeringX = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mColWidths[curCol]  - pLastElem->getHitbox().getWidth()) / 2 : 0;
-	int centeringY = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mRowHeights[curRow] - pLastElem->getHitbox().getHeight()) / 2 : 0;
+	int centeringX = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mColWidths[curCol]  - pLastElem->getHitbox().getWidth()) / 2 : 0;
+	int centeringY = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mRowHeights[curRow] - pLastElem->getHitbox().getHeight()) / 2 : 0;
 	x += pLastElem->mMargins.mLeft - pLastElem->mMargins.mRight + centeringX;
 	y += pLastElem->mMargins.mTop - pLastElem->mMargins.mBottom + centeringY;
 	int changeX = x - pLastElem->getHitbox().getTopLeft().getX();
@@ -833,8 +839,8 @@ void BlockAlignElementsGrid::moveElems()
 			}
 		}
 		
-		centeringX = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mColWidths[curCol] - pCurElem->getHitbox().getWidth()) / 2 : 0;
-		centeringY = (mPositionAlign == ETextBoxPositionAlign_CENTER) ? (mRowHeights[curRow] - pCurElem->getHitbox().getHeight()) / 2 : 0;
+		centeringX = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mColWidths[curCol] - pCurElem->getHitbox().getWidth()) / 2 : 0;
+		centeringY = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mRowHeights[curRow] - pCurElem->getHitbox().getHeight()) / 2 : 0;
 		x += pCurElem->mMargins.mLeft - pCurElem->mMargins.mRight  + centeringX;
 		y += pCurElem->mMargins.mTop  - pCurElem->mMargins.mBottom + centeringY;
 		int changeX = x - pCurElem->getHitbox().getTopLeft().getX();

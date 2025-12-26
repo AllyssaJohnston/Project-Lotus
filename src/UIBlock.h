@@ -14,7 +14,6 @@ public:
 	int	   mMaxWidth						= 1;
 	int	   mMaxHeight						= 1;
 	Vect2  mStartingPositionCenter;
-	ETextBoxPositionAlign mPositionAlign	= ETextBoxPositionAlign_INVALID;
 	SDL_Color mBackgroundColor				= { 0, 0, 0, 0 };
 	EDirection mGrowthDirection				= EDirection_INVALID;
 	// for head block
@@ -44,6 +43,8 @@ public:
 	void getAllElems(std::vector<UIElement*>& list);
 
 protected:
+	virtual void constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection direction, bool fillWidth, bool fillHeight,
+		Edges margins, SDL_Color backgroundColor);
 
 	virtual void center(int width, int height);
 
@@ -61,15 +62,15 @@ class BlockAlignElementsVertically : public UIBlock
 {
 public:
 	// HEAD BLOCK
-	BlockAlignElementsVertically(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection directionH, EDirection directionV, bool fillWidth, bool fillHeight, 
-			Edges margins, SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
+	BlockAlignElementsVertically(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection directionH, EDirection directionV, 
+			bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
 	
 	// SUB BLOCKS
-	BlockAlignElementsVertically(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlign, EDirection direction, bool fillWidth, bool fillHeight, 
-			Edges margins, SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
+	BlockAlignElementsVertically(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection direction, 
+			bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
 
 private:
-	void constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor);
+	
 
 	// TODO cut off textboxes after max dimensiosn
 	void adjustBlocksWidthHeight() override;
@@ -81,15 +82,14 @@ class BlockAlignElementsHorizontally : public UIBlock
 {
 public:
 	// HEAD BLOCK
-	BlockAlignElementsHorizontally(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection directionH, EDirection directionV, bool fillWidth, bool fillHeight, 
-			Edges margins, SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
+	BlockAlignElementsHorizontally(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection directionH, EDirection directionV, 
+			bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
 
 	// SUB BLOCKS
-	BlockAlignElementsHorizontally(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlign, EDirection direction,
+	BlockAlignElementsHorizontally(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection direction,
 			bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
 
 private:
-	void constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlign, EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor);
 
 	// TODO cut after max
 	void adjustBlocksWidthHeight() override;
@@ -102,12 +102,12 @@ class BlockAlignElementsGrid : public UIBlock
 {
 public:
 	// HEAD BLOCK
-	BlockAlignElementsGrid(Hitbox hitbox, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing,
-			SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
+	BlockAlignElementsGrid(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, bool limitByRows, int limit, bool fillWidth, bool fillHeight, 
+			Edges margins, int spacing, SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
 
 	// SUB BLOCKS
-	BlockAlignElementsGrid(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing,
-		SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
+	BlockAlignElementsGrid(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, bool limitByRows, int limit, 
+		bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
 
 private:
 	bool mLimitByRows;
@@ -119,7 +119,8 @@ private:
 	std::vector<int> mRowHeights;
 	std::vector<int> mColWidths;
 
-	void constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor);
+	void constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, bool limitByRows, int limit, bool fillWidth, bool fillHeight, 
+			Edges margins, int spacing, SDL_Color backgroundColor);
 
 	// TODO cut after max
 	void adjustBlocksWidthHeight() override;

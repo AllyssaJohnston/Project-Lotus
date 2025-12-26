@@ -8,6 +8,8 @@ class UIElement
 {
 public:
 	EUIClass mClassType = EUIClass_ELEMENT;
+	ETextBoxPositionAlign	mPositionAlignH = ETextBoxPositionAlign_CENTER; // only affects x coord
+	ETextBoxPositionAlign	mPositionAlignV = ETextBoxPositionAlign_CENTER; // only affects y coord
 	Edges  mMargins = Edges();
 
 

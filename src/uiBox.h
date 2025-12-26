@@ -23,8 +23,6 @@ public:
 
 	const UIBoxData			mData;
 	bool					mShow			= true;
-	ETextBoxPositionAlign	mPositionAlignH	= ETextBoxPositionAlign_CENTER; // only affects x coord
-	ETextBoxPositionAlign	mPositionAlignV = ETextBoxPositionAlign_CENTER; // only affects y coord
 	Hitbox*					mpCurHitbox		= nullptr;
 	EUIBoxClass				mBoxType		= EUIBoxClass_INVALID;
 
