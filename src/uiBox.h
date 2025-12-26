@@ -23,7 +23,8 @@ public:
 
 	const UIBoxData			mData;
 	bool					mShow			= true;
-	ETextBoxPositionAlign	mPositionAlign	= ETextBoxPositionAlign_CENTER; //only affects x coord
+	ETextBoxPositionAlign	mPositionAlignH	= ETextBoxPositionAlign_CENTER; // only affects x coord
+	ETextBoxPositionAlign	mPositionAlignV = ETextBoxPositionAlign_CENTER; // only affects y coord
 	Hitbox*					mpCurHitbox		= nullptr;
 	EUIBoxClass				mBoxType		= EUIBoxClass_INVALID;
 
@@ -54,7 +55,6 @@ public:
 	int			mMaxFontSizeGivenText			= FontSizeChart::mMinFontSize;
 
 	std::vector <std::string> mTextLines;
-	ETextBoxTextAlign		  mTextAlign		= ETextBoxTextAlign_INVALID;
 
 	int mMaxWidth								= -1;
 	int mMaxHeight								= -1;

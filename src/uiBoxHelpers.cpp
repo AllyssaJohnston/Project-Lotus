@@ -6,30 +6,22 @@ UIBoxData::UIBoxData(EGameStatBoxValueToDisplay gameStatToDisplay, int combatCha
 	mShowDuringAllCharacters(showDuringAllCharacters), mCharacterStatToDisplay(characterStatToDisplay), mAttackNum(attackNum), mAttackCategory(attackCategory), mType(type), mMiniGameStateWhenToShowList(miniGameStateWhenToShowList) { ; }
 
 
-TextBoxPositionInfo::TextBoxPositionInfo(Vect2 position, ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight, Edges margins)
-	: mPosition(position), mPositionAlign(positionAlign), mTextAlign(textAlign), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins) { ; }
 
-TextBoxPositionInfo::TextBoxPositionInfo(ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight, Edges margins) 
-	: mPositionAlign(positionAlign), mTextAlign(textAlign), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins)
+TextBoxPositionInfo::TextBoxPositionInfo(ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins)
+	: mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins)
 {
-	if (mPositionAlign == ETextBoxPositionAlign_LEFT)
+	int x = 0;
+	int y = 0;
+	if (mPositionAlignH == ETextBoxPositionAlign_CENTER)
 	{
-		mPosition = Vect2(0, 0);
+		x = maxWidth / 2;
 	}
-	else if (mPositionAlign == ETextBoxPositionAlign_CENTER)
+	if (mPositionAlignV == ETextBoxPositionAlign_CENTER)
 	{
-		mPosition = Vect2(maxWidth / 2, maxHeight / 2);
+		y = maxHeight / 2;
 	}
-	else 
-	{
-		SDL_assert(false);
-	}
-}
 
-TextBoxPositionInfo::TextBoxPositionInfo(Vect2 position, ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight) 
-	: mPosition(position), mPositionAlign(positionAlign), mTextAlign(textAlign), mMaxWidth(maxWidth), mMaxHeight(maxHeight)
-{	
-	mMargins = Edges();
+	mPosition = Vect2(x, y);
 }
 
 
@@ -61,19 +53,38 @@ TextBoxColorInfo::TextBoxColorInfo(SDL_Color standardTextColor) : mStandardTextC
 }
 
 
-ImageBoxPositionInfo::ImageBoxPositionInfo(Vect2 position, int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight, Edges margins)
-	: mPosition(position), mRotation(rotation), mPositionAlign(positionAlign), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins) { ; }
-
-ImageBoxPositionInfo::ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight, Edges margins)
-	: mRotation(rotation), mPositionAlign(positionAlign), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins)
+ImageBoxPositionInfo::ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins)
+	: mRotation(rotation), mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins)
 {
-	if (mPositionAlign == ETextBoxPositionAlign_LEFT)
+	int x = 0;
+	int y = 0;
+	if (mPositionAlignH == ETextBoxPositionAlign_LEFT)
 	{
-		mPosition = Vect2(0, 0);
+		x = 0;
 	}
-	else if (mPositionAlign == ETextBoxPositionAlign_CENTER)
+	else if (mPositionAlignH == ETextBoxPositionAlign_CENTER)
 	{
-		mPosition = Vect2(maxWidth, maxHeight);
+		x = maxWidth / 2;
+	}
+	else if (mPositionAlignH == ETextBoxPositionAlign_RIGHT)
+	{
+		x = maxWidth;
+	}
+	else 
+	{
+		SDL_assert(false);
+	}
+	if (mPositionAlignV == ETextBoxPositionAlign_TOP)
+	{
+		y = 0;
+	}
+	else if (mPositionAlignV == ETextBoxPositionAlign_CENTER)
+	{
+		y = maxHeight /2;
+	}
+	else if (mPositionAlignV == ETextBoxPositionAlign_BOTTOM)
+	{
+		y = maxHeight;
 	}
 	else 
 	{
@@ -81,11 +92,7 @@ ImageBoxPositionInfo::ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign p
 	}
 }
 
-ImageBoxPositionInfo::ImageBoxPositionInfo(Vect2 position, int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight)
-	: mPosition(position), mRotation(rotation), mPositionAlign(positionAlign), mMaxWidth(maxWidth), mMaxHeight(maxHeight) 
-{
-	mMargins = Edges();
-}
+
 
 
 void FontSizeChart::createFontChart(const char* fontName, SDL_Renderer* pRenderer)

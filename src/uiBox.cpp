@@ -23,24 +23,38 @@ TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, T
 		mOutlineColor(colorInfo.mOutlineColor), mHighlightedOutlineColor(colorInfo.mHighlightedOutlineColor)
 {
 	mBoxType = EUIBoxClass_TEXTBOX;
-	mPositionAlign	= positionInfo.mPositionAlign;
+	mPositionAlignH	= positionInfo.mPositionAlignH;
+	mPositionAlignV	= positionInfo.mPositionAlignV;
+	
 	
 	// create hitbox
 	int x = 0;
 	int y = 0;
-	switch (mPositionAlign)
+	switch (mPositionAlignH)
 	{
 	case ETextBoxPositionAlign_LEFT:
 		x = positionInfo.mPosition.getX();
-		y = positionInfo.mPosition.getY();
 		break;
 	case ETextBoxPositionAlign_CENTER:
 		x = positionInfo.mPosition.getX() - (positionInfo.mMaxWidth / 2);
-		y = positionInfo.mPosition.getY() - (positionInfo.mMaxHeight / 2);
 		break;
 	case ETextBoxPositionAlign_RIGHT:
 		x = positionInfo.mPosition.getX() - positionInfo.mMaxWidth;
+		break;
+	default:
+		SDL_assert(false);
+		break;
+	}
+	switch (mPositionAlignV)
+	{
+	case ETextBoxPositionAlign_TOP:
 		y = positionInfo.mPosition.getY();
+		break;
+	case ETextBoxPositionAlign_CENTER:
+		y = positionInfo.mPosition.getY() - (positionInfo.mMaxHeight / 2);
+		break;
+	case ETextBoxPositionAlign_BOTTOM:
+		y = positionInfo.mPosition.getY() - positionInfo.mMaxHeight;
 		break;
 	default:
 		SDL_assert(false);
@@ -51,8 +65,6 @@ TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, T
 	mHighlightedHitbox		= Hitbox(x, positionInfo.mMaxWidth + x, y, positionInfo.mMaxHeight + y);
 	mpCurHitbox				= &mStandardHitbox;
 	mMargins				= positionInfo.mMargins;
-
-	mTextAlign				= positionInfo.mTextAlign;
 
 	mIsHighlighted			 = false;
 	mStandardTextColor		 = { colorInfo.mStandardTextColor.r, colorInfo.mStandardTextColor.g, colorInfo.mStandardTextColor.b };
@@ -229,102 +241,71 @@ void TextBox::updateHitboxes()
 
 void TextBox::updateHitboxesInternal(bool isHighlighted, Hitbox& hitbox, std::vector<Hitbox>& hitboxes )
 {
-	switch (mPositionAlign)
+	int maxWidth = 0;
+	int totalHeight = 0;
+
+	int x;
+	int y;
+
+	hitboxes.clear();
+	std::vector <SDL_Point> lineSizes;
+	for (int count = 0; count < (int)mTextLines.size(); count++)
+	{
+		SDL_Point size = getTextRenderSize(count, isHighlighted);
+		maxWidth = std::max(maxWidth, size.x);
+		lineSizes.push_back(size);
+		totalHeight += size.y;
+	}
+
+	switch (mPositionAlignH)
 	{
 	case ETextBoxPositionAlign_LEFT:
-	{
-		int x = hitbox.getTopLeft().getX() - mOutlineWidth;
-		int y = hitbox.getTopLeft().getY() - mOutlineWidth;
-		int maxWidth = 0;
-		int totalHeight = 0;
-
-		int curY = hitbox.getTopLeft().getY();
-		hitboxes.clear();
-		for (int count = 0; count < (int)mTextLines.size(); count++)
-		{
-			SDL_Point size = getTextRenderSize(count, isHighlighted);
-			size.x += mOutlineWidth * 2;
-			size.y += mOutlineWidth * 2;
-			maxWidth = std::max(maxWidth, size.x);
-			totalHeight += size.y;
-			Hitbox curHitbox = Hitbox(x, x + size.x, curY, curY + size.y);
-			curY += size.y;
-			hitboxes.push_back(curHitbox);
-		}
-		if (x < 0)
-		{
-			x = 0;
-		}
-		if (y < 0)
-		{
-			y = 0;
-		}
-		hitbox = Hitbox(x, x + maxWidth, y, y + totalHeight);
+		x = hitbox.getTopLeft().getX();
 		break;
-	}
 	case ETextBoxPositionAlign_CENTER:
-	{
-		int maxWidth = 0;
-		int totalHeight = 0;
-
-		hitboxes.clear();
-		std::vector <SDL_Point> lineSizes;
-		for (int count = 0; count < (int)mTextLines.size(); count++)
-		{
-			SDL_Point size = getTextRenderSize(count, isHighlighted);
-			maxWidth = std::max(maxWidth, size.x);
-			lineSizes.push_back(size);
-			totalHeight += size.y;
-		}
-		int x = hitbox.getCenter().getX() - (maxWidth / 2); // left
-		int y = hitbox.getCenter().getY() - (totalHeight / 2); // top
-
-		int curY = y;
-		for (int count = 0; count < (int)mTextLines.size(); count++)
-		{
-			SDL_Point size = lineSizes[count];
-			size.x += mOutlineWidth * 2;
-			size.y += mOutlineWidth * 2;
-			int curX = (maxWidth - size.x) / 2 + x;
-			Hitbox curHitbox = Hitbox(curX, curX + size.x, curY, curY + size.y);
-			curY += size.y;
-			hitboxes.push_back(curHitbox);
-		}
-		hitbox = Hitbox(x, x + maxWidth, y, y + totalHeight);
+		x = hitbox.getCenter().getX() - (maxWidth / 2);
 		break;
-	}
 	case ETextBoxPositionAlign_RIGHT:
+		x = hitbox.getBottomRight().getX() - maxWidth;
+		break;
+	}
+	switch (mPositionAlignV)
 	{
-		int y = hitbox.getTopLeft().getY() - mOutlineWidth;
-		int x2 = hitbox.getBottomRight().getX() + mOutlineWidth;
-		int maxWidth = 0;
-		int totalHeight = y;
-
-		int curY = hitbox.getTopLeft().getY();
-		hitboxes.clear();
-		for (int count = 0; count < (int)mTextLines.size(); count++)
-		{
-			SDL_Point size = getTextRenderSize(count, isHighlighted);
-			size.x += mOutlineWidth * 2;
-			size.y += mOutlineWidth * 2;
-			maxWidth = std::max(maxWidth, size.x);
-			totalHeight += size.y;
-			Hitbox curHitbox = Hitbox(x2 - size.x, x2, curY, curY + size.y);
-			curY += size.y;
-			hitboxes.push_back(curHitbox);
-		}
-		if (y < 0)
-		{
-			y = 0;
-		}
-		hitbox = Hitbox(x2 - maxWidth, x2, y, y + totalHeight);
+	case ETextBoxPositionAlign_TOP:
+		y = hitbox.getTopLeft().getY();
 		break;
-	}
-	default:
-		SDL_assert(false);
+	case ETextBoxPositionAlign_CENTER:
+		y = hitbox.getCenter().getY() - (totalHeight / 2);
+		break;
+	case ETextBoxPositionAlign_BOTTOM:
+		y = hitbox.getBottomRight().getX() - totalHeight;
 		break;
 	}
 
+	
+	int curY = y;
+	for (int count = 0; count < (int)mTextLines.size(); count++)
+	{
+		const SDL_Point size = lineSizes[count];
+		int curX;
+		switch (mPositionAlignH)
+		{
+		case ETextBoxPositionAlign_LEFT:
+			curX = x;
+			break;
+		case ETextBoxPositionAlign_CENTER:
+			curX = x + (maxWidth - size.x) / 2;
+			break;
+		case ETextBoxPositionAlign_RIGHT:
+			curX = x - size.x;
+			break;
+		}
+		Hitbox curHitbox = Hitbox(curX, curX + size.x, curY, curY + size.y);
+		curY += size.y;
+		hitboxes.push_back(curHitbox);
+	}
+	hitbox = Hitbox(x, x + maxWidth, y, y + totalHeight);
+	
 }
 
 void TextBox::shiftHitbox(const Vect2 shiftTopLeft)
@@ -345,23 +326,36 @@ ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo posit
 {
 	mBoxType = EUIBoxClass_IMAGEBOX;
 	mImageObject	= ImageObject(fileName, positionInfo.mMaxWidth, positionInfo.mMaxHeight, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
-	mPositionAlign	= positionInfo.mPositionAlign;
+	mPositionAlignH	= positionInfo.mPositionAlignH;
+	mPositionAlignV = positionInfo.mPositionAlignV;
 
 	// create hitbox
 	int x = 0;
 	int y = 0;
-	switch (mPositionAlign)
+	switch (mPositionAlignH)
 	{
 	case ETextBoxPositionAlign_LEFT:
 		x = positionInfo.mPosition.getX();
+		break;
+	case ETextBoxPositionAlign_CENTER:
+		x = positionInfo.mPosition.getX() - (positionInfo.mMaxWidth / 2);
+		break;
+	case ETextBoxPositionAlign_RIGHT:
+		x = positionInfo.mPosition.getX() - positionInfo.mMaxWidth;
+		break;
+	default:
+		SDL_assert(false);
+		break;
+	}
+	switch (mPositionAlignV)
+	{
+	case ETextBoxPositionAlign_TOP:
 		y = positionInfo.mPosition.getY();
 		break;
 	case ETextBoxPositionAlign_CENTER:
-		x = positionInfo.mPosition.getX() - int(mImageObject.getHalfIdealImageWidth());
-		y = positionInfo.mPosition.getY() - int(mImageObject.getHalfIdealImageHeight());
+		y = positionInfo.mPosition.getY() - (positionInfo.mMaxHeight / 2);
 		break;
-	case ETextBoxPositionAlign_RIGHT:
-		x = positionInfo.mPosition.getX() - mImageObject.mIdealImageWidth;
+	case ETextBoxPositionAlign_BOTTOM:
 		y = positionInfo.mPosition.getY();
 		break;
 	default:
@@ -383,23 +377,36 @@ void ImageBox::setTexture(SDL_Renderer* pRenderer) { mImageObject.setUpTexture(p
 ShapeBox::ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positionInfo, const SDL_Color color) : UIBox(preset.mData), mShapeType(preset.mType), mColor(color)
 {
 	mBoxType = EUIBoxClass_SHAPEBOX;
-	mPositionAlign = positionInfo.mPositionAlign;
+	mPositionAlignH = positionInfo.mPositionAlignH;
+	mPositionAlignV = positionInfo.mPositionAlignV;
 
 	// create hitbox
 	int x = 0;
 	int y = 0;
-	switch (mPositionAlign)
+	switch (mPositionAlignH)
 	{
 	case ETextBoxPositionAlign_LEFT:
 		x = positionInfo.mPosition.getX();
-		y = positionInfo.mPosition.getY();
 		break;
 	case ETextBoxPositionAlign_CENTER:
 		x = positionInfo.mPosition.getX() - (positionInfo.mMaxWidth / 2);
-		y = positionInfo.mPosition.getY() - (positionInfo.mMaxHeight / 2);
 		break;
 	case ETextBoxPositionAlign_RIGHT:
 		x = positionInfo.mPosition.getX() - positionInfo.mMaxWidth;
+		break;
+	default:
+		SDL_assert(false);
+		break;
+	}
+	switch (mPositionAlignV)
+	{
+	case ETextBoxPositionAlign_TOP:
+		y = positionInfo.mPosition.getY();
+		break;
+	case ETextBoxPositionAlign_CENTER:
+		y = positionInfo.mPosition.getY() - (positionInfo.mMaxHeight / 2);
+		break;
+	case ETextBoxPositionAlign_BOTTOM:
 		y = positionInfo.mPosition.getY();
 		break;
 	default:
@@ -422,7 +429,8 @@ HealthBox::HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo pos
 		mHealthText(TextBox(StandardTextBoxPreset("temp"), ETextBoxFunction_NO_FUNCTION, positionInfo, font, textSize, textColor)), 
 		mMaxWidth(positionInfo.mMaxWidth)
 { 
-	mPositionAlign = positionInfo.mPositionAlign;
+	mPositionAlignH = positionInfo.mPositionAlignH;
+	mPositionAlignV = positionInfo.mPositionAlignV;
 	mBoxType = EUIBoxClass_HEALTHBOX;
 	mpCurHitbox = mBoundingBox.mpCurHitbox;
 	mMargins = positionInfo.mMargins;

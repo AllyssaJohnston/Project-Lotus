@@ -16,7 +16,6 @@ enum EMenuPageType
 	EMenuPageType_MAIN_MENU,
 	EMenuPageType_MAIN_GAME_MENU,
 	EMenuPageType_MINI_GAME_MENU,
-	EMenuPageType_SETTINGS_MENU,
 	EMenuPageType_MAX
 };
 

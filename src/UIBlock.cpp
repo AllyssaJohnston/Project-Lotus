@@ -643,24 +643,24 @@ void BlockAlignElementsHorizontally::moveElems()
 
 // MASTER BLOCK
 BlockAlignElementsGrid::BlockAlignElementsGrid(Hitbox hitbox, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit, bool fillWidth, bool fillHeight,
-	Edges margins, SDL_Color backgroundColor, std::string name)
+	Edges margins, int spacing, SDL_Color backgroundColor, std::string name)
 {
 	mIsHeadBlock = true;
 	mName = name;
-	constructBlock(hitbox, positionAlign, limitByRows, limit, fillWidth, fillHeight, margins, backgroundColor);
+	constructBlock(hitbox, positionAlign, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
 }
 
 // MASTER BLOCK
 BlockAlignElementsGrid::BlockAlignElementsGrid(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit, bool fillWidth, bool fillHeight,
-	Edges margins, SDL_Color backgroundColor, std::string name)
+	Edges margins, int spacing, SDL_Color backgroundColor, std::string name)
 {
 	mIsHeadBlock = false;
 	mName = name;
-	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlign, limitByRows, limit, fillWidth, fillHeight, margins, backgroundColor);
+	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlign, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
 }
 
 void BlockAlignElementsGrid::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlign, bool limitByRows, int limit,
-	bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor)
+	bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor)
 {
 	mClassType = EUIClass_BLOCK;
 	mGrowthDirectionHorizontal = EDirection_RIGHT;
@@ -676,6 +676,7 @@ void BlockAlignElementsGrid::constructBlock(Hitbox hitbox, ETextBoxPositionAlign
 	mStartingPositionCenter = hitbox.getTopLeft();
 
 	mMargins = margins;
+	mSpacing = spacing;
 	mBackgroundColor = backgroundColor;
 	mFillWidth = fillWidth;
 	mFillHeight = fillHeight;
@@ -703,12 +704,12 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 		int curWidth = pElem->getHitbox().getWidth();
 		if (curWidth != 0)
 		{
-			curWidth += pElem->mMargins.mLeft + pElem->mMargins.mRight;
+			curWidth += pElem->mMargins.mLeft + pElem->mMargins.mRight + (i != (int)mpSubElems.size() - 1 ? mSpacing : 0);
 		}
 		int curHeight = pElem->getHitbox().getHeight();
 		if (curHeight != 0)
 		{
-			curHeight += pElem->mMargins.mTop + pElem->mMargins.mBottom;
+			curHeight += pElem->mMargins.mTop + pElem->mMargins.mBottom + (i != (int)mpSubElems.size() - 1 ? mSpacing : 0);
 		}
 
 		if (mRowHeights.size() <= x) 

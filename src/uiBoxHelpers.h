@@ -116,17 +116,10 @@ enum ETextBoxPositionAlign
 	ETextBoxPositionAlign_INVALID = -1,
 	ETextBoxPositionAlign_CENTER,
 	ETextBoxPositionAlign_LEFT,
+	ETextBoxPositionAlign_TOP,
 	ETextBoxPositionAlign_RIGHT,
+	ETextBoxPositionAlign_BOTTOM,
 	ETextBoxPositionAlign_MAX
-};
-
-enum ETextBoxTextAlign
-{
-	ETextBoxTextAlign_INVALID = -1,
-	ETextBoxTextAlign_CENTER,
-	ETextBoxTextAlign_LEFT,
-	ETextBoxTextAlign_RIGHT,
-	ETextBoxTextAlign_MAX
 };
 
 enum EShapeBoxClass
@@ -160,18 +153,14 @@ struct UIBoxData
 struct TextBoxPositionInfo
 {
 	Vect2                 mPosition;
-	ETextBoxPositionAlign mPositionAlign; // only affects x coord
-	ETextBoxTextAlign     mTextAlign;
+	ETextBoxPositionAlign mPositionAlignH; // only affects x coord
+	ETextBoxPositionAlign mPositionAlignV; // only affects y coord
 
 	int mMaxWidth;
 	int mMaxHeight;
 	Edges                 mMargins;
 
-	TextBoxPositionInfo(Vect2 position, ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight, Edges margins);
-
-	TextBoxPositionInfo(ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight, Edges margins);
-
-	TextBoxPositionInfo(Vect2 position, ETextBoxPositionAlign positionAlign, ETextBoxTextAlign textAlign, int maxWidth, int maxHeight);
+	TextBoxPositionInfo(ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins);
 };
 
 struct TextBoxSizeInfo
@@ -211,17 +200,14 @@ struct ImageBoxPositionInfo
 {
 	Vect2 mPosition;
 	int   mRotation;
-	ETextBoxPositionAlign mPositionAlign;
+	ETextBoxPositionAlign mPositionAlignH;
+	ETextBoxPositionAlign mPositionAlignV;
 
 	int mMaxWidth;
 	int mMaxHeight;
 	Edges mMargins;
 
-	ImageBoxPositionInfo(Vect2 position, int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight, Edges margins);
-
-	ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight, Edges margins);
-
-	ImageBoxPositionInfo(Vect2 position, int rotation, ETextBoxPositionAlign positionAlign, int maxWidth, int maxHeight);
+	ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins);
 };
 
 struct FontSizeChart
