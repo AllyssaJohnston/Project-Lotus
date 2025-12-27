@@ -28,38 +28,8 @@ TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, T
 	
 	
 	// create hitbox
-	int x = 0;
-	int y = 0;
-	switch (mPositionAlignH)
-	{
-	case ETextBoxPositionAlign_LEFT:
-		x = positionInfo.mPosition.getX();
-		break;
-	case ETextBoxPositionAlign_CENTER:
-		x = positionInfo.mPosition.getX() - (positionInfo.mMaxWidth / 2);
-		break;
-	case ETextBoxPositionAlign_RIGHT:
-		x = positionInfo.mPosition.getX() - positionInfo.mMaxWidth;
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
-	switch (mPositionAlignV)
-	{
-	case ETextBoxPositionAlign_TOP:
-		y = positionInfo.mPosition.getY();
-		break;
-	case ETextBoxPositionAlign_CENTER:
-		y = positionInfo.mPosition.getY() - (positionInfo.mMaxHeight / 2);
-		break;
-	case ETextBoxPositionAlign_BOTTOM:
-		y = positionInfo.mPosition.getY() - positionInfo.mMaxHeight;
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
+	int x = positionInfo.mPosition.getX();
+	int y = positionInfo.mPosition.getY();
 
 	mStandardHitbox			= Hitbox(x, positionInfo.mMaxWidth + x, y, positionInfo.mMaxHeight + y);
 	mHighlightedHitbox		= Hitbox(x, positionInfo.mMaxWidth + x, y, positionInfo.mMaxHeight + y);
@@ -331,38 +301,8 @@ ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo posit
 	mPositionAlignV = positionInfo.mPositionAlignV;
 
 	// create hitbox
-	int x = 0;
-	int y = 0;
-	switch (mPositionAlignH)
-	{
-	case ETextBoxPositionAlign_LEFT:
-		x = positionInfo.mPosition.getX();
-		break;
-	case ETextBoxPositionAlign_CENTER:
-		x = positionInfo.mPosition.getX() - (positionInfo.mMaxWidth / 2);
-		break;
-	case ETextBoxPositionAlign_RIGHT:
-		x = positionInfo.mPosition.getX() - positionInfo.mMaxWidth;
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
-	switch (mPositionAlignV)
-	{
-	case ETextBoxPositionAlign_TOP:
-		y = positionInfo.mPosition.getY();
-		break;
-	case ETextBoxPositionAlign_CENTER:
-		y = positionInfo.mPosition.getY() - (positionInfo.mMaxHeight / 2);
-		break;
-	case ETextBoxPositionAlign_BOTTOM:
-		y = positionInfo.mPosition.getY();
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
+	int x = positionInfo.mPosition.getX();
+	int y = positionInfo.mPosition.getY();
 
 	mpCurHitbox    = new Hitbox(x, mImageObject.mIdealImageWidth + x, y, mImageObject.mIdealImageHeight + y);
 	mMargins       = positionInfo.mMargins;
@@ -382,38 +322,8 @@ ShapeBox::ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positi
 	mPositionAlignV = positionInfo.mPositionAlignV;
 
 	// create hitbox
-	int x = 0;
-	int y = 0;
-	switch (mPositionAlignH)
-	{
-	case ETextBoxPositionAlign_LEFT:
-		x = positionInfo.mPosition.getX();
-		break;
-	case ETextBoxPositionAlign_CENTER:
-		x = positionInfo.mPosition.getX() - (positionInfo.mMaxWidth / 2);
-		break;
-	case ETextBoxPositionAlign_RIGHT:
-		x = positionInfo.mPosition.getX() - positionInfo.mMaxWidth;
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
-	switch (mPositionAlignV)
-	{
-	case ETextBoxPositionAlign_TOP:
-		y = positionInfo.mPosition.getY();
-		break;
-	case ETextBoxPositionAlign_CENTER:
-		y = positionInfo.mPosition.getY() - (positionInfo.mMaxHeight / 2);
-		break;
-	case ETextBoxPositionAlign_BOTTOM:
-		y = positionInfo.mPosition.getY();
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
+	int x = positionInfo.mPosition.getX();
+	int y = positionInfo.mPosition.getY();
 
 	mpCurHitbox = new Hitbox(x, positionInfo.mMaxWidth + x, y, positionInfo.mMaxHeight + y);
 	mMargins = positionInfo.mMargins;

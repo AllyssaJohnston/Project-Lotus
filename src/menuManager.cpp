@@ -65,9 +65,12 @@ void MenuManager::setUpBlocks()
 {
 	for (MenuPage* pPage : mpMenuPages)
 	{
-		for (UIBlock* pBlock : pPage->mpBlocks)
+		for (UIElement* pElem : pPage->mpElems)
 		{
-			pBlock->setMaxSize();
+			if (pElem->mClassType == EUIClass_BLOCK)
+			{
+				((UIBlock*)pElem)->setMaxSize();
+			}
 		}
 	}
 }

@@ -160,6 +160,8 @@ struct TextBoxPositionInfo
 	int mMaxHeight;
 	Edges                 mMargins;
 
+	TextBoxPositionInfo(ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, Hitbox hitbox, Edges margins);
+
 	TextBoxPositionInfo(ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins);
 };
 
@@ -206,6 +208,8 @@ struct ImageBoxPositionInfo
 	int mMaxWidth;
 	int mMaxHeight;
 	Edges mMargins;
+
+	ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, Hitbox hitbox, Edges margins);
 
 	ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins);
 };

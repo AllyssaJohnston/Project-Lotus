@@ -7,22 +7,13 @@ UIBoxData::UIBoxData(EGameStatBoxValueToDisplay gameStatToDisplay, int combatCha
 
 
 
+TextBoxPositionInfo::TextBoxPositionInfo(ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, Hitbox hitbox, Edges margins)
+	: mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(hitbox.getWidth()), mMaxHeight(hitbox.getHeight()), mMargins(margins)
+{ mPosition = hitbox.getTopLeft() + Vect2(margins.mLeft, margins.mTop) - Vect2(margins.mRight, margins.mBottom); }
+
 TextBoxPositionInfo::TextBoxPositionInfo(ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins)
 	: mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins)
-{
-	int x = 0;
-	int y = 0;
-	if (mPositionAlignH == ETextBoxPositionAlign_CENTER)
-	{
-		x = maxWidth / 2;
-	}
-	if (mPositionAlignV == ETextBoxPositionAlign_CENTER)
-	{
-		y = maxHeight / 2;
-	}
-
-	mPosition = Vect2(x, y);
-}
+	{ mPosition = Vect2(0, 0); }
 
 
 TextBoxSizeInfo::TextBoxSizeInfo(int standardSize, int highlightSize, int outlineWidth) : mStandardFontSize(standardSize), mHighlightedFontSize(highlightSize), mOutlineWidth(outlineWidth) { ; }
@@ -52,47 +43,13 @@ TextBoxColorInfo::TextBoxColorInfo(SDL_Color standardTextColor) : mStandardTextC
 	mHighlightedTextBoxColor = { 0, 0, 0, 0 };
 }
 
+ImageBoxPositionInfo::ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, Hitbox hitbox, Edges margins)
+	: mRotation(rotation), mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(hitbox.getWidth()), mMaxHeight(hitbox.getHeight()), mMargins(margins)
+	{ mPosition = hitbox.getTopLeft() + Vect2(margins.mLeft, margins.mTop) - Vect2(margins.mRight, margins.mBottom); }
 
 ImageBoxPositionInfo::ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins)
 	: mRotation(rotation), mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins)
-{
-	int x = 0;
-	int y = 0;
-	if (mPositionAlignH == ETextBoxPositionAlign_LEFT)
-	{
-		x = 0;
-	}
-	else if (mPositionAlignH == ETextBoxPositionAlign_CENTER)
-	{
-		x = maxWidth / 2;
-	}
-	else if (mPositionAlignH == ETextBoxPositionAlign_RIGHT)
-	{
-		x = maxWidth;
-	}
-	else 
-	{
-		SDL_assert(false);
-	}
-	if (mPositionAlignV == ETextBoxPositionAlign_TOP)
-	{
-		y = 0;
-	}
-	else if (mPositionAlignV == ETextBoxPositionAlign_CENTER)
-	{
-		y = maxHeight /2;
-	}
-	else if (mPositionAlignV == ETextBoxPositionAlign_BOTTOM)
-	{
-		y = maxHeight;
-	}
-	else 
-	{
-		SDL_assert(false);
-	}
-}
-
-
+	{ mPosition = Vect2(0, 0); }
 
 
 void FontSizeChart::createFontChart(const char* fontName, SDL_Renderer* pRenderer)

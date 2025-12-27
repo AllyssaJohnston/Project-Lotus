@@ -5,22 +5,45 @@ MenuPage::~MenuPage()
 	mpCurSelectedTextBox = nullptr;
 	mpLastFrameCurTextBox = nullptr;
 	mpCurTextBox = nullptr;
-	for (TextBox* box : mpAllSelectableTextBoxes)
+
+	for (TextBox* pBox : mpAllSelectableTextBoxes)
 	{
-		delete box;
+		delete pBox;
 	}
-	for (TextBox* box : mpAllDisplayOnlyTextBoxes)
+	mpAllSelectableTextBoxes.clear();
+
+	for (TextBox* pBox : mpAllDisplayOnlyTextBoxes)
 	{
-		delete box;
+		delete pBox;
 	}
-	for (ImageBox* box : mpImageBoxes)
+	mpAllDisplayOnlyTextBoxes.clear();
+
+	for (ImageBox* pBox : mpImageBoxes)
 	{
-		delete box;
+		delete pBox;
 	}
-	for (UIBlock* box : mpBlocks)
+	mpImageBoxes.clear();
+
+	for (ShapeBox* pBox : mpShapeBoxes)
 	{
-		delete box;
+		delete pBox;
 	}
+	mpShapeBoxes.clear();
+
+	for (HealthBox* pBox : mpHealthBoxes)
+	{
+		delete pBox;
+	}
+	mpHealthBoxes.clear();
+
+	for (UIElement* pBox : mpElems)
+	{
+		if (pBox)
+		{
+			delete pBox;
+		}
+	}
+	mpElems.clear();
 }
 
 void MenuPage::preTick()
@@ -29,16 +52,29 @@ void MenuPage::preTick()
 }
 
 
-void MenuPage::addBox(TextBox* pTextBox, bool selectable, UIBlock* pBlock)
+void MenuPage::addBox(TextBox* pBox, bool selectable, UIBlock* pBlock)
 {
-	pBlock->mpSubElems.push_back(pTextBox);
+	pBlock->mpSubElems.push_back(pBox);
 	if (selectable)
 	{
-		mpAllSelectableTextBoxes.push_back(pTextBox);
+		mpAllSelectableTextBoxes.push_back(pBox);
 	}
 	else
 	{
-		mpAllDisplayOnlyTextBoxes.push_back(pTextBox);
+		mpAllDisplayOnlyTextBoxes.push_back(pBox);
+	}
+}
+
+void MenuPage::addBox(TextBox* pBox, bool selectable)
+{
+	mpElems.push_back(pBox);
+	if (selectable)
+	{
+		mpAllSelectableTextBoxes.push_back(pBox);
+	}
+	else
+	{
+		mpAllDisplayOnlyTextBoxes.push_back(pBox);
 	}
 }
 
@@ -48,15 +84,33 @@ void MenuPage::addBox(ImageBox* pBox, UIBlock* pBlock)
 	mpImageBoxes.push_back(pBox);
 }
 
+void MenuPage::addBox(ImageBox* pBox)
+{
+	mpElems.push_back(pBox);
+	mpImageBoxes.push_back(pBox);
+}
+
 void MenuPage::addBox(ShapeBox* pBox, UIBlock* pBlock)
 {
 	pBlock->mpSubElems.push_back(pBox);
 	mpShapeBoxes.push_back(pBox);
 }
 
+void MenuPage::addBox(ShapeBox* pBox)
+{
+	mpElems.push_back(pBox);
+	mpShapeBoxes.push_back(pBox);
+}
+
 void MenuPage::addBox(HealthBox* pBox, UIBlock* pBlock)
 {
 	pBlock->mpSubElems.push_back(pBox);
+	mpHealthBoxes.push_back(pBox);
+}
+
+void MenuPage::addBox(HealthBox* pBox)
+{
+	mpElems.push_back(pBox);
 	mpHealthBoxes.push_back(pBox);
 }
 
@@ -165,9 +219,16 @@ std::vector <TextBox*> MenuPage::getCurTextBoxes() const
 std::vector <UIElement*> MenuPage::getAllElems() const
 {
 	std::vector <UIElement*> list;
-	for (UIBlock* pBlock : mpBlocks)
+	for (UIElement* pElem : mpElems)
 	{
-		pBlock->getAllElems(list);
+		if (pElem->mClassType == EUIClass_BLOCK)
+		{
+			((UIBlock*)pElem)->getAllElems(list);
+		}
+		else
+		{
+			list.push_back(pElem);
+		}
 	}
 	return list;
 }
@@ -217,9 +278,12 @@ void MenuPage::setDefaultSelectedBox()
 
 void MenuPage::adjustBlocks()
 {
-	for (UIBlock* pBlock : mpBlocks)
+	for (UIElement* pElem : mpElems)
 	{
-		pBlock->updateBlocks();
+		if (pElem->mClassType == EUIClass_BLOCK)
+		{
+			((UIBlock*)pElem)->updateBlocks();
+		}
 	}
 }
 

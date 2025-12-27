@@ -22,16 +22,20 @@ public:
 	std::vector <ImageBox*>		mpImageBoxes;
 	std::vector <ShapeBox*>		mpShapeBoxes;
 	std::vector <HealthBox*>	mpHealthBoxes;
-	std::vector <UIBlock*>		mpBlocks;
+	std::vector <UIElement*>	mpElems;
 
 	~MenuPage();
 
 	void preTick();
 
 	void addBox(TextBox* pTextBox, bool selectable, UIBlock* pBlock);
+	void addBox(TextBox* pTextBox, bool selectable);
 	void addBox(ImageBox* pTextBox, UIBlock* pBlock);
+	void addBox(ImageBox* pTextBox);
 	void addBox(ShapeBox* pTextBox, UIBlock* pBlock);
+	void addBox(ShapeBox* pTextBox);
 	void addBox(HealthBox* pTextBox, UIBlock* pBlock);
+	void addBox(HealthBox* pTextBox);
 
 	void useInput(const std::vector <int>& eventVect);
 

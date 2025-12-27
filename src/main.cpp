@@ -97,9 +97,9 @@ void setUpAllTextures()
 	MenuManager& menuManager = gameInstance.mMenuManager;
 	for (MenuPage* pMenuPage : menuManager.mpMenuPages)
 	{
-		for (UIBlock* pBlock : pMenuPage->mpBlocks)
+		for (UIElement* pElem : pMenuPage->mpElems)
 		{
-			pBlock->setTexture(screen.mpRenderer);
+			pElem->setTexture(screen.mpRenderer);
 		}
 	}
 }

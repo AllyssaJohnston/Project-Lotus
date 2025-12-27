@@ -39,27 +39,23 @@ void createMainMenu(MenuManager& menuManager, const ScreenObject& screen)
 	//MAIN MENU PAGE
 	MenuPage* mainMenuPage = new MenuPage();
 
+	mainMenuPage->addBox(new ImageBox(ImageBoxPreset(), ImageBoxPositionInfo(0, ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_BOTTOM, Hitbox(CoordsX1Y1WidthHeight(0, levelChunkHeight - 600, 600, 600)), Edges()), "Menu/TitleScreenModel.bmp"));
+
+
 	UIBlock* titleText = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(0, 0, levelChunkWidth, 300)), ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, false, 1, fill, !fill, Edges(100, 0, 0, 0), 0, clear, "title text block");
 	mainMenuPage->addBox(new ImageBox(ImageBoxPreset(),																	ImageBoxPositionInfo(0, ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_TOP, levelChunkWidth, 200, Edges()),			"Menu/TitleScreen.bmp"), titleText);
 	mainMenuPage->addBox(new TextBox(StandardTextBoxPreset("PLAY GAME"),		ETextBoxFunction_PLAY_GAME_BOX,			TextBoxPositionInfo(	ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_TOP, levelChunkWidth, 140, Edges()),			fontFileName, TextBoxSizeInfo(60, 80), TextBoxColorInfo(hintBlue, white, teal, teal)), true, titleText);
 	mainMenuPage->addBox(new TextBox(StandardTextBoxPreset("PLAY MINI GAME"),	ETextBoxFunction_PLAY_MINI_GAME_BOX,	TextBoxPositionInfo(	ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_TOP, levelChunkWidth, 140, Edges(8, 0, 0, 0)),	fontFileName, TextBoxSizeInfo(60, 80), TextBoxColorInfo(hintBlue, white, teal, teal)), true, titleText);
-
-	UIBlock* titleModel = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(0, levelChunkHeight, 600, 600)), ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, EDirection_RIGHT, EDirection_UP, true, 1, !fill, !fill, Edges(), 0, clear, "title model block");
-	mainMenuPage->addBox(new ImageBox(ImageBoxPreset(), ImageBoxPositionInfo(0, ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_BOTTOM, 600, 600, Edges()), "Menu/TitleScreenModel.bmp"), titleModel);
-
-	mainMenuPage->mpBlocks.push_back(titleModel);
-	mainMenuPage->mpBlocks.push_back(titleText);
-
-
+	mainMenuPage->mpElems.push_back(titleText);
+	titleText = nullptr;
 
 	//debug HUD
 	int maxWidth = 200;
 	int maxHeight = 100;
-	UIBlock* debugHUDBlock = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(levelChunkWidth, 0, maxWidth, maxHeight)), ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, EDirection_LEFT, EDirection_DOWN, false, 1, !fill, !fill, Edges(), 0, clear, "main menu debug keyboard block");
-	mainMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_CUR_KEYBOARD), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, maxWidth, maxHeight, Edges(3, 0, 0, 0)), fontFileName, TextBoxSizeInfo(12, 12), TextBoxColorInfo(hintBlue)), false, debugHUDBlock);
-	mainMenuPage->mpBlocks.push_back(debugHUDBlock);
+	mainMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_CUR_KEYBOARD), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, Hitbox(CoordsX1Y1WidthHeight(levelChunkWidth - maxWidth, 0, maxWidth, maxHeight)), Edges(3, 0, 0, 0)), fontFileName, TextBoxSizeInfo(12, 12), TextBoxColorInfo(hintBlue)), false);
 
 	menuManager.mpMenuPages.push_back(mainMenuPage);
+	mainMenuPage = nullptr;
 }
 
 void createMainGameMenu(MenuManager& menuManager, const ScreenObject& screen)
@@ -77,9 +73,7 @@ void createMainGameMenu(MenuManager& menuManager, const ScreenObject& screen)
 	MenuPage* mainGameMenuPage = new MenuPage();
 
 	//Take Damage Screen
-	UIBlock* takeDamageBlock = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(0, 0, levelChunkWidth, levelChunkHeight)), ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, true, 1, fill, fill, Edges(), 0, clear, "take damage icon");
-	mainGameMenuPage->addBox(new ImageBox(DontAutoShowImageBoxPreset(EUIBoxType_TAKE_DAMAGE_SCREEN), ImageBoxPositionInfo(0, ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, levelChunkWidth, levelChunkHeight, Edges()), "UIElements/takeDamageScreen.bmp"), takeDamageBlock);
-	mainGameMenuPage->mpBlocks.push_back(takeDamageBlock);
+	mainGameMenuPage->addBox(new ImageBox(DontAutoShowImageBoxPreset(EUIBoxType_TAKE_DAMAGE_SCREEN), ImageBoxPositionInfo(0, ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, Hitbox(CoordsX1Y1WidthHeight(0, 0, levelChunkWidth, levelChunkHeight)), Edges()), "UIElements/takeDamageScreen.bmp"));
 
 	//UPPER HUD
 	int maxWidth = 400;
@@ -101,14 +95,15 @@ void createMainGameMenu(MenuManager& menuManager, const ScreenObject& screen)
 
 	upperHUDBlock->mpSubElems.push_back(uLine1);
 	upperHUDBlock->mpSubElems.push_back(uLine2);
-	mainGameMenuPage->mpBlocks.push_back(upperHUDBlock);
+	mainGameMenuPage->mpElems.push_back(upperHUDBlock);
+	uLine1 = nullptr;
+	uLine2 = nullptr;
+	upperHUDBlock = nullptr;
 
 	//debug HUD
 	maxWidth = 200;
 	maxHeight = 100;
-	UIBlock* debugHUDBlock = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(levelChunkWidth - maxWidth, 0, maxWidth, maxHeight)), ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, true, 1, !fill, !fill, Edges(), 0, clear, "debug keyboard main game menu");
-	mainGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_CUR_KEYBOARD), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, maxWidth, maxHeight, Edges(10, 0, 0, 0)), fontFileName, TextBoxSizeInfo(12), TextBoxColorInfo(hintBlue)), false, debugHUDBlock);
-	mainGameMenuPage->mpBlocks.push_back(debugHUDBlock);
+	mainGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_CUR_KEYBOARD), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, Hitbox(CoordsX1Y1WidthHeight(levelChunkWidth - maxWidth, 0, maxWidth, maxHeight)), Edges(10, 0, 0, 0)), fontFileName, TextBoxSizeInfo(12), TextBoxColorInfo(hintBlue)), false);
 
 	int leftTextSize = 15;
 	//LOWER LEFT HUD
@@ -126,6 +121,7 @@ void createMainGameMenu(MenuManager& menuManager, const ScreenObject& screen)
 	mainGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_PROJECTILE_HORIZONTAL_KEY),	ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_TOP, 100, 60, Edges()), fontFileName, TextBoxSizeInfo(leftTextSize), TextBoxColorInfo(hintBlue)), false, projectileKeys);
 	mainGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_PROJECTILE_VERTICAL_KEY),		ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_TOP, 100, 60, Edges()), fontFileName, TextBoxSizeInfo(leftTextSize), TextBoxColorInfo(hintBlue)), false, projectileKeys);
 	lowerLeftHUDBlock->mpSubElems.push_back(projectileKeys);
+	projectileKeys = nullptr;
 
 	UIBlock* projectileIcons = new UIBlock(maxWidth, maxHeight, ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, EDirection_DOWN, true, 1, !fill, !fill, Edges(0, 0, 20, 0), 22, clear, "projectile icons block");
 	mainGameMenuPage->addBox(new ImageBox(DontAutoShowImageBoxPreset(EUIBoxType_PROJECTILE_UI), ImageBoxPositionInfo(30, ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_CENTER, 80, 90, Edges()), "UIElements/swordUI.bmp"), projectileIcons);
@@ -136,8 +132,10 @@ void createMainGameMenu(MenuManager& menuManager, const ScreenObject& screen)
 	mainGameMenuPage->addBox(new ImageBox(DontAutoShowImageBoxPreset(EUIBoxType_PROJECTILE_UI), ImageBoxPositionInfo(30, ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_CENTER, 80, 90, Edges()), "UIElements/swordUI.bmp"), projectileIcons);
 	mainGameMenuPage->addBox(new ImageBox(DontAutoShowImageBoxPreset(EUIBoxType_PROJECTILE_UI), ImageBoxPositionInfo(30, ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_CENTER, 80, 90, Edges()), "UIElements/swordUI.bmp"), projectileIcons);
 	lowerLeftHUDBlock->mpSubElems.push_back(projectileIcons);
+	projectileIcons = nullptr;
 
-	mainGameMenuPage->mpBlocks.push_back(lowerLeftHUDBlock);
+	mainGameMenuPage->mpElems.push_back(lowerLeftHUDBlock);
+	lowerLeftHUDBlock = nullptr;
 
 	//LOWER RIGHT HUD
 	UIBlock* lowerRightHUDBlock = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(levelChunkWidth, levelChunkHeight, maxWidth, 450)), ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, EDirection_LEFT, EDirection_UP, true, 2, !fill, !fill, Edges(0, 10, 0, 10), 5, clear, "lower right block");
@@ -151,6 +149,7 @@ void createMainGameMenu(MenuManager& menuManager, const ScreenObject& screen)
 	mainGameMenuPage->addBox(new ImageBox(ImageBoxPreset(), ImageBoxPositionInfo(0, ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_BOTTOM, iconSize, iconSize, Edges(0, 22, 0, 0)),	"UIElements/upUI.bmp"),			movementArrowIcons);
 	mainGameMenuPage->addBox(new ImageBox(ImageBoxPreset(), ImageBoxPositionInfo(0, ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_BOTTOM, iconSize, iconSize, Edges(0, 0,  0, 0)),	"UIElements/rightUI.bmp"),		movementArrowIcons);
 	lowerRightHUDBlock->mpSubElems.push_back(movementArrowIcons);
+	movementArrowIcons = nullptr;
 
 	// reset level icon
 	mainGameMenuPage->addBox(new ImageBox(ImageBoxPreset(), ImageBoxPositionInfo(0, ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_BOTTOM, iconSize, iconSize, Edges()),				"UIElements/resetLevelUI.bmp"), lowerRightHUDBlock);
@@ -165,6 +164,7 @@ void createMainGameMenu(MenuManager& menuManager, const ScreenObject& screen)
 	mainGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_MOVEMENT_UP_KEY),			ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_TOP, maxWidth, 60, Edges()),			fontFileName, TextBoxSizeInfo(rightTextSize), TextBoxColorInfo(hintBlue)), false, movementArrowTextGrid);
 	mainGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_MOVEMENT_RIGHT_KEY),		ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_TOP, maxWidth, 60, Edges()),			fontFileName, TextBoxSizeInfo(rightTextSize), TextBoxColorInfo(hintBlue)), false, movementArrowTextGrid);
 	lowerRightHUDBlock->mpSubElems.push_back(movementArrowTextGrid);
+	movementArrowTextGrid = nullptr;
 
 	// reset level text
 	mainGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_LEVEL_RESET_KEY),			ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_TOP, 100,		60, Edges(3, 0, 0, 0)), fontFileName, TextBoxSizeInfo(rightTextSize), TextBoxColorInfo(hintBlue)), false, lowerRightHUDBlock);
@@ -172,9 +172,11 @@ void createMainGameMenu(MenuManager& menuManager, const ScreenObject& screen)
 	//reset checkpoint text
 	mainGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_CHECKPOINT_RESET_KEY),	ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_TOP, 100,		60, Edges(3, 0, 0, 0)), fontFileName, TextBoxSizeInfo(rightTextSize), TextBoxColorInfo(hintBlue)), false, lowerRightHUDBlock);
 
-	mainGameMenuPage->mpBlocks.push_back(lowerRightHUDBlock);
+	mainGameMenuPage->mpElems.push_back(lowerRightHUDBlock);
+	lowerRightHUDBlock = nullptr;
 
 	menuManager.mpMenuPages.push_back(mainGameMenuPage);
+	mainGameMenuPage = nullptr;
 }
 
 void createMiniGameMenu(MenuManager& menuManager, const ScreenObject& screen,  MiniGameWorldData& worldData)
@@ -184,7 +186,7 @@ void createMiniGameMenu(MenuManager& menuManager, const ScreenObject& screen,  M
 	MenuPage* miniGameMenuPage = new MenuPage();
 	menuManager.mpMenuPages.push_back(miniGameMenuPage);
 
-	characterStatsBlockNum = (int)miniGameMenuPage->mpBlocks.size();
+	characterStatsBlockNum = (int)miniGameMenuPage->mpElems.size();
 	createMiniGameCharacterStatsMenu(menuManager, screen, worldData);
 
 	const TextBoxColorInfo black			= TextBoxColorInfo(StyleManager::black);
@@ -204,10 +206,7 @@ void createMiniGameMenu(MenuManager& menuManager, const ScreenObject& screen,  M
 	const bool fill = true;
 	
 	// keyboard debug HUD
-	UIBlock* debugHUDBlock = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(1200, 0, 200, 50)), ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, true, 1, !fill, !fill, Edges(), 0, clear, "keyboard block");
-	miniGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_CUR_KEYBOARD), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, 200, 50, Edges(3, 0, 0, 0)), font, TextBoxSizeInfo(12), white), false, debugHUDBlock);
-	miniGameMenuPage->mpBlocks.push_back(debugHUDBlock);
-	debugHUDBlock = nullptr;
+	miniGameMenuPage->addBox(new TextBox(GameStatBoxPreset(EGameStatBoxValueToDisplay_CUR_KEYBOARD), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, Hitbox(CoordsX1Y1WidthHeight(1200, 0, 200, 50)), Edges(3, 0, 0, 0)), font, TextBoxSizeInfo(12), white), false);
 
 	const int& panelWidth			= StyleManager::panelWidth;
 	const int& panelHeight			= StyleManager::panelHeight;
@@ -220,8 +219,8 @@ void createMiniGameMenu(MenuManager& menuManager, const ScreenObject& screen,  M
 	UIBlock* characterOptionsDetailsBlock	= new UIBlock(										panelWidth, panelBodyHeight,	ETextBoxPositionAlign_LEFT,		ETextBoxPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, false, 1, fill, fill,	Edges(), 0,	standardPanelColor,  "character panel details box");
 	characterOptionsBlock->mpSubElems.push_back(characterOptionsHeadingBlock);
 	characterOptionsBlock->mpSubElems.push_back(characterOptionsDetailsBlock);
-	miniGameMenuPage->mpBlocks.push_back(characterOptionsBlock);
-	characterOptionsBlockNum = (int) miniGameMenuPage->mpBlocks.size() - 1;
+	miniGameMenuPage->mpElems.push_back(characterOptionsBlock);
+	characterOptionsBlockNum = (int) miniGameMenuPage->mpElems.size() - 1;
 	characterOptionsDetailsBlockNum = (int) characterOptionsBlock->mpSubElems.size() - 1;
 
 	whenToShow = { EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT, EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT };
@@ -308,13 +307,13 @@ void createMiniGameMenu(MenuManager& menuManager, const ScreenObject& screen,  M
 	// LOG
 	UIBlock* debugStatLine = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(0, screen.mGameLevelChunkHeight, screen.mGameLevelChunkWidth, 50)), ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, EDirection_RIGHT, EDirection_UP, true, 1, !fill, !fill, Edges(0, 15, 20, 0), 0, highlightPanelColor, "log line");
 	miniGameMenuPage->addBox(new TextBox(MiniGameStatBoxPreset(EGameStatBoxValueToDisplay_MINI_GAME_DEBUG_LINE), ETextBoxFunction_NO_FUNCTION, TextBoxPositionInfo(ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, screen.mGameLevelChunkWidth - 15, 50, Edges()), font, TextBoxSizeInfo(detailText , detailText), darkPink), false, debugStatLine);
-	miniGameMenuPage->mpBlocks.push_back(debugStatLine);
+	miniGameMenuPage->mpElems.push_back(debugStatLine);
 	debugStatLine = nullptr;
 
 	// undo
 	UIBlock* undoBlock = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(1250, 417, 125, 50)), ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_CENTER, EDirection_RIGHT, EDirection_DOWN, true, 1, !fill, !fill, Edges(), 0, clear, "undo block");
 	miniGameMenuPage->addBox(new TextBox(StandardTextBoxPreset("UNDO"), ETextBoxFunction_MINI_GAME_UNDO_BOX, TextBoxPositionInfo(ETextBoxPositionAlign_CENTER, ETextBoxPositionAlign_CENTER, 125, 50, Edges()), font, TextBoxSizeInfo(optionText, optionText + 5, 2), optionBox), true, undoBlock);
-	miniGameMenuPage->mpBlocks.push_back(undoBlock);
+	miniGameMenuPage->mpElems.push_back(undoBlock);
 	undoBlock = nullptr;
 
 	miniGameMenuPage = nullptr;
@@ -390,18 +389,18 @@ void createMiniGameCharacterStatsMenu(MenuManager& menuManager, const ScreenObje
 	statBlock->mpSubElems.push_back(characterStatsLine);
 	characterStatsLine = nullptr;
 	
-	if (miniGameMenuPage->mpBlocks.size() > characterStatsBlockNum && miniGameMenuPage->mpBlocks[characterStatsBlockNum])
+	if (miniGameMenuPage->mpElems.size() > characterStatsBlockNum && miniGameMenuPage->mpElems[characterStatsBlockNum])
 	{
 		//replace the character stat block
 		statBlock->setTexture(screen.mpRenderer);
 		statBlock->setMaxSize();
-		miniGameMenuPage->deleteBlock(miniGameMenuPage->mpBlocks[characterStatsBlockNum]);
-		miniGameMenuPage->mpBlocks[characterStatsBlockNum] = statBlock;
+		miniGameMenuPage->deleteBlock((UIBlock*)miniGameMenuPage->mpElems[characterStatsBlockNum]);
+		miniGameMenuPage->mpElems[characterStatsBlockNum] = statBlock;
 	}
 	else
 	{
 		//first time through, place the block
-		miniGameMenuPage->mpBlocks.push_back(statBlock);
+		miniGameMenuPage->mpElems.push_back(statBlock);
 	}
 	
 	statBlock = nullptr;
@@ -426,7 +425,7 @@ void createMiniGameCharacterSelectionMenu(MenuManager& menuManager, const Screen
 
 	const bool fill = true;
 
-	UIBlock* characterOptionsBlock			= miniGameMenuPage->mpBlocks[characterOptionsBlockNum];
+	UIBlock* characterOptionsBlock			= (UIBlock*)miniGameMenuPage->mpElems[characterOptionsBlockNum];
 	UIBlock* characterOptionsDetailsBlock	= (UIBlock*)characterOptionsBlock->mpSubElems[characterOptionsDetailsBlockNum];
 
 	UIBlock* pCharacterSelectionPanel		= new UIBlock(panelWidth, panelBodyHeight, ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, false, 2, !fill, !fill, Edges(10, 0, 10, 0), 7, clear, "character selection panel block");
@@ -484,7 +483,7 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenOb
 
 	const bool fill = true;
 
-	UIBlock* characterOptionsBlock			= miniGameMenuPage->mpBlocks[characterOptionsBlockNum];
+	UIBlock* characterOptionsBlock			= (UIBlock*)miniGameMenuPage->mpElems[characterOptionsBlockNum];
 	UIBlock* characterOptionsDetailsBlock	= (UIBlock*)characterOptionsBlock->mpSubElems[characterOptionsDetailsBlockNum];
 
 	UIBlock* pAttackBlock = new UIBlock(panelWidth, panelBodyHeight, ETextBoxPositionAlign_LEFT, ETextBoxPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, false, 2, !fill, !fill, Edges(10, 0, 10, 0), 0, clear, "Attack block");
