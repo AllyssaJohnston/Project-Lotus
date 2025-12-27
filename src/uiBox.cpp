@@ -308,8 +308,10 @@ void TextBox::updateHitboxesInternal(bool isHighlighted, Hitbox& hitbox, std::ve
 	
 }
 
-void TextBox::shiftHitbox(const Vect2 shiftTopLeft)
+void TextBox::updatePosFromBlockSpace(const Hitbox& blockSpace)
 {
+	Vect2 shiftTopLeft = getUpdatedPosFromBlockSpace(blockSpace) - mpCurHitbox->getTopLeft();
+
 	mStandardHitbox.updateTopLeft(shiftTopLeft);
 	mHighlightedHitbox.updateTopLeft(shiftTopLeft);
 
@@ -319,7 +321,6 @@ void TextBox::shiftHitbox(const Vect2 shiftTopLeft)
 		mCurLineHighlightedHitboxes[count].updateTopLeft(shiftTopLeft);
 	}
 }
-
 
 
 ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo positionInfo, const std::string fileName) : UIBox(preset.mData)
@@ -369,7 +370,7 @@ ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo posit
 	mRotation      = positionInfo.mRotation;
 }
 
-void ImageBox::shiftHitbox(const Vect2 shiftTopLeft) { mpCurHitbox->updateTopLeft(shiftTopLeft); }
+void ImageBox::updatePosFromBlockSpace(const Hitbox& blockSpace) { mpCurHitbox->setTopLeft(getUpdatedPosFromBlockSpace(blockSpace)); }
 
 void ImageBox::setTexture(SDL_Renderer* pRenderer) { mImageObject.setUpTexture(pRenderer); }
 
@@ -418,7 +419,7 @@ ShapeBox::ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positi
 	mMargins = positionInfo.mMargins;
 }
 
-void ShapeBox::shiftHitbox(const Vect2 shiftTopLeft) { mpCurHitbox->updateTopLeft(shiftTopLeft); }
+void ShapeBox::updatePosFromBlockSpace(const Hitbox& blockSpace) { mpCurHitbox->setTopLeft(getUpdatedPosFromBlockSpace(blockSpace)); }
 
 
 
@@ -426,7 +427,7 @@ HealthBox::HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo pos
 		const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor) : UIBox(preset.mData),
 		mBoundingBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, backgroundColor)), 
 		mHealthLeftBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, healthColor)),
-		mHealthText(TextBox(StandardTextBoxPreset("temp"), ETextBoxFunction_NO_FUNCTION, positionInfo, font, textSize, textColor)), 
+		mHealthText(TextBox(StandardTextBoxPreset("temp"), ETextBoxFunction_NO_FUNCTION, positionInfo, font, TextBoxSizeInfo(textSize), TextBoxColorInfo(textColor))),
 		mMaxWidth(positionInfo.mMaxWidth)
 { 
 	mPositionAlignH = positionInfo.mPositionAlignH;
@@ -436,11 +437,13 @@ HealthBox::HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo pos
 	mMargins = positionInfo.mMargins;
 }
 
-void HealthBox::shiftHitbox(const Vect2 shiftTopLeft) 
+void HealthBox::updatePosFromBlockSpace(const Hitbox& blockSpace)
 {
-	mBoundingBox.shiftHitbox(shiftTopLeft);
-	mHealthLeftBox.shiftHitbox(shiftTopLeft);
-	mHealthText.shiftHitbox(shiftTopLeft);
+	Vect2 shiftTopLeft = getUpdatedPosFromBlockSpace(blockSpace) - mBoundingBox.getHitbox().getTopLeft();
+
+	mBoundingBox.getHitbox().updateTopLeft(shiftTopLeft);
+	mHealthLeftBox.getHitbox().updateTopLeft(shiftTopLeft);
+	mHealthText.updatePosFromBlockSpace(blockSpace);
 }
 
 void HealthBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, const std::string updatedMessage, float curRatio)
@@ -453,4 +456,8 @@ void HealthBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeCh
 		mHealthLeftBox.mpCurHitbox->setHeight(mHealthText.mpCurHitbox->getHeight());
 		mBoundingBox.mpCurHitbox->setHeight(mHealthText.mpCurHitbox->getHeight());
 	}
+	mBoundingBox.mShow = mShow;
+	mHealthLeftBox.mShow = mShow;
+	mHealthText.mShow = mShow;
 }
+

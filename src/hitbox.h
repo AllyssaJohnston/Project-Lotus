@@ -131,9 +131,9 @@ public:
 	int getWidth() const;
 	int getHeight() const;
 
-	void updateTopLeft(Vect2 newTopLeft);
-	void updateTopLeftX(int x);
-	void updateTopLeftY(int y);
+	void updateTopLeft(Vect2 changeTopLeft);
+	void updateTopLeftX(int changeX);
+	void updateTopLeftY(int changeY);
 
 	void setTopLeft(Vect2 newTopLeft);
 	void setTopLeftX(int x);

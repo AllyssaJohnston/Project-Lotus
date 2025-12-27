@@ -228,7 +228,7 @@ int Hitbox::getWidth() const { return mHalfWidthHeight.getX() * 2; }
 
 int Hitbox::getHeight() const { return mHalfWidthHeight.getY() * 2; }
 
-void Hitbox::updateTopLeft(Vect2 newTopLeft)  { mCenterPos += newTopLeft; }
+void Hitbox::updateTopLeft(Vect2 changeTopLeft)  { mCenterPos += changeTopLeft; }
 
 void Hitbox::updateTopLeftX(int x) { mCenterPos.changeX(x); }
 

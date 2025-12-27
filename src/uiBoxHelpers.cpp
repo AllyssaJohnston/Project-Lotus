@@ -106,3 +106,4 @@ void FontSizeChart::createFontChart(const char* fontName, SDL_Renderer* pRendere
 		mFontChart[fontName][i] = size;
 	}
 }
+

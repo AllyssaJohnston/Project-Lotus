@@ -222,4 +222,3 @@ struct FontSizeChart
 
 	void createFontChart(const char*, SDL_Renderer* pRenderer);
 };
-

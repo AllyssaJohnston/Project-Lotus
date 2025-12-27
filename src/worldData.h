@@ -22,8 +22,8 @@ public:
     Player						mPlayer;
     std::vector <World*>       mpWorlds;
 #if DEMO == 0
-    int							mCurWorldNumber = 0;
-    int                         mCurLevelNumber = 6;
+    int							mCurWorldNumber = 2;
+    int                         mCurLevelNumber = 5;
 #else
     int							mCurWorldNumber = 0;
     int                         mCurLevelNumber = 0;

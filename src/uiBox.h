@@ -32,8 +32,6 @@ public:
 	virtual Hitbox& getHitbox() override;
 
 	bool isActive() override;
-
-	virtual void shiftHitbox(const Vect2 shiftTopLeft) = 0;
 };
 
 class TextBox : public UIBox
@@ -104,7 +102,7 @@ public:
 
 	void updateHitboxes();
 
-	void shiftHitbox(const Vect2 shiftTopLeft) override;
+	void updatePosFromBlockSpace(const Hitbox& blockSpace) override;
 
 private:
 	bool mIsHighlighted = false;
@@ -128,7 +126,7 @@ public:
 
 	~ImageBox() { ; }
 
-	void shiftHitbox(Vect2 shiftTopLeft) override;
+	void updatePosFromBlockSpace(const Hitbox& blockSpace) override;
 
 	void setTexture(SDL_Renderer* pRenderer) override;
 };
@@ -141,7 +139,7 @@ public:
 
 	ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positionInfo, const SDL_Color color);
 
-	void shiftHitbox(const Vect2 shiftTopLeft) override;
+	void updatePosFromBlockSpace(const Hitbox& blockSpace) override;
 
 	void setTexture(SDL_Renderer* pRenderer) override { ; }
 };
@@ -156,7 +154,7 @@ public:
 
 	HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int textSize, const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor);
 
-	void shiftHitbox(const Vect2 shiftTopLeft) override;
+	void updatePosFromBlockSpace(const Hitbox& blockSpace) override;
 
 	void updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, const std::string updatedMessage, float curRatio);
 
@@ -165,3 +163,4 @@ public:
 private:
 	int mMaxWidth;
 };
+

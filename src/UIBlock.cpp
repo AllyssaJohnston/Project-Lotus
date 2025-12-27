@@ -20,6 +20,7 @@ UIBlock::~UIBlock()
 
 Hitbox& UIBlock::getHitbox() { return mHitbox; }
 
+// only called on the head blocks in menu page
 void UIBlock::updateBlocks()
 {
 	// figure out all block widths and heights
@@ -135,37 +136,7 @@ void UIBlock::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH
 	mFillHeight = fillHeight;
 }
 
-void UIBlock::center(int width, int height)
-{
-	int updatedX = 0;
-	int updatedY = 0;
-	switch (mPositionAlignH)
-	{
-	case ETextBoxPositionAlign_LEFT:
-		updatedX = mHitbox.getTopLeft().getX();
-		break;
-	case ETextBoxPositionAlign_CENTER:
-		updatedX = mHitbox.getCenter().getX() - (width / 2);
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
-	switch (mPositionAlignV)
-	{
-	case ETextBoxPositionAlign_TOP:
-		updatedY = mHitbox.getTopLeft().getY();
-		break;
-	case ETextBoxPositionAlign_CENTER:
-		updatedY = mHitbox.getCenter().getY() - (height / 2);
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
-
-	mHitbox.setTopLeft(Vect2(updatedX, updatedY));
-}
+void UIBlock::updatePosFromBlockSpace(const Hitbox& blockSpace) { mHitbox.setTopLeft(getUpdatedPosFromBlockSpace(blockSpace)); }
 
 void UIBlock::setTexture(SDL_Renderer* pRenderer)
 {
@@ -316,7 +287,6 @@ void BlockAlignElementsVertically::adjustBlocksWidthHeight()
 
 		mHitbox.setWidth(std::max(maxWidth, 0));
 		mHitbox.setHeight(std::max(height, 0));
-		center(maxWidth, height);
 	}
 }
 
@@ -331,30 +301,19 @@ void BlockAlignElementsVertically::moveElems()
 			return;
 		}
 		UIElement* pLastElem = mpSubElems[i];
-
-		// if left aligned, take into account all left margins, ignore right margins
-		// if center aligned, start in the center and THEN push right by the left magin AND push left by the right margain
-		// if right aligned, ignore left margins, take into account the right margins
-		int leftMargin = (mPositionAlignH == ETextBoxPositionAlign_RIGHT) ? 0 : pLastElem->mMargins.mLeft;
-		int rightMargin = (mPositionAlignH == ETextBoxPositionAlign_LEFT) ? 0 : pLastElem->mMargins.mRight;
 		
-		int x = mHitbox.getTopLeft().getX() + leftMargin - rightMargin;
-		int y = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop;
+		int x1 = mHitbox.getTopLeft().getX() + pLastElem->mMargins.mLeft;
+		int x2 = mHitbox.getBottomRight().getX() - pLastElem->mMargins.mRight;
+		int y1 = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop;
+		int y2 = y1 + pLastElem->getHitbox().getHeight();
+		Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
 		
-		int centering = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pLastElem->getHitbox().getWidth()) / 2 : 0;
-		int changeX = x - pLastElem->getHitbox().getTopLeft().getX() + centering;
-		int changeY = y - pLastElem->getHitbox().getTopLeft().getY();
-
+		pLastElem->updatePosFromBlockSpace(blockSpace);
 		if (pLastElem->mClassType == EUIClass_BLOCK)
 		{
-			pLastElem->getHitbox().setTopLeft(Vect2(x, y));
 			((UIBlock*)pLastElem)->moveElems();
 		}
-		else // BOX
-		{
-			((UIBox*)pLastElem)->shiftHitbox(Vect2(changeX, changeY));
-		}
-		
+
 		for (int count = i + 1; count < mpSubElems.size(); count++)
 		{
 			UIElement* pCurElem = mpSubElems[count];
@@ -362,25 +321,17 @@ void BlockAlignElementsVertically::moveElems()
 			{
 				continue;
 			}
-			
-			leftMargin = (mPositionAlignH == ETextBoxPositionAlign_RIGHT) ? 0 : pCurElem->mMargins.mLeft;
-			rightMargin = (mPositionAlignH == ETextBoxPositionAlign_LEFT) ? 0 : pCurElem->mMargins.mRight;
 
-			x = mHitbox.getTopLeft().getX() + leftMargin - rightMargin;
-			y = pLastElem->getHitbox().getBottomRight().getY() + pLastElem->mMargins.mBottom + pCurElem->mMargins.mTop;
-			
-			centering = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pCurElem->getHitbox().getWidth()) / 2 : 0;
-			changeX = x - pCurElem->getHitbox().getTopLeft().getX() + centering;
-			changeY = y - pCurElem->getHitbox().getTopLeft().getY();
+			x1 = mHitbox.getTopLeft().getX() + pCurElem->mMargins.mLeft;
+			x2 = mHitbox.getBottomRight().getX() - pCurElem->mMargins.mRight;
+			y1 = pLastElem->getHitbox().getBottomRight().getY() + pLastElem->mMargins.mBottom + pCurElem->mMargins.mTop;
+			y2 = y1 + pCurElem->getHitbox().getHeight();
+			Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
 
+			pCurElem->updatePosFromBlockSpace(blockSpace);
 			if (pCurElem->mClassType == EUIClass_BLOCK)
 			{
-				pCurElem->getHitbox().setTopLeft(Vect2(x, y));
 				((UIBlock*)pCurElem)->moveElems();
-			}
-			else // BOX
-			{
-				((UIBox*)pCurElem)->shiftHitbox(Vect2(changeX, changeY));
 			}
 			
 			pLastElem = pCurElem;
@@ -395,28 +346,17 @@ void BlockAlignElementsVertically::moveElems()
 			return;
 		}
 		UIElement* pLastElem = mpSubElems[i];
-		
-		// if left aligned, take into account all left margins, ignore right margins
-		// if center aligned, start in the center and THEN push right by the left magin AND push left by the right margain
-		// if right aligned, ignore left margins, take into account the right margins
-		int leftMargin = (mPositionAlignH == ETextBoxPositionAlign_RIGHT) ? 0 : pLastElem->mMargins.mLeft;
-		int rightMargin = (mPositionAlignH == ETextBoxPositionAlign_LEFT) ? 0 : pLastElem->mMargins.mRight;
+	
+		int x1 = mHitbox.getTopLeft().getX() + pLastElem->mMargins.mLeft;
+		int x2 = mHitbox.getBottomRight().getX() - pLastElem->mMargins.mRight;
+		int y2 = mHitbox.getBottomRight().getY() - pLastElem->mMargins.mBottom;
+		int y1 = y2 - pLastElem->getHitbox().getHeight();
+		Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
 
-		int x = mHitbox.getTopLeft().getX() + leftMargin - rightMargin;
-		int y = mHitbox.getBottomRight().getY() - pLastElem->getHitbox().getHeight() - pLastElem->mMargins.mBottom;
-		
-		int centering = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pLastElem->getHitbox().getWidth()) / 2 : 0;
-		int changeX = x - pLastElem->getHitbox().getTopLeft().getX() + centering;
-		int changeY = y - pLastElem->getHitbox().getTopLeft().getY();
-
+		pLastElem->updatePosFromBlockSpace(blockSpace);
 		if (pLastElem->mClassType == EUIClass_BLOCK)
 		{
-			pLastElem->getHitbox().setTopLeft(Vect2(x, y));
 			((UIBlock*)pLastElem)->moveElems();
-		}
-		else // BOX
-		{
-			((UIBox*)pLastElem)->shiftHitbox(Vect2(changeX, changeY));
 		}
 
 		for (int count = i - 1; count > -1; count--)
@@ -427,26 +367,16 @@ void BlockAlignElementsVertically::moveElems()
 				continue;
 			}
 			
+			int x1 = mHitbox.getTopLeft().getX() + pCurElem->mMargins.mLeft;
+			int x2 = mHitbox.getBottomRight().getX() - pCurElem->mMargins.mRight;
+			int y2 = pLastElem->getHitbox().getTopLeft().getY() - pLastElem->mMargins.mTop - pCurElem->mMargins.mBottom;
+			int y1 = y2 - pCurElem->getHitbox().getHeight();
+			Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
 
-			leftMargin = (mPositionAlignH == ETextBoxPositionAlign_RIGHT) ? 0 : pCurElem->mMargins.mLeft;
-			rightMargin = (mPositionAlignH == ETextBoxPositionAlign_LEFT) ? 0 : pCurElem->mMargins.mRight;
-
-			x = mHitbox.getTopLeft().getX() + leftMargin - rightMargin;
-			y = pLastElem->getHitbox().getTopLeft().getY() - pCurElem->getHitbox().getHeight() -
-				(pCurElem->mMargins.mBottom + pLastElem->mMargins.mTop);
-			
-			centering = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mHitbox.getWidth() - pCurElem->getHitbox().getWidth()) / 2 : 0;
-			changeX = x - pCurElem->getHitbox().getTopLeft().getX() + centering;
-			changeY = y - pCurElem->getHitbox().getTopLeft().getY();
-
+			pCurElem->updatePosFromBlockSpace(blockSpace);
 			if (pCurElem->mClassType == EUIClass_BLOCK)
 			{
-				pCurElem->getHitbox().setTopLeft(Vect2(x, y));
 				((UIBlock*)pCurElem)->moveElems();
-			}
-			else // BOX
-			{
-				((UIBox*)pCurElem)->shiftHitbox(Vect2(changeX, changeY));
 			}
 			
 			pLastElem = pCurElem;
@@ -527,7 +457,6 @@ void BlockAlignElementsHorizontally::adjustBlocksWidthHeight()
 
 		mHitbox.setWidth(std::max(width, 0));
 		mHitbox.setHeight(std::max(maxHeight, 0));
-		center(width, maxHeight);
 	}
 }
 
@@ -543,21 +472,16 @@ void BlockAlignElementsHorizontally::moveElems()
 		}
 		UIElement* pLastElem = mpSubElems[i];
 
-		int x = mHitbox.getTopLeft().getX() + pLastElem->mMargins.mLeft;
-		int y = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop - pLastElem->mMargins.mBottom;
+		int x1 = mHitbox.getTopLeft().getX() + pLastElem->mMargins.mLeft;
+		int x2 = x1 + pLastElem->getHitbox().getWidth();
+		int y1 = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop;
+		int y2 = mHitbox.getBottomRight().getY() - pLastElem->mMargins.mBottom;
+		Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
 
-		int centering = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pLastElem->getHitbox().getHeight()) / 2 : 0;
-		int changeX = x - pLastElem->getHitbox().getTopLeft().getX();
-		int changeY = y - pLastElem->getHitbox().getTopLeft().getY() + centering;
-
+		pLastElem->updatePosFromBlockSpace(blockSpace);
 		if (pLastElem->mClassType == EUIClass_BLOCK)
 		{
-			pLastElem->getHitbox().setTopLeft(Vect2(x, y));
 			((UIBlock*)pLastElem)->moveElems();
-		}
-		else // BOX
-		{
-			((UIBox*)pLastElem)->shiftHitbox(Vect2(changeX, changeY));
 		}
 
 		for (int count = i + 1; count < mpSubElems.size(); count++)
@@ -568,21 +492,16 @@ void BlockAlignElementsHorizontally::moveElems()
 				continue;
 			}
 			
-			y = mHitbox.getTopLeft().getY() + pCurElem->mMargins.mTop - pLastElem->mMargins.mBottom;
-			x = pLastElem->getHitbox().getBottomRight().getX() + pLastElem->mMargins.mRight + pCurElem->mMargins.mLeft;
-			
-			centering = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pCurElem->getHitbox().getHeight()) / 2 : 0;
-			int changeX = x - pCurElem->getHitbox().getTopLeft().getX();
-			int changeY = y - pCurElem->getHitbox().getTopLeft().getY() + centering;
+			int x1 = pLastElem->getHitbox().getBottomRight().getX() + pLastElem->mMargins.mRight + pCurElem->mMargins.mLeft;
+			int x2 = x1 + pCurElem->getHitbox().getWidth();
+			int y1 = mHitbox.getTopLeft().getY() + pCurElem->mMargins.mTop;
+			int y2 = mHitbox.getBottomRight().getY() - pCurElem->mMargins.mBottom;
+			Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
 
+			pCurElem->updatePosFromBlockSpace(blockSpace);
 			if (pCurElem->mClassType == EUIClass_BLOCK)
 			{
-				pCurElem->getHitbox().setTopLeft(Vect2(x, y));
 				((UIBlock*)pCurElem)->moveElems();
-			}
-			else // BOX
-			{
-				((UIBox*)pCurElem)->shiftHitbox(Vect2(changeX, changeY));
 			}
 
 			pLastElem = pCurElem;
@@ -597,23 +516,19 @@ void BlockAlignElementsHorizontally::moveElems()
 			return;
 		}
 		UIElement* pLastElem = mpSubElems[i];
-		int x = mHitbox.getBottomRight().getX() - pLastElem->getHitbox().getWidth() - pLastElem->mMargins.mRight;
-		int y = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop - pLastElem->mMargins.mBottom;
 
-		int centering = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pLastElem->getHitbox().getHeight()) / 2 : 0;
-		int changeX = x - pLastElem->getHitbox().getTopLeft().getX();
-		int changeY = y - pLastElem->getHitbox().getTopLeft().getY() + centering;
+		int x2 = mHitbox.getBottomRight().getX() - pLastElem->mMargins.mLeft;
+		int x1 = x2 - pLastElem->getHitbox().getWidth();
+		int y1 = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop;
+		int y2 = mHitbox.getBottomRight().getY() - pLastElem->mMargins.mBottom;
+		Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
 
+		pLastElem->updatePosFromBlockSpace(blockSpace);
 		if (pLastElem->mClassType == EUIClass_BLOCK)
 		{
-			pLastElem->getHitbox().setTopLeft(Vect2(x, y));
 			((UIBlock*)pLastElem)->moveElems();
 		}
-		else // BOX
-		{
-			((UIBox*)pLastElem)->shiftHitbox(Vect2(changeX, changeY));
-		}
-
+		
 		for (int count = i - 1; count > -1; count--) 
 		{
 			UIElement* pCurElem = mpSubElems[count];
@@ -622,23 +537,19 @@ void BlockAlignElementsHorizontally::moveElems()
 				continue;
 			}
 
-			y = mHitbox.getTopLeft().getY() + pCurElem->mMargins.mTop - pLastElem->mMargins.mBottom;
-			x = pLastElem->getHitbox().getTopLeft().getX() - pCurElem->getHitbox().getWidth() - (pCurElem->mMargins.mRight + pLastElem->mMargins.mLeft);
+			x2 = pLastElem->getHitbox().getTopLeft().getX() - pLastElem->mMargins.mLeft - pCurElem->mMargins.mRight;
+			x1 = x2 - pCurElem->getHitbox().getWidth();
+			y1 = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop;
+			y2 = mHitbox.getBottomRight().getY() - pLastElem->mMargins.mBottom;
 			
-			centering = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mHitbox.getHeight() - pCurElem->getHitbox().getHeight()) / 2 : 0;
-			changeX = x - pCurElem->getHitbox().getTopLeft().getX();
-			changeY = y - pCurElem->getHitbox().getTopLeft().getY() + centering;
-			
+			Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
+
+			pCurElem->updatePosFromBlockSpace(blockSpace);
 			if (pCurElem->mClassType == EUIClass_BLOCK)
 			{
-				pCurElem->getHitbox().setTopLeft(Vect2(x, y));
 				((UIBlock*)pCurElem)->moveElems();
 			}
-			else // BOX
-			{
-				((UIBox*)pCurElem)->shiftHitbox(Vect2(changeX, changeY));
-			}
-
+			
 			pLastElem = pCurElem;
 		}
 	}
@@ -706,16 +617,21 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 		{
 			((UIBlock*)pElem)->adjustBlocksWidthHeight();
 		}
-			
-		int curWidth = pElem->getHitbox().getWidth();
-		if (curWidth != 0)
+
+		int curWidth = 0;
+		int curHeight = 0;
+		if (pElem->isActive())
 		{
-			curWidth += pElem->mMargins.mLeft + pElem->mMargins.mRight + (i != (int)mpSubElems.size() - 1 ? mSpacing : 0);
-		}
-		int curHeight = pElem->getHitbox().getHeight();
-		if (curHeight != 0)
-		{
-			curHeight += pElem->mMargins.mTop + pElem->mMargins.mBottom + (i != (int)mpSubElems.size() - 1 ? mSpacing : 0);
+			curWidth = pElem->getHitbox().getWidth();
+			if (curWidth != 0)
+			{
+				curWidth += pElem->mMargins.mLeft + pElem->mMargins.mRight + (i != (int)mpSubElems.size() - 1 ? mSpacing : 0);
+			}
+			curHeight = pElem->getHitbox().getHeight();
+			if (curHeight != 0)
+			{
+				curHeight += pElem->mMargins.mTop + pElem->mMargins.mBottom + (i != (int)mpSubElems.size() - 1 ? mSpacing : 0);
+			}
 		}
 
 		if (mRowHeights.size() <= x) 
@@ -742,11 +658,6 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 		UIElement* pElem = mpSubElems[i];
 		int x = i / mNumCols;
 		int y = i - (x * mNumCols);
-
-		if (pElem->mClassType == EUIClass_BLOCK)
-		{
-			center(mColWidths[y], mRowHeights[x]);
-		}
 	}
 
 	int width = 0;
@@ -766,7 +677,6 @@ void BlockAlignElementsGrid::adjustBlocksWidthHeight()
 
 	mHitbox.setWidth(std::max(width, 0));
 	mHitbox.setHeight(std::max(height, 0));
-	center(width, height);
 }
 
 void BlockAlignElementsGrid::moveElems() 
@@ -782,32 +692,27 @@ void BlockAlignElementsGrid::moveElems()
 	int curRow = i / mNumCols;
 	int curCol = i - (curRow * mNumCols);
 
-	int x = mHitbox.getTopLeft().getX();
+	// box margins are taken into account for colWidths and rowHeights
+	int x1 = mHitbox.getTopLeft().getX();
 	for (int c = 0; c < curCol; c++)
 	{
-		x += mColWidths[c];
+		x1 += mColWidths[c];
 	}
-	int y = mHitbox.getTopLeft().getY();
+	int y1 = mHitbox.getTopLeft().getY();
 	for (int r = 0; r < curRow; r++)
 	{
-		y += mRowHeights[r];
+		y1 += mRowHeights[r];
 	}
 	
-	int centeringX = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mColWidths[curCol]  - pLastElem->getHitbox().getWidth()) / 2 : 0;
-	int centeringY = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mRowHeights[curRow] - pLastElem->getHitbox().getHeight()) / 2 : 0;
-	x += pLastElem->mMargins.mLeft - pLastElem->mMargins.mRight + centeringX;
-	y += pLastElem->mMargins.mTop - pLastElem->mMargins.mBottom + centeringY;
-	int changeX = x - pLastElem->getHitbox().getTopLeft().getX();
-	int changeY = y - pLastElem->getHitbox().getTopLeft().getY();
+	int x2 = x1 + mColWidths[curCol];
+	int y2 = y1 + mRowHeights[curRow];
 	
+	Hitbox blockSpace = Hitbox(x1 + pLastElem->mMargins.mLeft, x2 - pLastElem->mMargins.mRight, y1 + pLastElem->mMargins.mTop, y2 - pLastElem->mMargins.mBottom);
+
+	pLastElem->updatePosFromBlockSpace(blockSpace);
 	if (pLastElem->mClassType == EUIClass_BLOCK)
 	{
-		pLastElem->getHitbox().setTopLeft(Vect2(x, y));
 		((UIBlock*)pLastElem)->moveElems();
-	}
-	else // BOX
-	{
-		((UIBox*)pLastElem)->shiftHitbox(Vect2(changeX, changeY));
 	}
 
 	for (int count = i + 1; count < mpSubElems.size(); count++)
@@ -823,37 +728,31 @@ void BlockAlignElementsGrid::moveElems()
 
 		if (curCol == 0)
 		{
-			x = mHitbox.getTopLeft().getX();
-			y = mRowHeights[0] + mHitbox.getTopLeft().getY();
-			for (int r = 1; r < curRow; r++)
+			x1 = mHitbox.getTopLeft().getX();
+			y1 = mHitbox.getTopLeft().getY();
+			for (int r = 0; r < curRow; r++)
 			{
-				y += mRowHeights[r];
+				y1 += mRowHeights[r];
 			}
 		}
 		else 
 		{
-			x = mColWidths[0] + mHitbox.getTopLeft().getX();
-			for (int c = 1; c < curCol; c++)
+			x1 = mHitbox.getTopLeft().getX();
+			for (int c = 0; c < curCol; c++)
 			{
-				x += mColWidths[c];
+				x1 += mColWidths[c];
 			}
 		}
-		
-		centeringX = (mPositionAlignH == ETextBoxPositionAlign_CENTER) ? (mColWidths[curCol] - pCurElem->getHitbox().getWidth()) / 2 : 0;
-		centeringY = (mPositionAlignV == ETextBoxPositionAlign_CENTER) ? (mRowHeights[curRow] - pCurElem->getHitbox().getHeight()) / 2 : 0;
-		x += pCurElem->mMargins.mLeft - pCurElem->mMargins.mRight  + centeringX;
-		y += pCurElem->mMargins.mTop  - pCurElem->mMargins.mBottom + centeringY;
-		int changeX = x - pCurElem->getHitbox().getTopLeft().getX();
-		int changeY = y - pCurElem->getHitbox().getTopLeft().getY();
 
+		x2 = x1 + mColWidths[curCol];
+		y2 = y1 + mRowHeights[curRow];
+		
+		Hitbox blockSpace = Hitbox(x1 + pCurElem->mMargins.mLeft, x2 - pCurElem->mMargins.mRight, y1 + pCurElem->mMargins.mTop, y2 - pCurElem->mMargins.mBottom);
+
+		pCurElem->updatePosFromBlockSpace(blockSpace);
 		if (pCurElem->mClassType == EUIClass_BLOCK)
 		{
-			pCurElem->getHitbox().setTopLeft(Vect2(x, y));
 			((UIBlock*)pCurElem)->moveElems();
-		}
-		else // BOX
-		{
-			((UIBox*)pCurElem)->shiftHitbox(Vect2(changeX, changeY));
 		}
 
 		pLastElem = pCurElem;

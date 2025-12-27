@@ -79,6 +79,7 @@ void MiniGameStateManager::tick()
 		start();
 	}
 	mpCurState->tick();
+	mData.mTicksSinceUndo++;
 }
 
 void MiniGameStateManager::postTick()

@@ -46,7 +46,7 @@ protected:
 	virtual void constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection direction, bool fillWidth, bool fillHeight,
 		Edges margins, SDL_Color backgroundColor);
 
-	virtual void center(int width, int height);
+	void updatePosFromBlockSpace(const Hitbox& blockSpace) override;
 
 	void getAllBoxesInternal(std::vector<UIBox*>& list);
 
