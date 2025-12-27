@@ -18,7 +18,318 @@ UIBlock::~UIBlock()
 	mpSubElems.clear();
 }
 
+UIBlock::UIBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
+	bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor, std::string name)
+{
+	mName = name;
+	constructBlock(hitbox, positionAlignH, positionAlignV, growthDirectionH, growthDirectionV, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
+}
+
+UIBlock::UIBlock(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV,
+	EDirection growthDirectionH, EDirection growthDirectionV, bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing,
+	SDL_Color backgroundColor, std::string name)
+{
+	mName = name;
+	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlignH, positionAlignV, growthDirectionH, growthDirectionV, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
+}
+
+void UIBlock::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
+	bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor)
+{
+	mClassType = EUIClass_BLOCK;
+	mGrowthDirectionHorizontal = growthDirectionH;
+	mGrowthDirectionVertical = growthDirectionV;
+	mHitbox = hitbox;
+	mMaxWidth = hitbox.getWidth();
+	mMaxHeight = hitbox.getHeight();
+
+	mLimitByRows = limitByRows;
+	mLimit = limit;
+
+	mPositionAlignH = positionAlignH;
+	mPositionAlignV = positionAlignV;
+	int startX;
+	int startY;
+	switch (mPositionAlignH)
+	{
+	case ETextBoxPositionAlign_LEFT:
+		startX = hitbox.getTopLeft().getX();
+		break;
+	case ETextBoxPositionAlign_CENTER:
+		startX = hitbox.getCenter().getX();
+		break;
+	case ETextBoxPositionAlign_RIGHT:
+		startX = hitbox.getBottomRight().getX();
+		break;
+	default:
+		SDL_assert(false);
+		break;
+	}
+	switch (mPositionAlignV)
+	{
+	case ETextBoxPositionAlign_TOP:
+		startY = hitbox.getTopLeft().getY();
+		break;
+	case ETextBoxPositionAlign_CENTER:
+		startY = hitbox.getCenter().getY();
+		break;
+	case ETextBoxPositionAlign_BOTTOM:
+		startY = hitbox.getBottomRight().getY();
+		break;
+	default:
+		SDL_assert(false);
+		break;
+	}
+	mStartingPositionCenter = Vect2(startX, startY);
+
+	mMargins = margins;
+	mSpacing = spacing;
+	mBackgroundColor = backgroundColor;
+	mFillWidth = fillWidth;
+	mFillHeight = fillHeight;
+}
+
+
 Hitbox& UIBlock::getHitbox() { return mHitbox; }
+
+// TODO cut after max
+void UIBlock::adjustBlocksWidthHeight()
+{
+	// update num rows
+	mRowHeights.clear();
+	mColWidths.clear();
+	updateNumRowsCols();
+
+	int firstActive = -1;
+	int lastActive = -1;
+
+	for (int i = 0; i < (int)mpSubElems.size(); i++)
+	{
+		UIElement* pElem = mpSubElems[i];
+		int x = i / mNumCols;
+		int y = i - (x * mNumCols);
+
+		if (pElem->mClassType == EUIClass_BLOCK)
+		{
+			((UIBlock*)pElem)->adjustBlocksWidthHeight();
+		}
+
+		int curWidth = 0;
+		int curHeight = 0;
+		if (pElem->isActive())
+		{
+			if (firstActive == -1)
+			{
+				firstActive = i;
+			}
+			lastActive = i;
+
+			curWidth = pElem->getHitbox().getWidth();
+			if (curWidth != 0)
+			{
+				curWidth += pElem->mMargins.mLeft + pElem->mMargins.mRight + mSpacing;
+			}
+			curHeight = pElem->getHitbox().getHeight();
+			if (curHeight != 0)
+			{
+				curHeight += pElem->mMargins.mTop + pElem->mMargins.mBottom + mSpacing;
+			}
+		}
+
+		if (mRowHeights.size() <= x)
+		{
+			mRowHeights.push_back(curHeight);
+		}
+		else
+		{
+			mRowHeights[x] = std::max(mRowHeights[x], curHeight);
+		}
+
+		if (mColWidths.size() <= y)
+		{
+			mColWidths.push_back(curWidth);
+		}
+		else
+		{
+			mColWidths[y] = std::max(mColWidths[y], curWidth);
+		}
+	}
+
+	int totalWidth = 0;
+	for (int curWidth : mColWidths)
+	{
+		totalWidth += curWidth;
+	}
+	int totalHeight = 0;
+	for (int curHeight : mRowHeights)
+	{
+		totalHeight += curHeight;
+	}
+
+	if (mFillWidth && firstActive != -1 && lastActive != -1)
+	{
+		if (totalWidth > mMaxWidth)
+		{
+			totalWidth = mMaxWidth;
+		}
+		int difWidth = mMaxWidth - totalWidth;
+		mColWidths[firstActive / mNumRows] += difWidth / 2;
+		mColWidths[lastActive / mNumRows] += difWidth / 2;
+		totalWidth = mMaxWidth;
+	}
+	if (mFillHeight && firstActive != -1 && lastActive != -1)
+	{
+		if (totalHeight > mMaxHeight)
+		{
+			totalHeight = mMaxHeight;
+		}
+		int difHeight = mMaxHeight - totalHeight;
+		mRowHeights[firstActive / mNumCols] += difHeight / 2;
+		mRowHeights[lastActive / mNumCols] += difHeight / 2;
+		totalHeight = mMaxHeight;
+	}
+
+	mHitbox.setWidth(std::max(totalWidth, 0));
+	mHitbox.setHeight(std::max(totalHeight, 0));
+}
+
+void UIBlock::moveElems()
+{
+	// left to right
+	int i = getIndexOfFirstActiveElem();
+	if (i == -1)
+	{
+		return;
+	}
+	UIElement* pLastElem = mpSubElems[i];
+
+	int lastRow;
+	int lastCol;
+	int curRow = i / mNumCols;
+	int curCol = i - (curRow * mNumCols);
+
+	// box margins are taken into account for colWidths and rowHeights
+	int x1;
+	int x2;
+	int y1;
+	int y2;
+	if (mGrowthDirectionHorizontal == EDirection_RIGHT)
+	{
+		x1 = mHitbox.getTopLeft().getX();
+		for (int c = 0; c < curCol; c++)
+		{
+			x1 += mColWidths[c];
+		}
+		x2 = x1 + mColWidths[curCol];
+	}
+	else
+	{
+		int totalWidth = 0;
+		for (int c = curCol + 1; c < (int)mColWidths.size(); c++)
+		{
+			totalWidth += mColWidths[c];
+		}
+		x2 = mHitbox.getBottomRight().getX() - totalWidth;
+		x1 = x2 - mColWidths[curCol];
+	}
+
+	if (mGrowthDirectionVertical == EDirection_DOWN)
+	{
+		y1 = mHitbox.getTopLeft().getY();
+		for (int r = 0; r < curRow; r++)
+		{
+			y1 += mRowHeights[r];
+		}
+		y2 = y1 + mRowHeights[curRow];
+	}
+	else
+	{
+		int totalHeight = 0;
+		for (int r = curRow + 1; r < (int)mRowHeights.size(); r++)
+		{
+			totalHeight += mRowHeights[r];
+		}
+		y2 = mHitbox.getBottomRight().getY() - totalHeight;
+		y1 = y2 - mRowHeights[curRow];
+	}
+	Hitbox blockSpace = Hitbox(x1 + pLastElem->mMargins.mLeft, x2 - pLastElem->mMargins.mRight, y1 + pLastElem->mMargins.mTop, y2 - pLastElem->mMargins.mBottom);
+
+	pLastElem->updatePosFromBlockSpace(blockSpace);
+	if (pLastElem->mClassType == EUIClass_BLOCK)
+	{
+		((UIBlock*)pLastElem)->moveElems();
+	}
+
+	for (int count = i + 1; count < mpSubElems.size(); count++)
+	{
+		UIElement* pCurElem = mpSubElems[count];
+		if (!pCurElem->isActive())
+		{
+			continue;
+		}
+
+		lastRow = curRow;
+		lastCol = curCol;
+		curRow = count / mNumCols;
+		curCol = count - (curRow * mNumCols);
+
+		if (curCol == 0)
+		{
+			// next row
+			// x is the leftmost it can be
+			if (mGrowthDirectionHorizontal == EDirection_RIGHT)
+			{
+				x1 = mHitbox.getTopLeft().getX();
+				x2 = x1 + mColWidths[0];
+			}
+			else // left
+			{
+				int totalWidth = 0;
+				for (int c = curCol + 1; c < (int)mColWidths.size(); c++)
+				{
+					totalWidth += mColWidths[c];
+				}
+				x2 = mHitbox.getBottomRight().getX() - totalWidth;
+				x1 = x2 - mColWidths[curCol];
+			}
+
+			// shift the new y pos
+			if (mGrowthDirectionVertical == EDirection_DOWN)
+			{
+				y1 += mRowHeights[lastRow];
+				y2 = y1 + mRowHeights[curRow];
+			}
+			else // up
+			{
+				y2 += mRowHeights[curRow];
+				y1 = y2 - mRowHeights[curRow];
+			}
+		}
+		else
+		{
+			// next col
+			if (mGrowthDirectionHorizontal == EDirection_RIGHT)
+			{
+				x1 += mColWidths[lastCol];
+				x2 = x1 + mColWidths[curCol];
+			}
+			else // left
+			{
+				x2 += mColWidths[curCol];
+				x1 = x2 - mColWidths[curCol];
+			}
+		}
+		Hitbox blockSpace = Hitbox(x1 + pCurElem->mMargins.mLeft, x2 - pCurElem->mMargins.mRight, y1 + pCurElem->mMargins.mTop, y2 - pCurElem->mMargins.mBottom);
+
+		pCurElem->updatePosFromBlockSpace(blockSpace);
+		if (pCurElem->mClassType == EUIClass_BLOCK)
+		{
+			((UIBlock*)pCurElem)->moveElems();
+		}
+
+		pLastElem = pCurElem;
+	}
+}
 
 // only called on the head blocks in menu page
 void UIBlock::updateBlocks()
@@ -26,19 +337,25 @@ void UIBlock::updateBlocks()
 	// figure out all block widths and heights
 	adjustBlocksWidthHeight();
 
-	int x = 0;
-	int y = 0;
+	int x = mStartingPositionCenter.getX();
+	int y = mStartingPositionCenter.getY();
+
+	if (mPositionAlignH == ETextBoxPositionAlign_CENTER)
+	{
+		x -= mHitbox.getWidth() / 2;
+	}
+	if (mPositionAlignV == ETextBoxPositionAlign_CENTER)
+	{
+		y -= mHitbox.getHeight() / 2;
+	}
 
 	switch (mGrowthDirectionHorizontal)
 	{
 	case EDirection_RIGHT:
-		x = mStartingPositionCenter.getX() + mMargins.mLeft;
+		x += mMargins.mLeft;
 		break;
 	case EDirection_LEFT:
-		x = mStartingPositionCenter.getX() - mHitbox.getWidth() - mMargins.mRight;
-		break;
-	case EDirection_LEFT_AND_RIGHT:
-		x = mStartingPositionCenter.getX() - mHitbox.getWidth() /2;
+		x -= mHitbox.getWidth() + mMargins.mRight;
 		break;
 	default:
 		SDL_assert(false);
@@ -48,13 +365,10 @@ void UIBlock::updateBlocks()
 	switch (mGrowthDirectionVertical)
 	{
 	case EDirection_DOWN:
-		y = mStartingPositionCenter.getY() + mMargins.mTop;
+		y += mMargins.mTop;
 		break;
 	case EDirection_UP:
-		y = mStartingPositionCenter.getY() - mHitbox.getHeight() - mMargins.mBottom;
-		break;
-	case EDirection_UP_AND_DOWN:
-		y = mStartingPositionCenter.getY() - mHitbox.getHeight() / 2;
+		y -= mHitbox.getHeight() + mMargins.mBottom;
 		break;
 	default:
 		SDL_assert(false);
@@ -92,49 +406,6 @@ void UIBlock::setMaxSize()
 }
 
 bool UIBlock::isActive() { return mHitbox.getWidth() > 0 || mHitbox.getHeight() > 0; }
-
-void UIBlock::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor)
-{
-	mClassType = EUIClass_BLOCK;
-	mHitbox = hitbox;
-	mMaxWidth = hitbox.getWidth();
-	mMaxHeight = hitbox.getHeight();
-	mPositionAlignH = positionAlignH;
-	mPositionAlignV = positionAlignV;
-	int startX;
-	int startY;
-	switch (mPositionAlignH)
-	{
-	case ETextBoxPositionAlign_CENTER:
-		startX = hitbox.getCenter().getX();
-		break;
-	case ETextBoxPositionAlign_LEFT:
-		startX = hitbox.getTopLeft().getX();
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
-	switch (mPositionAlignV)
-	{
-	case ETextBoxPositionAlign_CENTER:
-		startY = hitbox.getCenter().getY();
-		break;
-	case ETextBoxPositionAlign_TOP:
-		startY = hitbox.getTopLeft().getY();
-		break;
-	default:
-		SDL_assert(false);
-		break;
-	}
-	mStartingPositionCenter = Vect2(startX, startY);
-
-	mGrowthDirection = direction;
-	mMargins = margins;
-	mBackgroundColor = backgroundColor;
-	mFillWidth = fillWidth;
-	mFillHeight = fillHeight;
-}
 
 void UIBlock::updatePosFromBlockSpace(const Hitbox& blockSpace) { mHitbox.setTopLeft(getUpdatedPosFromBlockSpace(blockSpace)); }
 
@@ -217,549 +488,7 @@ int UIBlock::getIndexOfLastActiveElem()
 	return -1;
 }
 
-
-
-// HEAD BLOCK
-BlockAlignElementsVertically::BlockAlignElementsVertically(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection directionH, EDirection directionV,
-		bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name) 
-{
-	mIsHeadBlock = true;
-	mGrowthDirectionHorizontal = directionH;
-	mGrowthDirectionVertical = directionV;
-	constructBlock(hitbox, positionAlignH, positionAlignV, directionV, fillWidth, fillHeight, margins, backgroundColor);
-	if ((directionH != EDirection_LEFT) and (directionH != EDirection_RIGHT) && (directionH != EDirection_LEFT_AND_RIGHT))
-	{
-		SDL_assert(false);
-	}
-	if ((directionV != EDirection_UP) and (directionV != EDirection_DOWN) && (directionV != EDirection_UP_AND_DOWN))
-	{
-		SDL_assert(false);
-	}
-	mName = name;
-}
-
-// SUB BLOCKS
-BlockAlignElementsVertically::BlockAlignElementsVertically(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV,
-		EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name)
-{
-	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlignH, positionAlignV, direction, fillWidth, fillHeight, margins, backgroundColor);
-	if ((direction != EDirection_UP) and (direction != EDirection_DOWN) && (direction != EDirection_UP_AND_DOWN))
-	{
-		SDL_assert(false);
-	}
-	mName = name;
-}
-
-void BlockAlignElementsVertically::adjustBlocksWidthHeight()
-{
-	if (mpSubElems.size() > 0)
-	{
-		int maxWidth = mFillWidth ? mMaxWidth : 0; // TODO cut after max
-		int height = 0;
-		for (UIElement* pElem : mpSubElems)
-		{
-			if (pElem->mClassType == EUIClass_BLOCK)
-			{
-				((UIBlock*)pElem)->adjustBlocksWidthHeight();
-			}
-
-			if (!pElem->isActive())
-			{
-				continue;
-			}
-
-			int curWidth = pElem->getHitbox().getWidth();
-			if (curWidth != 0)
-			{
-				curWidth += pElem->mMargins.mLeft + pElem->mMargins.mRight;
-			}
-			int curHeight = pElem->getHitbox().getHeight();
-			if (curHeight != 0)
-			{
-				curHeight += pElem->mMargins.mTop + pElem->mMargins.mBottom;
-			}
-
-			maxWidth = std::max(curWidth, maxWidth);
-			height += curHeight;
-		}
-
-		height = mFillHeight ? std::max(mMaxHeight, height) : height;
-
-		mHitbox.setWidth(std::max(maxWidth, 0));
-		mHitbox.setHeight(std::max(height, 0));
-	}
-}
-
-void BlockAlignElementsVertically::moveElems()
-{
-	if (mGrowthDirection == EDirection_DOWN or mGrowthDirection == EDirection_UP_AND_DOWN)
-	{
-		// top to bottom
-		int i = getIndexOfFirstActiveElem();
-		if (i == -1)
-		{
-			return;
-		}
-		UIElement* pLastElem = mpSubElems[i];
-		
-		int x1 = mHitbox.getTopLeft().getX() + pLastElem->mMargins.mLeft;
-		int x2 = mHitbox.getBottomRight().getX() - pLastElem->mMargins.mRight;
-		int y1 = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop;
-		int y2 = y1 + pLastElem->getHitbox().getHeight();
-		Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
-		
-		pLastElem->updatePosFromBlockSpace(blockSpace);
-		if (pLastElem->mClassType == EUIClass_BLOCK)
-		{
-			((UIBlock*)pLastElem)->moveElems();
-		}
-
-		for (int count = i + 1; count < mpSubElems.size(); count++)
-		{
-			UIElement* pCurElem = mpSubElems[count];
-			if (!pCurElem->isActive())
-			{
-				continue;
-			}
-
-			x1 = mHitbox.getTopLeft().getX() + pCurElem->mMargins.mLeft;
-			x2 = mHitbox.getBottomRight().getX() - pCurElem->mMargins.mRight;
-			y1 = pLastElem->getHitbox().getBottomRight().getY() + pLastElem->mMargins.mBottom + pCurElem->mMargins.mTop;
-			y2 = y1 + pCurElem->getHitbox().getHeight();
-			Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
-
-			pCurElem->updatePosFromBlockSpace(blockSpace);
-			if (pCurElem->mClassType == EUIClass_BLOCK)
-			{
-				((UIBlock*)pCurElem)->moveElems();
-			}
-			
-			pLastElem = pCurElem;
-		}
-	}
-	else 
-	{
-		// Bottom to top
-		int i = getIndexOfLastActiveElem();
-		if (i == -1)
-		{
-			return;
-		}
-		UIElement* pLastElem = mpSubElems[i];
-	
-		int x1 = mHitbox.getTopLeft().getX() + pLastElem->mMargins.mLeft;
-		int x2 = mHitbox.getBottomRight().getX() - pLastElem->mMargins.mRight;
-		int y2 = mHitbox.getBottomRight().getY() - pLastElem->mMargins.mBottom;
-		int y1 = y2 - pLastElem->getHitbox().getHeight();
-		Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
-
-		pLastElem->updatePosFromBlockSpace(blockSpace);
-		if (pLastElem->mClassType == EUIClass_BLOCK)
-		{
-			((UIBlock*)pLastElem)->moveElems();
-		}
-
-		for (int count = i - 1; count > -1; count--)
-		{
-			UIElement* pCurElem = mpSubElems[count];
-			if (!pCurElem->isActive())
-			{
-				continue;
-			}
-			
-			int x1 = mHitbox.getTopLeft().getX() + pCurElem->mMargins.mLeft;
-			int x2 = mHitbox.getBottomRight().getX() - pCurElem->mMargins.mRight;
-			int y2 = pLastElem->getHitbox().getTopLeft().getY() - pLastElem->mMargins.mTop - pCurElem->mMargins.mBottom;
-			int y1 = y2 - pCurElem->getHitbox().getHeight();
-			Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
-
-			pCurElem->updatePosFromBlockSpace(blockSpace);
-			if (pCurElem->mClassType == EUIClass_BLOCK)
-			{
-				((UIBlock*)pCurElem)->moveElems();
-			}
-			
-			pLastElem = pCurElem;
-		}
-	}
-}
-
-
-
-// HEAD BLOCK
-BlockAlignElementsHorizontally::BlockAlignElementsHorizontally(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection directionH, EDirection directionV, 
-		bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name) 
-{
-	mIsHeadBlock = true;
-	mGrowthDirectionHorizontal = directionH;
-	mGrowthDirectionVertical = directionV;
-	constructBlock(hitbox, positionAlignH, positionAlignV, directionH, fillWidth, fillHeight, margins, backgroundColor);
-	if ((directionH != EDirection_LEFT) and (directionH != EDirection_RIGHT) && (directionH != EDirection_LEFT_AND_RIGHT))
-	{
-		SDL_assert(false);
-	}
-	if ((directionV != EDirection_UP) and (directionV != EDirection_DOWN) && (directionV != EDirection_UP_AND_DOWN))
-	{
-		SDL_assert(false);
-	}
-	mName = name;
-}
-
-// SUB BLOCKS
-BlockAlignElementsHorizontally::BlockAlignElementsHorizontally(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, 
-		EDirection direction, bool fillWidth, bool fillHeight, Edges margins, SDL_Color backgroundColor, std::string name)
-{
-	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlignH, positionAlignV, direction, fillWidth, fillHeight, margins, backgroundColor);
-	if ((direction != EDirection_LEFT) and (direction != EDirection_RIGHT) && (direction != EDirection_LEFT_AND_RIGHT))
-	{
-		SDL_assert(false);
-	}
-	mName = name;
-}
-
-
-void BlockAlignElementsHorizontally::adjustBlocksWidthHeight()
-{
-	if (mpSubElems.size() > 0)
-	{
-		int maxHeight = mFillHeight ? mMaxHeight : 0; // TODO cut after max
-		int width = 0;
-		
-		for (UIElement* pElem : mpSubElems)
-		{
-			if (pElem->mClassType == EUIClass_BLOCK)
-			{
-				((UIBlock*)pElem)->adjustBlocksWidthHeight();
-			}
-
-			if (!pElem->isActive())
-			{
-				continue;
-			}
-
-			int curWidth = pElem->getHitbox().getWidth();
-			if (curWidth != 0)
-			{
-				curWidth += pElem->mMargins.mLeft + pElem->mMargins.mRight;
-			}
-			int curHeight = pElem->getHitbox().getHeight();
-			if (curHeight != 0)
-			{
-				curHeight += pElem->mMargins.mTop + pElem->mMargins.mBottom;
-			}
-
-
-			maxHeight = std::max(curHeight, maxHeight);
-			width += curWidth;
-		}
-
-		width = mFillWidth ? std::max(mMaxWidth, width) : width;
-
-		mHitbox.setWidth(std::max(width, 0));
-		mHitbox.setHeight(std::max(maxHeight, 0));
-	}
-}
-
-void BlockAlignElementsHorizontally::moveElems()
-{
-	if (mGrowthDirection == EDirection_RIGHT or mGrowthDirection == EDirection_LEFT_AND_RIGHT)
-	{
-		// left to right
-		int i = getIndexOfFirstActiveElem();
-		if (i == -1)
-		{
-			return;
-		}
-		UIElement* pLastElem = mpSubElems[i];
-
-		int x1 = mHitbox.getTopLeft().getX() + pLastElem->mMargins.mLeft;
-		int x2 = x1 + pLastElem->getHitbox().getWidth();
-		int y1 = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop;
-		int y2 = mHitbox.getBottomRight().getY() - pLastElem->mMargins.mBottom;
-		Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
-
-		pLastElem->updatePosFromBlockSpace(blockSpace);
-		if (pLastElem->mClassType == EUIClass_BLOCK)
-		{
-			((UIBlock*)pLastElem)->moveElems();
-		}
-
-		for (int count = i + 1; count < mpSubElems.size(); count++)
-		{
-			UIElement* pCurElem = mpSubElems[count];
-			if (!pCurElem->isActive())
-			{
-				continue;
-			}
-			
-			int x1 = pLastElem->getHitbox().getBottomRight().getX() + pLastElem->mMargins.mRight + pCurElem->mMargins.mLeft;
-			int x2 = x1 + pCurElem->getHitbox().getWidth();
-			int y1 = mHitbox.getTopLeft().getY() + pCurElem->mMargins.mTop;
-			int y2 = mHitbox.getBottomRight().getY() - pCurElem->mMargins.mBottom;
-			Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
-
-			pCurElem->updatePosFromBlockSpace(blockSpace);
-			if (pCurElem->mClassType == EUIClass_BLOCK)
-			{
-				((UIBlock*)pCurElem)->moveElems();
-			}
-
-			pLastElem = pCurElem;
-		}
-	}
-	else 
-	{
-		// Right to left
-		int i = getIndexOfLastActiveElem();
-		if (i == -1)
-		{
-			return;
-		}
-		UIElement* pLastElem = mpSubElems[i];
-
-		int x2 = mHitbox.getBottomRight().getX() - pLastElem->mMargins.mLeft;
-		int x1 = x2 - pLastElem->getHitbox().getWidth();
-		int y1 = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop;
-		int y2 = mHitbox.getBottomRight().getY() - pLastElem->mMargins.mBottom;
-		Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
-
-		pLastElem->updatePosFromBlockSpace(blockSpace);
-		if (pLastElem->mClassType == EUIClass_BLOCK)
-		{
-			((UIBlock*)pLastElem)->moveElems();
-		}
-		
-		for (int count = i - 1; count > -1; count--) 
-		{
-			UIElement* pCurElem = mpSubElems[count];
-			if (!pCurElem->isActive())
-			{
-				continue;
-			}
-
-			x2 = pLastElem->getHitbox().getTopLeft().getX() - pLastElem->mMargins.mLeft - pCurElem->mMargins.mRight;
-			x1 = x2 - pCurElem->getHitbox().getWidth();
-			y1 = mHitbox.getTopLeft().getY() + pLastElem->mMargins.mTop;
-			y2 = mHitbox.getBottomRight().getY() - pLastElem->mMargins.mBottom;
-			
-			Hitbox blockSpace = Hitbox(x1, x2, y1, y2);
-
-			pCurElem->updatePosFromBlockSpace(blockSpace);
-			if (pCurElem->mClassType == EUIClass_BLOCK)
-			{
-				((UIBlock*)pCurElem)->moveElems();
-			}
-			
-			pLastElem = pCurElem;
-		}
-	}
-}
-
-
-
-// MASTER BLOCK
-BlockAlignElementsGrid::BlockAlignElementsGrid(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, bool limitByRows, int limit, 
-	bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor, std::string name)
-{
-	mIsHeadBlock = true;
-	mName = name;
-	constructBlock(hitbox, positionAlignH, positionAlignV, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
-}
-
-// MASTER BLOCK
-BlockAlignElementsGrid::BlockAlignElementsGrid(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, bool limitByRows, int limit, 
-	bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor, std::string name)
-{
-	mIsHeadBlock = false;
-	mName = name;
-	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlignH, positionAlignV, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
-}
-
-void BlockAlignElementsGrid::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, bool limitByRows, int limit,
-	bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor)
-{
-	mClassType = EUIClass_BLOCK;
-	mGrowthDirectionHorizontal = EDirection_RIGHT;
-	mGrowthDirectionVertical = EDirection_DOWN;
-	mHitbox = hitbox;
-	mMaxWidth = hitbox.getWidth();
-	mMaxHeight = hitbox.getHeight();
-
-	mLimitByRows = limitByRows;
-	mLimit = limit;
-
-	mPositionAlignH = positionAlignH;
-	mPositionAlignV = positionAlignV;
-	mStartingPositionCenter = hitbox.getTopLeft();
-
-	mMargins = margins;
-	mSpacing = spacing;
-	mBackgroundColor = backgroundColor;
-	mFillWidth = fillWidth;
-	mFillHeight = fillHeight;
-}
-
-// TODO cut after max
-void BlockAlignElementsGrid::adjustBlocksWidthHeight() 
-{
-	// update num rows
-	mRowHeights.clear();
-	mColWidths.clear();
-	updateNumRowsCols();
-
-	for (int i = 0; i < (int)mpSubElems.size(); i++)
-	{
-		UIElement* pElem = mpSubElems[i];
-		int x = i / mNumCols;
-		int y = i - (x * mNumCols);
-
-		if (pElem->mClassType == EUIClass_BLOCK)
-		{
-			((UIBlock*)pElem)->adjustBlocksWidthHeight();
-		}
-
-		int curWidth = 0;
-		int curHeight = 0;
-		if (pElem->isActive())
-		{
-			curWidth = pElem->getHitbox().getWidth();
-			if (curWidth != 0)
-			{
-				curWidth += pElem->mMargins.mLeft + pElem->mMargins.mRight + (i != (int)mpSubElems.size() - 1 ? mSpacing : 0);
-			}
-			curHeight = pElem->getHitbox().getHeight();
-			if (curHeight != 0)
-			{
-				curHeight += pElem->mMargins.mTop + pElem->mMargins.mBottom + (i != (int)mpSubElems.size() - 1 ? mSpacing : 0);
-			}
-		}
-
-		if (mRowHeights.size() <= x) 
-		{
-			mRowHeights.push_back(curHeight);
-		}
-		else 
-		{
-			mRowHeights[x] = std::max(mRowHeights[x], curHeight);
-		}
-
-		if (mColWidths.size() <= y)
-		{
-			mColWidths.push_back(curWidth);
-		}
-		else
-		{
-			mColWidths[y] = std::max(mColWidths[y], curWidth);
-		}
-	}
-
-	for (int i = 0; i < (int)mpSubElems.size(); i++)
-	{
-		UIElement* pElem = mpSubElems[i];
-		int x = i / mNumCols;
-		int y = i - (x * mNumCols);
-	}
-
-	int width = 0;
-	int height = 0;
-
-	for (int curWidth : mColWidths) 
-	{
-		width += curWidth;
-	}
-	for (int curHeight : mRowHeights)
-	{
-		height += curHeight;
-	}
-
-	width	= mFillWidth ? std::max(mMaxWidth, width) : width;
-	height	= mFillHeight ? std::max(mMaxHeight, height) : height;
-
-	mHitbox.setWidth(std::max(width, 0));
-	mHitbox.setHeight(std::max(height, 0));
-}
-
-void BlockAlignElementsGrid::moveElems() 
-{
-	// left to right
-	int i = getIndexOfFirstActiveElem();
-	if (i == -1)
-	{
-		return;
-	}
-	UIElement* pLastElem = mpSubElems[i];
-
-	int curRow = i / mNumCols;
-	int curCol = i - (curRow * mNumCols);
-
-	// box margins are taken into account for colWidths and rowHeights
-	int x1 = mHitbox.getTopLeft().getX();
-	for (int c = 0; c < curCol; c++)
-	{
-		x1 += mColWidths[c];
-	}
-	int y1 = mHitbox.getTopLeft().getY();
-	for (int r = 0; r < curRow; r++)
-	{
-		y1 += mRowHeights[r];
-	}
-	
-	int x2 = x1 + mColWidths[curCol];
-	int y2 = y1 + mRowHeights[curRow];
-	
-	Hitbox blockSpace = Hitbox(x1 + pLastElem->mMargins.mLeft, x2 - pLastElem->mMargins.mRight, y1 + pLastElem->mMargins.mTop, y2 - pLastElem->mMargins.mBottom);
-
-	pLastElem->updatePosFromBlockSpace(blockSpace);
-	if (pLastElem->mClassType == EUIClass_BLOCK)
-	{
-		((UIBlock*)pLastElem)->moveElems();
-	}
-
-	for (int count = i + 1; count < mpSubElems.size(); count++)
-	{
-		UIElement* pCurElem = mpSubElems[count];
-		if (!pCurElem->isActive())
-		{
-			continue;
-		}
-		
-		curRow = count / mNumCols;
-		curCol = count - (curRow * mNumCols);
-
-		if (curCol == 0)
-		{
-			x1 = mHitbox.getTopLeft().getX();
-			y1 = mHitbox.getTopLeft().getY();
-			for (int r = 0; r < curRow; r++)
-			{
-				y1 += mRowHeights[r];
-			}
-		}
-		else 
-		{
-			x1 = mHitbox.getTopLeft().getX();
-			for (int c = 0; c < curCol; c++)
-			{
-				x1 += mColWidths[c];
-			}
-		}
-
-		x2 = x1 + mColWidths[curCol];
-		y2 = y1 + mRowHeights[curRow];
-		
-		Hitbox blockSpace = Hitbox(x1 + pCurElem->mMargins.mLeft, x2 - pCurElem->mMargins.mRight, y1 + pCurElem->mMargins.mTop, y2 - pCurElem->mMargins.mBottom);
-
-		pCurElem->updatePosFromBlockSpace(blockSpace);
-		if (pCurElem->mClassType == EUIClass_BLOCK)
-		{
-			((UIBlock*)pCurElem)->moveElems();
-		}
-
-		pLastElem = pCurElem;
-	}
-}
-
-void BlockAlignElementsGrid::updateNumRowsCols() 
+void UIBlock::updateNumRowsCols()
 {
 	if (mLimitByRows)
 	{

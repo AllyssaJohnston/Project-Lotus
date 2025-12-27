@@ -5,6 +5,8 @@
 
 void createMenus(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
 
+void createMainMenu(MenuManager& menuManager, const ScreenObject& screen);
+
 void createMainGameMenu(MenuManager& menuManager, const ScreenObject& screen);
 
 void createMiniGameMenu(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
