@@ -29,11 +29,13 @@ std::string updateGameStatBoxCurTextBoxMessage(const TextBox& textBox, const std
 
 std::string updateMiniGameStatBoxCurTextBoxMessage(const TextBox& textBox, const MiniGameStateManagerData& managerData, const MiniGameWorldData& worldData);
 
-std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, const MiniGameStateManagerData& managerData, const MiniGameWorldData& worldData);
+std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, const MiniGameStateManagerData& managerData, const CombatManager& combatManager);
 
-std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const MiniGameWorldData& worldData);
+std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const CombatManager& combatManager);
 
-float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const MiniGameWorldData& worldData);
+void updateUIBoxDisable(TextBox& textBox, const MiniGameStateManagerData& managerData, const CombatManager& combatManager);
+
+float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const CombatManager& combatManager);
 
 void printBlock(const ScreenObject& screen, const UIBlock& block);
 

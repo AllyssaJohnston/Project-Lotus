@@ -33,7 +33,7 @@ LevelChunk& curLevelChunk	= gameInstance.mWorldData.mCurLevelChunk;
 void setUpAllTextures()
 {
 	//Player
-	if (DEMO == 0)
+	if (DEBUG)
 	{
 		player.setHitboxTexture(AssetManager::getTextureFromSurface(screen.mpRenderer, player.getImageObjectHitbox().getSurface()));
 	}
@@ -63,7 +63,7 @@ void setUpAllTextures()
 			for (Enemy* pEnemy : pLevel->mpAllEnemies)
 			{
 				pEnemy->mAnimationManager.setUpAllTextures(screen.mpRenderer);
-				if (DEMO == 0)
+				if (DEBUG)
 				{
 					pEnemy->setHitboxTexture(AssetManager::getTextureFromSurface(screen.mpRenderer, pEnemy->getImageObjectHitbox().getSurface()));
 

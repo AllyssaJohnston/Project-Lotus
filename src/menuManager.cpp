@@ -91,12 +91,13 @@ void MenuManager::renderMenus(EGameState curState, bool forceUpdate, std::string
 void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std::string& curKeys)
 {
 	SDL_Renderer* pRenderer = mScreen.mpRenderer;
+	CombatManager& combatManager = mMiniGameWorldData.getStage()->mCombatManager;
 
 	bool updated = false;
 	if (shouldUpdateTextBoxShowState(curState, forceUpdate))
 	{
 		updated = true;
-		mpCurMenuPage->updateAllUIBoxesShowState(mMiniGameStateManagerData, mMiniGameWorldData.getStage()->mCombatManager);
+		mpCurMenuPage->updateAllUIBoxesShowState(mMiniGameStateManagerData, combatManager);
 	}
 	if (mpCurMenuPage->getCurTextBox() == nullptr) 
 	{
@@ -120,8 +121,11 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 			break;
 		case EUIBoxType_MINI_GAME_PLAYER_BOX:
 		case EUIBoxType_MINI_GAME_CHARACTER_BOX:
+			updatedMessage = updateCharacterStatBoxCurTextBoxMessage(*pCurTextBox, mMiniGameStateManagerData, combatManager);
+			break;
 		case EUIBoxType_MINI_GAME_PLAYER_ATTACK_BOX:
-			updatedMessage = updateCharacterStatBoxCurTextBoxMessage(*pCurTextBox, mMiniGameStateManagerData, mMiniGameWorldData);
+			updatedMessage = updateCharacterStatBoxCurTextBoxMessage(*pCurTextBox, mMiniGameStateManagerData, combatManager);
+			updateUIBoxDisable(*pCurTextBox, mMiniGameStateManagerData, combatManager);
 			break;
 		default:
 			break;
@@ -136,11 +140,11 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 
 	for (HealthBox* pHealthBox : mpCurMenuPage->mpHealthBoxes)
 	{
-		std::string updatedMessage = updateHealthStatBoxCurTextBoxMessage(*pHealthBox, mMiniGameWorldData);
+		std::string updatedMessage = updateHealthStatBoxCurTextBoxMessage(*pHealthBox, combatManager);
 
 		if ((pHealthBox->mHealthText.mMessage != updatedMessage) or !pHealthBox->mHealthText.mSetUp)
 		{
-			float ratio = updateHealthStatBoxCurTextBoxRatio(*pHealthBox, mMiniGameWorldData);
+			float ratio = updateHealthStatBoxCurTextBoxRatio(*pHealthBox, combatManager);
 			pHealthBox->updateMessage(pRenderer, mFontSizeChart, updatedMessage, ratio);
 			updated = true;
 		}

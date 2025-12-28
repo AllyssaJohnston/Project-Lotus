@@ -8,7 +8,7 @@ Projectile::Projectile(const Vect2 positionInput, const ProjectilePreset& preset
     mAnimationManager.setupAnimationManager(preset.mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
     mMovementManager.setupMovementManager(positionInput, preset, curDirection);
     mMovementManager.setCurFacingDirection(curDirection);
-    if (DEMO == 0)
+    if (DEBUG)
     {
         mImageObjectHitbox.setupImageObject("blue.bmp", preset.mWidth, preset.mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
     }
@@ -22,7 +22,7 @@ Projectile::Projectile(const Vect2 positionInput, const Vect2 movementVect, cons
     mAnimationManager.setupAnimationManager(preset.mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
     mMovementManager.setupMovementManager(positionInput, movementVect, preset, curDirectionX, curDirectionY);
     mMovementManager.setCurFacingDirection(curDirectionX);
-    if (DEMO == 0)
+    if (DEBUG)
     {
         mImageObjectHitbox.setupImageObject("blue.bmp", preset.mWidth, preset.mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
     }

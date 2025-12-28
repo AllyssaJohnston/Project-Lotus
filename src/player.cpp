@@ -13,7 +13,7 @@ Player::Player() : Entity()
 
 	mMovementManager.setupMovementManager(Vect2(0, 0), gStaticPlayerPreset);
 	mAnimationManager.setupAnimationManager(gStaticPlayerPreset.mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
-	if (DEMO == 0)
+	if (DEBUG)
 	{
 		mImageObjectHitbox.setupImageObject("blue.bmp", gStaticPlayerPreset.mWidth, gStaticPlayerPreset.mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
 	}
@@ -66,7 +66,7 @@ void Player::postTick()
 			curHeldCollectible->setPermanentlyPickedUp(true);
 		}
 	}
-	if (DEMO == 0)
+	if (DEBUG)
 	{
 		mMovementManager.printState();
 	}

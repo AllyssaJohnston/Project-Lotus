@@ -49,7 +49,6 @@ bool shouldShowUIBox(const UIBoxData& data, const MiniGameStateManagerData& mana
 	return true;
 }
 
-
 std::string updateGameStatBoxCurTextBoxMessage(const TextBox& textBox, const std::string& curKeys, const WorldData& worldData, const SettingsManager& settingsManager)
 {
 	switch (textBox.mData.mGameStatToDisplay)
@@ -123,12 +122,12 @@ std::string updateMiniGameStatBoxCurTextBoxMessage(const TextBox& textBox, const
 	}
 }
 
-std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, const MiniGameStateManagerData& managerData, const MiniGameWorldData& worldData)
+std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, const MiniGameStateManagerData& managerData, const CombatManager& combatManager)
 {
 	CombatCharacter* pCharacter = managerData.mStateData.getCharacter(); // default to the cur character
 	if (textBox.mData.mCombatCharacterIndex != -1) // requested a specific character
 	{
-		pCharacter = worldData.getStage()->mCombatManager.getFromAllCharacters(textBox.mData.mCombatCharacterIndex);
+		pCharacter = combatManager.getFromAllCharacters(textBox.mData.mCombatCharacterIndex);
 	}
 	if (pCharacter == nullptr) 
 	{
@@ -174,14 +173,14 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 	return "error";
 }
 
-std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const MiniGameWorldData& worldData) 
+std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const CombatManager& combatManager)
 { 
 	switch (healthBox.mData.mGameStatToDisplay)
 	{
 	case EUIBoxValueToDisplay_CHARACTER_HEALTH:
-		return std::to_string(worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getCurHealth());
+		return std::to_string(combatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getCurHealth());
 	case EUIBoxValueToDisplay_CHARACTER_DEFENSE:
-		return std::to_string(worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getCurDefense());
+		return std::to_string(combatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getCurDefense());
 	default:
 		SDL_assert(false);
 		break;
@@ -190,14 +189,14 @@ std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, con
 	
 }
 
-float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const MiniGameWorldData& worldData)
+float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const CombatManager& combatManager)
 {
 	switch (healthBox.mData.mGameStatToDisplay)
 	{
 	case EUIBoxValueToDisplay_CHARACTER_HEALTH:
-		return worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getHealthRatio();
+		return combatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getHealthRatio();
 	case EUIBoxValueToDisplay_CHARACTER_DEFENSE:
-		return worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getDefenseRatio();
+		return combatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getDefenseRatio();
 	default:
 		SDL_assert(false);
 		break;
@@ -205,6 +204,13 @@ float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const MiniG
 	return -1.0f;
 }
 
+void updateUIBoxDisable(TextBox& textBox, const MiniGameStateManagerData& managerData, const CombatManager& combatManager)
+{
+	if (textBox.mShow && textBox.mData.mType == EUIBoxType_MINI_GAME_PLAYER_ATTACK_BOX)
+	{
+		textBox.changeIsDisabled(!combatManager.getFromAllCharacters(textBox.mData.mCombatCharacterIndex)->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum].canUse());
+	}
+}
 
 void drawCircle(const SDL_Color& color, const Vect2& center, int radius, const ScreenObject& screen)
 {
@@ -251,7 +257,7 @@ void printTextBox(const ScreenObject& screen, const TextBox& textBox)
 {
 	SDL_Renderer* pRenderer = screen.mpRenderer;
 	SDL_Color curTextBoxColor = textBox.getTextBoxColor();
-	SDL_Color curOutlineColor = textBox.getIsHighlighted() ? textBox.mHighlightedOutlineColor : textBox.mOutlineColor;
+	SDL_Color curOutlineColor = textBox.getOutlineColor();
 
 	const Hitbox& hitbox = *textBox.mpCurHitbox;
 	// outline box

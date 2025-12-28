@@ -2,6 +2,7 @@
 #include "helpers.h"
 #include "hitbox.h"
 #include "combatHelpers.h"
+#include "styleManager.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_ttf.h>
 #include <string>
@@ -24,33 +25,6 @@ enum EUIBoxClass
 	EUIBoxClass_SHAPEBOX,
 	EUIBoxClass_HEALTHBOX,
 	EUIBoxClass_MAX
-};
-
-enum ETextBoxFunction
-{
-	ETextBoxFunction_INVALID = -1,
-	
-	// main game
-	ETextBoxFunction_PLAY_GAME_BOX,
-	ETextBoxFunction_PLAY_MINI_GAME_BOX,
-	ETextBoxFunction_GO_TO_MAIN_MENU_BOX,
-
-	ETextBoxFunction_NO_FUNCTION,
-
-	// For mini game
-	ETextBoxFunction_MINI_GAME_UNDO_BOX,
-
-	ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX,
-	ETextBoxFunction_SUPPORT_CUR_COMBAT_CHARACTER_BOX,
-	ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX,
-	ETextBoxFunction_HEAL_CUR_COMBAT_CHARACTER_BOX,
-	ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX,
-
-	ETextBoxFunction_ATTACK_STYLE_BOX,
-	ETextBoxFunction_ATTACK_CHARACTER_BOX,
-	ETextBoxFunction_ATTACK_DIRECTION_BOX,
-	
-	ETextBoxFunction_MAX
 };
 
 enum EUIBoxType
@@ -123,6 +97,44 @@ enum EUIPositionAlign
 	EUIPositionAlign_MAX
 };
 
+
+enum ETextBoxFunction
+{
+	ETextBoxFunction_INVALID = -1,
+
+	// main game
+	ETextBoxFunction_PLAY_GAME_BOX,
+	ETextBoxFunction_PLAY_MINI_GAME_BOX,
+	ETextBoxFunction_GO_TO_MAIN_MENU_BOX,
+
+	ETextBoxFunction_NO_FUNCTION,
+
+	// For mini game
+	ETextBoxFunction_MINI_GAME_UNDO_BOX,
+
+	ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX,
+	ETextBoxFunction_SUPPORT_CUR_COMBAT_CHARACTER_BOX,
+	ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX,
+	ETextBoxFunction_HEAL_CUR_COMBAT_CHARACTER_BOX,
+	ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX,
+
+	ETextBoxFunction_ATTACK_STYLE_BOX,
+	ETextBoxFunction_ATTACK_CHARACTER_BOX,
+	ETextBoxFunction_ATTACK_DIRECTION_BOX,
+
+	ETextBoxFunction_MAX
+};
+
+enum ETextBoxState 
+{
+	ETextBoxState_INVALID = -1,
+	ETextBoxState_HIGHLIGHTED,
+	ETextBoxState_NORMAL,
+	ETextBoxState_DISABLED,
+	ETextBoxState_DISABLED_AND_HIGHLIGHTED,
+	ETextBoxState_MAX
+};
+
 enum EShapeBoxClass
 {
 	EShapeBoxClass_INVALID = -1,
@@ -145,7 +157,6 @@ struct UIBoxData
 	std::vector <EMiniGameState>		mMiniGameStateWhenToShowList;
 
 	UIBoxData() { ; }
-
 	UIBoxData(EUIBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, int attackNum, EMiniGameCombatAttackCategoryType attackCategory, 
 			EUIBoxType mType, std::vector <EMiniGameState>& miniGameStateWhenToShowList);
 };
@@ -163,11 +174,9 @@ struct UIPositionInfo
 	Edges            mMargins;
 
 	UIPositionInfo(EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, Hitbox hitbox, Edges margins);
-
 	UIPositionInfo(EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins);
 
 	UIPositionInfo(int rotation, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, Hitbox hitbox, Edges margins);
-
 	UIPositionInfo(int rotation, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins);
 };
 
@@ -178,9 +187,7 @@ struct TextBoxSizeInfo
 	int	mOutlineWidth = 0;
 
 	TextBoxSizeInfo(int standardSize, int highlightSize, int outlineWidth);
-
 	TextBoxSizeInfo(int standardSize, int highlightSize);
-
 	TextBoxSizeInfo(int standardSize);
 };
 
@@ -188,19 +195,21 @@ struct TextBoxColorInfo
 {
 	SDL_Color mStandardTextColor;
 	SDL_Color mHighlightedTextColor;
+	SDL_Color mDisabledTextColor				= StyleManager::black;
+
 	SDL_Color mStandardTextBoxColor;
 	SDL_Color mHighlightedTextBoxColor;
-	SDL_Color mOutlineColor = { 0, 0, 0, 0 };
-	SDL_Color mHighlightedOutlineColor = { 0, 0, 0, 0 };
+	SDL_Color mDisabledTextBoxColor;
+	SDL_Color mHighlightedDisabledTextBoxColor;
 
+	SDL_Color mOutlineColor						= StyleManager::black;
+	SDL_Color mHighlightedOutlineColor			= StyleManager::black;
+	SDL_Color mDisabledOutlineColor				= StyleManager::black;
+	
+	// selectable box
 	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color highlightedTextColor, SDL_Color standardTextBoxColor, SDL_Color highlightedTextBoxColor, SDL_Color outlineColor, SDL_Color highlightedOutlineColor);
-
-	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color highlightedTextColor, SDL_Color standardTextBoxColor, SDL_Color highlightedTextBoxColor);
-
-	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color standardTextBoxColor, SDL_Color highlightedTextBoxColor);
-
+	// non selectable boxes
 	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color standardTextBoxColor);
-
 	TextBoxColorInfo(SDL_Color standardTextColor);
 };
 
@@ -209,7 +218,6 @@ struct FontSizeChart
 	const static int mMinFontSize = 6;
 	const static int mMaxFontSize = 150;
 
-	
 	// can't easily make static, since all values would have to be provided at start
 	// font name maps to a map of font sizes paired with actual sizing details
 	std::map<const char*, std::map<int, SDL_Point>> mFontChart;

@@ -19,8 +19,10 @@ TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, U
 		TextBoxColorInfo colorInfo) : UIBox(preset.mData), mFunction(textBoxFunction), mMessage(preset.mMessage),
 		mFontFile(fileName), mStandardFontSize(sizeInfo.mStandardFontSize), mHighlightedFontSize(sizeInfo.mHighlightedFontSize), 
 		mOutlineWidth(sizeInfo.mOutlineWidth), mStandardTextBoxColor(colorInfo.mStandardTextBoxColor), 
-		mHighlightedTextBoxColor(colorInfo.mHighlightedTextBoxColor), mOutlineColor(colorInfo.mOutlineColor),
-		mHighlightedOutlineColor(colorInfo.mHighlightedOutlineColor)
+		mHighlightedTextBoxColor(colorInfo.mHighlightedTextBoxColor), mDisabledTextBoxColor(colorInfo.mDisabledTextBoxColor), 
+		mHighlightedDisabledTextBoxColor(colorInfo.mHighlightedDisabledTextBoxColor),
+		mOutlineColor(colorInfo.mOutlineColor), mHighlightedOutlineColor(colorInfo.mHighlightedOutlineColor), 
+		mDisabledOutlineColor(colorInfo.mDisabledOutlineColor)
 {
 	mBoxType = EUIBoxClass_TEXTBOX;
 	mPositionAlignH	= positionInfo.mPositionAlignH;
@@ -38,9 +40,9 @@ TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, U
 	mMaxHeight				= positionInfo.mMaxHeight;
 	mMargins				= positionInfo.mMargins;
 
-	mIsHighlighted			 = false;
-	mStandardTextColor		 = { colorInfo.mStandardTextColor.r, colorInfo.mStandardTextColor.g, colorInfo.mStandardTextColor.b };
-	mHighlightedTextColor	 = { colorInfo.mHighlightedTextColor.r, colorInfo.mHighlightedTextColor.g, colorInfo.mHighlightedTextColor.b };
+	mStandardTextColor		 = { colorInfo.mStandardTextColor.r,		colorInfo.mStandardTextColor.g,		colorInfo.mStandardTextColor.b };
+	mHighlightedTextColor	 = { colorInfo.mHighlightedTextColor.r,		colorInfo.mHighlightedTextColor.g,	colorInfo.mHighlightedTextColor.b };
+	mDisabledTextColor		 = { colorInfo.mDisabledTextColor.r,		colorInfo.mDisabledTextColor.g,		colorInfo.mDisabledTextColor.b };
 	
 	mTextLines.push_back(mMessage);
 }
@@ -63,6 +65,12 @@ TextBox::~TextBox()
 	}
 	mpHighlightedTextures.clear();
 
+	for (SDL_Texture* pTexture : mpDisabledTextures)
+	{
+		SDL_DestroyTexture(pTexture);
+	}
+	mpDisabledTextures.clear();
+
 
 	mpCurTextures = nullptr;
 	mpCurHitbox = nullptr;
@@ -73,7 +81,7 @@ void TextBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChar
 {
 	mMessage = textMessage;
 	calcMaxFontSizeGivenText(fontSizeChart);
-	if (DEMO == 0 && mHighlightedFontSize > mMaxFontSizeGivenText)
+	if (DEBUG && mHighlightedFontSize > mMaxFontSizeGivenText)
 	{
 		std::cout << "Font size too big: " + textMessage + "\n max size: " + std::to_string(mMaxFontSizeGivenText) + " requested size: " + std::to_string(mHighlightedFontSize)<<"\n";
 	}
@@ -119,7 +127,7 @@ int TextBox::getMaxFontSizeGivenText() const { return mMaxFontSizeGivenText; }
 
 void TextBox::updateTextLines(const std::string text, FontSizeChart& fontSizeChart)
 {
-	int curFontSize = mIsHighlighted ? mHighlightedFontSize : mStandardFontSize;
+	int curFontSize = getIsHighlighted() ? mHighlightedFontSize : mStandardFontSize;
 	int numCharsPerLine = mMaxWidth / fontSizeChart.mFontChart[mFontFile][curFontSize].x;
 	SDL_assert(numCharsPerLine > 0);
 	mTextLines = tokenizeByStringLength(text, numCharsPerLine);
@@ -145,12 +153,19 @@ void TextBox::setTexture(SDL_Renderer* pRenderer)
 	}
 	mpHighlightedTextures.clear();
 
+	for (SDL_Texture* pTexture : mpDisabledTextures)
+	{
+		SDL_DestroyTexture(pTexture);
+	}
+	mpDisabledTextures.clear();
+
 	mpStandardFont	  = TTF_OpenFont(mFontFile, mStandardFontSize);
 	mpHighlightedFont = TTF_OpenFont(mFontFile, mHighlightedFontSize);
 
 	for (int countLine = 0; countLine < mTextLines.size(); countLine++)
 	{
-		std::string curLine = mTextLines[countLine] + " "; // spacing to fix aligning issues
+		std::string curLine = mTextLines[countLine] + " "; // spacing to fix alignment issues
+		
 		SDL_Surface* standardSurface = TTF_RenderUTF8_Blended(mpStandardFont, curLine.c_str(), mStandardTextColor);
 		mpStandardTextures.push_back(SDL_CreateTextureFromSurface(pRenderer, standardSurface));
 		SDL_DestroySurface(standardSurface);
@@ -158,35 +173,120 @@ void TextBox::setTexture(SDL_Renderer* pRenderer)
 		SDL_Surface* highlightedSurface = TTF_RenderUTF8_Blended(mpHighlightedFont, curLine.c_str(), mHighlightedTextColor);
 		mpHighlightedTextures.push_back(SDL_CreateTextureFromSurface(pRenderer, highlightedSurface));
 		SDL_DestroySurface(highlightedSurface);
+
+		SDL_Surface* disabledSurface = TTF_RenderUTF8_Blended(mpStandardFont, curLine.c_str(), mDisabledTextColor);
+		mpDisabledTextures.push_back(SDL_CreateTextureFromSurface(pRenderer, disabledSurface));
+		SDL_DestroySurface(disabledSurface);
 	}
 
-	SDL_assert(mTextLines.size() == mpStandardTextures.size());
+	SDL_assert(mTextLines.size() == mpStandardTextures.size() == mpHighlightedTextures.size() == mpDisabledTextures.size());
 
-	mpCurTextures = mIsHighlighted? &mpHighlightedTextures : &mpStandardTextures;
+	mpCurTextures = &getTexturesForState();
 }
 
-void TextBox::changeIsHighlighted(bool isHighlighted)
+
+void TextBox::changeState(ETextBoxState state)
 {
-	if (isHighlighted)
+	switch(state)
 	{
-		mpCurTextures = &mpHighlightedTextures;
-		mpCurLineHitboxes = &mCurLineHighlightedHitboxes;
-		mpCurHitbox = &mHighlightedHitbox;
+	case ETextBoxState_HIGHLIGHTED:
+		mHighlighted		= true;
+		mpCurTextures		= &mpHighlightedTextures;
+		mpCurLineHitboxes	= &mCurLineHighlightedHitboxes;
+		mpCurHitbox			= &mHighlightedHitbox;
+		break;
+	case ETextBoxState_DISABLED:
+		mHighlighted		= false;
+		mpCurTextures		= &mpDisabledTextures;
+		mpCurLineHitboxes	= &mCurLineStandardHitboxes;
+		mpCurHitbox			= &mStandardHitbox;
+		break;
+	case ETextBoxState_DISABLED_AND_HIGHLIGHTED:
+		mHighlighted		= true;
+		mpCurTextures		= &mpDisabledTextures;
+		mpCurLineHitboxes	= &mCurLineStandardHitboxes;
+		mpCurHitbox			= &mStandardHitbox;
+		break;
+	default:
+		mHighlighted		= false;
+		mpCurTextures		= &mpStandardTextures;
+		mpCurLineHitboxes	= &mCurLineStandardHitboxes;
+		mpCurHitbox			= &mStandardHitbox;
+		break;
+	}
+	mState = state;
+}
+
+void TextBox::changeIsHighlighted(bool highlighted)
+{
+	if (highlighted)
+	{
+		switch (mState)
+		{
+		case ETextBoxState_DISABLED:
+			changeState(ETextBoxState_DISABLED_AND_HIGHLIGHTED);
+			break;
+		case ETextBoxState_NORMAL:
+			changeState(ETextBoxState_HIGHLIGHTED);
+			break;
+		default:
+			break;
+		}
 	}
 	else
 	{
-		mpCurTextures = &mpStandardTextures;
-		mpCurLineHitboxes = &mCurLineStandardHitboxes;
-		mpCurHitbox = &mStandardHitbox;
+		switch (mState)
+		{
+		case ETextBoxState_DISABLED_AND_HIGHLIGHTED:
+			changeState(ETextBoxState_DISABLED);
+			break;
+		case ETextBoxState_HIGHLIGHTED:
+			changeState(ETextBoxState_NORMAL);
+			break;
+		default:
+			break;
+		}
 	}
-	mIsHighlighted = isHighlighted;
 }
 
-bool TextBox::getIsHighlighted() const { return mIsHighlighted; }
+void TextBox::changeIsDisabled(bool disabled)
+{
+	if (disabled)
+	{
+		switch (mState)
+		{
+		case ETextBoxState_NORMAL:
+			changeState(ETextBoxState_DISABLED);
+			break;
+		case ETextBoxState_HIGHLIGHTED:
+			changeState(ETextBoxState_DISABLED_AND_HIGHLIGHTED);
+			break;
+		default:
+			break;
+		}
+	}
+	else
+	{
+		switch (mState)
+		{
+		case ETextBoxState_DISABLED:
+			changeState(ETextBoxState_NORMAL);
+			break;
+		case ETextBoxState_DISABLED_AND_HIGHLIGHTED:
+			changeState(ETextBoxState_HIGHLIGHTED);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+
+bool TextBox::getIsHighlighted() const { return mHighlighted; }
 
 std::vector<SDL_Texture*> TextBox::getTextBoxTexture() const { return *mpCurTextures; }
 
-SDL_Point TextBox::getTextRenderSize(int line) const { return getTextRenderSize(line, mIsHighlighted); }
+SDL_Point TextBox::getTextRenderSize(int line) const { return getTextRenderSize(line, mHighlighted); }
 
 SDL_Point TextBox::getTextRenderSize(int line, bool isHighlighted) const
 {
@@ -203,14 +303,54 @@ SDL_Point TextBox::getTextRenderSize(int line, bool isHighlighted) const
 	return size;
 }
 
-SDL_Color TextBox::getTextBoxColor() const { return mIsHighlighted ? mHighlightedTextBoxColor : mStandardTextBoxColor; }
+SDL_Color TextBox::getTextBoxColor() const 
+{
+	switch (mState)
+	{
+	case ETextBoxState_HIGHLIGHTED: return mHighlightedTextBoxColor;
+	case ETextBoxState_NORMAL: return mStandardTextBoxColor;
+	case ETextBoxState_DISABLED: return mDisabledTextBoxColor;
+	case ETextBoxState_DISABLED_AND_HIGHLIGHTED: return mHighlightedDisabledTextBoxColor;
+	default:
+		SDL_assert(false);
+	}
+}
+
+SDL_Color TextBox::getTextColor() const
+{
+	switch (mState)
+	{
+	case ETextBoxState_HIGHLIGHTED: return mHighlightedTextColor;
+	case ETextBoxState_NORMAL: return mStandardTextColor;
+	case ETextBoxState_DISABLED:
+	case ETextBoxState_DISABLED_AND_HIGHLIGHTED: 
+		return mDisabledTextColor;
+	default:
+		SDL_assert(false);
+	}
+}
+
+SDL_Color TextBox::getOutlineColor() const
+{
+	switch (mState)
+	{
+	case ETextBoxState_HIGHLIGHTED: return mHighlightedOutlineColor;
+	case ETextBoxState_NORMAL: return mOutlineColor;
+	case ETextBoxState_DISABLED: 
+	case ETextBoxState_DISABLED_AND_HIGHLIGHTED: 
+		return mDisabledOutlineColor;
+	default:
+		SDL_assert(false);
+	}
+}
+
 
 void TextBox::updateHitboxes() 
 {
 	updateHitboxesInternal(false, mStandardHitbox, mCurLineStandardHitboxes);
 	updateHitboxesInternal(true, mHighlightedHitbox, mCurLineHighlightedHitboxes);
-	mpCurLineHitboxes =  mIsHighlighted ? &mCurLineHighlightedHitboxes : &mCurLineStandardHitboxes;
-	mpCurHitbox = mIsHighlighted ? &mHighlightedHitbox : &mStandardHitbox;
+	mpCurLineHitboxes =  &getCurLineHitboxesForState();
+	mpCurHitbox = &getCurHitboxForState();
 }
 
 void TextBox::updateHitboxesInternal(bool isHighlighted, Hitbox& hitbox, std::vector<Hitbox>& hitboxes )
@@ -294,6 +434,43 @@ void TextBox::updatePosFromBlockSpace(const Hitbox& blockSpace)
 		mCurLineHighlightedHitboxes[count].updateTopLeft(shiftTopLeft);
 	}
 }
+
+
+Hitbox& TextBox::getCurHitboxForState() 
+{
+	switch (mState)
+	{
+	case ETextBoxState_HIGHLIGHTED: return mHighlightedHitbox;
+	case ETextBoxState_DISABLED:
+	case ETextBoxState_DISABLED_AND_HIGHLIGHTED:
+	default: 
+		return mStandardHitbox;
+	}
+}
+
+std::vector<Hitbox>& TextBox::getCurLineHitboxesForState()
+{
+	switch (mState)
+	{
+	case ETextBoxState_HIGHLIGHTED: return mCurLineHighlightedHitboxes;
+	case ETextBoxState_DISABLED: 
+	case ETextBoxState_DISABLED_AND_HIGHLIGHTED:
+	default: 
+		return mCurLineStandardHitboxes;
+	}
+}
+
+std::vector<SDL_Texture*>& TextBox::getTexturesForState()
+{
+	switch (mState)
+	{
+	case ETextBoxState_HIGHLIGHTED: return mpHighlightedTextures;
+	case ETextBoxState_DISABLED: return mpDisabledTextures;
+	case ETextBoxState_DISABLED_AND_HIGHLIGHTED: return mpDisabledTextures;
+	default: return mpStandardTextures;
+	}
+}
+
 
 
 ImageBox::ImageBox(const ImageBoxPreset preset, const UIPositionInfo positionInfo, const std::string fileName) : UIBox(preset.mData)

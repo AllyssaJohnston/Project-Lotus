@@ -18,7 +18,6 @@ public:
     Tile* mpTileLastMovedTo = nullptr;
 
     bool                                mGoingToAttack      = false;
-    Tile*                               mpTileToAttack      = nullptr;
     std::vector <Tile*>                 mpTilesToAttack;
     Attack*                             mpCurAttack         = nullptr;
     EMiniGameCombatAttackCategoryType   mAttackCategory     = EMiniGameCombatAttackCategoryType_INVALID;

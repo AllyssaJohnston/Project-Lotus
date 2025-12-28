@@ -595,7 +595,7 @@ PWindGustPlatformPreset::PWindGustPlatformPreset() : PAreaEffectPlatformPreset()
 
 void PWindGustPlatformPreset::setUpAnimationPresets()
 {
-	if (DEMO == 0)
+	if (DEBUG)
 	{
 		int  frameRate = 0;
 		bool mustFinish = false;

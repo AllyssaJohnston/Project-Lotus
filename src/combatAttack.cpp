@@ -26,10 +26,13 @@ Attack::Attack(const EMiniGameCombatMoveAttackTypes type, const EMiniGameCombatA
     mDescription = name + ": " + returnDescriptionOfMoveAttackType(type, -1, -1);
 }
 
+bool Attack::canUse() const { return mCurCooldown == 0 && (mLimit == -1 || mUses <= mLimit); }
+
 void Attack::use() 
 {
     mUsed = true;
     mCurCooldown = mCooldownAmount;  
+    mUses++;
 }
 
 void Attack::postTick()  

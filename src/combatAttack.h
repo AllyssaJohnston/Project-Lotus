@@ -35,6 +35,8 @@ public:
     std::string                         mDescription;
     int                                 mCurCooldown = 0;
     int                                 mCooldownAmount;
+    int                                 mUses = 0;
+    int                                 mLimit = -1;
 
 private:
     bool                                mUsed = false;
@@ -48,6 +50,8 @@ public:
     Attack(const EMiniGameCombatMoveAttackTypes type, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description);
 
     Attack(const EMiniGameCombatMoveAttackTypes type, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name);
+
+    bool canUse() const;
 
     void use();
 

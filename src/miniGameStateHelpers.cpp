@@ -7,7 +7,6 @@ MiniGameStateData::~MiniGameStateData()
 	mpTargetCharacter = nullptr;
 	mpTileToMoveTo = nullptr;
 	mpTileLastMovedTo = nullptr;
-	mpTileToAttack = nullptr;
 	for (Tile* pTile : mpTilesToAttack)
 	{
 		pTile = nullptr;
@@ -30,7 +29,6 @@ void MiniGameStateData::reset()
 	mpCharacter = nullptr;
 	mCharacterIndex = -1;
 	mpTileToMoveTo = nullptr;
-	mpTileToAttack = nullptr;
 	mpTilesToAttack.clear();
 	mpCurAttack = nullptr;
 	mCurAttackDirection = EDirection_INVALID;
@@ -53,7 +51,7 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 	Grid& grid = pStage->mGrid;
 	CombatManager& combatManager = pStage->mCombatManager;
 
-	if (curAttack.mCurCooldown != 0)
+	if (!curAttack.canUse())
 	{
 		return pTilesWithPlayers;
 	}
@@ -100,6 +98,10 @@ std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldD
 
 	for (const Attack& curAttack : attacks)
 	{
+		if (!curAttack.canUse())
+		{
+			continue;
+		}
 		for (Tile* pCurTile : returnTilesFromAttackWithPlayersOnThem(worldData, pReferenceTile, curAttack, direction))
 		{
 			if (std::find(pTilesWithPlayers.begin(), pTilesWithPlayers.end(), pCurTile) == pTilesWithPlayers.end())
@@ -323,7 +325,6 @@ void setUpForBufferState(const MiniGameWorldData& worldData, MiniGameStateData& 
 	data.mPostBufferGameState = getPostBufferState(*pNextCharacter);
 	data.mNextMiniGameState = EMiniGameState_BUFFER;
 	data.mGoingToAttack = false;
-	data.mpTileToAttack = nullptr;
 	data.mpTilesToAttack.clear();
 	data.mTicks = 0;
 }

@@ -39,35 +39,49 @@ public:
 	ETextBoxFunction	mFunction				= ETextBoxFunction_INVALID;
 	std::string			mMessage				= "invalid";
 
-	Hitbox mStandardHitbox						= Hitbox();
-	Hitbox mHighlightedHitbox					= Hitbox();
+	std::vector<SDL_Texture*>* mpCurTextures	= nullptr;
+	std::vector<Hitbox>* mpCurLineHitboxes		= nullptr;
+
+	int	mOutlineWidth = 0;
+
+	bool mSetUp = false;
+
+private:
+	ETextBoxState mState = ETextBoxState_NORMAL;
+	bool mHighlighted = false;
 
 	const char* mFontFile;
-	TTF_Font*	mpStandardFont					= nullptr;
-	TTF_Font*	mpHighlightedFont				= nullptr;
-	int			mStandardFontSize				= -1;
-	int			mHighlightedFontSize			= -1;
-	int			mMaxFontSizeGivenText			= FontSizeChart::mMinFontSize;
+	TTF_Font*	mpStandardFont = nullptr;
+	TTF_Font*	mpHighlightedFont = nullptr;
+	int			mStandardFontSize = -1;
+	int			mHighlightedFontSize = -1;
+	int			mMaxFontSizeGivenText = FontSizeChart::mMinFontSize;
 
 	std::vector <std::string> mTextLines;
 
-	std::vector<SDL_Texture*> mpStandardTextures;
-	std::vector<SDL_Texture*> mpHighlightedTextures;
-	std::vector<SDL_Texture*>* mpCurTextures	= nullptr;
-
-	std::vector<Hitbox>* mpCurLineHitboxes		= nullptr;
+	Hitbox mStandardHitbox = Hitbox();
+	Hitbox mHighlightedHitbox = Hitbox();
 	std::vector<Hitbox> mCurLineStandardHitboxes;
 	std::vector<Hitbox> mCurLineHighlightedHitboxes;
 
-	int		  mOutlineWidth						= 0;
+	std::vector<SDL_Texture*> mpStandardTextures;
+	std::vector<SDL_Texture*> mpHighlightedTextures;
+	std::vector<SDL_Texture*> mpDisabledTextures;
+
 	SDL_Color mStandardTextColor;
 	SDL_Color mHighlightedTextColor;
+	SDL_Color mDisabledTextColor;
+
 	SDL_Color mStandardTextBoxColor;
 	SDL_Color mHighlightedTextBoxColor;
+	SDL_Color mDisabledTextBoxColor;
+	SDL_Color mHighlightedDisabledTextBoxColor;
+
 	SDL_Color mOutlineColor;
 	SDL_Color mHighlightedOutlineColor;
+	SDL_Color mDisabledOutlineColor;
 
-	bool mSetUp = false;
+public:
 
 	TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, const UIPositionInfo positionInfo,
 		const char* fileName, const TextBoxSizeInfo sizeInfo, const TextBoxColorInfo colorInfo);
@@ -86,9 +100,15 @@ public:
 
 	void setTexture(SDL_Renderer* pRenderer) override;
 
+
 	bool getIsHighlighted() const;
 
-	void changeIsHighlighted(bool isHighlighted);
+	void changeState(ETextBoxState state);
+
+	void changeIsHighlighted(bool highlighted);
+
+	void changeIsDisabled(bool disabled);
+
 
 	std::vector<SDL_Texture*> getTextBoxTexture() const;
 
@@ -96,13 +116,21 @@ public:
 
 	SDL_Color getTextBoxColor() const;
 
+	SDL_Color getTextColor() const;
+
+	SDL_Color getOutlineColor() const;
+
+
 	void updateHitboxes();
 
 	void updatePosFromBlockSpace(const Hitbox& blockSpace) override;
 
 private:
-	bool mIsHighlighted = false;
-	
+	Hitbox& getCurHitboxForState();
+
+	std::vector<Hitbox>& getCurLineHitboxesForState();
+
+	std::vector<SDL_Texture*>& getTexturesForState();
 
 	void updateTextLines(const std::string text, FontSizeChart& fontSizeChart);
 

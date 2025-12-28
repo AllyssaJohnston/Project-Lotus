@@ -155,17 +155,12 @@ void MiniGamePlayerWaitForAttackTileInput::selectTile(const Vect2 pos)
 	if (pMouseTile != nullptr && tileInAttackRange(*mData.mpCurAttack, mData.mCurAttackDirection, mWorldData.getStage()->mGrid, pMouseTile, mData.getCharacter()->mCombatMovementManager.getCurTile()))
 	{
 		pMouseTile->setMode(EMiniGameCombatTileMode_SELECTED);
-		std::vector <Tile*> pTilesToAttack = { pMouseTile };
-		mWorldData.getStage()->mCombatManager.attackMultipleTiles(*mData.getCharacter(), pTilesToAttack, *mData.mpCurAttack);
+		mData.mpTilesToAttack = { pMouseTile };
 		postTick();
 	}
 }
 
-void MiniGamePlayerWaitForAttackTileInput::postTick()
-{
-	setUpForBufferState(mWorldData, mData);
-	mData.mAttacked = true;
-}
+void MiniGamePlayerWaitForAttackTileInput::postTick() { mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK; }
 
 
 MiniGamePlayerWaitForAttackCharacterInput::MiniGamePlayerWaitForAttackCharacterInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData) { ; }
@@ -208,6 +203,10 @@ void MiniGamePlayerCompleteActionAttack::attackTiles()
 		if (mData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
 		{
 			pTilesToAttack = grid.mpTiles;
+		}
+		else if (mData.mpTilesToAttack.size() > 0)
+		{
+			pTilesToAttack = mData.mpTilesToAttack;
 		}
 		else
 		{
@@ -416,7 +415,7 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 	// choose the attack with the highest damage output
 	for (Attack& attack : mData.getCharacter()->mCombatMovementManager.getAttacks())
 	{
-		if (attack.mCurCooldown != 0)
+		if (!attack.canUse())
 		{
 			continue;
 		}
@@ -561,6 +560,7 @@ void MiniGameBuffer::postTick()
 	mData.mDefended = false;
 
 	mData.mpCurAttack = nullptr;
+	mData.mpTilesToAttack.clear();
 	mData.mpTargetCharacter = nullptr;
 	mData.mCurAttackDirection = EDirection_NONE;
 

@@ -11,7 +11,13 @@ void MovementState::tickUpdate(bool moveHorizontal)
 
 void MovementState::startedState()  {  mFramesInState = 0;  }
 
-void MovementState::printState()  {  /*std::cout << mStateName << "\n"; */ }
+void MovementState::printState()  
+{  
+	if (DEBUG)
+	{
+		// std::cout << mStateName << "\n";
+	}
+}
 
 
 bool PositionData::inGroundCharacteristics(EEntityCharacteristicsTypes type) const { return (std::find(mCurGroundCharacteristics.begin(), mCurGroundCharacteristics.end(), type) != mCurGroundCharacteristics.end()); }

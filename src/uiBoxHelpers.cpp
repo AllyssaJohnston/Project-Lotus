@@ -34,21 +34,31 @@ TextBoxSizeInfo::TextBoxSizeInfo(int standardSize) : mStandardFontSize(standardS
 TextBoxColorInfo::TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color highlightedTextColor, SDL_Color standardTextBoxColor, SDL_Color highlightedTextBoxColor, 
 		SDL_Color outlineColor, SDL_Color highlightedOutlineColor)
 		: mStandardTextColor(standardTextColor), mHighlightedTextColor(highlightedTextColor), mStandardTextBoxColor(standardTextBoxColor), mHighlightedTextBoxColor(highlightedTextBoxColor),
-		mOutlineColor(outlineColor), mHighlightedOutlineColor(highlightedOutlineColor) { ; }
+		mOutlineColor(outlineColor), mHighlightedOutlineColor(highlightedOutlineColor) 
+{ 
+	mDisabledOutlineColor = StyleManager::black;
+	mDisabledTextBoxColor = StyleManager::slate;
+	mHighlightedDisabledTextBoxColor = StyleManager::darkSlate;
+	mDisabledTextColor = StyleManager::black;
+}
 
-TextBoxColorInfo::TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color highlightedTextColor, SDL_Color standardTextBoxColor, SDL_Color highlightedTextBoxColor) 
-	: mStandardTextColor(standardTextColor), mHighlightedTextColor(highlightedTextColor), mStandardTextBoxColor(standardTextBoxColor), mHighlightedTextBoxColor(highlightedTextBoxColor) { ; }
-
-TextBoxColorInfo::TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color standardTextBoxColor, SDL_Color highlightedTextBoxColor)
-	: mStandardTextColor(standardTextColor), mHighlightedTextColor(standardTextColor), mStandardTextBoxColor(standardTextBoxColor), mHighlightedTextBoxColor(highlightedTextBoxColor) { ; }
-
-TextBoxColorInfo::TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color standardTextBoxColor)
-	: mStandardTextColor(standardTextColor), mHighlightedTextColor(standardTextColor), mStandardTextBoxColor(standardTextBoxColor), mHighlightedTextBoxColor(standardTextBoxColor) { ; }
+TextBoxColorInfo::TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color standardTextBoxColor) : mStandardTextColor(standardTextColor), mHighlightedTextColor(standardTextColor), 
+	mStandardTextBoxColor(standardTextBoxColor), mHighlightedTextBoxColor(standardTextBoxColor) 
+{ 
+	mDisabledOutlineColor = StyleManager::clear;
+	mDisabledTextBoxColor = StyleManager::clear;
+	mHighlightedDisabledTextBoxColor = StyleManager::clear;
+	mDisabledTextColor = StyleManager::clear;
+}
 
 TextBoxColorInfo::TextBoxColorInfo(SDL_Color standardTextColor) : mStandardTextColor(standardTextColor), mHighlightedTextColor(standardTextColor)
 {
-	mStandardTextBoxColor = { 0, 0, 0, 0 };
-	mHighlightedTextBoxColor = { 0, 0, 0, 0 };
+	mStandardTextBoxColor				= StyleManager::clear;
+	mHighlightedTextBoxColor			= StyleManager::clear;
+	mDisabledOutlineColor				= StyleManager::clear;
+	mDisabledTextBoxColor				= StyleManager::clear;
+	mHighlightedDisabledTextBoxColor	= StyleManager::clear;
+	mDisabledTextColor					= StyleManager::clear;
 }
 
 

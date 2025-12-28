@@ -297,7 +297,6 @@ void MiniGameStateManager::createDebugLog()
 		break;
 
 	case EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK:
-	case EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT:
 	case EMiniGameState_ENEMY_TAKE_ACTION:
 		if (mData.mStateData.mAttacked)
 		{
@@ -347,7 +346,10 @@ void MiniGameStateManager::createDebugLog()
 
 	if (line != "")
 	{
-		std::cout << line << "\n";
+		if (DEBUG)
+		{
+			std::cout << line << "\n";
+		}
 		mData.mStateData.mDebugLine = line;
 	}
 }

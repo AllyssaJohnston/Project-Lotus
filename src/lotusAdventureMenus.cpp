@@ -43,9 +43,9 @@ void createMainMenu(MenuManager& menuManager, const ScreenObject& screen)
 
 
 	UIBlock* titleText = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(0, 0, levelChunkWidth, 300)), EUIPositionAlign_CENTER, EUIPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, false, 1, fill, !fill, Edges(100, 0, 0, 0), 0, clear, "title text block");
-	mainMenuPage->addBox(new ImageBox(ImageBoxPreset(),																	UIPositionInfo(0,	EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 200, Edges()),			"Menu/TitleScreen.bmp"), titleText);
-	mainMenuPage->addBox(new TextBox(StandardTextBoxPreset("PLAY GAME"),		ETextBoxFunction_PLAY_GAME_BOX,			UIPositionInfo(		EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 140, Edges()),			fontFileName, TextBoxSizeInfo(60, 80), TextBoxColorInfo(hintBlue, white, teal, teal)), true, titleText);
-	mainMenuPage->addBox(new TextBox(StandardTextBoxPreset("PLAY MINI GAME"),	ETextBoxFunction_PLAY_MINI_GAME_BOX,	UIPositionInfo(		EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 140, Edges(8, 0, 0, 0)),	fontFileName, TextBoxSizeInfo(60, 80), TextBoxColorInfo(hintBlue, white, teal, teal)), true, titleText);
+	mainMenuPage->addBox(new ImageBox(ImageBoxPreset(),																	UIPositionInfo(0,	EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 200, Edges()),				"Menu/TitleScreen.bmp"), titleText);
+	mainMenuPage->addBox(new TextBox(StandardTextBoxPreset("PLAY GAME"),		ETextBoxFunction_PLAY_GAME_BOX,			UIPositionInfo(		EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 140, Edges()),				fontFileName, TextBoxSizeInfo(60, 80), TextBoxColorInfo(hintBlue, white, teal, teal, clear, clear)), true, titleText);
+	mainMenuPage->addBox(new TextBox(StandardTextBoxPreset("PLAY MINI GAME"),	ETextBoxFunction_PLAY_MINI_GAME_BOX,	UIPositionInfo(		EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 140, Edges(8, 0, 0, 0)),	fontFileName, TextBoxSizeInfo(60, 80), TextBoxColorInfo(hintBlue, white, teal, teal, clear, clear)), true, titleText);
 	mainMenuPage->mpElems.push_back(titleText);
 	titleText = nullptr;
 
@@ -191,7 +191,6 @@ void createMiniGameMenu(MenuManager& menuManager, const ScreenObject& screen,  M
 
 	const TextBoxColorInfo black			= TextBoxColorInfo(StyleManager::black);
 	const TextBoxColorInfo darkPink			= TextBoxColorInfo(StyleManager::pink);
-	const TextBoxColorInfo colors			= TextBoxColorInfo(StyleManager::pink,	StyleManager::white,		StyleManager::sunYellow,	StyleManager::sunYellow);
 	const TextBoxColorInfo optionBox		= TextBoxColorInfo(StyleManager::white,	StyleManager::sunYellow,	StyleManager::pink,			StyleManager::pink,		StyleManager::white, StyleManager::sunYellow);
 	const SDL_Color& white					= StyleManager::white;
 	const SDL_Color& clear					= StyleManager::clear;
@@ -304,7 +303,7 @@ void createMiniGameMenu(MenuManager& menuManager, const ScreenObject& screen,  M
 	createMiniGameCharacterSelectionMenu(menuManager, screen, worldData);
 
 	// in between states, show the box
-	whenToShow = { EMiniGameState_BUFFER, EMiniGameState_CHARACTER_STUNNED, EMiniGameState_ENEMY_MOVE_CHARACTER, EMiniGameState_ENEMY_TAKE_ACTION };
+	whenToShow = { EMiniGameState_BUFFER, EMiniGameState_CHARACTER_STUNNED, EMiniGameState_ENEMY_MOVE_CHARACTER, EMiniGameState_ENEMY_TAKE_ACTION, EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK };
 	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset(" ", whenToShow), ETextBoxFunction_NO_FUNCTION, UIPositionInfo(EUIPositionAlign_CENTER,	EUIPositionAlign_TOP,		panelWidth, panelHeadingHeight / 2, Edges(0, 10, 0, 0)), font, TextBoxSizeInfo(headingText),	darkPink),	false, characterOptionsHeadingBlock);
 	miniGameMenuPage->addBox(new TextBox(MiniGameBoxPreset(" ", whenToShow), ETextBoxFunction_NO_FUNCTION, UIPositionInfo(EUIPositionAlign_LEFT,	EUIPositionAlign_CENTER,	panelWidth, panelBodyHeight,		Edges(10, 0, 0, 0)), font, TextBoxSizeInfo(optionText),		white),		false, characterOptionsDetailsBlock);
 

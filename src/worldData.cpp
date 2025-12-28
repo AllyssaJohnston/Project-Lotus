@@ -1949,7 +1949,7 @@ void WorldData::playerShootProjectile(EEntityMovementPath path)
 
 			Projectile* pProjectile = new Projectile(Vect2(projectileX1, projectileY1), preset, projectileDirection, mPlayer.mName);
 			pProjectile->mAnimationManager.setUpAllTextures(mScreen.mpRenderer);
-			if (DEMO == 0)
+			if (DEBUG)
 			{
 				pProjectile->setHitboxTexture(AssetManager::getTextureFromSurface(mScreen.mpRenderer, pProjectile->getImageObjectHitbox().getSurface()));
 			}

@@ -49,7 +49,7 @@ void Enemy::setUpEnemyBaseStats(const Vect2& positionInput, const EEnemyPreset& 
 	mAnimationManager.setupAnimationManager(preset.mAnimationPresets, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
 	mMovementManager.setupMovementManager(positionInput, preset);
 
-	if (DEMO == 0)
+	if (DEBUG)
 	{
 		mImageObjectHitbox.setupImageObject("blue.bmp", preset.mWidth, preset.mHeight, EHowToDetermineWidthHeight_USE_WIDTH_AND_HEIGHT_INPUT);
 	}

@@ -253,7 +253,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 		{
 			MiniGamePlayerWaitForAttackOptionInput* pSpecificCurState = (MiniGamePlayerWaitForAttackOptionInput*)pCurState;
 			pAttack = &miniStateManager.mData.mStateData.getCharacter()->mCombatMovementManager.getAttacks()[pCurSelectedTextBox->mData.mAttackNum];
-			if (pAttack->mCurCooldown == 0)
+			if (pAttack->canUse())
 			{
 				pSpecificCurState->postTick(*pAttack);
 			}
@@ -508,7 +508,7 @@ void GameStatePlay::render(EGameState curState)
 		mWorldData.renderEntityWithHitbox(*mSlashManager.mAnimationManager.getCurImage(), mSlashManager.mpSlashImageHitboxTexture, offsetType,
 			mSlashManager.mCurSlashDirection, slashImageHitbox, rotating, degreesToImageRotationDegrees(mSlashManager.mImageRotation,
 				mSlashManager.mCurRotation));
-		if (DEMO == 0)
+		if (DEBUG)
 		{
 			// slash hitbox
 			offsetType = EImageOffset_PRINT_TOP_LEFT;
