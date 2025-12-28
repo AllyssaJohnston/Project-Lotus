@@ -71,44 +71,45 @@ enum EUIBoxType
 	EUIBoxType_MAX
 };
 
-enum EGameStatBoxValueToDisplay
+enum EUIBoxValueToDisplay
 {
-	EGameStatBoxValueToDisplay_INVALID = -1,
-	EGameStatBoxValueToDisplay_CUR_LEVEL_NUMBER,
-	EGameStatBoxValueToDisplay_CUR_KEYS,
-	EGameStatBoxValueToDisplay_CUR_TARGETS,
-	EGameStatBoxValueToDisplay_CUR_COLLECTIBLES,
-	EGameStatBoxValueToDisplay_CUR_ENEMIES_LEFT,
-	EGameStatBoxValueToDisplay_LEVEL_RESET_KEY,
-	EGameStatBoxValueToDisplay_CHECKPOINT_RESET_KEY,
-	EGameStatBoxValueToDisplay_MOVEMENT_LEFT_KEY,
-	EGameStatBoxValueToDisplay_MOVEMENT_UP_KEY,
-	EGameStatBoxValueToDisplay_MOVEMENT_RIGHT_KEY,
-	EGameStatBoxValueToDisplay_PROJECTILE_HORIZONTAL_KEY,
-	EGameStatBoxValueToDisplay_PROJECTILE_VERTICAL_KEY,
-	EGameStatBoxValueToDisplay_DOUBLE_JUMP_KEY,
-	EGameStatBoxValueToDisplay_SLASH_KEY,
-	EGameStatBoxValueToDisplay_TEXT_SIZE_FACTOR,
-	EGameStatBoxValueToDisplay_CUR_KEYBOARD,
-	EGameStatBoxValueToDisplay_MINI_GAME_DEBUG_LINE,
-	EGameStatBoxValueToDisplay_MAX
-};
+	EUIBoxValueToDisplay_INVALID = -1,
+	EUIBoxValueToDisplay_CUR_LEVEL_NUMBER,
+	EUIBoxValueToDisplay_CUR_KEYS,
+	EUIBoxValueToDisplay_CUR_TARGETS,
+	EUIBoxValueToDisplay_CUR_COLLECTIBLES,
+	EUIBoxValueToDisplay_CUR_ENEMIES_LEFT,
+	EUIBoxValueToDisplay_LEVEL_RESET_KEY,
+	EUIBoxValueToDisplay_CHECKPOINT_RESET_KEY,
+	EUIBoxValueToDisplay_MOVEMENT_LEFT_KEY,
+	EUIBoxValueToDisplay_MOVEMENT_UP_KEY,
+	EUIBoxValueToDisplay_MOVEMENT_RIGHT_KEY,
+	EUIBoxValueToDisplay_PROJECTILE_HORIZONTAL_KEY,
+	EUIBoxValueToDisplay_PROJECTILE_VERTICAL_KEY,
+	EUIBoxValueToDisplay_DOUBLE_JUMP_KEY,
+	EUIBoxValueToDisplay_SLASH_KEY,
 
-enum ECharacterStatBoxValueToDisplay
-{
-	ECharacterStatBoxValueToDisplay_INVALID = -1,
-	ECharacterStatBoxValueToDisplay_CHARACTER_NAME,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK,
-	ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH,
-	ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE,
-	ECharacterStatBoxValueToDisplay_CHARACTER_STUN,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TYPE,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE,
-	ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES,
-	ECharacterStatBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME,
-	ECharacterStatBoxValueToDisplay_CHARACTER_MOVE_TYPE,
-	ECharacterStatBoxValueToDisplay_MAX
+	EUIBoxValueToDisplay_TEXT_SIZE_FACTOR,
+	EUIBoxValueToDisplay_CUR_KEYBOARD,
+
+	EUIBoxValueToDisplay_CHARACTER_NAME,
+	EUIBoxValueToDisplay_CHARACTER_ATTACK,
+	EUIBoxValueToDisplay_CHARACTER_HEALTH,
+	EUIBoxValueToDisplay_CHARACTER_HEALTH_MODIFIER_AMOUNT,
+	EUIBoxValueToDisplay_CHARACTER_DEFENSE,
+	EUIBoxValueToDisplay_CHARACTER_STUN,
+	EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME,
+	EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TYPE,
+	EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE,
+	EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_CUR_COOLDOWN,
+	EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_COOLDOWN_AMOUNT,
+	EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES,
+	EUIBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME,
+	EUIBoxValueToDisplay_CHARACTER_MOVE_TYPE,
+	EUIBoxValueToDisplay_MINI_GAME_DEBUG_LINE,
+	EUIBoxValueToDisplay_COMBAT_ROUND_NUM,
+
+	EUIBoxValueToDisplay_MAX
 };
 
 enum EUIPositionAlign
@@ -133,11 +134,10 @@ enum EShapeBoxClass
 
 struct UIBoxData 
 {
-	EGameStatBoxValueToDisplay			mGameStatToDisplay			= EGameStatBoxValueToDisplay_INVALID;
+	EUIBoxValueToDisplay				mGameStatToDisplay			= EUIBoxValueToDisplay_INVALID;
 	int									mCombatCharacterIndex		= -1;
 	EMiniGameCombatCharacterType        mCombatCharacterType		= EMiniGameCombatCharacterType_CHARACTER;
 	bool								mShowDuringAllCharacters	= false;
-	ECharacterStatBoxValueToDisplay		mCharacterStatToDisplay		= ECharacterStatBoxValueToDisplay_INVALID;
 	int									mAttackNum					= -1;
 	EMiniGameCombatAttackCategoryType	mAttackCategory				= EMiniGameCombatAttackCategoryType_INVALID;
 	EDirection							mAttackDirection			= EDirection_INVALID;
@@ -146,8 +146,8 @@ struct UIBoxData
 
 	UIBoxData() { ; }
 
-	UIBoxData(EGameStatBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay,
-			int attackNum, EMiniGameCombatAttackCategoryType attackCategory, EUIBoxType mType, std::vector <EMiniGameState>& miniGameStateWhenToShowList);
+	UIBoxData(EUIBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, int attackNum, EMiniGameCombatAttackCategoryType attackCategory, 
+			EUIBoxType mType, std::vector <EMiniGameState>& miniGameStateWhenToShowList);
 };
 
 struct UIPositionInfo

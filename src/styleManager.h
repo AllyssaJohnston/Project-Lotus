@@ -29,7 +29,7 @@ struct StyleManager
 
 	const static int headingText = 30;
 	const static int optionText = 30;
-	const static int detailText = 18;
+	const static int detailText = 17;
 	const static int bullet = 20;
 
 	StyleManager() { ; }

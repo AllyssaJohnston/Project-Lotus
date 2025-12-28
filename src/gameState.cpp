@@ -185,6 +185,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 {
 	TextBox* pCurSelectedTextBox = mMenuManager.mpCurMenuPage->getCurSelectedTextBox();
 	MiniGameState* pCurState = miniStateManager.mpCurState;
+	Attack* pAttack = nullptr;
 	if (pCurSelectedTextBox == nullptr)
 	{
 		return;
@@ -211,6 +212,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 			miniStateManager.mData.mStateData.mAttackCategory = EMiniGameCombatAttackCategoryType_ATTACK;
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
 			pSpecificCurState->postTick(EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT);
+			pSpecificCurState = nullptr;
 		}
 		break;
 	case ETextBoxFunction_SUPPORT_CUR_COMBAT_CHARACTER_BOX:
@@ -219,6 +221,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 			miniStateManager.mData.mStateData.mAttackCategory = EMiniGameCombatAttackCategoryType_SUPPORT;
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
 			pSpecificCurState->postTick(EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT);
+			pSpecificCurState = nullptr;
 		}
 		break;
 	case ETextBoxFunction_DEFEND_CUR_COMBAT_CHARACTER_BOX:
@@ -226,6 +229,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 		{
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
 			pSpecificCurState->postTick(EMiniGameState_PLAYER_COMPLETE_ACTION_DEFEND);
+			pSpecificCurState = nullptr;
 		}
 		break;
 	case ETextBoxFunction_HEAL_CUR_COMBAT_CHARACTER_BOX:
@@ -233,6 +237,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 		{
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
 			pSpecificCurState->postTick(EMiniGameState_PLAYER_COMPLETE_ACTION_HEAL);
+			pSpecificCurState = nullptr;
 		}
 		break;
 	case ETextBoxFunction_PASS_CUR_COMBAT_CHARACTER_TURN_BOX:
@@ -240,13 +245,20 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 		{
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
 			pSpecificCurState->postTick(EMiniGameState_BUFFER);
+			pSpecificCurState = nullptr;
 		}
 		break;
 	case ETextBoxFunction_ATTACK_STYLE_BOX:
 		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT)
 		{
 			MiniGamePlayerWaitForAttackOptionInput* pSpecificCurState = (MiniGamePlayerWaitForAttackOptionInput*)pCurState;
-			pSpecificCurState->postTick(miniStateManager.mData.mStateData.getCharacter()->mCombatMovementManager.getAttacks()[pCurSelectedTextBox->mData.mAttackNum]);
+			pAttack = &miniStateManager.mData.mStateData.getCharacter()->mCombatMovementManager.getAttacks()[pCurSelectedTextBox->mData.mAttackNum];
+			if (pAttack->mCurCooldown == 0)
+			{
+				pSpecificCurState->postTick(*pAttack);
+			}
+			pAttack = nullptr;
+			pSpecificCurState = nullptr;
 		}
 		break;
 	case ETextBoxFunction_ATTACK_DIRECTION_BOX:
@@ -254,6 +266,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 		{
 			MiniGamePlayerWaitForAttackDirectionInput* pSpecificCurState = (MiniGamePlayerWaitForAttackDirectionInput*)pCurState;
 			pSpecificCurState->postTick(pCurSelectedTextBox->mData.mAttackDirection);
+			pSpecificCurState = nullptr;
 		}
 		break;
 	case ETextBoxFunction_ATTACK_CHARACTER_BOX:
@@ -261,6 +274,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 		{
 			MiniGamePlayerWaitForAttackCharacterInput* pSpecificCurState = (MiniGamePlayerWaitForAttackCharacterInput*)pCurState;
 			pSpecificCurState->postTick(miniStateManager.mWorldData.getStage()->mCombatManager.getFromAllCharacters(pCurSelectedTextBox->mData.mCombatCharacterIndex));
+			pSpecificCurState = nullptr;
 		}
 		break;
 
@@ -268,6 +282,9 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 		miniStateManager.undo();
 		break;
 	}
+
+	pCurState = nullptr;
+	pCurSelectedTextBox = nullptr;
 
 	mMenuManager.mpCurMenuPage->setCurSelectedTextBox(nullptr);
 }

@@ -29,6 +29,8 @@ enum EMiniGameCombatSpecialEffectTypes
     EMiniGameCombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER,
     EMiniGameCombatSpecialEffectTypes_HEALTH_CAPACITY_MULTIPLIER,
     EMiniGameCombatSpecialEffectTypes_HEAL,
+    EMiniGameCombatSpecialEffectTypes_FULL_HEAL,
+    EMiniGameCombatSpecialEffectTypes_POISON,
     EMiniGameCombatSpecialEffectTypes_MAX
 };
 
@@ -99,5 +101,8 @@ struct GameOverStats
     bool mGameOver = false;
     bool mWonGame = false;
 };
+
+
+bool characterTypeFit(EAttackTargetType targetType, EMiniGameCombatCharacterType characterType);
 
 std::string returnDescriptionOfMoveAttackType(const EMiniGameCombatMoveAttackTypes moveAttackType, const int num, const int out);

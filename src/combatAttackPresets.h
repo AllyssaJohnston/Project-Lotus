@@ -8,7 +8,6 @@ struct SpecialEffectPreset
     EAttackTargetType                   mAttackTargetType = EAttackTargetType_INVALID;
     std::string                         mName = "";
     float                               mAmount = 0.0;
-    bool                                mSpecial = false;
     int                                 mTurns = 1;
 
     SpecialEffectPreset() {}
@@ -25,3 +24,5 @@ struct SpecialEffectDefenseCapacityMultiplier : public SpecialEffectPreset { Spe
 struct SpecialEffectHeal : public SpecialEffectPreset { SpecialEffectHeal(const int amount, EAttackTargetType attackTargetType); };
 
 struct SpecialEffectFullHeal : public SpecialEffectPreset { SpecialEffectFullHeal(const EAttackTargetType attackTargetType); };
+
+struct SpecialEffectPoison : public SpecialEffectPreset { SpecialEffectPoison(const int amount, const int turns); };

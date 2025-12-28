@@ -2,13 +2,21 @@
 
 std::string getAttackType(const Attack& attack) { return returnDescriptionOfMoveAttackType(attack.mType, attack.mNum, attack.mOut); }
 
-std::string getAttackDamage(const Attack& attack, const int characterDamage) { return std::to_string((int)(attack.mDamagePercent * characterDamage)); }
+std::string getAttackDamage(const Attack& attack, const int characterDamage) { return std::to_string((int)(attack.mDamagePercent * characterDamage)) + " damage"; }
+
+std::string getAttackCurCooldown(const Attack& attack) { return std::to_string(attack.mCurCooldown); }
+
+std::string getAttackCooldownAmount(const Attack& attack) { return std::to_string(attack.mCooldownAmount); }
 
 std::string getSpecialEffect(const Attack& attack)
 {
 	std::string message = (attack.mRequiresDirectionInput ? "Requires directional input." : "");
 	message += (attack.mDamageDistanceDependent ? "Damage is distance dependent." : "");
-	for (SpecialEffect curSpecialEffect : attack.mSpecialEffects)
+	for (SpecialEffect curSpecialEffect : attack.mCharacterTileSpecialEffects)
+	{
+		message += curSpecialEffect.mName + ". ";
+	}
+	for (SpecialEffect curSpecialEffect : attack.mGenericSpecialEffects)
 	{
 		message += curSpecialEffect.mName + ". ";
 	}

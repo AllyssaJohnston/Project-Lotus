@@ -168,26 +168,46 @@ void CombatManager::tickAll()
     createCurAliveCharacterList();
 }
 
-void CombatManager::attackMultipleTiles(CombatCharacter& attackingCharacter, std::vector <Tile*>& pTilesToAttack, const Attack& characterAttack)
+void CombatManager::attackMultipleTiles(CombatCharacter& attackingCharacter, std::vector <Tile*>& pTilesToAttack, Attack& characterAttack)
 {
     for (Tile* pTile : pTilesToAttack)
     {
-        attack(attackingCharacter, *pTile, characterAttack);
+        for (CombatCharacter* pCurCharacter : mpCurAliveCombatCharacters)
+        {
+            if (pCurCharacter->mCombatMovementManager.getCurTile() == pTile)
+            {
+                attackInternal(attackingCharacter, *pCurCharacter, characterAttack);
+                characterTileSpecialEffect(attackingCharacter, *pCurCharacter, characterAttack);
+            }
+        }
     }
+    genericSpecialEffect(attackingCharacter, characterAttack);
+    characterAttack.use();
 }
 
-void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile, const Attack& characterAttack)
+void CombatManager::attack(CombatCharacter& attackingCharacter, Tile& givenTile, Attack& characterAttack)
 {
     for (CombatCharacter* pCurCharacter : mpCurAliveCombatCharacters)
     {
         if (pCurCharacter->mCombatMovementManager.getCurTile() == &givenTile)
         {
-            attack(attackingCharacter, *pCurCharacter, characterAttack);
+            attackInternal(attackingCharacter, *pCurCharacter, characterAttack);
+            characterTileSpecialEffect(attackingCharacter, *pCurCharacter, characterAttack);
         }
     }
+    genericSpecialEffect(attackingCharacter, characterAttack);
+    characterAttack.use();
 }
 
-void CombatManager::attack(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack)
+void CombatManager::attack(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, Attack& characterAttack)
+{
+    attackInternal(attackingCharacter, attackedCharacter, characterAttack);
+    characterTileSpecialEffect(attackingCharacter, attackedCharacter, characterAttack);
+    genericSpecialEffect(attackingCharacter, characterAttack);
+    characterAttack.use();
+}
+
+void CombatManager::attackInternal(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack)
 {
     int damageToTake = int(attackingCharacter.getCurDamage() * attack.mDamagePercent);
     if (damageToTake > 0 && attack.mDamageDistanceDependent)
@@ -199,44 +219,33 @@ void CombatManager::attack(CombatCharacter& attackingCharacter, CombatCharacter&
         damageToTake = std::max(damageToTake, 0);
     }
     attackedCharacter.takeDamage(damageToTake);
-    specialEffect(attackingCharacter, attackedCharacter, attack);
 }
 
-void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack)
+void CombatManager::characterTileSpecialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack)
 {
-    for (const SpecialEffect& specialEffect : attack.mSpecialEffects)
+    std::vector<CombatCharacter*> pCharacters;
+    for (const SpecialEffect& specialEffect : attack.mCharacterTileSpecialEffects)
     {
-        std::vector<CombatCharacter*> pCharacters;
-        if (specialEffect.mAttackTargetType != EAttackTargetType_INVALID && specialEffect.mAttackTargetType != EAttackTargetType_ALL_CHARACTERS && specialEffect.mAttackTargetType != attackedCharacter.mType)
+        if (!characterTypeFit(specialEffect.mAttackTargetType, attackedCharacter.mType))
         {
             continue;
         }
-    
+
         switch (specialEffect.mType)
         {
         case EMiniGameCombatSpecialEffectTypes_STUN:
             attackedCharacter.stun(specialEffect.mTurns);
             break;
 
-        case EMiniGameCombatSpecialEffectTypes_LOSE_TURN: // self stun
-            attackingCharacter.stun(specialEffect.mTurns + 1);
+        case EMiniGameCombatSpecialEffectTypes_POISON:
+            attackedCharacter.addHealthModifier(((int)specialEffect.mAmount), specialEffect.mTurns);
             break;
 
         case EMiniGameCombatSpecialEffectTypes_HEAL:
+        case EMiniGameCombatSpecialEffectTypes_FULL_HEAL:
             switch (specialEffect.mAttackTargetType)
             {
-            case EAttackTargetType_ALL_CHARACTERS:
-                pCharacters = getCurAliveCharacters();
-                break;
-            case EAttackTargetType_ALL_PLAYERS:
-                pCharacters = getCurAlivePlayers();
-                break;
-            case EAttackTargetType_ALL_ENEMIES:
-                pCharacters = getCurAliveEnemies();
-                break;
-            case EAttackTargetType_SELF:
-                pCharacters = { &attackingCharacter };
-                break;
+           
             case EAttackTargetType_ONE_PLAYER:
             case EAttackTargetType_ONE_ENEMY:
             case EAttackTargetType_ONE_CHARACTER:
@@ -248,7 +257,7 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
             }
             for (CombatCharacter* pCharacter : pCharacters)
             {
-                if (specialEffect.mSpecial)
+                if (specialEffect.mType == EMiniGameCombatSpecialEffectTypes_FULL_HEAL)
                 {
                     pCharacter->fullHeal();
                 }
@@ -256,13 +265,34 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
                 {
                     pCharacter->heal((int)specialEffect.mAmount);
                 }
-                
             }
             break;
 
-        case EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER:
+
+        default:
+            SDL_assert(false);
+        }
+    }
+}
+
+void CombatManager::genericSpecialEffect(CombatCharacter& attackingCharacter, const Attack& attack)
+{
+    std::vector<CombatCharacter*> pCharacters;
+    for (const SpecialEffect& specialEffect : attack.mGenericSpecialEffects)
+    {
+        switch (specialEffect.mType)
+        {
+        case EMiniGameCombatSpecialEffectTypes_LOSE_TURN: // self stun
+            attackingCharacter.stun(specialEffect.mTurns + 1);
+            break;
+
+        case EMiniGameCombatSpecialEffectTypes_HEAL:
+        case EMiniGameCombatSpecialEffectTypes_FULL_HEAL:
             switch (specialEffect.mAttackTargetType)
             {
+            case EAttackTargetType_SELF:
+                pCharacters = { &attackingCharacter };
+                break;
             case EAttackTargetType_ALL_CHARACTERS:
                 pCharacters = getCurAliveCharacters();
                 break;
@@ -272,8 +302,37 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
             case EAttackTargetType_ALL_ENEMIES:
                 pCharacters = getCurAliveEnemies();
                 break;
+            default:
+                SDL_assert(false);
+                break;
+            }
+            for (CombatCharacter* pCharacter : pCharacters)
+            {
+                if (specialEffect.mType == EMiniGameCombatSpecialEffectTypes_FULL_HEAL)
+                {
+                    pCharacter->fullHeal();
+                }
+                else
+                {
+                    pCharacter->heal((int)specialEffect.mAmount);
+                }
+            }
+            break;
+
+        case EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER:
+            switch (specialEffect.mAttackTargetType)
+            {
             case EAttackTargetType_SELF:
                 pCharacters = { &attackingCharacter };
+                break;
+            case EAttackTargetType_ALL_CHARACTERS:
+                pCharacters = getCurAliveCharacters();
+                break;
+            case EAttackTargetType_ALL_PLAYERS:
+                pCharacters = getCurAlivePlayers();
+                break;
+            case EAttackTargetType_ALL_ENEMIES:
+                pCharacters = getCurAliveEnemies();
                 break;
             default:
                 SDL_assert(false);
@@ -284,9 +343,13 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
                 pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
             }
             break;
+
         case EMiniGameCombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER:
             switch (specialEffect.mAttackTargetType)
             {
+            case EAttackTargetType_SELF:
+                pCharacters = { &attackingCharacter };
+                break;
             case EAttackTargetType_ALL_CHARACTERS:
                 pCharacters = getCurAliveCharacters();
                 break;
@@ -295,9 +358,6 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
                 break;
             case EAttackTargetType_ALL_ENEMIES:
                 pCharacters = getCurAliveEnemies();
-                break;
-            case EAttackTargetType_SELF:
-                pCharacters = { &attackingCharacter };
                 break;
             default:
                 SDL_assert(false);
@@ -308,6 +368,7 @@ void CombatManager::specialEffect(CombatCharacter& attackingCharacter, CombatCha
                 pCharacter->addDefenseCapacityModifier(specialEffect.mAmount, specialEffect.mTurns);
             }
             break;
+
         default:
             SDL_assert(false);
             break;
@@ -327,6 +388,8 @@ bool CombatManager::characterOnTile(const Tile& tile)
     }
     return false;
 }
+
+int CombatManager::getRoundNum() { return mRounds; }
 
 GameOverStats CombatManager::getGameOverStats()
 {

@@ -98,9 +98,9 @@ void MiniGamePlayerWaitForActionInput::postTick(EMiniGameState nextStateEnum)
 
 MiniGamePlayerWaitForAttackOptionInput::MiniGamePlayerWaitForAttackOptionInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : MiniGameState(keyboardData, data, worldData){;}
 
-void MiniGamePlayerWaitForAttackOptionInput::postTick(Attack attack)
+void MiniGamePlayerWaitForAttackOptionInput::postTick(Attack& attack)
 {
-	mData.mpCurAttack = new Attack(attack);
+	mData.mpCurAttack = &attack;
 	if (attack.mRequiresDirectionInput)
 	{
 		mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT;
@@ -416,7 +416,11 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 	// choose the attack with the highest damage output
 	for (Attack& attack : mData.getCharacter()->mCombatMovementManager.getAttacks())
 	{
-		if (attack.mRequiresDirectionInput)
+		if (attack.mCurCooldown != 0)
+		{
+			continue;
+		}
+		else if (attack.mRequiresDirectionInput)
 		{
 			// choose direction that can attack the most characters
 			std::vector <Tile*> pTilesToAttackWithCharacters;
@@ -478,10 +482,16 @@ bool MiniGameEnemyTakeAction::shouldDefend()
 	{
 		if (pCharacter->getStuns() > 0)
 		{
+			// potential attacker can't attack
 			continue;
 		}
-		for (Attack& attack : pCharacter->mCombatMovementManager.getAttacks())
+		for (const Attack& attack : pCharacter->mCombatMovementManager.getAttacks())
 		{
+			if (attack.mCurCooldown != 0)
+			{
+				// potential attacker can't use this attack
+				continue;
+			}
 			if (tileInAttackRange(attack, EDirection_ALL, grid, pCurTile, pCharacter->mCombatMovementManager.getCurTile()) && attack.mDamagePercent > 0)
 			{
 				// enemy is in this player's attack range

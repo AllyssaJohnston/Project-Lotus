@@ -10,11 +10,11 @@
 class CombatMovementManager
 {
 private:
-    std::vector <Attack>           mAttacks;
-    EMiniGameCombatMoveAttackTypes mType = EMiniGameCombatMoveAttackTypes_INVALID;
-    int                            mNum;
-    int                            mOut;
-    std::vector <TileCoords>       mTileCoords;
+    std::vector<Attack>             mAttacks; // attack, attack cooldown pair
+    EMiniGameCombatMoveAttackTypes  mType = EMiniGameCombatMoveAttackTypes_INVALID;
+    int                             mNum;
+    int                             mOut;
+    std::vector <TileCoords>        mTileCoords;
 
     Tile& mStartingTile;
     Tile* mpCurTile;
@@ -24,7 +24,7 @@ public:
 
     ~CombatMovementManager();
 
-    void preTick();
+    void postTick();
 
     void resetStats();
 
@@ -32,11 +32,11 @@ public:
 
     void setMoveTiles();
 
-    std::vector <TileCoords> getMoveTileCoords() const;
+    std::vector<TileCoords> getMoveTileCoords() const;
 
     bool isTileInMoveRange(const Tile& givenTile) const;
 
-    std::vector <Attack>& getAttacks();
+    std::vector<Attack>& getAttacks();
 
     Tile* getCurTile() const;
 

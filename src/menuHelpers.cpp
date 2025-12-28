@@ -54,51 +54,51 @@ std::string updateGameStatBoxCurTextBoxMessage(const TextBox& textBox, const std
 {
 	switch (textBox.mData.mGameStatToDisplay)
 	{
-	case EGameStatBoxValueToDisplay_CUR_LEVEL_NUMBER:
+	case EUIBoxValueToDisplay_CUR_LEVEL_NUMBER:
 		return "CUR LEVEL: " + std::to_string(worldData.mCurWorldNumber) + " - " + std::to_string(worldData.mCurLevelNumber);
-	case EGameStatBoxValueToDisplay_CUR_ENEMIES_LEFT:
+	case EUIBoxValueToDisplay_CUR_ENEMIES_LEFT:
 		return std::to_string(worldData.mpWorlds[worldData.mCurWorldNumber]->mpLevels[worldData.mCurLevelNumber]->mpActiveEnemies.size());
-	case EGameStatBoxValueToDisplay_CUR_KEYS:
+	case EUIBoxValueToDisplay_CUR_KEYS:
 		return std::to_string(worldData.mPlayer.mKeys);
-	case EGameStatBoxValueToDisplay_CUR_TARGETS:
+	case EUIBoxValueToDisplay_CUR_TARGETS:
 		return std::to_string(worldData.mPlayer.mTargets);
-	case EGameStatBoxValueToDisplay_CUR_COLLECTIBLES:
+	case EUIBoxValueToDisplay_CUR_COLLECTIBLES:
 		return std::to_string(worldData.mNumLotusCollectibles);
-	case EGameStatBoxValueToDisplay_MOVEMENT_LEFT_KEY:
+	case EUIBoxValueToDisplay_MOVEMENT_LEFT_KEY:
 		return createStringFromKeyboardList(settingsManager.leftKeys);
-	case EGameStatBoxValueToDisplay_MOVEMENT_RIGHT_KEY:
+	case EUIBoxValueToDisplay_MOVEMENT_RIGHT_KEY:
 		return createStringFromKeyboardList(settingsManager.rightKeys);
-	case EGameStatBoxValueToDisplay_MOVEMENT_UP_KEY:
+	case EUIBoxValueToDisplay_MOVEMENT_UP_KEY:
 		return createStringFromKeyboardList(settingsManager.upKeys);
-	case EGameStatBoxValueToDisplay_LEVEL_RESET_KEY:
+	case EUIBoxValueToDisplay_LEVEL_RESET_KEY:
 		return keyboardToStringMap.at(settingsManager.resetLevel);
-	case EGameStatBoxValueToDisplay_CHECKPOINT_RESET_KEY:
+	case EUIBoxValueToDisplay_CHECKPOINT_RESET_KEY:
 		return keyboardToStringMap.at(settingsManager.resetCheckpoint);
-	case EGameStatBoxValueToDisplay_PROJECTILE_HORIZONTAL_KEY:
+	case EUIBoxValueToDisplay_PROJECTILE_HORIZONTAL_KEY:
 		if (worldData.mpWorlds[worldData.mCurWorldNumber]->mpLevels[worldData.mCurLevelNumber]->mThrowProjectileAllowed)
 		{
 			return keyboardToStringMap.at(settingsManager.shootProjectileHorizontal);
 		}
 		return " ";
-	case EGameStatBoxValueToDisplay_PROJECTILE_VERTICAL_KEY:
+	case EUIBoxValueToDisplay_PROJECTILE_VERTICAL_KEY:
 		if (worldData.mpWorlds[worldData.mCurWorldNumber]->mpLevels[worldData.mCurLevelNumber]->mThrowDownwardProjectileAllowed)
 		{
 			return keyboardToStringMap.at(settingsManager.shootProjectileVertical);
 		}
 		return " ";
-	case EGameStatBoxValueToDisplay_DOUBLE_JUMP_KEY:
+	case EUIBoxValueToDisplay_DOUBLE_JUMP_KEY:
 		if (worldData.mpWorlds[worldData.mCurWorldNumber]->mpLevels[worldData.mCurLevelNumber]->mDoubleJumpAllowed)
 		{
 			return createStringFromKeyboardList(settingsManager.upKeys);
 		}
 		return " ";
-	case EGameStatBoxValueToDisplay_SLASH_KEY:
+	case EUIBoxValueToDisplay_SLASH_KEY:
 		if (worldData.mpWorlds[worldData.mCurWorldNumber]->mpLevels[worldData.mCurLevelNumber]->mSlashAllowed)
 		{
 			return keyboardToStringMap.at(settingsManager.slash);
 		}
 		return " ";
-	case EGameStatBoxValueToDisplay_CUR_KEYBOARD:
+	case EUIBoxValueToDisplay_CUR_KEYBOARD:
 		return curKeys;
 	default:
 		SDL_assert(false);
@@ -111,9 +111,11 @@ std::string updateMiniGameStatBoxCurTextBoxMessage(const TextBox& textBox, const
 {
 	switch (textBox.mData.mGameStatToDisplay)
 	{
-	case EGameStatBoxValueToDisplay_CUR_LEVEL_NUMBER:
+	case EUIBoxValueToDisplay_CUR_LEVEL_NUMBER:
 		return "CUR LEVEL: " + std::to_string(worldData.mCurWorldNumber) + " - " + std::to_string(worldData.mCurLevelNumber) + " - " + std::to_string(worldData.mCurStageNumber);
-	case EGameStatBoxValueToDisplay_MINI_GAME_DEBUG_LINE:
+	case EUIBoxValueToDisplay_COMBAT_ROUND_NUM:
+		return "ROUND: " + std::to_string(worldData.getStage()->mCombatManager.getRoundNum());
+	case EUIBoxValueToDisplay_MINI_GAME_DEBUG_LINE:
 		return managerData.mStateData.mDebugLine;
 	default:
 		SDL_assert(false);
@@ -133,31 +135,37 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 		return "null character";
 	}
 
-	switch (textBox.mData.mCharacterStatToDisplay)
+	switch (textBox.mData.mGameStatToDisplay)
 	{
-	case ECharacterStatBoxValueToDisplay_CHARACTER_NAME:
+	case EUIBoxValueToDisplay_CHARACTER_NAME:
 		return pCharacter->mName;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH:
+	case EUIBoxValueToDisplay_CHARACTER_HEALTH:
 		return std::to_string(pCharacter->getCurHealth());
-	case ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE:
+	case EUIBoxValueToDisplay_CHARACTER_HEALTH_MODIFIER_AMOUNT:
+		return std::to_string(pCharacter->getCurHealthModifier());
+	case EUIBoxValueToDisplay_CHARACTER_DEFENSE:
 		return std::to_string(pCharacter->getCurDefense());
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK:
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK:
 		return std::to_string(pCharacter->getCurDamage());
-	case ECharacterStatBoxValueToDisplay_CHARACTER_STUN:
+	case EUIBoxValueToDisplay_CHARACTER_STUN:
 		return std::to_string(pCharacter->getStuns());
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME:
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME:
 		return pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum].mName;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TYPE:
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TYPE:
 		return getAttackType(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]);
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE:
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_CUR_COOLDOWN:
+		return getAttackCooldownAmount(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " turn cooldown. Currently on " + getAttackCurCooldown(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " turn cooldown";
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_COOLDOWN_AMOUNT:
+		return getAttackCooldownAmount(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " turn cooldown";
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE:
 		return getAttackDamage(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum], pCharacter->getBaseDamage());
-	case ECharacterStatBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES:
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES:
 		return getSpecialEffect(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]);
-	case ECharacterStatBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME:
+	case EUIBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME:
 		return managerData.mStateData.mpCurAttack->mName;
-	case ECharacterStatBoxValueToDisplay_CHARACTER_MOVE_TYPE:
+	case EUIBoxValueToDisplay_CHARACTER_MOVE_TYPE:
 		return returnDescriptionOfMoveAttackType(pCharacter->mCombatMovementManager.getMoveType(), pCharacter->mCombatMovementManager.getMoveNum(), pCharacter->mCombatMovementManager.getMoveOut());
-	case ECharacterStatBoxValueToDisplay_INVALID:
+	case EUIBoxValueToDisplay_INVALID:
 		return textBox.mMessage;
 	default:
 		SDL_assert(false);
@@ -168,11 +176,11 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 
 std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, const MiniGameWorldData& worldData) 
 { 
-	switch (healthBox.mData.mCharacterStatToDisplay)
+	switch (healthBox.mData.mGameStatToDisplay)
 	{
-	case ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH:
+	case EUIBoxValueToDisplay_CHARACTER_HEALTH:
 		return std::to_string(worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getCurHealth());
-	case ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE:
+	case EUIBoxValueToDisplay_CHARACTER_DEFENSE:
 		return std::to_string(worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getCurDefense());
 	default:
 		SDL_assert(false);
@@ -184,11 +192,11 @@ std::string updateHealthStatBoxCurTextBoxMessage(const HealthBox& healthBox, con
 
 float updateHealthStatBoxCurTextBoxRatio(const HealthBox& healthBox, const MiniGameWorldData& worldData)
 {
-	switch (healthBox.mData.mCharacterStatToDisplay)
+	switch (healthBox.mData.mGameStatToDisplay)
 	{
-	case ECharacterStatBoxValueToDisplay_CHARACTER_HEALTH:
+	case EUIBoxValueToDisplay_CHARACTER_HEALTH:
 		return worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getHealthRatio();
-	case ECharacterStatBoxValueToDisplay_CHARACTER_DEFENSE:
+	case EUIBoxValueToDisplay_CHARACTER_DEFENSE:
 		return worldData.getStage()->mCombatManager.getFromAllCharacters(healthBox.mData.mCombatCharacterIndex)->getDefenseRatio();
 	default:
 		SDL_assert(false);

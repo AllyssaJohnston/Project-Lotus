@@ -49,17 +49,28 @@ public:
 
     void tickAll();
 
-    void attack(CombatCharacter& attackingCharacter, Tile& givenTile, const Attack& attack);
+    void attack(CombatCharacter& attackingCharacter, Tile& givenTile, Attack& attack);
 
-    void attack(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack);
+    void attack(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, Attack& attack);
 
-    void attackMultipleTiles(CombatCharacter& attackingCharacter, std::vector <Tile*>& pTilesToAttack, const Attack& attack);
+    void attackMultipleTiles(CombatCharacter& attackingCharacter, std::vector <Tile*>& pTilesToAttack, Attack& attack);
 
-    void specialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack);
+    
     
     bool characterOnTile(const Tile& tile);
+
+    int getRoundNum();
 
     GameOverStats getGameOverStats();
 
     void resetStats();
+
+private:
+    void attackInternal(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack);
+
+    // special effects that happen per attacked character/ tile
+    void characterTileSpecialEffect(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack);
+
+    // special effects that happen once, per the attack
+    void genericSpecialEffect(CombatCharacter& attackingCharacter, const Attack& attack);
 };

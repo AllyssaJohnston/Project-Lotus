@@ -19,6 +19,27 @@ public:
 
     ImageObject mModel = ImageObject();
 
+private:
+    bool mStarted = false;
+    bool mAmAlive = true;
+
+    int mStandardAttackDamage = -1;
+    std::vector<std::pair<float, int>> mAttackDamageModifiers;  // multiplier amount, num turns
+
+    int mHealAmount = -1;
+    int mCurHealth = -1;
+    std::vector<std::pair<int, int>> mHealthModifiers;         // flat amount, num turns
+    
+    int mStandardHealthCapacity = -1;
+    std::vector<std::pair<float, int>> mHealthCapacityModifiers; // multiplier amount, num turns
+
+    int mCurDefense = 0;
+    int mStandardDefenseCapacity = -1;
+    std::vector<std::pair<float, int>> mDefenseCapacityModifiers; // multiplier amount, num turns
+
+    int mTurnsToPass = 0;
+public:
+
     CombatCharacter(Tile& curTile, const CombatCharacterPreset& preset);
 
     ~CombatCharacter() { ; }
@@ -50,6 +71,13 @@ public:
 
     int getCurHealth() const;
 
+    int getCurHealthModifier() const;
+
+    void addHealthModifier(const int amount, const int numTurns);
+
+    std::vector<std::pair<int, int>> getHealthModifiers() const;
+
+
     int getCurHealthCapacity() const;
 
     int getBaseHealthCapacity() const;
@@ -61,6 +89,7 @@ public:
     void addHealthCapacityModifier(const float multiplier, const int numTurns);
 
     std::vector<std::pair<float, int>> getHealthCapacityModifiers() const;
+
 
     void heal(const int amount);
 
@@ -91,29 +120,14 @@ public:
 
     void move(Tile* pTile);
 
-    void revertToState(const CombatCharacter& prevState);
+    void revertToState(CombatCharacter& prevState);
 
 private:
-    bool mStarted = false;
-    bool mAmAlive = true;
-
-    int mStandardAttackDamage   = -1;
-    std::vector<std::pair<float, int>> mAttackDamageModifiers;  // multiplier amount, num turns
-
-    int mHealAmount = -1;
-    int mCurHealth = -1;
-    int mStandardHealthCapacity = -1;
-    std::vector<std::pair<float, int>> mHealthCapacityModifiers; // multiplier amount, num turns
-    
-    int mCurDefense = 0;
-    int mStandardDefenseCapacity = -1;
-    std::vector<std::pair<float, int>> mDefenseCapacityModifiers; // multiplier amount, num turns
-    
-    int mTurnsToPass = 0;
-
     void updateAmAlive();
 
     void updateModifiers(std::vector<std::pair<float, int>>& modifierlist);
+
+    void updateModifiers(std::vector<std::pair<int, int>>& modifierlist);
 };
 
 struct SortCharacterByTileRow

@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "combatHelpers.h"
 #include "combatAttackPresets.h"
@@ -12,14 +13,14 @@ struct SpecialEffect
     std::string                         mName;
     float                               mAmount;
     int                                 mTurns;
-    bool                                mSpecial;
 
     SpecialEffect(const SpecialEffectPreset& preset);
 };
 
 
-struct Attack
+class Attack
 {
+public:
     EMiniGameCombatMoveAttackTypes      mType;
     int                                 mNum = -1;
     int                                 mOut = -1;
@@ -27,16 +28,28 @@ struct Attack
     float                               mDamagePercent;
     bool                                mDamageDistanceDependent   = false;
     float                               mDamageDropOff             = .25f;
-    std::vector <SpecialEffect>         mSpecialEffects;
+    std::vector <SpecialEffect>         mCharacterTileSpecialEffects;   // special effects that target a character/ tile (s)
+    std::vector <SpecialEffect>         mGenericSpecialEffects;         // special effects that happen regardless of the character/ tile
     bool                                mRequiresDirectionInput    = false;
     std::string                         mName;
     std::string                         mDescription;
+    int                                 mCurCooldown = 0;
+    int                                 mCooldownAmount;
+
+private:
+    bool                                mUsed = false;
+
+public:
    
-    Attack(const EMiniGameCombatMoveAttackTypes type, const int num, const int out, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const std::string name, const std::string description);
+    Attack(const EMiniGameCombatMoveAttackTypes type, const int num, const int out, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description);
 
-    Attack(const EMiniGameCombatMoveAttackTypes type, const int num, const int out, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const std::string name);
+    Attack(const EMiniGameCombatMoveAttackTypes type, const int num, const int out, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name);
 
-    Attack(const EMiniGameCombatMoveAttackTypes type, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const std::string name, const std::string description);
+    Attack(const EMiniGameCombatMoveAttackTypes type, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description);
 
-    Attack(const EMiniGameCombatMoveAttackTypes type, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const std::string name);
+    Attack(const EMiniGameCombatMoveAttackTypes type, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name);
+
+    void use();
+
+    void postTick();
 };

@@ -6,6 +6,15 @@ MenuPage::~MenuPage()
 	mpLastFrameCurTextBox = nullptr;
 	mpCurTextBox = nullptr;
 
+	for (UIElement* pBox : mpElems)
+	{
+		if (pBox->mClassType == EUIClass_BLOCK)
+		{
+			delete pBox;
+		}
+	}
+	mpElems.clear();
+
 	for (TextBox* pBox : mpAllSelectableTextBoxes)
 	{
 		delete pBox;
@@ -36,14 +45,6 @@ MenuPage::~MenuPage()
 	}
 	mpHealthBoxes.clear();
 
-	for (UIElement* pBox : mpElems)
-	{
-		if (pBox)
-		{
-			delete pBox;
-		}
-	}
-	mpElems.clear();
 }
 
 void MenuPage::preTick()

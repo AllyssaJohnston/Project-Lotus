@@ -53,7 +53,13 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 	Grid& grid = pStage->mGrid;
 	CombatManager& combatManager = pStage->mCombatManager;
 
-	if (curAttack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID || curAttack.mType == EMiniGameCombatMoveAttackTypes_ONE_CHARACTER || curAttack.mType == EMiniGameCombatMoveAttackTypes_ONE_PLAYER)
+	if (curAttack.mCurCooldown != 0)
+	{
+		return pTilesWithPlayers;
+	}
+
+	if (curAttack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID || curAttack.mType == EMiniGameCombatMoveAttackTypes_ONE_CHARACTER 
+			|| curAttack.mType == EMiniGameCombatMoveAttackTypes_ONE_PLAYER)
 	{
 		// just return the tiles with players
 		for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())
@@ -195,12 +201,21 @@ std::string getCharacterChangesString(const CombatManager& combatManager, const 
 				curLine += pCharacter->mName + " gained " + std::to_string(curDefense - prevDefense) + " defense ";
 			}
 
+			int prevHealthModifier = preTickCharacter.getCurHealthModifier();
+			int curHealthModifier = pCharacter->getCurHealthModifier();
+			if (curHealthModifier < 0 && curHealthModifier != prevHealthModifier)
+			{
+				curLine += pCharacter->mName + "'s is posioned " + std::to_string(curHealthModifier) + " ";
+			}
+			else if (curHealthModifier > 0 && curHealthModifier != prevHealthModifier)
+			{
+				curLine += pCharacter->mName + "'s is healing " + std::to_string(curHealthModifier) + " each turn";
+			}
 
 			int baseHealthCapacity = pCharacter->getBaseHealthCapacity();
 			int prevBaseHealthCapacity = preTickCharacter.getBaseHealthCapacity();
 			int curHealthCapacity = pCharacter->getCurHealthCapacity();
 			int prevCurHealthCapacity = preTickCharacter.getBaseHealthCapacity();
-
 			if (baseHealthCapacity < prevBaseHealthCapacity)
 			{
 				curLine += pCharacter->mName + "'s total health capacity permanently dropped to " + std::to_string(baseHealthCapacity) + " ";

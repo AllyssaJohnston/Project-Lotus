@@ -119,7 +119,7 @@ void MiniGameStateManager::undo()
 		mData.mPreviousStateDatas.pop();
 		mData.mLastFrameStateEnum = mData.mPreviousStateDatas.empty() ? EMiniGameState_INVALID : mData.mPreviousStateDatas.top().first;
 
-		const std::vector<CombatCharacter>& preTickCharacters = mData.mPreTickCharacters.top();
+		std::vector<CombatCharacter>& preTickCharacters = mData.mPreTickCharacters.top();
 		CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
 		for (int i = 0; i < (int)combatManager.getAllCharacters().size(); i++)
 		{
@@ -297,12 +297,13 @@ void MiniGameStateManager::createDebugLog()
 		break;
 
 	case EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK:
+	case EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT:
 	case EMiniGameState_ENEMY_TAKE_ACTION:
 		if (mData.mStateData.mAttacked)
 		{
 			line = preTickStateData.getCharacter()->mName + " choose to " + mData.mStateData.mpCurAttack->mName
-				+ (mData.mStateData.mpCurAttack->mRequiresDirectionInput ? (" " + directionToString(mData.mStateData.mCurAttackDirection)) : "");
-
+				+ (mData.mStateData.mpCurAttack->mRequiresDirectionInput ? (" " + directionToString(mData.mStateData.mCurAttackDirection)) : "") 
+				+ (mData.mStateData.mpCurAttack->mCurCooldown != 0 ? (". " + mData.mStateData.mpCurAttack->mName + " is now on " + std::to_string(mData.mStateData.mpCurAttack->mCurCooldown) + " turn cooldown") : "");
 		}
 		else if (mData.mStateData.mDefended || mData.mStateData.mHealed)
 		{
@@ -346,6 +347,7 @@ void MiniGameStateManager::createDebugLog()
 
 	if (line != "")
 	{
+		std::cout << line << "\n";
 		mData.mStateData.mDebugLine = line;
 	}
 }

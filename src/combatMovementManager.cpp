@@ -1,26 +1,33 @@
 #include "combatMovementManager.h"
 
-CombatMovementManager::CombatMovementManager(Tile& startingTile, const CombatCharacterPreset& preset) : mAttacks(preset.mAttacks), mType(preset.mMoveType), 
-        mNum(preset.mMoveNum), mOut(preset.mMoveOut), mStartingTile(startingTile), mpCurTile(&startingTile) {;}
+CombatMovementManager::CombatMovementManager(Tile& startingTile, const CombatCharacterPreset& preset) : mType(preset.mMoveType), 
+        mNum(preset.mMoveNum), mOut(preset.mMoveOut), mStartingTile(startingTile), mpCurTile(&startingTile), mAttacks(preset.mAttacks) { ; }
 
 CombatMovementManager::~CombatMovementManager()
 {
     mpCurTile       = nullptr;
 }
 
-void CombatMovementManager::CombatMovementManager::preTick()
+void CombatMovementManager::CombatMovementManager::postTick()
 {
-    setMoveTiles();
+    for (Attack& attack : mAttacks)
+    {
+        attack.postTick();
+    }
 }
 
 void CombatMovementManager::resetStats()
 {
     mpCurTile = &mStartingTile;
+    for (Attack& attack : mAttacks)
+    {
+        attack.mCurCooldown = 0;
+    }
 }
 
 void CombatMovementManager::setCurTile(Tile* pTileInput)  { mpCurTile = pTileInput; }
 
-std::vector <TileCoords> CombatMovementManager::getMoveTileCoords() const { return mTileCoords; }
+std::vector<TileCoords> CombatMovementManager::getMoveTileCoords() const { return mTileCoords; }
 
 void CombatMovementManager::setMoveTiles() { mTileCoords = returnTileCoords(*mpCurTile, mType, mNum, mOut, EDirection_ALL); }
 
@@ -36,7 +43,7 @@ bool CombatMovementManager::isTileInMoveRange(const Tile& givenTile) const
     return false;
 }
 
-std::vector <Attack>& CombatMovementManager::getAttacks() { return mAttacks; }
+std::vector<Attack>& CombatMovementManager::getAttacks() { return mAttacks; }
 
 Tile* CombatMovementManager::getCurTile() const { return mpCurTile; }
 

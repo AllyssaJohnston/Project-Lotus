@@ -81,20 +81,11 @@ std::string directionToString(EDirection dir)
 {
 	switch (dir)
 	{
-	case EDirection_LEFT:
-		return "left";
-	case EDirection_LEFT_AND_RIGHT:
-		return "left and right";
-	case EDirection_RIGHT:
-		return "right";
-	case EDirection_UP:
-		return "up";
-	case EDirection_UP_AND_DOWN:
-		return "up and down";
-	case EDirection_DOWN:
-		return "down";
-	case EDirection_NONE:
-		return "none";
+	case EDirection_LEFT: return "left";
+	case EDirection_RIGHT: return "right";
+	case EDirection_UP: return "up";
+	case EDirection_DOWN: return "down";
+	case EDirection_NONE: return "none";
 	}
 	return "invalid";
 }

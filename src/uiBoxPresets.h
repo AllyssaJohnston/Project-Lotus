@@ -14,27 +14,27 @@ struct TextBoxPreset
 
 struct StandardTextBoxPreset : public TextBoxPreset { StandardTextBoxPreset(std::string message); };
 
-struct MiniGameStatBoxPreset : public TextBoxPreset { MiniGameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay);  };
+struct MiniGameStatBoxPreset : public TextBoxPreset { MiniGameStatBoxPreset(EUIBoxValueToDisplay gameStateValueToDisplay);  };
 
 struct MiniGameCharacterBoxPreset : public TextBoxPreset
 {
-	MiniGameCharacterBoxPreset(int characterIndex,												bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay);
-	MiniGameCharacterBoxPreset(int characterIndex,												bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay,	std::vector <EMiniGameState> miniGameStateWhenToShowList);
-	MiniGameCharacterBoxPreset(int characterIndex, EMiniGameCombatCharacterType characterType,	bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay,	std::vector <EMiniGameState> miniGameStateWhenToShowList);
-	MiniGameCharacterBoxPreset(int characterIndex,												bool showDuringAllCharacters, std::string message,										std::vector <EMiniGameState> miniGameStateWhenToShowList);
-	MiniGameCharacterBoxPreset(int characterIndex, EMiniGameCombatCharacterType characterType,	bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay);
+	MiniGameCharacterBoxPreset(int characterIndex,												bool showDuringAllCharacters, EUIBoxValueToDisplay characterStatToDisplay);
+	MiniGameCharacterBoxPreset(int characterIndex,												bool showDuringAllCharacters, EUIBoxValueToDisplay characterStatToDisplay,	std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameCharacterBoxPreset(int characterIndex, EMiniGameCombatCharacterType characterType,	bool showDuringAllCharacters, EUIBoxValueToDisplay characterStatToDisplay,	std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameCharacterBoxPreset(int characterIndex,												bool showDuringAllCharacters, std::string message,							std::vector <EMiniGameState> miniGameStateWhenToShowList);
+	MiniGameCharacterBoxPreset(int characterIndex, EMiniGameCombatCharacterType characterType,	bool showDuringAllCharacters, EUIBoxValueToDisplay characterStatToDisplay);
 	MiniGameCharacterBoxPreset(int characterIndex,												bool showDuringAllCharacters, std::string message);
 };
 
-struct MiniGamePlayerBoxPreset : public TextBoxPreset {	 MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList); };
+struct MiniGamePlayerBoxPreset : public TextBoxPreset {	 MiniGamePlayerBoxPreset(EUIBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList); };
 
-struct MiniGamePlayerAttackBoxPreset : public TextBoxPreset { MiniGamePlayerAttackBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, int attackNum, EMiniGameCombatAttackCategoryType attackCategory, std::vector <EMiniGameState> miniGameStateWhenToShowList); };
+struct MiniGamePlayerAttackBoxPreset : public TextBoxPreset { MiniGamePlayerAttackBoxPreset(int characterIndex, bool showDuringAllCharacters, EUIBoxValueToDisplay characterStatToDisplay, int attackNum, EMiniGameCombatAttackCategoryType attackCategory, std::vector <EMiniGameState> miniGameStateWhenToShowList); };
 
 struct MiniGameBoxPreset : public TextBoxPreset { MiniGameBoxPreset(std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList); };
 
 struct MiniGameDirectionBoxPreset : public TextBoxPreset { MiniGameDirectionBoxPreset(std::string message, std::vector <EMiniGameState> miniGameStateWhenToShowList, EDirection direction); };
 
-struct GameStatBoxPreset : public TextBoxPreset { GameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay); };
+struct GameStatBoxPreset : public TextBoxPreset { GameStatBoxPreset(EUIBoxValueToDisplay gameStateValueToDisplay); };
 
 
 // IMAGE BOXES
@@ -78,5 +78,5 @@ struct HealthBoxPreset
 {
 	UIBoxData mData;
 
-	HealthBoxPreset(const int characterIndex, const ECharacterStatBoxValueToDisplay stat);
+	HealthBoxPreset(const int characterIndex, const EUIBoxValueToDisplay stat);
 };

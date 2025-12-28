@@ -8,39 +8,39 @@ StandardTextBoxPreset::StandardTextBoxPreset(std::string message) : TextBoxPrese
 	mData.mType = EUIBoxType_STANDARD;
 }
 
-MiniGameStatBoxPreset::MiniGameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay): TextBoxPreset()
+MiniGameStatBoxPreset::MiniGameStatBoxPreset(EUIBoxValueToDisplay gameStateValueToDisplay): TextBoxPreset()
 { 
 	mData.mGameStatToDisplay = gameStateValueToDisplay; 
 	mData.mType = EUIBoxType_MINI_GAME_STAT_BOX;
 }
 
-MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay) : TextBoxPreset()
+MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, EUIBoxValueToDisplay characterStatToDisplay) : TextBoxPreset()
 {
 	mData.mCombatCharacterIndex			= characterIndex;
 	mData.mCombatCharacterType			= EMiniGameCombatCharacterType_CHARACTER;
 	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
-	mData.mCharacterStatToDisplay		= characterStatToDisplay;
+	mData.mGameStatToDisplay			= characterStatToDisplay;
 	mData.mMiniGameStateWhenToShowList	= allMiniStates;
 	mData.mType							= EUIBoxType_MINI_GAME_CHARACTER_BOX;
 }
 
-MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
+MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool showDuringAllCharacters, EUIBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
 {
 	mData.mCombatCharacterIndex			= characterIndex;
 	mData.mCombatCharacterType			= EMiniGameCombatCharacterType_CHARACTER;
 	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
-	mData.mCharacterStatToDisplay		= characterStatToDisplay;
+	mData.mGameStatToDisplay			= characterStatToDisplay;
 	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
 	mData.mType							= EUIBoxType_MINI_GAME_CHARACTER_BOX;
 }
 
-MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, EMiniGameCombatCharacterType characterType, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay,
+MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, EMiniGameCombatCharacterType characterType, bool showDuringAllCharacters, EUIBoxValueToDisplay characterStatToDisplay,
 		std::vector <EMiniGameState> miniGameStateWhenToShowList)
 {
 	mData.mCombatCharacterIndex			= characterIndex;
 	mData.mCombatCharacterType			= characterType;
 	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
-	mData.mCharacterStatToDisplay		= characterStatToDisplay;
+	mData.mGameStatToDisplay			= characterStatToDisplay;
 	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
 	mData.mType							= EUIBoxType_MINI_GAME_CHARACTER_BOX;
 }
@@ -56,12 +56,12 @@ MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool 
 	mMessage							= message;
 }
 
-MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, EMiniGameCombatCharacterType characterType, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay)
+MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, EMiniGameCombatCharacterType characterType, bool showDuringAllCharacters, EUIBoxValueToDisplay characterStatToDisplay)
 {
 	mData.mCombatCharacterIndex			= characterIndex;
 	mData.mCombatCharacterType			= characterType;
 	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
-	mData.mCharacterStatToDisplay		= characterStatToDisplay;
+	mData.mGameStatToDisplay			= characterStatToDisplay;
 	mData.mMiniGameStateWhenToShowList	= allMiniStates;
 	mData.mType							= EUIBoxType_MINI_GAME_CHARACTER_BOX;
 }
@@ -77,18 +77,18 @@ MiniGameCharacterBoxPreset::MiniGameCharacterBoxPreset(int characterIndex, bool 
 }
 
 
-MiniGamePlayerBoxPreset::MiniGamePlayerBoxPreset(ECharacterStatBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
+MiniGamePlayerBoxPreset::MiniGamePlayerBoxPreset(EUIBoxValueToDisplay characterStatToDisplay, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
 {
-	mData.mCharacterStatToDisplay		= characterStatToDisplay;
+	mData.mGameStatToDisplay			= characterStatToDisplay;
 	mData.mMiniGameStateWhenToShowList	= miniGameStateWhenToShowList;
 	mData.mType							= EUIBoxType_MINI_GAME_PLAYER_BOX;
 }
 
-MiniGamePlayerAttackBoxPreset::MiniGamePlayerAttackBoxPreset(int characterIndex, bool showDuringAllCharacters, ECharacterStatBoxValueToDisplay characterStatToDisplay, int attackNum,
+MiniGamePlayerAttackBoxPreset::MiniGamePlayerAttackBoxPreset(int characterIndex, bool showDuringAllCharacters, EUIBoxValueToDisplay characterStatToDisplay, int attackNum,
 	EMiniGameCombatAttackCategoryType attackCategory, std::vector <EMiniGameState> miniGameStateWhenToShowList) : TextBoxPreset()
 {
 	mData.mCombatCharacterIndex			= characterIndex;
-	mData.mCharacterStatToDisplay		= characterStatToDisplay;
+	mData.mGameStatToDisplay			= characterStatToDisplay;
 	mData.mShowDuringAllCharacters		= showDuringAllCharacters;
 	mData.mAttackNum					= attackNum;
 	mData.mAttackCategory				= attackCategory;
@@ -112,7 +112,7 @@ MiniGameDirectionBoxPreset::MiniGameDirectionBoxPreset(std::string message, std:
 }
 
 
-GameStatBoxPreset::GameStatBoxPreset(EGameStatBoxValueToDisplay gameStateValueToDisplay) : TextBoxPreset()
+GameStatBoxPreset::GameStatBoxPreset(EUIBoxValueToDisplay gameStateValueToDisplay) : TextBoxPreset()
 {
 	mData.mGameStatToDisplay	= gameStateValueToDisplay;
 	mData.mType					= EUIBoxType_GAME_STAT_BOX;
@@ -199,11 +199,11 @@ MiniGamePlayerAttackShapeBoxPreset::MiniGamePlayerAttackShapeBoxPreset(EShapeBox
 
 
 // HEALTH BOXES
-HealthBoxPreset::HealthBoxPreset(const int characterIndex, const ECharacterStatBoxValueToDisplay stat) 
+HealthBoxPreset::HealthBoxPreset(const int characterIndex, const EUIBoxValueToDisplay stat)
 {
 	mData.mType = EUIBoxType_MINI_GAME_CHARACTER_BOX;
-	mData.mCombatCharacterIndex = characterIndex; 
-	mData.mCharacterStatToDisplay = stat;
-	mData.mShowDuringAllCharacters = true;
-	mData.mMiniGameStateWhenToShowList = allMiniStates;
+	mData.mCombatCharacterIndex			= characterIndex; 
+	mData.mGameStatToDisplay			= stat;
+	mData.mShowDuringAllCharacters		= true;
+	mData.mMiniGameStateWhenToShowList	= allMiniStates;
 }

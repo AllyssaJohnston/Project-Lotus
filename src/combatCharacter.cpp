@@ -24,7 +24,7 @@ void CombatCharacter::preTick()
 {
     if (mAmAlive)
     {
-        mCombatMovementManager.preTick();
+        mCombatMovementManager.setMoveTiles();
     }
 }
 
@@ -32,10 +32,18 @@ void CombatCharacter::postTick()
 {
     if (mAmAlive)
     {
-        mCombatMovementManager.preTick();
+        mCombatMovementManager.setMoveTiles();
+        mCombatMovementManager.postTick();
         mTurnsToPass = std::max(0, mTurnsToPass - 1);
 
+        // take damage from health modifiers
+        takeDamage(getCurHealthModifier());
+        updateAmAlive();
+
+        // update all of the modifiers, removing them if neccessary
+        updateModifiers(mHealthModifiers);
         updateModifiers(mAttackDamageModifiers);
+        updateModifiers(mHealthModifiers);
         updateModifiers(mHealthCapacityModifiers);
         updateModifiers(mDefenseCapacityModifiers);
     }
@@ -49,6 +57,7 @@ void CombatCharacter::resetStats()
     mCurDefense     = 0;
     mTurnsToPass    = 0;
     mAttackDamageModifiers.clear();
+    mHealthModifiers.clear();
     mHealthCapacityModifiers.clear();
     mDefenseCapacityModifiers.clear();
     mCombatMovementManager.resetStats();
@@ -115,6 +124,25 @@ std::vector<std::pair<float, int>> CombatCharacter::getDamageModifiers() const {
 
 int CombatCharacter::getCurHealth() const { return mCurHealth; }
 
+int CombatCharacter::getCurHealthModifier() const 
+{
+    if (mHealthModifiers.size() == 0)
+    {
+        return 0;
+    }
+    int healthLoss = 0;
+    for (const std::pair<int, int>& modifier : mHealthModifiers)
+    {
+        healthLoss += modifier.first;
+    }
+    return healthLoss;
+}
+
+void CombatCharacter::addHealthModifier(const int amount, const int numTurns) { mHealthCapacityModifiers.push_back(std::pair<int, int>(amount, numTurns)); }
+
+std::vector<std::pair<int, int>> CombatCharacter::getHealthModifiers() const { return mHealthModifiers; }
+
+
 int CombatCharacter::getCurHealthCapacity() const 
 {
     if (mHealthCapacityModifiers.size() == 0)
@@ -148,6 +176,7 @@ void CombatCharacter::addHealthCapacityModifier(const float multiplier, const in
 }
 
 std::vector<std::pair<float, int>> CombatCharacter::getHealthCapacityModifiers() const { return mHealthCapacityModifiers; }
+
 
 void CombatCharacter::heal(const int amount)
 {
@@ -205,7 +234,7 @@ void CombatCharacter::stun(const int numTurnsStunned) { mTurnsToPass += numTurns
 
 void CombatCharacter::move(Tile* pTileInput) { mCombatMovementManager.setCurTile(pTileInput); }
 
-void CombatCharacter::revertToState(const CombatCharacter& prevState)
+void CombatCharacter::revertToState(CombatCharacter& prevState)
 {
     mAmAlive                    = prevState.mAmAlive;
 
@@ -213,7 +242,10 @@ void CombatCharacter::revertToState(const CombatCharacter& prevState)
     mAttackDamageModifiers      = prevState.mAttackDamageModifiers;
 
     mHealAmount                 = prevState.mHealAmount;
+
     mCurHealth                  = prevState.mCurHealth;
+    mHealthModifiers            = prevState.mHealthModifiers;
+
     mStandardHealthCapacity     = prevState.mStandardHealthCapacity;
     mHealthCapacityModifiers    = prevState.mHealthCapacityModifiers;
 
@@ -225,6 +257,10 @@ void CombatCharacter::revertToState(const CombatCharacter& prevState)
 
     mCombatMovementManager.setCurTile(prevState.mCombatMovementManager.getCurTile());
     mCombatMovementManager.setMoveTiles();
+    for (int attackCount = 0; attackCount < mCombatMovementManager.getAttacks().size(); attackCount++)
+    {
+        mCombatMovementManager.getAttacks()[attackCount].mCurCooldown = prevState.mCombatMovementManager.getAttacks()[attackCount].mCurCooldown;
+    }
 }
 
 
@@ -240,6 +276,20 @@ void CombatCharacter::updateModifiers(std::vector<std::pair<float, int>>& modifi
         }
     }
 }
+
+void CombatCharacter::updateModifiers(std::vector<std::pair<int, int>>& modifierlist)
+{
+    for (int i = (int)modifierlist.size() - 1; i > -1; i--)
+    {
+        std::pair<int, int>& modifier = modifierlist[i];
+        modifier.second -= 1;
+        if (modifier.second < 0)
+        {
+            modifierlist.erase(modifierlist.begin() + i); // remove the modifier
+        }
+    }
+}
+
 
 
 bool SortCharacterByTileRow::operator()(const CombatCharacter* const pChar1, const CombatCharacter* const pChar2) const { return pChar2->mCombatMovementManager.getCurTile()->mRow > pChar1->mCombatMovementManager.getCurTile()->mRow; }

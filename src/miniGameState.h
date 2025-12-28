@@ -57,7 +57,7 @@ struct MiniGamePlayerWaitForAttackOptionInput : public MiniGameState
 {
     MiniGamePlayerWaitForAttackOptionInput(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData);
 
-    void postTick(Attack attack);
+    void postTick(Attack& attack);
 };
 
 struct MiniGamePlayerWaitForAttackDirectionInput : public MiniGameState
