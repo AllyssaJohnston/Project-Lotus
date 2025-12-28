@@ -510,9 +510,9 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenOb
 			//CHARACTER
 			//CHOOSE ATTACK
 			//OPTION NAME, DIAGRAM
-			//OPTION TYPE
-			//OPTION DAMAGE
-			//OPTION SPECIAL EFFECTS / NOTES
+			//TARGET TYPE
+			//DAMAGE
+			//SPECIAL EFFECTS / NOTES
 			const std::vector<Attack>& attacks = character.mCombatMovementManager.getAttacks();
 			for (int countAttack = 0; countAttack < (int)attacks.size(); countAttack++)
 			{
@@ -530,6 +530,7 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenOb
 				UIBlock* pAttackDetailBlock		= new UIBlock(panelWidth, panelBodyHeight, EUIPositionAlign_LEFT, EUIPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, false, 1, !fill, !fill, Edges(5, 0, 0, 0), 0, clear, "attack details");
 				if (curAttack.mDamagePercent != 0)  { miniGameMenuPage->addBox(	new TextBox(MiniGamePlayerAttackBoxPreset(countCharacter, false, EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE,						countAttack, category, whenToShow), ETextBoxFunction_NO_FUNCTION, UIPositionInfo(EUIPositionAlign_LEFT, EUIPositionAlign_TOP,	panelWidth, panelBodyHeight / 4,	Edges()), font, TextBoxSizeInfo(detailText), black), false, pAttackDetailBlock); }
 				if (curAttack.mCooldownAmount != 0) { miniGameMenuPage->addBox(	new TextBox(MiniGamePlayerAttackBoxPreset(countCharacter, false, EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_CUR_COOLDOWN,					countAttack, category, whenToShow), ETextBoxFunction_NO_FUNCTION, UIPositionInfo(EUIPositionAlign_LEFT, EUIPositionAlign_TOP,	panelWidth, panelBodyHeight / 4,	Edges()), font, TextBoxSizeInfo(detailText), black), false, pAttackDetailBlock); }
+				miniGameMenuPage->addBox(										new TextBox(MiniGamePlayerAttackBoxPreset(countCharacter, false, EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TARGET_TYPE,					countAttack, category, whenToShow), ETextBoxFunction_NO_FUNCTION, UIPositionInfo(EUIPositionAlign_LEFT, EUIPositionAlign_TOP,	panelWidth, panelBodyHeight / 4,	Edges()), font, TextBoxSizeInfo(detailText), black), false, pAttackDetailBlock);
 				miniGameMenuPage->addBox(										new TextBox(MiniGamePlayerAttackBoxPreset(countCharacter, false, EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES,	countAttack, category, whenToShow), ETextBoxFunction_NO_FUNCTION, UIPositionInfo(EUIPositionAlign_LEFT, EUIPositionAlign_TOP,	panelWidth, panelBodyHeight / 4,	Edges()), font, TextBoxSizeInfo(detailText), black), false, pAttackDetailBlock);
 				bulletAndAttackDetails->mpSubElems.push_back(pAttackDetailBlock);
 
@@ -575,7 +576,7 @@ void createBlockDiagram(const Attack& attack, const int characterIndex, const in
 	int leftBlockMargin = 20;
 
 	
-	if (attack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
+	if (attack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID || attack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE)
 	{
 		num = 4;
 		out = 0;
@@ -598,6 +599,7 @@ void createBlockDiagram(const Attack& attack, const int characterIndex, const in
 	{ 
 	case EMiniGameCombatMoveAttackTypes_SQUARE:
 	case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
+	case EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE:
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = 0; j < size; j++)
@@ -660,16 +662,6 @@ void createBlockDiagram(const Attack& attack, const int characterIndex, const in
 				}
 			}
 		}
-		break;
-	case EMiniGameCombatMoveAttackTypes_ONE_CHARACTER:
-	case EMiniGameCombatMoveAttackTypes_ONE_ENEMY:
-	case EMiniGameCombatMoveAttackTypes_ONE_PLAYER:
-		maxWidth	= blockSize;
-		maxHeight	= blockSize;
-		delete pDiagramBlock;
-		pDiagramBlock = new UIBlock(200, maxBlockHeight, EUIPositionAlign_LEFT, EUIPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, true, 1, !fill, !fill, Edges(0, 0, leftBlockMargin, 0), 0, clear, "block diagram");
-		// middle dot
-		pPage->addBox(new ShapeBox(MiniGamePlayerAttackShapeBoxPreset(EShapeBoxClass_CIRCLE, characterIndex, false, attackNum, category, whenToShow), UIPositionInfo(EUIPositionAlign_CENTER, EUIPositionAlign_CENTER, blockSize, blockSize, Edges(outSpacing, outSpacing, outSpacing, outSpacing)), blockColor), pDiagramBlock);
 		break;
 	default:
 		SDL_assert(false);

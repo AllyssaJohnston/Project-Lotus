@@ -2,7 +2,7 @@
 
 std::string getAttackType(const Attack& attack) { return returnDescriptionOfMoveAttackType(attack.mType, attack.mNum, attack.mOut); }
 
-std::string getAttackDamage(const Attack& attack, const int characterDamage) { return std::to_string((int)(attack.mDamagePercent * characterDamage)) + " damage"; }
+std::string getAttackDamage(const Attack& attack, const int characterDamage) { return std::to_string((int)(attack.mDamagePercent * characterDamage)) + " DAMAGE"; }
 
 std::string getAttackCurCooldown(const Attack& attack) { return std::to_string(attack.mCurCooldown); }
 

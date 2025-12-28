@@ -152,10 +152,19 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 		return pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum].mName;
 	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TYPE:
 		return getAttackType(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]);
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TARGET_TYPE:
+		return returnDescriptionOfAttackTargetType(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum].mAttackTargetType);
 	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_CUR_COOLDOWN:
-		return getAttackCooldownAmount(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " turn cooldown. Currently on " + getAttackCurCooldown(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " turn cooldown";
+		if (pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum].mCurCooldown > 0)
+		{
+			return getAttackCooldownAmount(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " TURN COOLDOWN. Currently on " + getAttackCurCooldown(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " turn cooldown";
+		}
+		else
+		{
+			return getAttackCooldownAmount(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " TURN COOLDOWN";
+		}
 	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_COOLDOWN_AMOUNT:
-		return getAttackCooldownAmount(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " turn cooldown";
+		return getAttackCooldownAmount(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " TURN COOLDOWN";
 	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE:
 		return getAttackDamage(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum], pCharacter->getBaseDamage());
 	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES:

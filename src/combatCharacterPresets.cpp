@@ -28,7 +28,7 @@ LotusCombatPreset::LotusCombatPreset() : CombatCharacterPreset()
     mAttacks.push_back(attack2);
 
     // SWORD SWIPE
-    Attack attack3 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ONE_ALIVE_ENEMY, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.5f, 0, "Sword Swipe");
+    Attack attack3 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ALIVE_ENEMIES, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.5f, 0, "Sword Swipe");
     attack3.mDamageDistanceDependent = false;
     attack3.mRequiresDirectionInput = true;
     mAttacks.push_back(attack3);
@@ -76,7 +76,7 @@ EzraCombatPreset::EzraCombatPreset() : CombatCharacterPreset()
     mAttacks.push_back(attack3);
 
     // FULL CHARACTER HEAL
-    Attack attack4 = Attack(EMiniGameCombatMoveAttackTypes_ONE_PLAYER, EAttackTargetType_ONE_ALIVE_PLAYER, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 5, "Full Heal");
+    Attack attack4 = Attack(EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE, EAttackTargetType_ONE_ALIVE_PLAYER, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 5, "Full Heal");
     attack4.mDamageDistanceDependent = false;
     attack4.mRequiresDirectionInput = false;
     attack4.mCharacterTileSpecialEffects.push_back(SpecialEffectFullHeal(EAttackTargetType_ONE_ALIVE_PLAYER));
@@ -84,7 +84,7 @@ EzraCombatPreset::EzraCombatPreset() : CombatCharacterPreset()
 
     // ATTACKS
     // GROW ROOTS
-    Attack attack5 = Attack(EMiniGameCombatMoveAttackTypes_CHECKERBOARD, EAttackTargetType_ALL_ALIVE_ENEMIES, 2, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Grow Roots");
+    Attack attack5 = Attack(EMiniGameCombatMoveAttackTypes_CHECKERBOARD, EAttackTargetType_ALIVE_ENEMIES, 2, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Grow Roots");
     attack5.mDamageDistanceDependent = false;
     attack5.mRequiresDirectionInput = false;
     mAttacks.push_back(attack5);
@@ -110,13 +110,13 @@ RatCombatPreset::RatCombatPreset() : CombatCharacterPreset()
     mName = "DRAGAUR";
 
     // SLASH
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ONE_ALIVE_PLAYER, 2, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.6f, 0, "Slash");
+    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ALIVE_PLAYERS, 2, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.6f, 0, "Slash");
     attack1.mDamageDistanceDependent = false;
     attack1.mRequiresDirectionInput = true;
     mAttacks.push_back(attack1);
 
     // SPIT THORNS
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ONE_ALIVE_PLAYER, 3, 1, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Spit Thorns");
+    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 3, 1, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Spit Thorns");
     attack2.mDamageDistanceDependent = false;
     attack2.mRequiresDirectionInput = false;
     mAttacks.push_back(attack2);
@@ -146,13 +146,13 @@ BouncyRatCombatPreset::BouncyRatCombatPreset() : CombatCharacterPreset()
     mName = "SHROOM VIPER";
 
     // CHOMP
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ONE_ALIVE_PLAYER, 2, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Chomp");
+    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 2, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Chomp");
     attack1.mDamageDistanceDependent = false;
     attack1.mRequiresDirectionInput = false;
     mAttacks.push_back(attack1);
 
     // LICK
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ONE_ALIVE_PLAYER, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.5f, 0, "Lick");
+    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ALIVE_PLAYERS, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.5f, 0, "Lick");
     attack2.mDamageDistanceDependent = false;
     attack2.mRequiresDirectionInput = true;
     mAttacks.push_back(attack2);
@@ -175,14 +175,14 @@ FrogCombatPreset::FrogCombatPreset() : CombatCharacterPreset()
     mName = "FROCODILE";
 
     // JUMP STRIKE
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ONE_ALIVE_PLAYER, 5, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.6f, 1, "Jump Strike");
+    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 5, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.6f, 1, "Jump Strike");
     attack1.mDamageDistanceDependent = true;
     attack1.mDamageDropOff           = .25f;
     attack1.mRequiresDirectionInput  = false;
     mAttacks.push_back(attack1);
 
     // SPIT
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ONE_ALIVE_PLAYER, 1, 1, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Spit");
+    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ALIVE_PLAYERS, 1, 1, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Spit");
     attack2.mDamageDistanceDependent = false;
     attack2.mRequiresDirectionInput  = false;
     mAttacks.push_back(attack2);
@@ -208,13 +208,13 @@ BouncyFrogCombatPreset::BouncyFrogCombatPreset() : CombatCharacterPreset()
     // 3 turn cooldown
 
     // CRUSH
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ONE_ALIVE_PLAYER, 2, 1, EMiniGameCombatAttackCategoryType_ATTACK, 0.67f, 0, "Crush");
+    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 2, 1, EMiniGameCombatAttackCategoryType_ATTACK, 0.67f, 0, "Crush");
     attack1.mDamageDistanceDependent = false;
     attack1.mRequiresDirectionInput = false;
     mAttacks.push_back(attack1);
 
     // CRUSH ++
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ONE_ALIVE_PLAYER, 3, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Crush++");
+    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 3, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Crush++");
     attack2.mDamageDistanceDependent = false;
     attack2.mRequiresDirectionInput = false;
     attack2.mCharacterTileSpecialEffects.push_back(SpecialEffect(SpecialEffectStun(1)));
@@ -238,14 +238,14 @@ HidingRatCombatPreset::HidingRatCombatPreset() : CombatCharacterPreset()
     mName = "SPIDERIG";
 
     // WEB
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ONE_ALIVE_PLAYER,  2, 0, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 0, "Web");
+    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS,  2, 0, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 0, "Web");
     attack1.mDamageDistanceDependent = false;
     attack1.mRequiresDirectionInput = false;
     attack1.mCharacterTileSpecialEffects.push_back(SpecialEffectStun(1));
     mAttacks.push_back(attack1);
 
     // POISON
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ONE_ALIVE_PLAYER, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 2, "Poison");
+    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 2, "Poison");
     attack2.mDamageDistanceDependent = false;
     attack2.mRequiresDirectionInput = false;
     attack2.mCharacterTileSpecialEffects.push_back(SpecialEffect(SpecialEffectPoison(2, 2)));
@@ -269,20 +269,20 @@ FastRatCombatPreset::FastRatCombatPreset() : CombatCharacterPreset()
     mName = "SEEDLING";
 
     // Poke
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_ONE_PLAYER, EAttackTargetType_ONE_ALIVE_PLAYER, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Poke");
+    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE, EAttackTargetType_ONE_ALIVE_PLAYER, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Poke");
     attack1.mDamageDistanceDependent = false;
     attack1.mRequiresDirectionInput = false;
     mAttacks.push_back(attack1);
 
     // Heal
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_ONE_ENEMY, EAttackTargetType_ONE_ALIVE_ENEMY, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 5, "Heal");
+    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE, EAttackTargetType_ONE_ALIVE_ENEMY, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 5, "Heal");
     attack2.mDamageDistanceDependent = false;
     attack2.mRequiresDirectionInput = false;
     attack2.mCharacterTileSpecialEffects.push_back(SpecialEffect(SpecialEffectHeal(15, EAttackTargetType_ONE_ALIVE_ENEMY)));
     mAttacks.push_back(attack2);
 
     // REVIVE (limit once)
-    Attack attack3 = Attack(EMiniGameCombatMoveAttackTypes_ONE_ENEMY, EAttackTargetType_ONE_ENEMY, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 5, "Revive");
+    Attack attack3 = Attack(EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE, EAttackTargetType_ONE_ENEMY, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 5, "Revive");
     attack3.mDamageDistanceDependent    = false;
     attack3.mRequiresDirectionInput     = false;
     attack3.mLimit                      = 1;

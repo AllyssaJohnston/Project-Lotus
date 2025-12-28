@@ -202,7 +202,8 @@ void MiniGameStateManager::updateTileColors()
 		tileType = EMiniGameCombatActionType_ATTACK;
 		if (mData.mStateData.mpCurAttack != nullptr)
 		{
-			if (mData.mStateData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
+			if (mData.mStateData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID
+				|| mData.mStateData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE)
 			{
 				colorWholeGrid = true;
 			}

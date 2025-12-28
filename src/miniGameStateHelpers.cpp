@@ -56,8 +56,7 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 		return pTilesWithPlayers;
 	}
 
-	if (curAttack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID || curAttack.mType == EMiniGameCombatMoveAttackTypes_ONE_CHARACTER 
-			|| curAttack.mType == EMiniGameCombatMoveAttackTypes_ONE_PLAYER)
+	if (curAttack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID || curAttack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE )
 	{
 		// just return the tiles with players
 		for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())

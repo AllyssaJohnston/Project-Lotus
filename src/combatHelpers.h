@@ -13,9 +13,7 @@ enum EMiniGameCombatMoveAttackTypes
     EMiniGameCombatMoveAttackTypes_CROSS,
     EMiniGameCombatMoveAttackTypes_CHECKERBOARD,
     EMiniGameCombatMoveAttackTypes_WHOLE_GRID,
-    EMiniGameCombatMoveAttackTypes_ONE_CHARACTER,
-    EMiniGameCombatMoveAttackTypes_ONE_PLAYER,
-    EMiniGameCombatMoveAttackTypes_ONE_ENEMY,
+    EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE,
     EMiniGameCombatMoveAttackTypes_MAX
 };
 
@@ -87,15 +85,21 @@ enum EMiniGameCombatTileMode
 enum EAttackTargetType
 {
     EAttackTargetType_INVALID = -1,
-    EAttackTargetType_ALL_ALIVE_PLAYERS,
-    EAttackTargetType_ALL_ALIVE_ENEMIES,
     EAttackTargetType_SELF,
-    EAttackTargetType_ONE_PLAYER,
+
+    EAttackTargetType_ALIVE_PLAYERS,
     EAttackTargetType_ONE_ALIVE_PLAYER,
-    EAttackTargetType_ONE_ENEMY,
+    EAttackTargetType_ONE_PLAYER,
+    EAttackTargetType_ALL_ALIVE_PLAYERS,
+
+    EAttackTargetType_ALIVE_ENEMIES,
     EAttackTargetType_ONE_ALIVE_ENEMY,
-    EAttackTargetType_ONE_CHARACTER,
+    EAttackTargetType_ONE_ENEMY,
+    EAttackTargetType_ALL_ALIVE_ENEMIES,
+
+    EAttackTargetType_ALIVE_CHARACTERS,
     EAttackTargetType_ONE_ALIVE_CHARACTER,
+    EAttackTargetType_ONE_CHARACTER,
     EAttackTargetType_ALL_ALIVE_CHARACTERS,
     EAttackTargetType_MAX
 };
@@ -109,4 +113,9 @@ struct GameOverStats
 
 bool characterTypeFit(EAttackTargetType targetType, EMiniGameCombatCharacterType characterType, bool targetAlive);
 
+EMiniGameCombatCharacterType getCharacterTypeFromAttackTargetType(EAttackTargetType targetType);
+
+
 std::string returnDescriptionOfMoveAttackType(const EMiniGameCombatMoveAttackTypes moveAttackType, const int num, const int out);
+
+std::string returnDescriptionOfAttackTargetType(const EAttackTargetType targetType);

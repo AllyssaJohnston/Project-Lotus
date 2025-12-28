@@ -113,17 +113,9 @@ void MiniGamePlayerWaitForAttackOptionInput::postTick(Attack& attack)
 			mData.mCurAttackDirection = EDirection_ALL;
 			mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK;
 			break;
-		case EMiniGameCombatMoveAttackTypes_ONE_CHARACTER:
+		case EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE:
 			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT;
-			mData.mTargetCharacterType = EMiniGameCombatCharacterType_CHARACTER;
-			break;
-		case EMiniGameCombatMoveAttackTypes_ONE_PLAYER:
-			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT;
-			mData.mTargetCharacterType = EMiniGameCombatCharacterType_PLAYER;
-			break;
-		case EMiniGameCombatMoveAttackTypes_ONE_ENEMY:
-			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT;
-			mData.mTargetCharacterType = EMiniGameCombatCharacterType_ENEMY;
+			mData.mTargetCharacterType = getCharacterTypeFromAttackTargetType(mData.mpCurAttack->mAttackTargetType);
 			break;
 		default:
 			mData.mCurAttackDirection = EDirection_ALL;

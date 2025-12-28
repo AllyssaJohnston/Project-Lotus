@@ -11,11 +11,9 @@ std::vector <TileCoords> returnTileCoords(const Tile& givenTile, const EMiniGame
     case EMiniGameCombatMoveAttackTypes_CHECKERBOARD:
         return getCheckerboardTiles(givenTile, out, num, direction);
     case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
-        SDL_assert(false);
-    case EMiniGameCombatMoveAttackTypes_ONE_CHARACTER:
-    case EMiniGameCombatMoveAttackTypes_ONE_PLAYER:
-    case EMiniGameCombatMoveAttackTypes_ONE_ENEMY:
+    case EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE:
     case EMiniGameCombatMoveAttackTypes_NONE:
+        SDL_assert(false);
         break;
     default:
         SDL_assert(false);
