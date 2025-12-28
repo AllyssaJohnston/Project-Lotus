@@ -3,7 +3,7 @@
 SpecialEffectStun::SpecialEffectStun(const int numTurns) : SpecialEffectPreset()
 {
     mType = EMiniGameCombatSpecialEffectTypes_STUN;
-    mAttackTargetType = EAttackTargetType_ONE_CHARACTER;
+    mAttackTargetType = EAttackTargetType_ONE_ALIVE_CHARACTER;
     mName = "STUN " + std::to_string(numTurns) + ((numTurns == 1) ? " TURN" : " TURNS");
     mTurns = numTurns;
 }
@@ -51,11 +51,19 @@ SpecialEffectFullHeal::SpecialEffectFullHeal(const EAttackTargetType attackTarge
     mAttackTargetType = attackTargetType;
 }
 
+SpecialEffectRevive::SpecialEffectRevive(const EAttackTargetType attackTargetType) : SpecialEffectPreset()
+{
+    mType = EMiniGameCombatSpecialEffectTypes_REVIVE;
+    mName = "REVIVE";
+    mTurns = 0;
+    mAttackTargetType = attackTargetType;
+}
+
 SpecialEffectPoison::SpecialEffectPoison(const int amount, const int turns)
 {
     mType = EMiniGameCombatSpecialEffectTypes_POISON;
     mName = "POISON";
     mAmount = (float)amount;
     mTurns = turns;
-    mAttackTargetType = EAttackTargetType_ONE_CHARACTER;
+    mAttackTargetType = EAttackTargetType_ONE_ALIVE_CHARACTER;
 }

@@ -2,19 +2,31 @@
 
 std::string createTileName(const int row, const int col) { return std::to_string(row) + " " + std::to_string(col); }
 
-bool characterTypeFit(EAttackTargetType targetType, EMiniGameCombatCharacterType characterType)
+bool characterTypeFit(EAttackTargetType targetType, EMiniGameCombatCharacterType characterType, bool targetAlive)
 {
-	if (targetType == EAttackTargetType_ALL_CHARACTERS || targetType == EAttackTargetType_ONE_CHARACTER)
+	if (targetType == EAttackTargetType_ONE_CHARACTER)
 	{
 		return true;
 	}
-	if ((targetType == EAttackTargetType_ALL_PLAYERS && characterType == EMiniGameCombatCharacterType_PLAYER)
-		|| (targetType == EAttackTargetType_ONE_PLAYER && characterType == EMiniGameCombatCharacterType_PLAYER))
+	if ((targetType == EAttackTargetType_ALL_ALIVE_CHARACTERS || targetType == EAttackTargetType_ONE_ALIVE_CHARACTER) && targetAlive)
 	{
 		return true;
 	}
-	if ((targetType == EAttackTargetType_ALL_ENEMIES && characterType == EMiniGameCombatCharacterType_ENEMY)
-		|| (targetType == EAttackTargetType_ONE_ENEMY && characterType == EMiniGameCombatCharacterType_ENEMY))
+	if (targetType == EAttackTargetType_ONE_PLAYER && characterType == EMiniGameCombatCharacterType_PLAYER)
+	{
+		return true;
+	}
+	if ((targetType == EAttackTargetType_ALL_ALIVE_PLAYERS || targetType == EAttackTargetType_ONE_ALIVE_PLAYER)
+		&& characterType == EMiniGameCombatCharacterType_PLAYER && targetAlive) 
+	{
+		return true;
+	}
+	if (targetType == EAttackTargetType_ONE_ENEMY && characterType == EMiniGameCombatCharacterType_ENEMY)
+	{
+		return true;
+	}
+	if ((targetType == EAttackTargetType_ALL_ALIVE_ENEMIES || targetType == EAttackTargetType_ONE_ALIVE_ENEMY)
+		&& characterType == EMiniGameCombatCharacterType_ENEMY && targetAlive)
 	{
 		return true;
 	}

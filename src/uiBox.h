@@ -181,6 +181,8 @@ public:
 
 	void updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, const std::string updatedMessage, float curRatio);
 
+	void updateRatio(float curRatio);
+
 	void setTexture(SDL_Renderer* pRenderer) override { ; }
 };
 

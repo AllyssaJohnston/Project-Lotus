@@ -148,6 +148,11 @@ void MenuManager::getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std
 			pHealthBox->updateMessage(pRenderer, mFontSizeChart, updatedMessage, ratio);
 			updated = true;
 		}
+		else
+		{
+			float ratio = updateHealthStatBoxCurTextBoxRatio(*pHealthBox, combatManager);
+			pHealthBox->updateRatio(ratio);
+		}
 	}
 
 	if (updated)

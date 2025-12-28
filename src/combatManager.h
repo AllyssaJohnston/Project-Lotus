@@ -37,7 +37,11 @@ public:
 
     std::vector <CombatCharacter*> getCurAliveCharacters() const;
 
+    std::vector <CombatCharacter*> getAllPlayers() const;
+
     std::vector <CombatCharacter*> getCurAlivePlayers() const;
+
+    std::vector <CombatCharacter*> getAllEnemies() const;
 
     std::vector <CombatCharacter*> getCurAliveEnemies() const;
 

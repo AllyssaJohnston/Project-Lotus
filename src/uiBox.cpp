@@ -179,7 +179,7 @@ void TextBox::setTexture(SDL_Renderer* pRenderer)
 		SDL_DestroySurface(disabledSurface);
 	}
 
-	SDL_assert(mTextLines.size() == mpStandardTextures.size() == mpHighlightedTextures.size() == mpDisabledTextures.size());
+	SDL_assert(mTextLines.size() == mpStandardTextures.size() && mTextLines.size() == mpDisabledTextures.size() && mpHighlightedTextures.size() >= mTextLines.size());
 
 	mpCurTextures = &getTexturesForState();
 }
@@ -537,11 +537,13 @@ void HealthBox::updatePosFromBlockSpace(const Hitbox& blockSpace)
 	mHealthText.updatePosFromBlockSpace(blockSpace);
 }
 
+void HealthBox::updateRatio(float curRatio) { mHealthLeftBox.mpCurHitbox->setWidth((int)std::max(mMaxWidth * curRatio, 1.0f)); }
+
 void HealthBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, const std::string updatedMessage, float curRatio)
 {
 	bool haveSetUp = mHealthText.mSetUp;
 	mHealthText.updateMessage(pRenderer, fontSizeChart, updatedMessage);
-	mHealthLeftBox.mpCurHitbox->setWidth((int)std::max(mMaxWidth * curRatio, 1.0f));
+	updateRatio(curRatio);
 	if (!haveSetUp)
 	{
 		mHealthLeftBox.mpCurHitbox->setHeight(mHealthText.mpCurHitbox->getHeight());

@@ -25,4 +25,6 @@ struct SpecialEffectHeal : public SpecialEffectPreset { SpecialEffectHeal(const 
 
 struct SpecialEffectFullHeal : public SpecialEffectPreset { SpecialEffectFullHeal(const EAttackTargetType attackTargetType); };
 
+struct SpecialEffectRevive : public SpecialEffectPreset { SpecialEffectRevive(const EAttackTargetType attackTargetType); };
+
 struct SpecialEffectPoison : public SpecialEffectPreset { SpecialEffectPoison(const int amount, const int turns); };

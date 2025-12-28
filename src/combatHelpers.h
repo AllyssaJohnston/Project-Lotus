@@ -31,6 +31,7 @@ enum EMiniGameCombatSpecialEffectTypes
     EMiniGameCombatSpecialEffectTypes_HEAL,
     EMiniGameCombatSpecialEffectTypes_FULL_HEAL,
     EMiniGameCombatSpecialEffectTypes_POISON,
+    EMiniGameCombatSpecialEffectTypes_REVIVE,
     EMiniGameCombatSpecialEffectTypes_MAX
 };
 
@@ -86,13 +87,16 @@ enum EMiniGameCombatTileMode
 enum EAttackTargetType
 {
     EAttackTargetType_INVALID = -1,
-    EAttackTargetType_ALL_PLAYERS,
-    EAttackTargetType_ALL_ENEMIES,
+    EAttackTargetType_ALL_ALIVE_PLAYERS,
+    EAttackTargetType_ALL_ALIVE_ENEMIES,
     EAttackTargetType_SELF,
     EAttackTargetType_ONE_PLAYER,
+    EAttackTargetType_ONE_ALIVE_PLAYER,
     EAttackTargetType_ONE_ENEMY,
+    EAttackTargetType_ONE_ALIVE_ENEMY,
     EAttackTargetType_ONE_CHARACTER,
-    EAttackTargetType_ALL_CHARACTERS,
+    EAttackTargetType_ONE_ALIVE_CHARACTER,
+    EAttackTargetType_ALL_ALIVE_CHARACTERS,
     EAttackTargetType_MAX
 };
 
@@ -103,6 +107,6 @@ struct GameOverStats
 };
 
 
-bool characterTypeFit(EAttackTargetType targetType, EMiniGameCombatCharacterType characterType);
+bool characterTypeFit(EAttackTargetType targetType, EMiniGameCombatCharacterType characterType, bool targetAlive);
 
 std::string returnDescriptionOfMoveAttackType(const EMiniGameCombatMoveAttackTypes moveAttackType, const int num, const int out);
