@@ -22,24 +22,21 @@ private:
 
 	int  mSpacing = 0;
 
-	int	 mMaxWidth = 1;
-	int	 mMaxHeight = 1;
-
 	bool   mFillWidth = false;
 	bool   mFillHeight = false;
 
-	Vect2  mStartingPositionCenter;
+	Vect2  mAnchorPoint;
 
 	EDirection mGrowthDirectionHorizontal = EDirection_INVALID;
 	EDirection mGrowthDirectionVertical = EDirection_INVALID;
 
 public:
 	// HEAD BLOCK
-	UIBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
+	UIBlock(Hitbox hitbox, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
 		bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
 
 	// SUB BLOCKS
-	UIBlock(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
+	UIBlock(int maxWidth, int maxHeight, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
 		bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor = { 0, 0, 0, 0 }, std::string name = "");
 
 	~UIBlock();
@@ -65,7 +62,7 @@ public:
 	void getAllElems(std::vector<UIElement*>& list);
 
 private:
-	void constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
+	void constructBlock(Hitbox hitbox, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
 		bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor);
 
 	void updatePosFromBlockSpace(const Hitbox& blockSpace) override;

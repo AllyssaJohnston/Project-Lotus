@@ -15,12 +15,12 @@ Hitbox& UIBox::getHitbox() { return *mpCurHitbox; }
 bool UIBox::isActive() { return mShow; }
 
 
-TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, TextBoxPositionInfo positionInfo, const char* fileName, TextBoxSizeInfo sizeInfo,
+TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, UIPositionInfo positionInfo, const char* fileName, TextBoxSizeInfo sizeInfo,
 		TextBoxColorInfo colorInfo) : UIBox(preset.mData), mFunction(textBoxFunction), mMessage(preset.mMessage),
-		mMaxWidth(positionInfo.mMaxWidth), mMaxHeight(positionInfo.mMaxHeight), mFontFile(fileName), mStandardFontSize(sizeInfo.mStandardFontSize), 
-		mHighlightedFontSize(sizeInfo.mHighlightedFontSize), mOutlineWidth(sizeInfo.mOutlineWidth), 
-		mStandardTextBoxColor(colorInfo.mStandardTextBoxColor), mHighlightedTextBoxColor(colorInfo.mHighlightedTextBoxColor), 
-		mOutlineColor(colorInfo.mOutlineColor), mHighlightedOutlineColor(colorInfo.mHighlightedOutlineColor)
+		mFontFile(fileName), mStandardFontSize(sizeInfo.mStandardFontSize), mHighlightedFontSize(sizeInfo.mHighlightedFontSize), 
+		mOutlineWidth(sizeInfo.mOutlineWidth), mStandardTextBoxColor(colorInfo.mStandardTextBoxColor), 
+		mHighlightedTextBoxColor(colorInfo.mHighlightedTextBoxColor), mOutlineColor(colorInfo.mOutlineColor),
+		mHighlightedOutlineColor(colorInfo.mHighlightedOutlineColor)
 {
 	mBoxType = EUIBoxClass_TEXTBOX;
 	mPositionAlignH	= positionInfo.mPositionAlignH;
@@ -34,6 +34,8 @@ TextBox::TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, T
 	mStandardHitbox			= Hitbox(x, positionInfo.mMaxWidth + x, y, positionInfo.mMaxHeight + y);
 	mHighlightedHitbox		= Hitbox(x, positionInfo.mMaxWidth + x, y, positionInfo.mMaxHeight + y);
 	mpCurHitbox				= &mStandardHitbox;
+	mMaxWidth				= positionInfo.mMaxWidth;
+	mMaxHeight				= positionInfo.mMaxHeight;
 	mMargins				= positionInfo.mMargins;
 
 	mIsHighlighted			 = false;
@@ -61,8 +63,10 @@ TextBox::~TextBox()
 	}
 	mpHighlightedTextures.clear();
 
+
 	mpCurTextures = nullptr;
 	mpCurHitbox = nullptr;
+	mpCurLineHitboxes = nullptr;
 }
 
 void TextBox::updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, const std::string textMessage)
@@ -229,44 +233,43 @@ void TextBox::updateHitboxesInternal(bool isHighlighted, Hitbox& hitbox, std::ve
 
 	switch (mPositionAlignH)
 	{
-	case ETextBoxPositionAlign_LEFT:
+	case EUIPositionAlign_LEFT:
 		x = hitbox.getTopLeft().getX();
 		break;
-	case ETextBoxPositionAlign_CENTER:
+	case EUIPositionAlign_CENTER:
 		x = hitbox.getCenter().getX() - (maxWidth / 2);
 		break;
-	case ETextBoxPositionAlign_RIGHT:
+	case EUIPositionAlign_RIGHT:
 		x = hitbox.getBottomRight().getX() - maxWidth;
 		break;
 	}
 	switch (mPositionAlignV)
 	{
-	case ETextBoxPositionAlign_TOP:
+	case EUIPositionAlign_TOP:
 		y = hitbox.getTopLeft().getY();
 		break;
-	case ETextBoxPositionAlign_CENTER:
+	case EUIPositionAlign_CENTER:
 		y = hitbox.getCenter().getY() - (totalHeight / 2);
 		break;
-	case ETextBoxPositionAlign_BOTTOM:
+	case EUIPositionAlign_BOTTOM:
 		y = hitbox.getBottomRight().getX() - totalHeight;
 		break;
 	}
 
 	
 	int curY = y;
-	for (int count = 0; count < (int)mTextLines.size(); count++)
+	for (const SDL_Point& size : lineSizes)
 	{
-		const SDL_Point size = lineSizes[count];
-		int curX;
+		int curX = x;
 		switch (mPositionAlignH)
 		{
-		case ETextBoxPositionAlign_LEFT:
+		case EUIPositionAlign_LEFT:
 			curX = x;
 			break;
-		case ETextBoxPositionAlign_CENTER:
+		case EUIPositionAlign_CENTER:
 			curX = x + (maxWidth - size.x) / 2;
 			break;
-		case ETextBoxPositionAlign_RIGHT:
+		case EUIPositionAlign_RIGHT:
 			curX = x - size.x;
 			break;
 		}
@@ -293,7 +296,7 @@ void TextBox::updatePosFromBlockSpace(const Hitbox& blockSpace)
 }
 
 
-ImageBox::ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo positionInfo, const std::string fileName) : UIBox(preset.mData)
+ImageBox::ImageBox(const ImageBoxPreset preset, const UIPositionInfo positionInfo, const std::string fileName) : UIBox(preset.mData)
 {
 	mBoxType = EUIBoxClass_IMAGEBOX;
 	mImageObject	= ImageObject(fileName, positionInfo.mMaxWidth, positionInfo.mMaxHeight, EHowToDetermineWidthHeight_GET_BEST_IMAGE_RATIO);
@@ -315,7 +318,7 @@ void ImageBox::updatePosFromBlockSpace(const Hitbox& blockSpace) { mpCurHitbox->
 void ImageBox::setTexture(SDL_Renderer* pRenderer) { mImageObject.setUpTexture(pRenderer); }
 
 
-ShapeBox::ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positionInfo, const SDL_Color color) : UIBox(preset.mData), mShapeType(preset.mType), mColor(color)
+ShapeBox::ShapeBox(const ShapeBoxPreset preset, const UIPositionInfo positionInfo, const SDL_Color color) : UIBox(preset.mData), mShapeType(preset.mType), mColor(color)
 {
 	mBoxType = EUIBoxClass_SHAPEBOX;
 	mPositionAlignH = positionInfo.mPositionAlignH;
@@ -333,18 +336,19 @@ void ShapeBox::updatePosFromBlockSpace(const Hitbox& blockSpace) { mpCurHitbox->
 
 
 
-HealthBox::HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int textSize, 
-		const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor) : UIBox(preset.mData),
+HealthBox::HealthBox(const HealthBoxPreset preset, const UIPositionInfo positionInfo, const char* font, int textSize, const SDL_Color healthColor, 
+		const SDL_Color backgroundColor, const SDL_Color textColor) : UIBox(preset.mData), 
 		mBoundingBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, backgroundColor)), 
 		mHealthLeftBox(ShapeBox(ShapeBoxPreset(EShapeBoxClass_RECT), positionInfo, healthColor)),
-		mHealthText(TextBox(StandardTextBoxPreset("temp"), ETextBoxFunction_NO_FUNCTION, positionInfo, font, TextBoxSizeInfo(textSize), TextBoxColorInfo(textColor))),
-		mMaxWidth(positionInfo.mMaxWidth)
+		mHealthText(TextBox(StandardTextBoxPreset("temp"), ETextBoxFunction_NO_FUNCTION, positionInfo, font, TextBoxSizeInfo(textSize), TextBoxColorInfo(textColor)))
 { 
 	mPositionAlignH = positionInfo.mPositionAlignH;
 	mPositionAlignV = positionInfo.mPositionAlignV;
 	mBoxType = EUIBoxClass_HEALTHBOX;
 	mpCurHitbox = mBoundingBox.mpCurHitbox;
 	mMargins = positionInfo.mMargins;
+	mMaxWidth = positionInfo.mMaxWidth;
+	mMaxHeight = positionInfo.mMaxHeight;
 }
 
 void HealthBox::updatePosFromBlockSpace(const Hitbox& blockSpace)

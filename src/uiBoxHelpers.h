@@ -111,15 +111,15 @@ enum ECharacterStatBoxValueToDisplay
 	ECharacterStatBoxValueToDisplay_MAX
 };
 
-enum ETextBoxPositionAlign
+enum EUIPositionAlign
 {
-	ETextBoxPositionAlign_INVALID = -1,
-	ETextBoxPositionAlign_CENTER,
-	ETextBoxPositionAlign_LEFT,
-	ETextBoxPositionAlign_TOP,
-	ETextBoxPositionAlign_RIGHT,
-	ETextBoxPositionAlign_BOTTOM,
-	ETextBoxPositionAlign_MAX
+	EUIPositionAlign_INVALID = -1,
+	EUIPositionAlign_CENTER,
+	EUIPositionAlign_LEFT,
+	EUIPositionAlign_TOP,
+	EUIPositionAlign_RIGHT,
+	EUIPositionAlign_BOTTOM,
+	EUIPositionAlign_MAX
 };
 
 enum EShapeBoxClass
@@ -150,19 +150,25 @@ struct UIBoxData
 			int attackNum, EMiniGameCombatAttackCategoryType attackCategory, EUIBoxType mType, std::vector <EMiniGameState>& miniGameStateWhenToShowList);
 };
 
-struct TextBoxPositionInfo
+struct UIPositionInfo
 {
-	Vect2                 mPosition;
-	ETextBoxPositionAlign mPositionAlignH; // only affects x coord
-	ETextBoxPositionAlign mPositionAlignV; // only affects y coord
+	int   mRotation = 0;
+
+	Vect2            mPosition;
+	EUIPositionAlign mPositionAlignH; // only affects x coord
+	EUIPositionAlign mPositionAlignV; // only affects y coord
 
 	int mMaxWidth;
 	int mMaxHeight;
-	Edges                 mMargins;
+	Edges            mMargins;
 
-	TextBoxPositionInfo(ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, Hitbox hitbox, Edges margins);
+	UIPositionInfo(EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, Hitbox hitbox, Edges margins);
 
-	TextBoxPositionInfo(ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins);
+	UIPositionInfo(EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins);
+
+	UIPositionInfo(int rotation, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, Hitbox hitbox, Edges margins);
+
+	UIPositionInfo(int rotation, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins);
 };
 
 struct TextBoxSizeInfo
@@ -196,22 +202,6 @@ struct TextBoxColorInfo
 	TextBoxColorInfo(SDL_Color standardTextColor, SDL_Color standardTextBoxColor);
 
 	TextBoxColorInfo(SDL_Color standardTextColor);
-};
-
-struct ImageBoxPositionInfo
-{
-	Vect2 mPosition;
-	int   mRotation;
-	ETextBoxPositionAlign mPositionAlignH;
-	ETextBoxPositionAlign mPositionAlignV;
-
-	int mMaxWidth;
-	int mMaxHeight;
-	Edges mMargins;
-
-	ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, Hitbox hitbox, Edges margins);
-
-	ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins);
 };
 
 struct FontSizeChart

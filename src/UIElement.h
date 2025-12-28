@@ -8,10 +8,16 @@ class UIElement
 {
 public:
 	EUIClass mClassType = EUIClass_ELEMENT;
-	ETextBoxPositionAlign	mPositionAlignH = ETextBoxPositionAlign_CENTER; // only affects x coord
-	ETextBoxPositionAlign	mPositionAlignV = ETextBoxPositionAlign_CENTER; // only affects y coord
+	EUIPositionAlign mPositionAlignH = EUIPositionAlign_CENTER;
+	EUIPositionAlign mPositionAlignV = EUIPositionAlign_CENTER;
 	Edges  mMargins = Edges();
 
+protected:
+	int	 mMaxWidth = 1;
+	int	 mMaxHeight = 1;
+	
+public:
+	// align the element in the given blockspace according to the elem's position alignments
 	virtual void updatePosFromBlockSpace(const Hitbox& blockSpace) = 0;
 
 	virtual Hitbox& getHitbox() = 0;

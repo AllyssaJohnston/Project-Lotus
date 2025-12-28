@@ -18,14 +18,14 @@ UIBlock::~UIBlock()
 	mpSubElems.clear();
 }
 
-UIBlock::UIBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
+UIBlock::UIBlock(Hitbox hitbox, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
 	bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor, std::string name)
 {
 	mName = name;
 	constructBlock(hitbox, positionAlignH, positionAlignV, growthDirectionH, growthDirectionV, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
 }
 
-UIBlock::UIBlock(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV,
+UIBlock::UIBlock(int maxWidth, int maxHeight, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV,
 	EDirection growthDirectionH, EDirection growthDirectionV, bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing,
 	SDL_Color backgroundColor, std::string name)
 {
@@ -33,7 +33,7 @@ UIBlock::UIBlock(int maxWidth, int maxHeight, ETextBoxPositionAlign positionAlig
 	constructBlock(Hitbox(0, maxWidth, 0, maxHeight), positionAlignH, positionAlignV, growthDirectionH, growthDirectionV, limitByRows, limit, fillWidth, fillHeight, margins, spacing, backgroundColor);
 }
 
-void UIBlock::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
+void UIBlock::constructBlock(Hitbox hitbox, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, EDirection growthDirectionH, EDirection growthDirectionV,
 	bool limitByRows, int limit, bool fillWidth, bool fillHeight, Edges margins, int spacing, SDL_Color backgroundColor)
 {
 	mClassType = EUIClass_BLOCK;
@@ -48,17 +48,17 @@ void UIBlock::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH
 
 	mPositionAlignH = positionAlignH;
 	mPositionAlignV = positionAlignV;
-	int startX;
-	int startY;
+	int startX = 0;
+	int startY = 0;
 	switch (mPositionAlignH)
 	{
-	case ETextBoxPositionAlign_LEFT:
+	case EUIPositionAlign_LEFT:
 		startX = hitbox.getTopLeft().getX();
 		break;
-	case ETextBoxPositionAlign_CENTER:
+	case EUIPositionAlign_CENTER:
 		startX = hitbox.getCenter().getX();
 		break;
-	case ETextBoxPositionAlign_RIGHT:
+	case EUIPositionAlign_RIGHT:
 		startX = hitbox.getBottomRight().getX();
 		break;
 	default:
@@ -67,20 +67,20 @@ void UIBlock::constructBlock(Hitbox hitbox, ETextBoxPositionAlign positionAlignH
 	}
 	switch (mPositionAlignV)
 	{
-	case ETextBoxPositionAlign_TOP:
+	case EUIPositionAlign_TOP:
 		startY = hitbox.getTopLeft().getY();
 		break;
-	case ETextBoxPositionAlign_CENTER:
+	case EUIPositionAlign_CENTER:
 		startY = hitbox.getCenter().getY();
 		break;
-	case ETextBoxPositionAlign_BOTTOM:
+	case EUIPositionAlign_BOTTOM:
 		startY = hitbox.getBottomRight().getY();
 		break;
 	default:
 		SDL_assert(false);
 		break;
 	}
-	mStartingPositionCenter = Vect2(startX, startY);
+	mAnchorPoint = Vect2(startX, startY);
 
 	mMargins = margins;
 	mSpacing = spacing;
@@ -337,14 +337,14 @@ void UIBlock::updateBlocks()
 	// figure out all block widths and heights
 	adjustBlocksWidthHeight();
 
-	int x = mStartingPositionCenter.getX();
-	int y = mStartingPositionCenter.getY();
+	int x = mAnchorPoint.getX();
+	int y = mAnchorPoint.getY();
 
-	if (mPositionAlignH == ETextBoxPositionAlign_CENTER)
+	if (mPositionAlignH == EUIPositionAlign_CENTER)
 	{
 		x -= mHitbox.getWidth() / 2;
 	}
-	if (mPositionAlignV == ETextBoxPositionAlign_CENTER)
+	if (mPositionAlignV == EUIPositionAlign_CENTER)
 	{
 		y -= mHitbox.getHeight() / 2;
 	}

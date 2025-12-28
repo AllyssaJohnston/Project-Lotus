@@ -20,7 +20,6 @@
 class UIBox : public UIElement
 {
 public:
-
 	const UIBoxData			mData;
 	bool					mShow			= true;
 	Hitbox*					mpCurHitbox		= nullptr;
@@ -37,8 +36,8 @@ public:
 class TextBox : public UIBox
 {
 public:
-	ETextBoxFunction		mFunction			= ETextBoxFunction_INVALID;
-	std::string				mMessage			= "invalid";
+	ETextBoxFunction	mFunction				= ETextBoxFunction_INVALID;
+	std::string			mMessage				= "invalid";
 
 	Hitbox mStandardHitbox						= Hitbox();
 	Hitbox mHighlightedHitbox					= Hitbox();
@@ -51,9 +50,6 @@ public:
 	int			mMaxFontSizeGivenText			= FontSizeChart::mMinFontSize;
 
 	std::vector <std::string> mTextLines;
-
-	int mMaxWidth								= -1;
-	int mMaxHeight								= -1;
 
 	std::vector<SDL_Texture*> mpStandardTextures;
 	std::vector<SDL_Texture*> mpHighlightedTextures;
@@ -73,7 +69,7 @@ public:
 
 	bool mSetUp = false;
 
-	TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, const TextBoxPositionInfo positionInfo,
+	TextBox(const TextBoxPreset preset, ETextBoxFunction textBoxFunction, const UIPositionInfo positionInfo,
 		const char* fileName, const TextBoxSizeInfo sizeInfo, const TextBoxColorInfo colorInfo);
 
 	~TextBox();
@@ -119,10 +115,9 @@ class ImageBox : public UIBox
 {
 public:
 	int						mRotation		= 0;
-	ETextBoxPositionAlign	mPositionAlign	= ETextBoxPositionAlign_INVALID;
 	ImageObject				mImageObject;
 
-	ImageBox(const ImageBoxPreset preset, const ImageBoxPositionInfo positionInfo, const std::string fileName);
+	ImageBox(const ImageBoxPreset preset, const UIPositionInfo positionInfo, const std::string fileName);
 
 	~ImageBox() { ; }
 
@@ -137,7 +132,7 @@ public:
 	EShapeBoxClass  mShapeType = EShapeBoxClass_INVALID;
 	SDL_Color	    mColor;
 
-	ShapeBox(const ShapeBoxPreset preset, const TextBoxPositionInfo positionInfo, const SDL_Color color);
+	ShapeBox(const ShapeBoxPreset preset, const UIPositionInfo positionInfo, const SDL_Color color);
 
 	void updatePosFromBlockSpace(const Hitbox& blockSpace) override;
 
@@ -152,15 +147,12 @@ public:
 	ShapeBox mHealthLeftBox;
 	TextBox	 mHealthText;
 
-	HealthBox(const HealthBoxPreset preset, const TextBoxPositionInfo positionInfo, const char* font, int textSize, const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor);
+	HealthBox(const HealthBoxPreset preset, const UIPositionInfo positionInfo, const char* font, int textSize, const SDL_Color healthColor, const SDL_Color backgroundColor, const SDL_Color textColor);
 
 	void updatePosFromBlockSpace(const Hitbox& blockSpace) override;
 
 	void updateMessage(SDL_Renderer* pRenderer, FontSizeChart& fontSizeChart, const std::string updatedMessage, float curRatio);
 
 	void setTexture(SDL_Renderer* pRenderer) override { ; }
-
-private:
-	int mMaxWidth;
 };
 

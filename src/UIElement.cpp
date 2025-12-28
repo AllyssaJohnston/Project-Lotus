@@ -7,13 +7,13 @@ Vect2 UIElement::getUpdatedPosFromBlockSpace(const Hitbox& blockSpace)
 
 	switch (mPositionAlignH)
 	{
-	case ETextBoxPositionAlign_LEFT:
+	case EUIPositionAlign_LEFT:
 		x = blockSpace.getTopLeft().getX();
 		break;
-	case ETextBoxPositionAlign_CENTER:
+	case EUIPositionAlign_CENTER:
 		x = blockSpace.getCenter().getX() - (getHitbox().getWidth() / 2);
 		break;
-	case ETextBoxPositionAlign_RIGHT:
+	case EUIPositionAlign_RIGHT:
 		x = blockSpace.getBottomRight().getX() - getHitbox().getWidth();
 		break;
 	default:
@@ -21,13 +21,13 @@ Vect2 UIElement::getUpdatedPosFromBlockSpace(const Hitbox& blockSpace)
 	}
 	switch (mPositionAlignV)
 	{
-	case ETextBoxPositionAlign_TOP:
+	case EUIPositionAlign_TOP:
 		y = blockSpace.getTopLeft().getY();
 		break;
-	case ETextBoxPositionAlign_CENTER:
+	case EUIPositionAlign_CENTER:
 		y = blockSpace.getCenter().getY() - (getHitbox().getHeight() / 2);
 		break;
-	case ETextBoxPositionAlign_BOTTOM:
+	case EUIPositionAlign_BOTTOM:
 		y = blockSpace.getBottomRight().getY() - getHitbox().getHeight();
 		break;
 	default:

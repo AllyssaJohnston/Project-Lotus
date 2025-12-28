@@ -7,12 +7,20 @@ UIBoxData::UIBoxData(EGameStatBoxValueToDisplay gameStatToDisplay, int combatCha
 
 
 
-TextBoxPositionInfo::TextBoxPositionInfo(ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, Hitbox hitbox, Edges margins)
+UIPositionInfo::UIPositionInfo(EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, Hitbox hitbox, Edges margins)
 	: mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(hitbox.getWidth()), mMaxHeight(hitbox.getHeight()), mMargins(margins)
 { mPosition = hitbox.getTopLeft() + Vect2(margins.mLeft, margins.mTop) - Vect2(margins.mRight, margins.mBottom); }
 
-TextBoxPositionInfo::TextBoxPositionInfo(ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins)
+UIPositionInfo::UIPositionInfo(EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins)
 	: mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins)
+	{ mPosition = Vect2(0, 0); }
+
+UIPositionInfo::UIPositionInfo(int rotation, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, Hitbox hitbox, Edges margins)
+	: mRotation(rotation), mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(hitbox.getWidth()), mMaxHeight(hitbox.getHeight()), mMargins(margins)
+	{ mPosition = hitbox.getTopLeft() + Vect2(margins.mLeft, margins.mTop) - Vect2(margins.mRight, margins.mBottom); }
+
+UIPositionInfo::UIPositionInfo(int rotation, EUIPositionAlign positionAlignH, EUIPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins)
+	: mRotation(rotation), mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins) 
 	{ mPosition = Vect2(0, 0); }
 
 
@@ -43,13 +51,6 @@ TextBoxColorInfo::TextBoxColorInfo(SDL_Color standardTextColor) : mStandardTextC
 	mHighlightedTextBoxColor = { 0, 0, 0, 0 };
 }
 
-ImageBoxPositionInfo::ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, Hitbox hitbox, Edges margins)
-	: mRotation(rotation), mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(hitbox.getWidth()), mMaxHeight(hitbox.getHeight()), mMargins(margins)
-	{ mPosition = hitbox.getTopLeft() + Vect2(margins.mLeft, margins.mTop) - Vect2(margins.mRight, margins.mBottom); }
-
-ImageBoxPositionInfo::ImageBoxPositionInfo(int rotation, ETextBoxPositionAlign positionAlignH, ETextBoxPositionAlign positionAlignV, int maxWidth, int maxHeight, Edges margins)
-	: mRotation(rotation), mPositionAlignH(positionAlignH), mPositionAlignV(positionAlignV), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mMargins(margins)
-	{ mPosition = Vect2(0, 0); }
 
 
 void FontSizeChart::createFontChart(const char* fontName, SDL_Renderer* pRenderer)
