@@ -1,6 +1,5 @@
 #pragma once
 #include "entityPresets.h"
-#include "imageHelper.h"
 #include "globals.h"
 
 struct CPlayerPreset : public EntityPreset

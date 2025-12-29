@@ -1,20 +1,22 @@
 #pragma once
-#include "miniGameWorldDataHelper.h"
-#include "menuHelper.h"
-#include "textBoxPresets.h"
-#include "textBoxHelper.h"
-#include "UIBlockHelper.h"
+#include "miniGameWorldData.h"
+#include "menuManager.h"
+#include "uiBoxPresets.h"
 
-void createMenus(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, StyleManager& styleManager, SettingsManager& settingsManager);
+void createMenus(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
 
-void createMainGameMenu(MenuManager& menuManager, ScreenObject& screen, StyleManager& styleManager);
+void createMainMenu(MenuManager& menuManager, const ScreenObject& screen);
 
-void createMiniGameMenu(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, StyleManager& styleManager, SettingsManager& settingsManager);
+void createMainGameMenu(MenuManager& menuManager, const ScreenObject& screen);
 
-void createMiniGameCharacterStatsMenu(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, StyleManager& styleManager, SettingsManager& settingsManager);
+void createMiniGameMenu(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
 
-void createMiniGameCharacterAttackPanel(MenuManager& menuManager, ScreenObject& screen, MiniGameWorldData& worldData, StyleManager& styleManager, SettingsManager& settingsManager);
+void createMiniGameCharacterStatsMenu(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
 
-void createBlockDiagram(EMiniGameCombatMoveAttackTypes diagramType, int characterIndex, MenuPage* pPage, UIBlock* pBlock, std::vector<EMiniGameState> whenToShow, MenuManager& menuManager, StyleManager& styleManager);
+void createMiniGameCharacterSelectionMenu(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
 
-void setUpFontSizeChart(FontSizeChart& fontSizeChart, StyleManager& styleManager, SDL_Renderer* pRenderer);
+void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenObject& screen, MiniGameWorldData& worldData);
+
+void createBlockDiagram(const Attack& attack, const int characterIndex, const int attackNum, MenuPage* pPage, UIBlock* pBlock, const std::vector<EMiniGameState>& whenToShow, MenuManager& menuManager);
+
+void setUpFontSizeChart(FontSizeChart& fontSizeChart, SDL_Renderer* pRenderer);

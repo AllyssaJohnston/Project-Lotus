@@ -1,10 +1,10 @@
 #pragma once
-#include <SDL3/SDL.h>
-#include "helperClass.h"
-#include "hitboxHelper.h"
-#include "movementHelperClass.h"
-#include "imageHelper.h"
-#include "animationHelper.h"
+#include "vector"
+#include "helpers.h"
+#include "hitbox.h"
+#include "movementHelpers.h"
+#include "image.h"
+#include "animationManager.h"
 
 
 struct EntityPreset
@@ -14,43 +14,45 @@ struct EntityPreset
 	EEntityCharacterTypes						mEntityCharacterType		= EEntityCharacterTypes_C_CHARACTER;
 	std::vector <EEntityCharacteristicsTypes>	mEntityCharacteristicTypes;
 	EEntityType									mEntityType					= EEntityType_INVALID;
+	std::string									mTypeName					= "INVALID CHARACTER";
+
 	ECharacterModes								mCharacterMode				= ECharacterModes_INVALID;
 	std::vector <ECharacterModes>				mStages;
-
-	HitboxEdges mHitboxEdges;
-
-	std::vector<EEntityMovements> mMovementCodes	= { EEntityMovements_NONE };
-	EEntityMovementPath mMovementPath				= EEntityMovementPath_NONE;
-	int					mMovementCodeInterval		= 0;
+	std::vector<EEntityMovements>				mMovementCodes				= { EEntityMovements_NONE };
+	EEntityMovementPath							mMovementPath				= EEntityMovementPath_NONE;
+	int											mMovementCodeInterval		= 0;
 	
-	int					mMovementEffect				= 0;
-	bool                mUseMovementEffect			= true;
-	EMovementAutoMoveRule mAutoMoveRule				= EMovementAutoMoveRule_USE_FACING_DIRECTION;		
+	
+
+	EMovementAutoMoveRule	mAutoMoveRule				= EMovementAutoMoveRule_USE_FACING_DIRECTION;		
+	bool					mInputDriven				= false;
 
 
-	EDirection			mCurDirection				= EDirection_NONE;
-	Vect2				mMovementVect2				= Vect2(0, 0);
-	int				    mJumpDistance				= 0;
+	EDirection				mCurDirection				= EDirection_NONE;
+	Vect2					mMovementVect2				= Vect2(0, 0);
+	int						mJumpDistance				= 0;
 
-	int					mWidth						= -1;
-	int					mHeight						= -1;
-	int					mExtraWidth = 0;
-	int					mExtraHeight = 0;
-	int					mImageOffsetX = 0;
-	int					mImageOffsetY = 0;
+	bool					mVulnerableToProjectiles	= true;
+	bool					mRideable					= false;
+	bool					mHasAttachmentPoint			= false;
+	Vect2					mAttachmentPoint			= Vect2(0, 0);
 
+	HitboxEdges				mHitboxEdges;
+	bool					mSpreadEdges				= false;
+	int						mSpreadEdgesInterval		= 0;
+	bool					mImmuneToStatusEffects		= false;
+
+	int						mMovementEffect				= 0;
+	bool					mUseMovementEffect			= true;
+	
+
+	int mWidth = -1;		// for the hitbox
+	int mHeight = -1;		// for the hitbox
+	int mExtraWidth = 0;	// for the image
+	int mExtraHeight = 0;	// for the image
+	int mImageOffsetX = 0;
+	int mImageOffsetY = 0;
 	std::vector <AnimationPreset> mAnimationPresets;
-
-	std::string mTypeName = "INVALID CHARACTER";
-
-	bool  mVulnerableToProjectiles = true;
-	bool  mRideable                = false;
-	bool  mHasAttachmentPoint      = false;
-	Vect2 mAttachmentPoint         = Vect2(0, 0);
-
-	bool mSpreadEdges           = false;
-	int	 mSpreadEdgesInterval   = 0;
-	bool mImmuneToStatusEffects = false;
 
 	EntityPreset(){}
 

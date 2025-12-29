@@ -1,8 +1,6 @@
 #include "movementStanding.h"
 
-StandingState::StandingState(PositionData& pos, MovementData& data, AttemptMove& move) : mMovementData(data), MovementState(pos, move){;}
-
-void StandingState::printState() { std::cout << "StandingState" << "\n"; }
+StandingState::StandingState(PositionData& pos, MovementData& data, AttemptMove& move) : mMovementData(data), MovementState(pos, move) { mStateName = "StandingState"; }
 
 void StandingState::calcMove(bool moveHorizontal) 
 {

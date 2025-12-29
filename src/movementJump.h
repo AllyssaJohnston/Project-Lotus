@@ -1,6 +1,5 @@
 #pragma once
-#include <iostream>
-#include "movementHelperClass.h"
+#include "movementHelpers.h"
 
 class JumpingState : public MovementState
 {
@@ -8,8 +7,7 @@ class JumpingState : public MovementState
 	JumpingData& mJumpData;
 public:
 	JumpingState(PositionData&, MovementData&, JumpingData&, AttemptMove&);
-	virtual void printState();
-	virtual void calcMove(bool moveHorizontal);
+	void calcMove(bool moveHorizontal);
 	bool isOver();
 
 	void updateJumpDistanceLeft();

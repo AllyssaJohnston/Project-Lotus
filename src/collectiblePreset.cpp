@@ -4,30 +4,28 @@ CCollectiblePreset::CCollectiblePreset() : EntityPreset()
 {
 	mEntityClassType		= EEntityClassTypes_COLLECTIBLE;
 	mEntityCharacterType	= EEntityCharacterTypes_C_ENTITY;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	mEntityType				= EEntityType_STATIC;
+	mTypeName				= "COLLECTIBLE";
 
-	mEntityType		= EEntityType_STATIC;
 	mCharacterMode  = ECharacterModes_STATIC;
 	mMovementCodes  = { EEntityMovements_NONE };
 	mMovementPath	= EEntityMovementPath_NONE;
 
 	mCurDirection = EDirection_LEFT;
 
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
 	mWidth	= -1;
 	mHeight = -1;
-
-	mTypeName = "COLLECTIBLE";
 }
 
 CKeyPreset::CKeyPreset() : CCollectiblePreset()
 {
-	mEntityClassType		= EEntityClassTypes_COLLECTIBLE;
 	mEntityCharacterType	= EEntityCharacterTypes_C_KEY;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-
+	mTypeName				= "KEY";
+	
 	mWidth	= 40;
 	mHeight = 40;
-
 
 	int maxImageWidth  = 50;
 	int maxImageHeight = 50;
@@ -39,16 +37,13 @@ CKeyPreset::CKeyPreset() : CCollectiblePreset()
 	bool stationaryMustFinish = false;
 	std::vector <std::string> animationStationaryFileNames = { "Collectibles/key.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, imageOffsetX, imageOffsetY, stationaryFrameRate, stationaryMustFinish));
-
-	mTypeName = "KEY";
 }
 
 CSavePointPreset::CSavePointPreset() : CCollectiblePreset()
 {
-	mEntityClassType	 = EEntityClassTypes_COLLECTIBLE;
-	mEntityCharacterType = EEntityCharacterTypes_C_SAVE_POINT;
-	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-
+	mEntityCharacterType	= EEntityCharacterTypes_C_SAVE_POINT;
+	mTypeName				= "SAVE POINT";
+	
 	mWidth = 40;
 	mHeight = 40;
 
@@ -62,16 +57,13 @@ CSavePointPreset::CSavePointPreset() : CCollectiblePreset()
 	bool stationaryMustFinish = false;
 	std::vector <std::string> animationStationaryFileNames = { "Collectibles/savePoint.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, imageOffsetX, imageOffsetY, stationaryFrameRate, stationaryMustFinish));
-
-	mTypeName = "SAVE POINT";
 }
 
 CLotusCollectiblePreset::CLotusCollectiblePreset() : CCollectiblePreset()
 {
-	mEntityClassType	 = EEntityClassTypes_COLLECTIBLE;
 	mEntityCharacterType = EEntityCharacterTypes_C_LOTUS_COLLECTIBLE;
-	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-
+	mTypeName = "LOTUS COLLECTIBLE";
+	
 	mWidth = 30;
 	mHeight = 30;
 
@@ -85,23 +77,18 @@ CLotusCollectiblePreset::CLotusCollectiblePreset() : CCollectiblePreset()
 	bool stationaryMustFinish = false;
 	std::vector <std::string> animationStationaryFileNames = { "Collectibles/lotusFlower.bmp" };
 	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, imageOffsetX, imageOffsetY, stationaryFrameRate, stationaryMustFinish));
-
-	mTypeName = "LOTUS COLLECTIBLE";
 }
 
 
 CEndOfLevelPreset::CEndOfLevelPreset(int worldType) : CCollectiblePreset()
 {
-	mEntityClassType	 = EEntityClassTypes_COLLECTIBLE;
-	mEntityCharacterType = EEntityCharacterTypes_C_END_OF_LEVEL;
-	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-
+	mEntityCharacterType	= EEntityCharacterTypes_C_END_OF_LEVEL;
+	mTypeName				= "END OF LEVEL";
+	
 	mWidth = 40;
 	mHeight = 40;
 
 	setUpAnimationPresets(worldType);
-
-	mTypeName = "END OF LEVEL";
 }
 
 void CEndOfLevelPreset::setUpAnimationPresets(int worldType)
@@ -133,21 +120,18 @@ void CEndOfLevelPreset::setUpAnimationPresets(int worldType)
 }
 
 
-CMiniGameLevelPreset::CMiniGameLevelPreset(int enemyType, LevelData givenNextLevelData) : CCollectiblePreset(), nextLevelData(givenNextLevelData)
+CMiniGameLevelPreset::CMiniGameLevelPreset(EEntityCharacterTypes enemyType, LevelData givenNextLevelData) : CCollectiblePreset(), nextLevelData(givenNextLevelData)
 {
-	mEntityClassType = EEntityClassTypes_COLLECTIBLE;
 	mEntityCharacterType = EEntityCharacterTypes_C_MINI_GAME_LEVEL;
-	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
-
+	mTypeName = "MINI GAME LEVEL";
+	
 	mWidth = 40;
 	mHeight = 40;
 
 	setUpAnimationPresets(enemyType);
-
-	mTypeName = "MINI GAME LEVEL";
 }
 
-void CMiniGameLevelPreset::setUpAnimationPresets(int enemyType)
+void CMiniGameLevelPreset::setUpAnimationPresets(EEntityCharacterTypes enemyType)
 {
 	int maxImageWidth = 130;
 	int maxImageHeight = 130;
@@ -163,10 +147,10 @@ void CMiniGameLevelPreset::setUpAnimationPresets(int enemyType)
 	{
 	case EEntityCharacterTypes_E_RAT:
 	default:
-		mWidth = 80;
+		mWidth	= 80;
 		mHeight = 50;
-		maxImageWidth = 90;
-		maxImageHeight = 90;
+		maxImageWidth	= 90;
+		maxImageHeight	= 90;
 		animationRunFileNames = {	"EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost01.bmp",  "EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost02.bmp",
 									"EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost03.bmp",  "EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost04.bmp",
 									"EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost05.bmp",  "EarthEnemies/DraguarBlossom/draguarBlossomAnimationGhost06.bmp",

@@ -1,8 +1,6 @@
 #include "movementFly.h"
 
-FlyingState::FlyingState(PositionData& pos, MovementData& movData, AttemptMove& move) : mMovementData(movData) , MovementState(pos, move) {;}
-
-void FlyingState::printState() { std::cout << "FlyingState" << "\n"; }
+FlyingState::FlyingState(PositionData& pos, MovementData& movData, AttemptMove& move) : mMovementData(movData) , MovementState(pos, move) { mStateName = "FlyingState"; }
 
 void FlyingState::calcMove(bool moveHorizontal) {
 	
@@ -15,7 +13,7 @@ void FlyingState::calcMove(bool moveHorizontal) {
 	}
 	if (mMovementData.mPath == EEntityMovementPath_VERTICAL or mMovementData.mPath == EEntityMovementPath_DIAGONAL)
 	{
-		int multiplier = mMovementData.mCurDirection == EDirection_UP ? -1 : 1;
+		int multiplier = mMovementData.mCurDirectionY == EDirection_UP ? -1 : 1;
 		curMovementY = mMovementData.mCurMovementVect2.getY() * multiplier;
 	}
 

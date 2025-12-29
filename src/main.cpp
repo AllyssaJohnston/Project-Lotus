@@ -8,24 +8,22 @@
 #include <chrono>
 
 #include "globals.h"
-#include "playerHelper.h"
-#include "imageHelper.h"
-#include "platformHelper.h"
-#include "screenHelper.h"
-#include "gameInstanceHelper.h"
+#include "player.h"
+#include "image.h"
+#include "platform.h"
+#include "screen.h"
+#include "gameInstance.h"
+#include "world.h"
+#include "gameStateManager.h"
 
 #if DEMO == 0
 #include "lotusAdventureLevels.h"
-#include "lotusAdventureMiniLevels.h"
 #else 
 #include "lotusAdventureLevelsDemo.h"
-#include "lotusAdventureMiniLevels.h"
 #endif
 
 #include "lotusAdventureMenus.h"
-#include "hitboxHelper.h"
-#include "worldHelper.h"
-#include "gameStateHelper.h"
+
 
 GameInstance gameInstance	= {};
 Player& player				= gameInstance.mWorldData.mPlayer;
@@ -35,7 +33,7 @@ LevelChunk& curLevelChunk	= gameInstance.mWorldData.mCurLevelChunk;
 void setUpAllTextures()
 {
 	//Player
-	if (DEMO == 0)
+	if (DEBUG)
 	{
 		player.setHitboxTexture(AssetManager::getTextureFromSurface(screen.mpRenderer, player.getImageObjectHitbox().getSurface()));
 	}
@@ -65,7 +63,7 @@ void setUpAllTextures()
 			for (Enemy* pEnemy : pLevel->mpAllEnemies)
 			{
 				pEnemy->mAnimationManager.setUpAllTextures(screen.mpRenderer);
-				if (DEMO == 0)
+				if (DEBUG)
 				{
 					pEnemy->setHitboxTexture(AssetManager::getTextureFromSurface(screen.mpRenderer, pEnemy->getImageObjectHitbox().getSurface()));
 
@@ -81,23 +79,27 @@ void setUpAllTextures()
 	}
 
 	//MiniGame Levels
-	for (int countLevel = 0; countLevel < gameInstance.mMiniGameWorldData.mpMiniGameLevels.size(); countLevel++)
+	for (MiniGameWorld* pWorld : gameInstance.mMiniGameWorldData.mpMiniGameWorlds)
 	{
-		MiniGameLevel* pCurLevel = gameInstance.mMiniGameWorldData.mpMiniGameLevels[countLevel];
-		//Characters
-		for (int count = 0; count < pCurLevel->mCombatManager.mpAllCombatCharacters.size(); count++)
+		for (MiniGameLevel* pLevel : pWorld->mpLevels)
 		{
-			CombatCharacter& curChar = *(pCurLevel->mCombatManager.mpAllCombatCharacters[count]);
-			curChar.mModel.setUpTexture(screen.mpRenderer);
+			for (MiniGameStage* pStage : pLevel->mpStages)
+			{
+				//Characters
+				for (CombatCharacter* pCharacter : pStage->mCombatManager.getAllCharacters())
+				{
+					pCharacter->mModel.setUpTexture(screen.mpRenderer);
+				}
+			}
 		}
 	}
 
 	MenuManager& menuManager = gameInstance.mMenuManager;
 	for (MenuPage* pMenuPage : menuManager.mpMenuPages)
 	{
-		for (UIBlock* pBlock : pMenuPage->mpBlocks)
+		for (UIElement* pElem : pMenuPage->mpElems)
 		{
-			pBlock->setAllTextures(screen.mpRenderer);
+			pElem->setTexture(screen.mpRenderer);
 		}
 	}
 }
@@ -114,10 +116,9 @@ int main(int argc, char* args[])
 		return -1;
 	}
 
-	createLevels(gameInstance.mWorldData, gameInstance.mScreen);
-	createMiniGameLevels(gameInstance.mMiniGameWorldData);
-	setUpFontSizeChart(gameInstance.mFontSizeChart, gameInstance.mStyleManager, gameInstance.mScreen.mpRenderer);
-	createMenus(gameInstance.mMenuManager, gameInstance.mScreen, gameInstance.mMiniGameWorldData, gameInstance.mStyleManager, gameInstance.mSettingsManager);
+	createLevels(gameInstance.mWorldData, gameInstance.mMiniGameWorldData, gameInstance.mScreen); // PLATFORMING + MINI GAME
+	setUpFontSizeChart(gameInstance.mFontSizeChart, gameInstance.mScreen.mpRenderer);
+	createMenus(gameInstance.mMenuManager, gameInstance.mScreen, gameInstance.mMiniGameWorldData);
 	setUpAllTextures();
 
 	player.getMovementManager().setStartPosition(gameInstance.mWorldData.mpWorlds[gameInstance.mWorldData.mCurWorldNumber]->mpLevels[gameInstance.mWorldData.mCurLevelNumber]->mPlayerStartingPosition);

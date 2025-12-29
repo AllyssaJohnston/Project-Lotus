@@ -1,7 +1,5 @@
 #pragma once
 #include "entityQuadTree.h"
-#include "helperClass.h"
-#include "platformHelper.h"
 
 EntityQuadTree::EntityQuadTree(const Hitbox& givenHitbox, std::vector<Entity*>& pParentEntities)
 {

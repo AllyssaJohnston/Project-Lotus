@@ -4,12 +4,16 @@ EEnemyPreset::EEnemyPreset() : EntityPreset()
 {
 	mEntityClassType          = EEntityClassTypes_ENEMY;
 	mEntityType               = EEntityType_NON_STATIC;
+	
 	mCharacterMode			  = ECharacterModes_MOVING;
-	mUseMovementEffect		  = false;
+
+	mCurDirection = EDirection_LEFT;
 
 	mSpreadEdges			  = false;
 	mSpreadEdgesInterval      = 0;
 	mImmuneToStatusEffects    = false;
+
+	mUseMovementEffect = false;
 }
 
 //EARTH ENEMIES
@@ -17,22 +21,23 @@ EEnemyPreset::EEnemyPreset() : EntityPreset()
 ERatPreset::ERatPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_RAT;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	mTypeName				= "RAT";
+	
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance           = 75;
-	mWidth					= 60;
-	mHeight					= 25;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 5;
-	mCurDirection			= EDirection_LEFT;
 	mMovementVect2			= Vect2(5, 5);
-	mTypeName				= "RAT";
+	
 	mRideable               = false; 
 
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
+	mWidth = 60;
+	mHeight = 25;
+
+	mImageOffsetX = 0;
+	mImageOffsetY = 5;
 	int maxImageWidth       = 90;
 	int maxImageHeight      = 90;
-
 	int  runFrameRate		= 15;
 	bool runMustFinish		= false;
 	std::vector <std::string> animationRunFileNames = { "EarthEnemies/DraguarBlossom/draguarBlossomAnimation01.bmp", "EarthEnemies/DraguarBlossom/draguarBlossomAnimation02.bmp",
@@ -48,22 +53,23 @@ ERatPreset::ERatPreset() : EEnemyPreset()
 EFastRatPreset::EFastRatPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_FAST_RAT;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	mTypeName				= "FAST RAT";
+	
 	mMovementCodes			= { EEntityMovements_WALK };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance           = 75;
-	mWidth					= 15;
-	mHeight					= 40;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 5;
-	mCurDirection			= EDirection_LEFT;
 	mMovementVect2			= Vect2(6, 6);
-	mTypeName				= "FAST RAT";
+	
 	mRideable               = false;
 
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
+	mWidth = 15;
+	mHeight = 40;
+
+	mImageOffsetX = 0;
+	mImageOffsetY = 5;
 	int maxImageWidth       = 70;
 	int maxImageHeight      = 70;
-
 	int  runFrameRate		= 20;
 	bool runMustFinish		= false;
 	std::vector <std::string> animationRunFileNames = { "EarthEnemies/Seedling/seedlingAnimation02.bmp", "EarthEnemies/Seedling/seedlingAnimation01.bmp",
@@ -77,19 +83,21 @@ EFastRatPreset::EFastRatPreset() : EEnemyPreset()
 EBouncyRatPreset::EBouncyRatPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BOUNCY_RAT;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_BOUNCY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	mTypeName = "BOUNCY RAT";
+
 	mMovementCodes			= { EEntityMovements_WALK };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance           = 75;
-	mWidth					= 50;
-	mHeight					= 25;
-	mImageOffsetX           = 0;
-	mImageOffsetY		    = 10;
-	mCurDirection			= EDirection_LEFT;
 	mMovementVect2			= Vect2(4, 4);
-	mTypeName				= "BOUNCY RAT";
+	
 	mRideable               = false;
 
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_BOUNCY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
+	mWidth = 50;
+	mHeight = 25;
+
+	mImageOffsetX = 0;
+	mImageOffsetY = 10;
 	int maxImageWidth       = 80;
 	int maxImageHeight      = 80;
 
@@ -104,22 +112,25 @@ EBouncyRatPreset::EBouncyRatPreset() : EEnemyPreset()
 EFrogPreset::EFrogPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_FROG;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	mTypeName				= "FROG";
+	
 	mMovementCodes			= { EEntityMovements_JUMP };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mWidth					= 60;
-	mHeight					= 35;
-	mImageOffsetX           = 0;
-	mImageOffsetY		    = 10;
-	mCurDirection			= EDirection_LEFT;
+	
 	mMovementVect2			= Vect2(5, 3);
 	mJumpDistance			= 60;
-	mTypeName				= "FROG";
+	
 	mRideable               = false;
 
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
+	mWidth					= 60;
+	mHeight					= 35;
+
+	mImageOffsetX           = 0;
+	mImageOffsetY		    = 10;
 	int maxImageWidth       = 100;
 	int maxImageHeight      = 100;
-
 	int  stationaryFrameRate = 0;
 	bool stationaryMustFinish = false;
 	std::vector <std::string> animationStationaryFileNames = { "EarthEnemies/Frocodile/frocodileAnimation01.bmp" };
@@ -141,19 +152,23 @@ EFrogPreset::EFrogPreset() : EEnemyPreset()
 EBouncyFrogPreset::EBouncyFrogPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BOUNCY_FROG;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_BOUNCY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	mTypeName				= "FROG";
+
 	mMovementCodes			= { EEntityMovements_JUMP };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mWidth					= 60;
-	mHeight					= 35;
-	mImageOffsetX           = 0;
-	mImageOffsetY		    = 10;
-	mCurDirection			= EDirection_LEFT;
+	
 	mMovementVect2			= Vect2(5, 3);
 	mJumpDistance			= 50;
-	mTypeName				= "FROG";
+	
 	mRideable               = false;
 
+	mHitboxEdges			= HitboxEdges(EEntityEdgeType_BOUNCY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	
+	mWidth					= 60;
+	mHeight					= 35;
+
+	mImageOffsetX           = 0;
+	mImageOffsetY		    = 10;
 	int maxImageWidth       = 100;
 	int maxImageHeight      = 100;
 
@@ -178,20 +193,23 @@ EBouncyFrogPreset::EBouncyFrogPreset() : EEnemyPreset()
 EHidingRatPreset::EHidingRatPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_HIDING_RAT;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	mTypeName				= "HIDING RAT";
+
 	mMovementCodes			= { EEntityMovements_WALK, EEntityMovements_NONE };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance           = 75;
 	mMovementCodeInterval	= 100;
-	mWidth					= 60;
-	mHeight					= 25;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 5;
-	mCurDirection			= EDirection_LEFT;
+
 	mMovementVect2			= Vect2(8, 8);
-	mTypeName				= "HIDING RAT";
+
 	mRideable               = false;
 
+	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	
+	mWidth					= 60;
+	mHeight					= 25;
+
+	mImageOffsetX           = 0;
+	mImageOffsetY           = 5;
 	int maxImageWidth       = 90;
 	int maxImageHeight      = 90;
 
@@ -214,20 +232,22 @@ EHidingRatPreset::EHidingRatPreset() : EEnemyPreset()
 EFireRatPreset::EFireRatPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_FIRE_RAT;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_BURNING, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_FIRE_RESISTENT };
+	mTypeName				= "FIRE RAT";
+	
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance           = 75;
-	mWidth					= 60;
-	mHeight					= 35;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 5;
-	mCurDirection			= EDirection_LEFT;
 	mMovementVect2			= Vect2(5, 5);
-	mTypeName				= "FIRE RAT";
+	
 	mRideable               = false;
 
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_BURNING, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING);
+
+	mWidth					= 60;
+	mHeight					= 35;
+
+	mImageOffsetX           = 0;
+	mImageOffsetY           = 5;
 	int maxImageWidth       = 90;
 	int maxImageHeight      = 90;
 
@@ -241,20 +261,22 @@ EFireRatPreset::EFireRatPreset() : EEnemyPreset()
 EFireBatVPreset::EFireBatVPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_FIRE_BAT_V;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_BURNING, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_FIRE_RESISTENT };
+	mTypeName				= "FIRE BAT V";
+	
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_VERTICAL;
-	mJumpDistance           = 75;
-	mWidth					= 50;
-	mHeight					= 50;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 0;
-	mCurDirection			= EDirection_LEFT;
 	mMovementVect2			= Vect2(0, 4);
-	mTypeName				= "FIRE BAT V";
+	
 	mRideable               = false;
 
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_BURNING, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING);
+
+	mWidth					= 50;
+	mHeight					= 50;
+
+	mImageOffsetX           = 0;
+	mImageOffsetY           = 0;
 	int maxImageWidth       = 160;
 	int maxImageHeight      = 160;
 
@@ -271,21 +293,25 @@ EFireBatVPreset::EFireBatVPreset() : EEnemyPreset()
 EFireFrogPreset::EFireFrogPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_FIRE_FROG;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_BURNING, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_FIRE_RESISTENT };
+	mTypeName = "FIRE FROG";
+	
 	mMovementCodes			= {EEntityMovements_JUMP, EEntityMovements_NONE};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance           = 30;
 	mMovementCodeInterval	= 100;
-	mWidth					= 45;
-	mHeight					= 40;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 5;
-	mCurDirection			= EDirection_LEFT;
-	mMovementVect2			= Vect2(6, 3);
-	mTypeName				= "FIRE FROG";
-	mRideable               = false;
 
+	mMovementVect2			= Vect2(6, 3);
+	mJumpDistance           = 30;
+	
+	mRideable               = false;
+	
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_BURNING, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_BURNING, EEntityEdgeType_BURNING);
+
+	mWidth = 45;
+	mHeight = 40;
+
+	mImageOffsetX = 0;
+	mImageOffsetY = 5;
 	int maxImageWidth       = 120;
 	int maxImageHeight      = 100;
 
@@ -310,20 +336,22 @@ EFireFrogPreset::EFireFrogPreset() : EEnemyPreset()
 ESnailPreset::ESnailPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_SNAIL;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_SPIKE_RESISTENT, EEntityCharacteristicsTypes_FIRE_RESISTENT };
+	mTypeName = "SNAIL";
+
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance           = 75;
+	mMovementVect2			= Vect2(6, 5);
+	
+	mRideable               = true;
+	
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
 	mWidth					= 60;
 	mHeight					= 35;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 5;
-	mCurDirection			= EDirection_LEFT;
-	mMovementVect2			= Vect2(6, 5);
-	mTypeName				= "SNAIL";
-	mRideable               = true;
 
+	mImageOffsetX			= 0;
+	mImageOffsetY			= 5;
 	int maxImageWidth       = 160;
 	int maxImageHeight      = 160;
 
@@ -337,23 +365,24 @@ ESnailPreset::ESnailPreset() : EEnemyPreset()
 ESpikeySnailPreset::ESpikeySnailPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_SPIKEY_SNAIL;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_SPIKEY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_SPIKE_RESISTENT, EEntityCharacteristicsTypes_FIRE_RESISTENT };
+	mTypeName = "SPIKEY SNAIL";
+
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance           = 75;
-	mWidth					= 60;
-	mHeight					= 30;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 5;
-	mCurDirection			= EDirection_LEFT;
 	mMovementVect2			= Vect2(5, 5);
-	mTypeName				= "SPIKEY SNAIL";
+	
 	mRideable               = true;
 
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_SPIKEY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
+	mWidth = 60;
+	mHeight = 30;
+
+	mImageOffsetX = 0;
+	mImageOffsetY = 5;
 	int maxImageWidth       = 90;
 	int maxImageHeight      = 90;
-
 	int  runFrameRate		= 15;
 	bool runMustFinish		= false;
 	std::vector <std::string> animationRunFileNames = { "FireEnemies/GemBug/gemBugAnimation01.bmp", "FireEnemies/GemBug/gemBugAnimation02.bmp", "FireEnemies/GemBug/gemBugAnimation03.bmp" };
@@ -364,22 +393,25 @@ ESpikeySnailPreset::ESpikeySnailPreset() : EEnemyPreset()
 ESpikeySnailChameleonPreset::ESpikeySnailChameleonPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_SPIKEY_SNAIL_CHAMELEON;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_SPIKEY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_SPIKE_RESISTENT, EEntityCharacteristicsTypes_FIRE_RESISTENT };
+	mTypeName				= "SPIKEY SNAIL CHAMELEON";
+
 	mStages					= { ECharacterModes_STATIC, ECharacterModes_MOVING };
 	mCharacterMode			= mStages[0];
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance           = 75;
-	mWidth					= 60;
-	mHeight					= 60;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 5;
-	mCurDirection			= EDirection_LEFT;
+	
 	mMovementVect2			= Vect2(4, 5);
-	mTypeName				= "SPIKEY SNAIL CHAMELEON";
+	
 	mRideable               = true;
 
+	mHitboxEdges			= HitboxEdges(EEntityEdgeType_SPIKEY, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
+	mWidth = 60;
+	mHeight = 60;
+
+	mImageOffsetX = 0;
+	mImageOffsetY = 5;
 	int maxImageWidth       = 90;
 	int maxImageHeight      = 90;
 
@@ -407,23 +439,24 @@ ESpikeySnailChameleonPreset::ESpikeySnailChameleonPreset() : EEnemyPreset()
 EBatHPreset::EBatHPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BAT_H;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
+	mTypeName = "BAT H";
+
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL;
-	mJumpDistance           = 75;
+	mMovementVect2			= Vect2(4, 0);
+	
+	mRideable               = false;
+
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
 	mWidth					= 160;
 	mHeight					= 30;
 	mImageOffsetX           = 0;
 	mImageOffsetY           = 0;
-	mCurDirection			= EDirection_LEFT;
-	mMovementVect2			= Vect2(4, 0);
-	mTypeName				= "BAT H";
-	mRideable               = false;
 
 	int maxImageWidth       = 200;
 	int maxImageHeight      = 130;
-
 	int  flyFrameRate		= 15;
 	bool flyMustFinish		= false;
 	std::vector <std::string> animationFlyFileNames = {"WaterEnemies/Glata/GlataAnimation01.bmp", "WaterEnemies/Glata/GlataAnimation02.bmp", "WaterEnemies/Glata/GlataAnimation03.bmp"};
@@ -434,19 +467,21 @@ EBatHPreset::EBatHPreset() : EEnemyPreset()
 EBatVPreset::EBatVPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BAT_V;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
+	mTypeName = "BAT V";
+	
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_VERTICAL;
-	mJumpDistance           = 75;
-	mWidth					= 30;
-	mHeight					= 140;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 0;
-	mCurDirection			= EDirection_LEFT;
 	mMovementVect2			= Vect2(0, 4);
-	mTypeName				= "BAT V";
+	
 	mRideable               = false;
+
+	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
+	mWidth = 30;
+	mHeight = 140;
+	mImageOffsetX = 0;
+	mImageOffsetY = 0;
 
 	int maxImageWidth       = 95;
 	int maxImageHeight      = 160;
@@ -461,19 +496,21 @@ EBatVPreset::EBatVPreset() : EEnemyPreset()
 EBatDPreset::EBatDPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BAT_D;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
+	mTypeName = "BAT H";
+
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_DIAGONAL;
-	mJumpDistance           = 75;
-	mWidth					= 30;
-	mHeight					= 50;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 10;
-	mCurDirection			= EDirection_LEFT;
 	mMovementVect2			= Vect2(4, 4);
-	mTypeName				= "BAT H";
+	
 	mRideable               = false;
+
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
+	mWidth = 30;
+	mHeight = 50;
+	mImageOffsetX = 0;
+	mImageOffsetY = 10;
 
 	int maxImageWidth       = 80;
 	int maxImageHeight      = 100;
@@ -488,20 +525,23 @@ EBatDPreset::EBatDPreset() : EEnemyPreset()
 EHidingSnailPreset::EHidingSnailPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_HIDING_SNAIL;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
+	mTypeName				= "HIDING SNAIL";
+
 	mMovementCodes			= {EEntityMovements_WALK, EEntityMovements_NONE };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance           = 75;
 	mMovementCodeInterval	= 80;
-	mWidth					= 80;
-	mHeight					= 50;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 5;
-	mCurDirection			= EDirection_LEFT;
+
 	mMovementVect2			= Vect2(6, 5);
-	mTypeName				= "HIDING SNAIL";
+	
 	mRideable               = true;
+
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
+	mWidth = 80;
+	mHeight = 50;
+	mImageOffsetX = 0;
+	mImageOffsetY = 5;
 
 	int maxImageWidth       = 110;
 	int maxImageHeight      = 110;
@@ -524,21 +564,23 @@ EHidingSnailPreset::EHidingSnailPreset() : EEnemyPreset()
 EGrabbingSnailPreset::EGrabbingSnailPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_GRABBING_SNAIL;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_GRABBING, EEntityEdgeType_GRABBING);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_CRUSH_RESISTENT, EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
+	mTypeName				= "GRABBING SNAIL";
+
 	mMovementCodes			= {EEntityMovements_WALK};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
-	mJumpDistance           = 75;
+	mMovementVect2			= Vect2(3, 5);
+	
+	mRideable               = true;
+	mHasAttachmentPoint		= true;
+	mAttachmentPoint		= Vect2(35, 0);
+
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_NEUTRAL, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_GRABBING, EEntityEdgeType_GRABBING);
+
 	mWidth					= 90;
 	mHeight					= 30;
 	mImageOffsetX           = 0;
 	mImageOffsetY           = 5;
-	mCurDirection			= EDirection_LEFT;
-	mMovementVect2			= Vect2(3, 5);
-	mTypeName				= "GRABBING SNAIL";
-	mRideable               = true;
-	mHasAttachmentPoint		= true;
-	mAttachmentPoint		= Vect2(35, 0);
 
 	int maxImageWidth       = 170;
 	int maxImageHeight      = 100;
@@ -562,19 +604,23 @@ EGrabbingSnailPreset::EGrabbingSnailPreset() : EEnemyPreset()
 EWalkingFrogPreset::EWalkingFrogPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_WALKING_FROG;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	mTypeName				= "WALKING FROG";
+	
 	mMovementCodes		    = { EEntityMovements_WALK, EEntityMovements_JUMP };
 	mMovementPath           = EEntityMovementPath_HORIZONTAL_CAN_FALL;
 	mMovementCodeInterval   = 80;
+	
+	mMovementVect2			= Vect2(4, 4);
+	mJumpDistance			= 60;
+	
+	mRideable               = false;
+
+	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_HAZARDOUS, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	
 	mWidth					= 30;
 	mHeight					= 20;
 	mImageOffsetX           = 0;
 	mImageOffsetY		    = 10;
-	mCurDirection			= EDirection_LEFT;
-	mMovementVect2			= Vect2(4, 4);
-	mJumpDistance			= 60;
-	mTypeName				= "WALKING FROG";
-	mRideable               = false;
 
 	int maxImageWidth       = 60;
 	int maxImageHeight      = 60;
@@ -605,19 +651,21 @@ EWalkingFrogPreset::EWalkingFrogPreset() : EEnemyPreset()
 ESlowBatHPreset::ESlowBatHPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BAT_H;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
+	mTypeName				= "SLOW BAT H";
+
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_HORIZONTAL;
-	mJumpDistance           = 75;
-	mWidth					= 80;
-	mHeight					= 20;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 0;
-	mCurDirection			= EDirection_LEFT;
 	mMovementVect2			= Vect2(2, 0);
-	mTypeName				= "SLOW BAT H";
+	
 	mRideable               = false;
+
+	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+	
+	mWidth = 80;
+	mHeight = 20;
+	mImageOffsetX = 0;
+	mImageOffsetY = 0;
 
 	int maxImageWidth       = 180;
 	int maxImageHeight      = 180;
@@ -639,21 +687,23 @@ ESlowBatHPreset::ESlowBatHPreset() : EEnemyPreset()
 EProjectileBatVPreset::EProjectileBatVPreset() : EEnemyPreset()
 {
 	mEntityCharacterType    = EEntityCharacterTypes_E_BAT_V;
-	mHitboxEdges			= HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
 	mEntityCharacteristicTypes = { EEntityCharacteristicsTypes_ELECTRICITY_RESISTENT };
+	mTypeName				= "PROJECTILE BAT V";
+	
 	mMovementCodes			= {EEntityMovements_FLY};
 	mMovementPath           = EEntityMovementPath_VERTICAL;
+	mMovementVect2			= Vect2(0, 4);
+	
+	mRideable               = false;
 	mProjectilePath         = EEntityMovementPath_HORIZONTAL;
 	mProjectileInterval     = 90;
-	mJumpDistance           = 75;
-	mWidth					= 45;
-	mHeight					= 70;
-	mImageOffsetX           = 0;
-	mImageOffsetY           = 0;
-	mCurDirection			= EDirection_LEFT;
-	mMovementVect2			= Vect2(0, 4);
-	mTypeName				= "PROJECTILE BAT V";
-	mRideable               = false;
+
+	mHitboxEdges = HitboxEdges(EEntityEdgeType_CRUSHABLE, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL, EEntityEdgeType_NEUTRAL);
+
+	mWidth = 45;
+	mHeight = 70;
+	mImageOffsetX = 0;
+	mImageOffsetY = 0;
 
 	int maxImageWidth       = 70;
 	int maxImageHeight      = 250;

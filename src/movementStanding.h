@@ -1,12 +1,10 @@
 #pragma once
-#include <iostream>
-#include "movementHelperClass.h"
+#include "movementHelpers.h"
 
 class StandingState : public MovementState
 {
 	MovementData& mMovementData;
 public:
 	StandingState(PositionData&, MovementData&, AttemptMove&);
-	virtual void printState();
-	virtual void calcMove(bool moveHorizontal);
+	void calcMove(bool moveHorizontal);
 };
