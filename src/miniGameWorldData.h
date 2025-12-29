@@ -7,19 +7,13 @@
 struct MiniGameWorldData
 {
     std::vector <MiniGameWorld*>	mpMiniGameWorlds;
-#if DEMO == 0
     int                             mCurWorldNumber = 0;
     int								mCurLevelNumber = 0;
     int                             mCurStageNumber = 0;
-#else
-    int                             mCurWorldNumber = 0;
-    int								mCurLevelNumber = 0;
-    int                             mCurStageNumber = 0;
-#endif
 
     int mCheatWorldNumber = 0;
-    int mCheatLevelNumber = 4;
-    int mCheatStageNumber = 0;
+    int mCheatLevelNumber = 1;
+    int mCheatStageNumber = 1;
 
     bool                            mGoToNextLevel = false;
     LevelData*                      mpNextLevelData = nullptr;

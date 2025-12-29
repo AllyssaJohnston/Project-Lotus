@@ -115,7 +115,6 @@ bool characterTypeFit(EAttackTargetType targetType, EMiniGameCombatCharacterType
 
 EMiniGameCombatCharacterType getCharacterTypeFromAttackTargetType(EAttackTargetType targetType);
 
-
 std::string returnDescriptionOfMoveAttackType(const EMiniGameCombatMoveAttackTypes moveAttackType, const int num, const int out);
 
 std::string returnDescriptionOfAttackTargetType(const EAttackTargetType targetType);

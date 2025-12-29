@@ -205,7 +205,7 @@ BouncyFrogCombatPreset::BouncyFrogCombatPreset() : CombatCharacterPreset()
     mName = "FROG SHROOM";
 
     // TODO JUMP (teleport)
-    // 3 turn cooldown
+    // 5 turn cooldown
 
     // CRUSH
     Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 2, 1, EMiniGameCombatAttackCategoryType_ATTACK, 0.67f, 0, "Crush");
@@ -215,8 +215,9 @@ BouncyFrogCombatPreset::BouncyFrogCombatPreset() : CombatCharacterPreset()
 
     // CRUSH ++
     Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 3, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Crush++");
-    attack2.mDamageDistanceDependent = false;
-    attack2.mRequiresDirectionInput = false;
+    attack2.mDamageDistanceDependent    = false;
+    attack2.mRequiresDirectionInput     = false;
+    attack2.mCooldownAmount             = 3;
     attack2.mCharacterTileSpecialEffects.push_back(SpecialEffect(SpecialEffectStun(1)));
     mAttacks.push_back(attack2);
 

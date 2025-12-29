@@ -2,10 +2,10 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#define DEMO 0
+#define DEMO 1
 // 0 = non demo, 1 = demo
 
-#define DEBUG 1
+#define DEBUG 0
 // 0 = non debug, 1 = debug
 
 #define COLLISION_SYSTEM 0

@@ -411,6 +411,19 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 		{
 			continue;
 		}
+		else if (attack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE)
+		{
+			CombatCharacter* characterWithLowestHealth = nullptr;
+			// choose tile with player with lowest health
+			for (CombatCharacter* pCurCharacterToTest : mWorldData.getStage()->mCombatManager.getCurAliveCharacters())
+			{
+				if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER && pCurCharacterToTest->getCurHealth() > characterWithLowestHealth->getCurHealth())
+				{
+					characterWithLowestHealth = pCurCharacterToTest;
+				}
+			}
+			pBestTilesToAttack = { characterWithLowestHealth->mCombatMovementManager.getCurTile() };
+		}
 		else if (attack.mRequiresDirectionInput)
 		{
 			// choose direction that can attack the most characters
@@ -478,7 +491,7 @@ bool MiniGameEnemyTakeAction::shouldDefend()
 		}
 		for (const Attack& attack : pCharacter->mCombatMovementManager.getAttacks())
 		{
-			if (attack.mCurCooldown != 0)
+			if (attack.mCurCooldown != 0 || !characterTypeFit(attack.mAttackTargetType, EMiniGameCombatCharacterType_ENEMY, true))
 			{
 				// potential attacker can't use this attack
 				continue;

@@ -24,6 +24,9 @@ public:
     // gets called when returning to the first alive player
     void endRound();
 
+    // for undo
+    void setRound(int round);
+
     // gets called each character switch
     void postTick();
 

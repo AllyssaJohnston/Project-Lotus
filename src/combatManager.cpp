@@ -19,6 +19,12 @@ void CombatManager::endRound()
     }
 }
 
+void CombatManager::setRound(int round) 
+{
+    mRounds = round;
+    createCurAliveCharacterList();
+}
+
 void CombatManager::postTick()
 {    
     // check if the cur alive character list needs to be updated

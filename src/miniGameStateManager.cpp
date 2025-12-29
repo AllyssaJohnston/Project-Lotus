@@ -65,6 +65,7 @@ void MiniGameStateManager::preTick()
 		// changed state
 		mData.mPreTickCharacters.push(createCombatCharacterSnapShots(pStage->mCombatManager));
 		mData.mPreviousStateDatas.push(std::pair<EMiniGameState, MiniGameStateData>(mData.mCurStateEnum, mData.mStateData));
+		mData.mRoundNum.push(pStage->mCombatManager.getRoundNum());
 	}
 	mData.mLastFrameStateEnum = mData.mCurStateEnum;
 
@@ -127,6 +128,8 @@ void MiniGameStateManager::undo()
 		}
 		mData.mPreTickCharacters.pop();
 		mData.mTicksSinceUndo++;
+		combatManager.setRound(mData.mRoundNum.top());
+		mData.mRoundNum.pop();
 	}
 	updateCurState(mData.mCurStateEnum);
 	mData.mTicksSinceUndo = 0;

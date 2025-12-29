@@ -236,6 +236,7 @@ void CombatCharacter::move(Tile* pTileInput) { mCombatMovementManager.setCurTile
 
 void CombatCharacter::revertToState(CombatCharacter& prevState)
 {
+    mStarted                    = prevState.mStarted;
     mAmAlive                    = prevState.mAmAlive;
 
     mStandardAttackDamage       = prevState.mStandardAttackDamage;

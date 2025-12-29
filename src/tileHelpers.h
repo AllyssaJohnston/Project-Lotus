@@ -17,3 +17,4 @@ bool isPlayableTile(const Tile& gGivenTile);
 float getDistanceBetweenTiles(const Tile& tile1, const Tile& tile2);
 
 EDirection getDirectionBetweenTiles(const Tile& tile1, const Tile& tile2);
+

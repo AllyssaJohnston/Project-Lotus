@@ -57,6 +57,7 @@ struct MiniGameStateManagerData
     MiniGameStateData   mStateData = MiniGameStateData();
     std::stack<std::pair<EMiniGameState, MiniGameStateData>> mPreviousStateDatas;
     std::stack<std::vector<CombatCharacter>> mPreTickCharacters;
+    std::stack<int>                          mRoundNum;
     int mTicksSinceUndo = 0;
 };
 
