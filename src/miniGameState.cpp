@@ -411,56 +411,52 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 		{
 			continue;
 		}
-		else if (attack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE)
+
+		std::vector <Tile*> pTilesToAttackWithCharacters;
+		EDirection curBestDirection = EDirection_INVALID;
+		
+		if (attack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE) // attacking tile with player with lowest health
 		{
-			CombatCharacter* characterWithLowestHealth = nullptr;
-			// choose tile with player with lowest health
+			curBestDirection = EDirection_ALL;
+			CombatCharacter* pCharacterWithLowestHealth = mWorldData.getStage()->mCombatManager.getCurAliveCharacters()[0];
 			for (CombatCharacter* pCurCharacterToTest : mWorldData.getStage()->mCombatManager.getCurAliveCharacters())
 			{
-				if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER && pCurCharacterToTest->getCurHealth() > characterWithLowestHealth->getCurHealth())
+				if (pCharacterWithLowestHealth == nullptr || pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER && pCurCharacterToTest->getCurHealth() > pCharacterWithLowestHealth->getCurHealth())
 				{
-					characterWithLowestHealth = pCurCharacterToTest;
+					pCharacterWithLowestHealth = pCurCharacterToTest;
 				}
 			}
-			pBestTilesToAttack = { characterWithLowestHealth->mCombatMovementManager.getCurTile() };
+			pTilesToAttackWithCharacters = { pCharacterWithLowestHealth->mCombatMovementManager.getCurTile() };
 		}
-		else if (attack.mRequiresDirectionInput)
+		else if (attack.mRequiresDirectionInput) // attacking in direction that can attack the most characters
 		{
-			// choose direction that can attack the most characters
-			std::vector <Tile*> pTilesToAttackWithCharacters;
-			EDirection curBestDirection = EDirection_INVALID;
+			
 			for (int i = 0; i < 4; i++)
 			{
-				std::vector <Tile*> pCurTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, (EDirection)i);
-				if (pCurTilesToAttackWithCharacters.size() > pTilesToAttackWithCharacters.size())
+				std::vector <Tile*> pCurDirectionalTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, (EDirection)i);
+				if (pCurDirectionalTilesToAttackWithCharacters.size() > pTilesToAttackWithCharacters.size())
 				{
-					pTilesToAttackWithCharacters = pCurTilesToAttackWithCharacters;
+					pTilesToAttackWithCharacters = pCurDirectionalTilesToAttackWithCharacters;
 					curBestDirection = (EDirection)i;
 				}
 
 			}
-			
-			float damageOutput = pTilesToAttackWithCharacters.size() * attack.mDamagePercent * mData.getCharacter()->getCurDamage();
-			if (damageOutput > maxDamageOutput && !(pTilesToAttackWithCharacters.size() == 0))
-			{
-				maxDamageOutput = damageOutput;
-				pBestTilesToAttack = pTilesToAttackWithCharacters;
-				pBestAttack = &attack;
-				attackDir = curBestDirection;
-			}
 		}
-		else
+		else // attacking all tiles for generic attack
 		{
-			std::vector <Tile*> pTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, EDirection_ALL);
-			float damageOutput = pTilesToAttackWithCharacters.size() * attack.mDamagePercent * mData.getCharacter()->getCurDamage();
-			if (damageOutput > maxDamageOutput && !(pTilesToAttackWithCharacters.size() == 0))
-			{
-				maxDamageOutput		= damageOutput;
-				pBestAttack			= &attack;
-				pBestTilesToAttack	= pTilesToAttackWithCharacters;
-				attackDir			= EDirection_ALL;
-			}
+			curBestDirection = EDirection_ALL;
+			pTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, EDirection_ALL);
 		}
+
+		float damageOutput = pTilesToAttackWithCharacters.size() * attack.mDamagePercent * mData.getCharacter()->getCurDamage();
+		if (damageOutput > maxDamageOutput && !(pTilesToAttackWithCharacters.size() == 0))
+		{
+			maxDamageOutput		= damageOutput;
+			pBestTilesToAttack	= pTilesToAttackWithCharacters;
+			pBestAttack			= &attack;
+			attackDir			= curBestDirection;
+		}
+		pTilesToAttackWithCharacters.clear();
 	}
 	
 
@@ -472,6 +468,8 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 	mData.mpCurAttack			= pBestAttack;
 	mData.mpTilesToAttack		= pBestTilesToAttack;
 	mData.mCurAttackDirection	= attackDir;
+	pBestAttack = nullptr;
+	pBestTilesToAttack.clear();
 	return true;
 }
 
