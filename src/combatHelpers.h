@@ -5,103 +5,111 @@
 std::string createTileName(const int row, const int col);
 
 
-enum EMiniGameCombatMoveAttackTypes
+enum ECombatActionGridPattern
 {
-    EMiniGameCombatMoveAttackTypes_INVALID = -1,
-    EMiniGameCombatMoveAttackTypes_NONE,
-    EMiniGameCombatMoveAttackTypes_SQUARE,
-    EMiniGameCombatMoveAttackTypes_CROSS,
-    EMiniGameCombatMoveAttackTypes_CHECKERBOARD,
-    EMiniGameCombatMoveAttackTypes_WHOLE_GRID,
-    EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE,
-    EMiniGameCombatMoveAttackTypes_MAX
+    ECombatActionGridPattern_INVALID = -1,
+    ECombatActionGridPattern_NONE,
+    ECombatActionGridPattern_SQUARE,
+    ECombatActionGridPattern_CROSS,
+    ECombatActionGridPattern_CHECKERBOARD,
+    ECombatActionGridPattern_WHOLE_GRID,
+    ECombatActionGridPattern_MAX
 };
 
-enum EMiniGameCombatSpecialEffectTypes
+enum ECombatNumTilesToAttack
 {
-    EMiniGameCombatSpecialEffectTypes_INVALID = -1,
-    EMiniGameCombatSpecialEffectTypes_NONE,
-    EMiniGameCombatSpecialEffectTypes_STUN,
-    EMiniGameCombatSpecialEffectTypes_LOSE_TURN,
-    EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER,
-    EMiniGameCombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER,
-    EMiniGameCombatSpecialEffectTypes_HEALTH_CAPACITY_MULTIPLIER,
-    EMiniGameCombatSpecialEffectTypes_HEAL,
-    EMiniGameCombatSpecialEffectTypes_FULL_HEAL,
-    EMiniGameCombatSpecialEffectTypes_POISON,
-    EMiniGameCombatSpecialEffectTypes_REVIVE,
-    EMiniGameCombatSpecialEffectTypes_MAX
+    ECombatNumTilesToAttack_INVALID = -1,
+    ECombatNumTilesToAttack_ONE,
+    ECombatNumTilesToAttack_DIRECTION,
+    ECombatNumTilesToAttack_ALL,
+    ECombatNumTilesToAttack_MAX
 };
 
-enum EMiniGameCombatActionType
+enum ECombatSpecialEffectTypes
 {
-    EMiniGameCombatActionType_INVALID = -1,
-    EMiniGameCombatActionType_NONE,
-    EMiniGameCombatActionType_MOVE,
-    EMiniGameCombatActionType_ATTACK,
-    EMiniGameCombatActionType_DEFEND,
-    EMiniGameCombatActionType_PASS,
-    EMiniGameCombatActionType_MAX
+    ECombatSpecialEffectTypes_INVALID = -1,
+    ECombatSpecialEffectTypes_NONE,
+    ECombatSpecialEffectTypes_STUN,
+    ECombatSpecialEffectTypes_LOSE_TURN,
+    ECombatSpecialEffectTypes_ATTACK_MULTIPLIER,
+    ECombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER,
+    ECombatSpecialEffectTypes_HEALTH_CAPACITY_MULTIPLIER,
+    ECombatSpecialEffectTypes_HEAL,
+    ECombatSpecialEffectTypes_FULL_HEAL,
+    ECombatSpecialEffectTypes_POISON,
+    ECombatSpecialEffectTypes_REVIVE,
+    ECombatSpecialEffectTypes_MAX
+};
+
+enum ECombatActionType
+{
+    ECombatActionType_INVALID = -1,
+    ECombatActionType_NONE,
+    ECombatActionType_MOVE,
+    ECombatActionType_ATTACK,
+    ECombatActionType_DEFEND,
+    ECombatActionType_PASS,
+    ECombatActionType_MAX
 };
 
 // under the hood, attack and support, are implemented as attacks,
 // however I separate these in the menu into categories that will make more sense
 // to the player
-enum EMiniGameCombatAttackCategoryType
+enum ECombatAttackCategoryType
 {
-    EMiniGameCombatAttackCategoryType_INVALID = -1,
-    EMiniGameCombatAttackCategoryType_ATTACK,
-    EMiniGameCombatAttackCategoryType_SUPPORT,
-    EMiniGameCombatAttackCategoryType_MAX
+    ECombatAttackCategoryType_INVALID = -1,
+    ECombatAttackCategoryType_ATTACK,
+    ECombatAttackCategoryType_SUPPORT,
+    ECombatAttackCategoryType_MAX
 };
 
-enum EMiniGameCombatCharacterType
+enum ECombatCharacterType
 {
-    EMiniGameCombatCharacterType_INVALID = -1,
-    EMiniGameCombatCharacterType_CHARACTER,
-    EMiniGameCombatCharacterType_PLAYER,
-    EMiniGameCombatCharacterType_ENEMY,
-    EMiniGameCombatCharacterType_MAX
+    ECombatCharacterType_INVALID = -1,
+    ECombatCharacterType_CHARACTER,
+    ECombatCharacterType_PLAYER,
+    ECombatCharacterType_ENEMY,
+    ECombatCharacterType_MAX
 };
 
-enum EMiniGameCombatTileType
+enum ECombatTileType
 {
-    EMiniGameCombatTileType_INVALID = -1,
-    EMiniGameCombatTileType_NORMAL,
-    EMiniGameCombatTileType_IMPASSABLE,
-    EMiniGameCombatTileType_TELEPORTER,
-    EMiniGameCombatTileType_MAX
+    ECombatTileType_INVALID = -1,
+    ECombatTileType_NORMAL,
+    ECombatTileType_IMPASSABLE,
+    ECombatTileType_TELEPORTER,
+    ECombatTileType_MAX
 };
    
-enum EMiniGameCombatTileMode
+enum ECombatTileMode
 {
-    EMiniGameCombatTileMode_INVALID = -1,
-    EMiniGameCombatTileMode_NOT_SELECTED,
-    EMiniGameCombatTileMode_SELECTED,
-    EMiniGameCombatTileMode_HIGHLIGHTED,
-    EMiniGameCombatTileMode_MAX
+    ECombatTileMode_INVALID = -1,
+    ECombatTileMode_NOT_SELECTED,
+    ECombatTileMode_SELECTED,
+    ECombatTileMode_HIGHLIGHTED,
+    ECombatTileMode_MAX
 };
 
-enum EAttackTargetType
+enum ECombatAttackTargetType
 {
-    EAttackTargetType_INVALID = -1,
-    EAttackTargetType_SELF,
+    ECombatAttackTargetType_INVALID = -1,
+    ECombatAttackTargetType_SELF,
 
-    EAttackTargetType_ALIVE_PLAYERS,
-    EAttackTargetType_ONE_ALIVE_PLAYER,
-    EAttackTargetType_ONE_PLAYER,
-    EAttackTargetType_ALL_ALIVE_PLAYERS,
+    ECombatAttackTargetType_ALIVE_PLAYERS,
+    ECombatAttackTargetType_ONE_ALIVE_PLAYER,
+    ECombatAttackTargetType_ONE_PLAYER,
+    ECombatAttackTargetType_ALL_ALIVE_PLAYERS,
 
-    EAttackTargetType_ALIVE_ENEMIES,
-    EAttackTargetType_ONE_ALIVE_ENEMY,
-    EAttackTargetType_ONE_ENEMY,
-    EAttackTargetType_ALL_ALIVE_ENEMIES,
+    ECombatAttackTargetType_ALIVE_ENEMIES,
+    ECombatAttackTargetType_ONE_ALIVE_ENEMY,
+    ECombatAttackTargetType_ONE_ENEMY,
+    ECombatAttackTargetType_ALL_ALIVE_ENEMIES,
 
-    EAttackTargetType_ALIVE_CHARACTERS,
-    EAttackTargetType_ONE_ALIVE_CHARACTER,
-    EAttackTargetType_ONE_CHARACTER,
-    EAttackTargetType_ALL_ALIVE_CHARACTERS,
-    EAttackTargetType_MAX
+    ECombatAttackTargetType_ALIVE_CHARACTERS,
+    ECombatAttackTargetType_ONE_ALIVE_CHARACTER,
+    ECombatAttackTargetType_ONE_CHARACTER,
+    ECombatAttackTargetType_ALL_ALIVE_CHARACTERS,
+    ECombatAttackTargetType_MAX
 };
 
 struct GameOverStats
@@ -111,10 +119,12 @@ struct GameOverStats
 };
 
 
-bool characterTypeFit(EAttackTargetType targetType, EMiniGameCombatCharacterType characterType, bool targetAlive);
+bool characterTypeFit(ECombatAttackTargetType targetType, ECombatCharacterType characterType, bool targetAlive);
 
-EMiniGameCombatCharacterType getCharacterTypeFromAttackTargetType(EAttackTargetType targetType);
+ECombatCharacterType getCharacterTypeFromAttackTargetType(ECombatAttackTargetType targetType);
 
-std::string returnDescriptionOfMoveAttackType(const EMiniGameCombatMoveAttackTypes moveAttackType, const int num, const int out);
+std::string returnDescriptionOfGridPattern(const ECombatActionGridPattern moveAttackType, const int num, const int out);
 
-std::string returnDescriptionOfAttackTargetType(const EAttackTargetType targetType);
+std::string returnDescriptionOfAttackTargetType(const ECombatAttackTargetType targetType);
+
+std::string returnDescirptionOfNumTilesToAttack(const ECombatNumTilesToAttack numTiles);

@@ -6,10 +6,10 @@
 
 struct TilePreset
 {
-    EMiniGameCombatTileType mType           = EMiniGameCombatTileType_INVALID;
-    SDL_Color               mRegularColor   = SDL_Color();
+    ECombatTileType mType           = ECombatTileType_INVALID;
+    SDL_Color       mRegularColor   = SDL_Color();
 
-    TilePreset() {}
+    TilePreset() { ; }
 };
 
 struct RegularTilePreset : public TilePreset { RegularTilePreset(); };

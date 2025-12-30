@@ -9,11 +9,11 @@ void Tile::preTick()
     mLastFrameMode = mCurMode;
 }
 
-void Tile::setMode(EMiniGameCombatTileMode newMode) { mCurMode = newMode; }
+void Tile::setMode(ECombatTileMode newMode) { mCurMode = newMode; }
 
-EMiniGameCombatTileMode Tile::getLastFrameMode() const { return mLastFrameMode; }
+ECombatTileMode Tile::getLastFrameMode() const { return mLastFrameMode; }
 
-EMiniGameCombatTileMode Tile::getMode() const { return mCurMode; }
+ECombatTileMode Tile::getMode() const { return mCurMode; }
 
 void Tile::setType(const TilePreset& preset)
 {
@@ -22,14 +22,14 @@ void Tile::setType(const TilePreset& preset)
     mType = preset.mType;
 }
 
-void Tile::setType(EMiniGameCombatTileType type, const SDL_Color& regularColor) 
+void Tile::setType(ECombatTileType type, const SDL_Color& regularColor) 
 {
     mRegularColor = regularColor;
     mCurColor = regularColor;
     mType = type;
 }
 
-EMiniGameCombatTileType Tile::getType() const { return mType; }
+ECombatTileType Tile::getType() const { return mType; }
 
 void Tile::setCurColor(const SDL_Color& newColor) { mCurColor = newColor; }
 

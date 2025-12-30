@@ -18,13 +18,13 @@ bool shouldShowUIBox(const UIBoxData& data, const MiniGameStateManagerData& mana
 		{
 			return false;
 		}
-		if (data.mCombatCharacterType != EMiniGameCombatCharacterType_CHARACTER && data.mCombatCharacterType != managerData.mStateData.mTargetCharacterType)
+		if (data.mCombatCharacterType != ECombatCharacterType_CHARACTER && data.mCombatCharacterType != managerData.mStateData.mTargetCharacterType)
 		{
 			return false;
 		}
 		return std::find(miniGameStateWhenToShowList.begin(), miniGameStateWhenToShowList.end(), managerData.mCurStateEnum) != miniGameStateWhenToShowList.end();
 	case EUIBoxType_MINI_GAME_PLAYER_BOX:
-		if (pCombatCharacter == nullptr or pCombatCharacter->mType != EMiniGameCombatCharacterType_PLAYER)
+		if (pCombatCharacter == nullptr or pCombatCharacter->mType != ECombatCharacterType_PLAYER)
 		{
 			return false;
 		}
@@ -172,7 +172,7 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 	case EUIBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME:
 		return managerData.mStateData.mpCurAttack->mName;
 	case EUIBoxValueToDisplay_CHARACTER_MOVE_TYPE:
-		return returnDescriptionOfMoveAttackType(pCharacter->mCombatMovementManager.getMoveType(), pCharacter->mCombatMovementManager.getMoveNum(), pCharacter->mCombatMovementManager.getMoveOut());
+		return returnDescriptionOfGridPattern(pCharacter->mCombatMovementManager.getMoveType(), pCharacter->mCombatMovementManager.getMoveNum(), pCharacter->mCombatMovementManager.getMoveOut());
 	case EUIBoxValueToDisplay_INVALID:
 		return textBox.mMessage;
 	default:

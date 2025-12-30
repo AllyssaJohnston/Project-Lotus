@@ -9,9 +9,9 @@ class Tile
 {
 private:
     SDL_Color               mRegularColor;
-    EMiniGameCombatTileMode mLastFrameMode  = EMiniGameCombatTileMode_NOT_SELECTED;
-    EMiniGameCombatTileMode mCurMode        = EMiniGameCombatTileMode_NOT_SELECTED;
-    EMiniGameCombatTileType mType           = EMiniGameCombatTileType_INVALID;
+    ECombatTileMode mLastFrameMode  = ECombatTileMode_NOT_SELECTED;
+    ECombatTileMode mCurMode        = ECombatTileMode_NOT_SELECTED;
+    ECombatTileType mType           = ECombatTileType_INVALID;
 
 public:
     std::string             mName;
@@ -26,16 +26,16 @@ public:
 
     void preTick();
 
-    void setMode(EMiniGameCombatTileMode newMode);
+    void setMode(ECombatTileMode newMode);
 
-    EMiniGameCombatTileMode getLastFrameMode() const;
+    ECombatTileMode getLastFrameMode() const;
 
-    EMiniGameCombatTileMode getMode() const;
+    ECombatTileMode getMode() const;
 
     void setType(const TilePreset& preset);
-    void setType(EMiniGameCombatTileType type, const SDL_Color& regularColor);
+    void setType(ECombatTileType type, const SDL_Color& regularColor);
 
-    EMiniGameCombatTileType getType() const;
+    ECombatTileType getType() const;
 
     void setCurColor(const SDL_Color& newColor);
 

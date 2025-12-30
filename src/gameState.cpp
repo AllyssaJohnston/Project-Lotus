@@ -209,7 +209,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 	case ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX:
 		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
 		{
-			miniStateManager.mData.mStateData.mAttackCategory = EMiniGameCombatAttackCategoryType_ATTACK;
+			miniStateManager.mData.mStateData.mAttackCategory = ECombatAttackCategoryType_ATTACK;
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
 			pSpecificCurState->postTick(EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT);
 			pSpecificCurState = nullptr;
@@ -218,7 +218,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 	case ETextBoxFunction_SUPPORT_CUR_COMBAT_CHARACTER_BOX:
 		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
 		{
-			miniStateManager.mData.mStateData.mAttackCategory = EMiniGameCombatAttackCategoryType_SUPPORT;
+			miniStateManager.mData.mStateData.mAttackCategory = ECombatAttackCategoryType_SUPPORT;
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
 			pSpecificCurState->postTick(EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT);
 			pSpecificCurState = nullptr;

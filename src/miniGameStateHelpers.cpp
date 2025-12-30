@@ -56,12 +56,12 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 		return pTilesWithPlayers;
 	}
 
-	if (curAttack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID || curAttack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE )
+	if (curAttack.mType == ECombatActionGridPattern_WHOLE_GRID)
 	{
 		// just return the tiles with players
 		for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())
 		{
-			if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER)
+			if (pCurCharacterToTest->mType == ECombatCharacterType_PLAYER)
 			{
 				pTilesWithPlayers.push_back(pCurCharacterToTest->mCombatMovementManager.getCurTile());
 			}
@@ -78,7 +78,7 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 			}
 			for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())
 			{
-				if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER && pCurCharacterToTest->mCombatMovementManager.getCurTile() == pCurAttackTile)
+				if (pCurCharacterToTest->mType == ECombatCharacterType_PLAYER && pCurCharacterToTest->mCombatMovementManager.getCurTile() == pCurAttackTile)
 				{
 					pTilesWithPlayers.push_back(pCurAttackTile);
 				}
@@ -117,13 +117,11 @@ std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldD
 
 bool tileInAttackRange(const Attack& attack, const EDirection attackDirection, const Grid& grid, const Tile* const pGivenTile, const Tile* const pTileToAttackFrom)
 {
-	if (attack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID
-		|| attack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE)
-
+	if (attack.mType == ECombatActionGridPattern_WHOLE_GRID)
 	{
 		return true;
 	}
-	for (TileCoords& coords : returnTileCoords(*pTileToAttackFrom, attack.mType, attack.mNum, attack.mOut, (attack.mRequiresDirectionInput ? attackDirection : EDirection_ALL)))
+	for (TileCoords& coords : returnTileCoords(*pTileToAttackFrom, attack.mType, attack.mNum, attack.mOut, (attack.mNumTilesToAttack == ECombatNumTilesToAttack_DIRECTION ? attackDirection : EDirection_ALL)))
 	{
 		Tile* pTile = grid.findTile(coords);
 		if (pTile != nullptr && pTile == pGivenTile)
@@ -338,9 +336,9 @@ EMiniGameState getPostBufferState(const CombatCharacter& character)
 	}
 	switch (character.mType)
 	{
-	case EMiniGameCombatCharacterType_PLAYER:
+	case ECombatCharacterType_PLAYER:
 		return EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
-	case EMiniGameCombatCharacterType_ENEMY:
+	case ECombatCharacterType_ENEMY:
 		return EMiniGameState_ENEMY_MOVE_CHARACTER;
 	default:
 		SDL_assert(false);

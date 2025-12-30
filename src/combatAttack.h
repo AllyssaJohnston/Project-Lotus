@@ -8,11 +8,11 @@
 
 struct SpecialEffect
 {
-    EMiniGameCombatSpecialEffectTypes   mType;
-    EAttackTargetType                   mAttackTargetType;
-    std::string                         mName;
-    float                               mAmount;
-    int                                 mTurns;
+    ECombatSpecialEffectTypes   mType;
+    ECombatAttackTargetType     mAttackTargetType;
+    std::string                 mName;
+    float                       mAmount;
+    int                         mTurns;
 
     SpecialEffect(const SpecialEffectPreset& preset);
 };
@@ -21,36 +21,38 @@ struct SpecialEffect
 class Attack
 {
 public:
-    EMiniGameCombatMoveAttackTypes      mType;
-    int                                 mNum = -1;
-    int                                 mOut = -1;
-    EMiniGameCombatAttackCategoryType   mCategory;
-    EAttackTargetType                   mAttackTargetType;
-    float                               mDamagePercent;
-    bool                                mDamageDistanceDependent   = false;
-    float                               mDamageDropOff             = .25f;
-    std::vector <SpecialEffect>         mCharacterTileSpecialEffects;   // special effects that target a character/ tile (s)
-    std::vector <SpecialEffect>         mGenericSpecialEffects;         // special effects that happen regardless of the character/ tile
-    bool                                mRequiresDirectionInput    = false;
-    std::string                         mName;
-    std::string                         mDescription;
-    int                                 mCurCooldown = 0;
-    int                                 mCooldownAmount;
-    int                                 mLimit = -1;
+    ECombatActionGridPattern        mType                       = ECombatActionGridPattern_INVALID;
+    int                             mNum                        = -1;
+    int                             mOut                        = -1;
+    ECombatAttackCategoryType       mCategory                   = ECombatAttackCategoryType_INVALID;
+    ECombatAttackTargetType         mAttackTargetType           = ECombatAttackTargetType_INVALID;
+    ECombatNumTilesToAttack         mNumTilesToAttack           = ECombatNumTilesToAttack_ONE;
+    float                           mDamagePercent              = 0;
+    std::string                     mName;
+    std::string                     mDescription;
+    int                             mCooldownAmount             = 0;
+
+    bool                            mDamageDistanceDependent    = false;
+    float                           mDamageDropOff              = .25f;
+    std::vector <SpecialEffect>     mCharacterTileSpecialEffects;   // special effects that target a character/ tile (s)
+    std::vector <SpecialEffect>     mGenericSpecialEffects;         // special effects that happen regardless of the character/ tile
+    int                             mLimit                      = -1; // per battle
+
+    int                             mCurCooldown = 0;
 
 private:
-    bool                                mUsed = false;
-    int                                 mUses = 0;
+    bool                            mUsed = false;
+    int                             mUses = 0;
 
 public:
    
-    Attack(const EMiniGameCombatMoveAttackTypes type, EAttackTargetType targetType, const int num, const int out, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description);
+    Attack(const ECombatActionGridPattern type, ECombatAttackTargetType targetType, const int num, const int out, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description);
 
-    Attack(const EMiniGameCombatMoveAttackTypes type, EAttackTargetType targetType, const int num, const int out, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name);
+    Attack(const ECombatActionGridPattern type, ECombatAttackTargetType targetType, const int num, const int out, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name);
 
-    Attack(const EMiniGameCombatMoveAttackTypes type, EAttackTargetType targetType, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description);
+    Attack(const ECombatActionGridPattern type, ECombatAttackTargetType targetType, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description);
 
-    Attack(const EMiniGameCombatMoveAttackTypes type, EAttackTargetType targetType, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name);
+    Attack(const ECombatActionGridPattern type, ECombatAttackTargetType targetType, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name);
 
     bool canUse() const;
 

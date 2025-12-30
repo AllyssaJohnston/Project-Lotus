@@ -20,10 +20,10 @@ public:
     bool                                mGoingToAttack      = false;
     std::vector <Tile*>                 mpTilesToAttack;
     Attack*                             mpCurAttack         = nullptr;
-    EMiniGameCombatAttackCategoryType   mAttackCategory     = EMiniGameCombatAttackCategoryType_INVALID;
+    ECombatAttackCategoryType           mAttackCategory     = ECombatAttackCategoryType_INVALID;
     EDirection                          mCurAttackDirection = EDirection_INVALID;
 
-    EMiniGameCombatCharacterType mTargetCharacterType = EMiniGameCombatCharacterType_INVALID;
+    ECombatCharacterType mTargetCharacterType = ECombatCharacterType_INVALID;
     CombatCharacter* mpTargetCharacter = nullptr;
 
     bool                mAttacked   = false;

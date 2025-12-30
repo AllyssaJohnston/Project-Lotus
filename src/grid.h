@@ -35,13 +35,13 @@ public:
 
     void setMouseTile(int mouseX, int mouseY);
 
-    void setMouseTileMode(EMiniGameCombatTileMode mode);
+    void setMouseTileMode(ECombatTileMode mode);
 
     Tile* getMouseTile() const;
 
     void resetTileColors();
 
-    void resetAllTilesModes(EMiniGameCombatTileMode tileMode);
+    void resetAllTilesModes(ECombatTileMode tileMode);
 
     bool isLegalCoords(int row, int col) const;
 

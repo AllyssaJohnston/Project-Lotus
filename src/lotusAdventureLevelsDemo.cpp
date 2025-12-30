@@ -23,11 +23,11 @@ void createNames(Level* pCurLevel)
 
 void createMiniGameNames(MiniGameStage* pCurStage)
 {
-	std::map<EMiniGameCombatCharacterSpecies, int> numOfType;
+	std::map<ECombatCharacterSpecies, int> numOfType;
 	for (int count = 0; count < pCurStage->mCombatManager.getAllCharacters().size(); count++)
 	{
 		CombatCharacter& character = *pCurStage->mCombatManager.getFromAllCharacters(count);
-		if (character.mType == EMiniGameCombatCharacterType_PLAYER)
+		if (character.mType == ECombatCharacterType_PLAYER)
 		{
 			continue;
 		}

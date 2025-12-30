@@ -23,14 +23,14 @@ void MiniGameState::useMouseInput(EMiniGameState curStateEnum, ScreenObject& scr
 void MiniGameState::highlightTile(Vect2 pos)
 {
 	Grid& grid = mWorldData.getStage()->mGrid;
-	grid.setMouseTileMode(EMiniGameCombatTileMode_NOT_SELECTED);
+	grid.setMouseTileMode(ECombatTileMode_NOT_SELECTED);
 	grid.setMouseTile(pos.getX(), pos.getY());
 	Tile* pMouseTile = grid.getMouseTile();
 	if (pMouseTile != nullptr)
 	{
-		if (pMouseTile->getMode() != EMiniGameCombatTileMode_SELECTED)
+		if (pMouseTile->getMode() != ECombatTileMode_SELECTED)
 		{
-			pMouseTile->setMode(EMiniGameCombatTileMode_HIGHLIGHTED);
+			pMouseTile->setMode(ECombatTileMode_HIGHLIGHTED);
 		}
 	}
 }
@@ -45,7 +45,7 @@ void MiniGamePlayerWaitForMoveInput::selectTile(const Vect2 pos)
 	Tile* pMouseTile = grid.getMouseTile();
 	if (pMouseTile != nullptr && isPlayableTile(*pMouseTile))
 	{
-		pMouseTile->setMode(EMiniGameCombatTileMode_SELECTED);
+		pMouseTile->setMode(ECombatTileMode_SELECTED);
 		moveToTile(*pMouseTile);
 	}
 }
@@ -101,29 +101,28 @@ MiniGamePlayerWaitForAttackOptionInput::MiniGamePlayerWaitForAttackOptionInput(K
 void MiniGamePlayerWaitForAttackOptionInput::postTick(Attack& attack)
 {
 	mData.mpCurAttack = &attack;
-	if (attack.mRequiresDirectionInput)
+	switch (attack.mNumTilesToAttack)
 	{
+	case ECombatNumTilesToAttack_ALL:
+		mData.mCurAttackDirection = EDirection_ALL;
+		mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK;
+		break;
+	case ECombatNumTilesToAttack_DIRECTION:
 		mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT;
-	}
-	else
-	{
-		switch (attack.mType)
+		break;
+	case ECombatNumTilesToAttack_ONE:
+		if (attack.mType == ECombatActionGridPattern_WHOLE_GRID)
 		{
-		case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
-			mData.mCurAttackDirection = EDirection_ALL;
-			mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK;
-			break;
-		case EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE:
 			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT;
 			mData.mTargetCharacterType = getCharacterTypeFromAttackTargetType(mData.mpCurAttack->mAttackTargetType);
-			break;
-		default:
+		}
+		else
+		{
 			mData.mCurAttackDirection = EDirection_ALL;
 			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT;
-			break;
 		}
+
 	}
-	
 }
 
 
@@ -146,7 +145,7 @@ void MiniGamePlayerWaitForAttackTileInput::selectTile(const Vect2 pos)
 	Tile* pMouseTile = grid.getMouseTile();
 	if (pMouseTile != nullptr && tileInAttackRange(*mData.mpCurAttack, mData.mCurAttackDirection, mWorldData.getStage()->mGrid, pMouseTile, mData.getCharacter()->mCombatMovementManager.getCurTile()))
 	{
-		pMouseTile->setMode(EMiniGameCombatTileMode_SELECTED);
+		pMouseTile->setMode(ECombatTileMode_SELECTED);
 		mData.mpTilesToAttack = { pMouseTile };
 		postTick();
 	}
@@ -192,7 +191,7 @@ void MiniGamePlayerCompleteActionAttack::attackTiles()
 	{
 		Grid& grid = mWorldData.getStage()->mGrid;
 		std::vector <Tile* > pTilesToAttack;
-		if (mData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
+		if (mData.mpCurAttack->mType == ECombatActionGridPattern_WHOLE_GRID)
 		{
 			pTilesToAttack = grid.mpTiles;
 		}
@@ -414,23 +413,15 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 
 		std::vector <Tile*> pTilesToAttackWithCharacters;
 		EDirection curBestDirection = EDirection_INVALID;
+		CombatCharacter* pCharacterWithLowestHealth = nullptr;
 		
-		if (attack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE) // attacking tile with player with lowest health
+		switch (attack.mNumTilesToAttack)
 		{
+		case ECombatNumTilesToAttack_ALL:
 			curBestDirection = EDirection_ALL;
-			CombatCharacter* pCharacterWithLowestHealth = mWorldData.getStage()->mCombatManager.getCurAliveCharacters()[0];
-			for (CombatCharacter* pCurCharacterToTest : mWorldData.getStage()->mCombatManager.getCurAliveCharacters())
-			{
-				if (pCharacterWithLowestHealth == nullptr || pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER && pCurCharacterToTest->getCurHealth() > pCharacterWithLowestHealth->getCurHealth())
-				{
-					pCharacterWithLowestHealth = pCurCharacterToTest;
-				}
-			}
-			pTilesToAttackWithCharacters = { pCharacterWithLowestHealth->mCombatMovementManager.getCurTile() };
-		}
-		else if (attack.mRequiresDirectionInput) // attacking in direction that can attack the most characters
-		{
-			
+			pTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, EDirection_ALL);
+			break;
+		case ECombatNumTilesToAttack_DIRECTION:
 			for (int i = 0; i < 4; i++)
 			{
 				std::vector <Tile*> pCurDirectionalTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, (EDirection)i);
@@ -441,11 +432,23 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 				}
 
 			}
-		}
-		else // attacking all tiles for generic attack
-		{
+			break;
+		case ECombatNumTilesToAttack_ONE:
+			// attacking tile with player with lowest health
 			curBestDirection = EDirection_ALL;
-			pTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, EDirection_ALL);
+			pCharacterWithLowestHealth = mWorldData.getStage()->mCombatManager.getCurAliveCharacters()[0];
+			for (CombatCharacter* pCurCharacterToTest : mWorldData.getStage()->mCombatManager.getCurAliveCharacters())
+			{
+				if (pCurCharacterToTest->mType == ECombatCharacterType_PLAYER && pCurCharacterToTest->getCurHealth() > pCharacterWithLowestHealth->getCurHealth())
+				{
+					pCharacterWithLowestHealth = pCurCharacterToTest;
+				}
+			}
+			pTilesToAttackWithCharacters = { pCharacterWithLowestHealth->mCombatMovementManager.getCurTile() };
+			pCharacterWithLowestHealth = nullptr;
+			break;
+		default:
+			SDL_assert(false);
 		}
 
 		float damageOutput = pTilesToAttackWithCharacters.size() * attack.mDamagePercent * mData.getCharacter()->getCurDamage();
@@ -489,7 +492,7 @@ bool MiniGameEnemyTakeAction::shouldDefend()
 		}
 		for (const Attack& attack : pCharacter->mCombatMovementManager.getAttacks())
 		{
-			if (attack.mCurCooldown != 0 || !characterTypeFit(attack.mAttackTargetType, EMiniGameCombatCharacterType_ENEMY, true))
+			if (attack.mCurCooldown != 0 || !characterTypeFit(attack.mAttackTargetType, ECombatCharacterType_ENEMY, true))
 			{
 				// potential attacker can't use this attack
 				continue;

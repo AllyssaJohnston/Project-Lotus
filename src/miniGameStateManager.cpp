@@ -174,11 +174,11 @@ void MiniGameStateManager::updateTileColors()
 		SDL_Color curColor = pCurTile->mCurColor;
 		SDL_Color colorToDraw = curColor;
 		float alpha = 0.0f;
-		if (pCurTile->getMode() == EMiniGameCombatTileMode_SELECTED)
+		if (pCurTile->getMode() == ECombatTileMode_SELECTED)
 		{
 			alpha = .1f;
 		}
-		else if (pCurTile->getMode() == EMiniGameCombatTileMode_HIGHLIGHTED)
+		else if (pCurTile->getMode() == ECombatTileMode_HIGHLIGHTED)
 		{
 			alpha = .35f;
 		}
@@ -190,27 +190,26 @@ void MiniGameStateManager::updateTileColors()
 
 	// SHOW MOVE and ATTACK TILES
 	CombatCharacter* pCurCombatCharacter = mData.mStateData.getCharacter();
-	EMiniGameCombatActionType tileType = EMiniGameCombatActionType_MOVE;
+	ECombatActionType tileType = ECombatActionType_INVALID;
 	std::vector <TileCoords> tileCoordsList;
 	switch (mData.mCurStateEnum)
 	{
 	case EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT:
 	case EMiniGameState_ENEMY_MOVE_CHARACTER:
 		tileCoordsList = pCurCombatCharacter->mCombatMovementManager.getMoveTileCoords();
-		tileType = EMiniGameCombatActionType_MOVE;
+		tileType = ECombatActionType_MOVE;
 		break;
 	case EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT:
 	case EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK:
 	case EMiniGameState_ENEMY_TAKE_ACTION:
-		tileType = EMiniGameCombatActionType_ATTACK;
+		tileType = ECombatActionType_ATTACK;
 		if (mData.mStateData.mpCurAttack != nullptr)
 		{
-			if (mData.mStateData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID
-				|| mData.mStateData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE)
+			if (mData.mStateData.mpCurAttack->mType == ECombatActionGridPattern_WHOLE_GRID)
 			{
 				colorWholeGrid = true;
 			}
-			else if (mData.mStateData.mpCurAttack->mRequiresDirectionInput and mData.mStateData.mCurAttackDirection != EDirection_NONE and mData.mStateData.mCurAttackDirection != EDirection_INVALID)
+			else if (mData.mStateData.mpCurAttack->mNumTilesToAttack == ECombatNumTilesToAttack_DIRECTION and mData.mStateData.mCurAttackDirection != EDirection_NONE and mData.mStateData.mCurAttackDirection != EDirection_INVALID)
 			{
 				tileCoordsList = returnTileCoords(*pCurCombatCharacter->mCombatMovementManager.getCurTile(), mData.mStateData.mpCurAttack->mType, mData.mStateData.mpCurAttack->mNum, mData.mStateData.mpCurAttack->mOut, mData.mStateData.mCurAttackDirection);
 			}
@@ -245,7 +244,7 @@ void MiniGameStateManager::updateTileColors()
 	}
 }
 
-void MiniGameStateManager::colorTile(Tile& tile, const EMiniGameCombatActionType tileType)
+void MiniGameStateManager::colorTile(Tile& tile, const ECombatActionType tileType)
 {
 	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
 	if (isPlayableTile(tile))
@@ -254,14 +253,14 @@ void MiniGameStateManager::colorTile(Tile& tile, const EMiniGameCombatActionType
 		SDL_Color otherColor;
 		switch (tileType)
 		{
-		case EMiniGameCombatActionType_MOVE:
+		case ECombatActionType_MOVE:
 			if (combatManager.characterOnTile(tile))
 			{
 				return;
 			}
 			otherColor = StyleManager::sunYellow;
 			break;
-		case EMiniGameCombatActionType_ATTACK:
+		case ECombatActionType_ATTACK:
 			otherColor = StyleManager::red;
 			break;
 		default:
@@ -305,7 +304,7 @@ void MiniGameStateManager::createDebugLog()
 		if (mData.mStateData.mAttacked)
 		{
 			line = preTickStateData.getCharacter()->mName + " choose to " + mData.mStateData.mpCurAttack->mName
-				+ (mData.mStateData.mpCurAttack->mRequiresDirectionInput ? (" " + directionToString(mData.mStateData.mCurAttackDirection)) : "") 
+				+ (mData.mStateData.mpCurAttack->mNumTilesToAttack == ECombatNumTilesToAttack_DIRECTION ? (" " + directionToString(mData.mStateData.mCurAttackDirection)) : "") 
 				+ (mData.mStateData.mpCurAttack->mCurCooldown != 0 ? (". " + mData.mStateData.mpCurAttack->mName + " is now on " + std::to_string(mData.mStateData.mpCurAttack->mCurCooldown) + " turn cooldown") : "");
 		}
 		else if (mData.mStateData.mDefended || mData.mStateData.mHealed)

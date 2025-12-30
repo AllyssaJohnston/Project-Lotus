@@ -89,7 +89,7 @@ std::vector <CombatCharacter*> CombatManager::getCurAlivePlayers() const
     std::vector <CombatCharacter*> pCurAliveCombatPlayers;
     for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
     {
-        if (pCharacter->isAlive() && pCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
+        if (pCharacter->isAlive() && pCharacter->mType == ECombatCharacterType_PLAYER)
         {
             pCurAliveCombatPlayers.push_back(pCharacter);
         }
@@ -102,7 +102,7 @@ std::vector <CombatCharacter*> CombatManager::getAllPlayers() const
     std::vector <CombatCharacter*> pAllCombatPlayers;
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        if (pCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
+        if (pCharacter->mType == ECombatCharacterType_PLAYER)
         {
             pAllCombatPlayers.push_back(pCharacter);
         }
@@ -115,7 +115,7 @@ std::vector <CombatCharacter*> CombatManager::getCurAliveEnemies() const
     std::vector <CombatCharacter*> pCurAliveCombatEnemies;
     for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
     {
-        if (pCharacter->isAlive() && pCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
+        if (pCharacter->isAlive() && pCharacter->mType == ECombatCharacterType_ENEMY)
         {
             pCurAliveCombatEnemies.push_back(pCharacter);
         }
@@ -128,7 +128,7 @@ std::vector <CombatCharacter*> CombatManager::getAllEnemies() const
     std::vector <CombatCharacter*> pAllCombatEnemies;
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        if (pCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
+        if (pCharacter->mType == ECombatCharacterType_ENEMY)
         {
             pAllCombatEnemies.push_back(pCharacter);
         }
@@ -269,26 +269,26 @@ void CombatManager::characterTileSpecialEffect(CombatCharacter& attackingCharact
 
         switch (specialEffect.mType)
         {
-        case EMiniGameCombatSpecialEffectTypes_STUN:
+        case ECombatSpecialEffectTypes_STUN:
             attackedCharacter.stun(specialEffect.mTurns);
             break;
 
-        case EMiniGameCombatSpecialEffectTypes_POISON:
+        case ECombatSpecialEffectTypes_POISON:
             attackedCharacter.addHealthModifier(((int)specialEffect.mAmount), specialEffect.mTurns);
             break;
 
-        case EMiniGameCombatSpecialEffectTypes_HEAL:
-        case EMiniGameCombatSpecialEffectTypes_FULL_HEAL:
+        case ECombatSpecialEffectTypes_HEAL:
+        case ECombatSpecialEffectTypes_FULL_HEAL:
             switch (specialEffect.mAttackTargetType)
             {
            
-            case EAttackTargetType_ONE_PLAYER:
-            case EAttackTargetType_ONE_ENEMY:
-            case EAttackTargetType_ONE_CHARACTER:
+            case ECombatAttackTargetType_ONE_PLAYER:
+            case ECombatAttackTargetType_ONE_ENEMY:
+            case ECombatAttackTargetType_ONE_CHARACTER:
                 pCharacters = { &attackedCharacter };
-            case EAttackTargetType_ONE_ALIVE_PLAYER:
-            case EAttackTargetType_ONE_ALIVE_ENEMY:
-            case EAttackTargetType_ONE_ALIVE_CHARACTER:
+            case ECombatAttackTargetType_ONE_ALIVE_PLAYER:
+            case ECombatAttackTargetType_ONE_ALIVE_ENEMY:
+            case ECombatAttackTargetType_ONE_ALIVE_CHARACTER:
                 if (attackedCharacter.isAlive())
                 {
                     pCharacters = { &attackedCharacter };
@@ -302,13 +302,13 @@ void CombatManager::characterTileSpecialEffect(CombatCharacter& attackingCharact
             {
                 switch (specialEffect.mType)
                 {
-                case EMiniGameCombatSpecialEffectTypes_FULL_HEAL:
+                case ECombatSpecialEffectTypes_FULL_HEAL:
                     pCharacter->fullHeal();
                     break;
-                case EMiniGameCombatSpecialEffectTypes_HEAL:
+                case ECombatSpecialEffectTypes_HEAL:
                     pCharacter->heal((int)specialEffect.mAmount);
                     break;
-                case EMiniGameCombatSpecialEffectTypes_REVIVE:
+                case ECombatSpecialEffectTypes_REVIVE:
                     //pCharacter->revive();
                     break;
                 default:
@@ -330,23 +330,23 @@ void CombatManager::genericSpecialEffect(CombatCharacter& attackingCharacter, co
     {
         switch (specialEffect.mType)
         {
-        case EMiniGameCombatSpecialEffectTypes_LOSE_TURN: // self stun
+        case ECombatSpecialEffectTypes_LOSE_TURN: // self stun
             attackingCharacter.stun(specialEffect.mTurns + 1);
             break;
 
         default:
             switch (specialEffect.mAttackTargetType)
             {
-            case EAttackTargetType_SELF:
+            case ECombatAttackTargetType_SELF:
                 pCharacters = { &attackingCharacter };
                 break;
-            case EAttackTargetType_ALL_ALIVE_CHARACTERS:
+            case ECombatAttackTargetType_ALL_ALIVE_CHARACTERS:
                 pCharacters = getCurAliveCharacters();
                 break;
-            case EAttackTargetType_ALL_ALIVE_PLAYERS:
+            case ECombatAttackTargetType_ALL_ALIVE_PLAYERS:
                 pCharacters = getCurAlivePlayers();
                 break;
-            case EAttackTargetType_ALL_ALIVE_ENEMIES:
+            case ECombatAttackTargetType_ALL_ALIVE_ENEMIES:
                 pCharacters = getCurAliveEnemies();
                 break;
             default:
@@ -357,10 +357,10 @@ void CombatManager::genericSpecialEffect(CombatCharacter& attackingCharacter, co
             {
                 switch (specialEffect.mType)
                 {
-                case EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER:
+                case ECombatSpecialEffectTypes_ATTACK_MULTIPLIER:
                     pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
                     break;
-                case EMiniGameCombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER:
+                case ECombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER:
                     pCharacter->addDefenseCapacityModifier(specialEffect.mAmount, specialEffect.mTurns);
                     break;
                 default:
@@ -398,10 +398,10 @@ GameOverStats CombatManager::getGameOverStats()
     {
         switch (pCurCharacter->mType)
         {
-        case EMiniGameCombatCharacterType_PLAYER:
+        case ECombatCharacterType_PLAYER:
             numPlayers += 1;
             break;
-        case EMiniGameCombatCharacterType_ENEMY:
+        case ECombatCharacterType_ENEMY:
             numEnemies += 1;
             break;
         default:

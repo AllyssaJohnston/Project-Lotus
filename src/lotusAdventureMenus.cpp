@@ -446,7 +446,7 @@ void createMiniGameCharacterSelectionMenu(MenuManager& menuManager, const Screen
 		CombatManager& combatManager = worldData.getStage()->mCombatManager;
 		for (int countCharacter = 0; countCharacter < combatManager.getAllCharacters().size(); countCharacter++)
 		{
-			EMiniGameCombatCharacterType characterType = combatManager.getFromAllCharacters(countCharacter)->mType;
+			ECombatCharacterType characterType = combatManager.getFromAllCharacters(countCharacter)->mType;
 			miniGameMenuPage->addBox(new ShapeBox(MiniGameCharacterShapeBoxPreset(EShapeBoxClass_CIRCLE,	countCharacter, characterType, true,										whenToShow),										UIPositionInfo(EUIPositionAlign_LEFT, EUIPositionAlign_CENTER, bullet,		bullet,					Edges()), white), pCharacterSelectionPanel);
 			miniGameMenuPage->addBox(new TextBox(MiniGameCharacterBoxPreset(								countCharacter, characterType, true, EUIBoxValueToDisplay_CHARACTER_NAME,	whenToShow), ETextBoxFunction_ATTACK_CHARACTER_BOX, UIPositionInfo(EUIPositionAlign_LEFT, EUIPositionAlign_CENTER, panelWidth,	panelBodyHeight / 4,	Edges()), font, TextBoxSizeInfo(optionText, optionText + 5, 2), optionBox), true, pCharacterSelectionPanel);
 		}
@@ -502,7 +502,7 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenOb
 		for (int countCharacter = 0; countCharacter < (int)combatManager.getAllCharacters().size(); countCharacter++)
 		{
 			CombatCharacter& character = *combatManager.getFromAllCharacters(countCharacter);
-			if (character.mType != EMiniGameCombatCharacterType_PLAYER)
+			if (character.mType != ECombatCharacterType_PLAYER)
 			{
 				continue;
 			}
@@ -517,7 +517,7 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenOb
 			for (int countAttack = 0; countAttack < (int)attacks.size(); countAttack++)
 			{
 				const Attack& curAttack = attacks[countAttack];
-				EMiniGameCombatAttackCategoryType category = curAttack.mCategory;
+				ECombatAttackCategoryType category = curAttack.mCategory;
 
 				// bullet, name
 				// spacer, details
@@ -530,7 +530,6 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenOb
 				UIBlock* pAttackDetailBlock		= new UIBlock(panelWidth, panelBodyHeight, EUIPositionAlign_LEFT, EUIPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, false, 1, !fill, !fill, Edges(5, 0, 0, 0), 0, clear, "attack details");
 				if (curAttack.mDamagePercent != 0)  { miniGameMenuPage->addBox(	new TextBox(MiniGamePlayerAttackBoxPreset(countCharacter, false, EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE,						countAttack, category, whenToShow), ETextBoxFunction_NO_FUNCTION, UIPositionInfo(EUIPositionAlign_LEFT, EUIPositionAlign_TOP,	panelWidth, panelBodyHeight / 4,	Edges()), font, TextBoxSizeInfo(detailText), black), false, pAttackDetailBlock); }
 				if (curAttack.mCooldownAmount != 0) { miniGameMenuPage->addBox(	new TextBox(MiniGamePlayerAttackBoxPreset(countCharacter, false, EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_CUR_COOLDOWN,					countAttack, category, whenToShow), ETextBoxFunction_NO_FUNCTION, UIPositionInfo(EUIPositionAlign_LEFT, EUIPositionAlign_TOP,	panelWidth, panelBodyHeight / 4,	Edges()), font, TextBoxSizeInfo(detailText), black), false, pAttackDetailBlock); }
-				miniGameMenuPage->addBox(										new TextBox(MiniGamePlayerAttackBoxPreset(countCharacter, false, EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TARGET_TYPE,					countAttack, category, whenToShow), ETextBoxFunction_NO_FUNCTION, UIPositionInfo(EUIPositionAlign_LEFT, EUIPositionAlign_TOP,	panelWidth, panelBodyHeight / 4,	Edges()), font, TextBoxSizeInfo(detailText), black), false, pAttackDetailBlock);
 				miniGameMenuPage->addBox(										new TextBox(MiniGamePlayerAttackBoxPreset(countCharacter, false, EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES,	countAttack, category, whenToShow), ETextBoxFunction_NO_FUNCTION, UIPositionInfo(EUIPositionAlign_LEFT, EUIPositionAlign_TOP,	panelWidth, panelBodyHeight / 4,	Edges()), font, TextBoxSizeInfo(detailText), black), false, pAttackDetailBlock);
 				bulletAndAttackDetails->mpSubElems.push_back(pAttackDetailBlock);
 
@@ -576,7 +575,7 @@ void createBlockDiagram(const Attack& attack, const int characterIndex, const in
 	int leftBlockMargin = 20;
 
 	
-	if (attack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID || attack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE)
+	if (attack.mType == ECombatActionGridPattern_WHOLE_GRID)
 	{
 		num = 4;
 		out = 0;
@@ -591,15 +590,14 @@ void createBlockDiagram(const Attack& attack, const int characterIndex, const in
 	int maxBlockHeight = StyleManager::panelBodyHeight;
 	int outSpacing = out * (blockSize + spacing) + spacing;
 
-	const EMiniGameCombatAttackCategoryType& category = attack.mCategory;
+	const ECombatAttackCategoryType& category = attack.mCategory;
 
 	int size = (2 * (num - out) + 1);
 	UIBlock* pDiagramBlock = new UIBlock(200, maxBlockHeight, EUIPositionAlign_LEFT, EUIPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, true, size, !fill, !fill, Edges(0, 9, leftBlockMargin, 0), 0, clear, "block diagram");
 	switch(attack.mType)
 	{ 
-	case EMiniGameCombatMoveAttackTypes_SQUARE:
-	case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
-	case EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE:
+	case ECombatActionGridPattern_SQUARE:
+	case ECombatActionGridPattern_WHOLE_GRID:
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = 0; j < size; j++)
@@ -617,7 +615,7 @@ void createBlockDiagram(const Attack& attack, const int characterIndex, const in
 			}
 		}
 		break;
-	case EMiniGameCombatMoveAttackTypes_CROSS:
+	case ECombatActionGridPattern_CROSS:
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = 0; j < size; j++)
@@ -641,7 +639,7 @@ void createBlockDiagram(const Attack& attack, const int characterIndex, const in
 			}
 		}
 		break;
-	case EMiniGameCombatMoveAttackTypes_CHECKERBOARD:
+	case ECombatActionGridPattern_CHECKERBOARD:
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = 0; j < size; j++)

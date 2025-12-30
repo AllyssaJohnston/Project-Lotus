@@ -9,10 +9,10 @@
 class CombatCharacter
 {
 public:
-    std::string                     mName = "invalid";
-    EMiniGameCombatCharacterType    mType = EMiniGameCombatCharacterType_INVALID;
-    EMiniGameCombatCharacterSpecies mSpecies = EMiniGameCombatCharacterSpecies_INVALID;
-    CombatMovementManager           mCombatMovementManager;
+    std::string             mName       = "invalid";
+    ECombatCharacterType    mType       = ECombatCharacterType_INVALID;
+    ECombatCharacterSpecies mSpecies    = ECombatCharacterSpecies_INVALID;
+    CombatMovementManager   mCombatMovementManager;
 
     std::string mModelFileName;
     std::string mIconFileName;
@@ -130,9 +130,6 @@ private:
     void updateModifiers(std::vector<std::pair<int, int>>& modifierlist);
 };
 
-struct SortCharacterByTileRow
-{
-    bool operator()(const CombatCharacter* const pChar1, const CombatCharacter* const pChar2) const;
-};
+struct SortCharacterByTileRow { bool operator()(const CombatCharacter* const pChar1, const CombatCharacter* const pChar2) const; };
 
 

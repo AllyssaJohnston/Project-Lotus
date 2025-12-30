@@ -1,6 +1,6 @@
 #include "combatCharacterPresets.h"
 
-void CombatCharacterPreset::setMove(const EMiniGameCombatMoveAttackTypes type, const int num, const int out)
+void CombatCharacterPreset::setMove(const ECombatActionGridPattern type, const int num, const int out)
 {
     mMoveType = type;
     mMoveNum = num;
@@ -10,32 +10,27 @@ void CombatCharacterPreset::setMove(const EMiniGameCombatMoveAttackTypes type, c
 // LOTUS
 LotusCombatPreset::LotusCombatPreset() : CombatCharacterPreset()
 {
-    mType = EMiniGameCombatCharacterType_PLAYER;
-    mSpecies = EMiniGameCombatCharacterSpecies_LOTUS;
+    mType = ECombatCharacterType_PLAYER;
+    mSpecies = ECombatCharacterSpecies_LOTUS;
     mName = "LOTUS";
 
     // OVERHEAD STRIKE
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ONE_ALIVE_ENEMY, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 1, "Overhead Strike"); 
-    attack1.mDamageDistanceDependent = false;
-    attack1.mRequiresDirectionInput = false;
+    Attack attack1 = Attack(ECombatActionGridPattern_CROSS, ECombatAttackTargetType_ONE_ALIVE_ENEMY, 1, 0, ECombatAttackCategoryType_ATTACK, 1.0f, 1, "Overhead Strike");
     attack1.mCharacterTileSpecialEffects.push_back(SpecialEffectStun(1));
     mAttacks.push_back(attack1);
 
     // CUT
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ONE_ALIVE_ENEMY, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, .67f, 0, "Cut");
-    attack2.mDamageDistanceDependent = false;
-    attack2.mRequiresDirectionInput = false;
+    Attack attack2 = Attack(ECombatActionGridPattern_CROSS, ECombatAttackTargetType_ONE_ALIVE_ENEMY, 1, 0, ECombatAttackCategoryType_ATTACK, .67f, 0, "Cut");
     mAttacks.push_back(attack2);
 
     // SWORD SWIPE
-    Attack attack3 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ALIVE_ENEMIES, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.5f, 0, "Sword Swipe");
-    attack3.mDamageDistanceDependent = false;
-    attack3.mRequiresDirectionInput = true;
+    Attack attack3 = Attack(ECombatActionGridPattern_SQUARE, ECombatAttackTargetType_ALIVE_ENEMIES, 1, 0, ECombatAttackCategoryType_ATTACK, 0.5f, 0, "Sword Swipe");
+    attack3.mNumTilesToAttack = ECombatNumTilesToAttack_DIRECTION;
     mAttacks.push_back(attack3);
 
     mHealAmount = 6;
 
-    setMove(EMiniGameCombatMoveAttackTypes_CROSS, 2, 0);
+    setMove(ECombatActionGridPattern_CROSS, 2, 0);
 
     mAttackDamage       = 12;
     mHealthCapacity     = 30;
@@ -48,49 +43,44 @@ LotusCombatPreset::LotusCombatPreset() : CombatCharacterPreset()
 // EZRA
 EzraCombatPreset::EzraCombatPreset() : CombatCharacterPreset()
 {
-    mType = EMiniGameCombatCharacterType_PLAYER;
-    mSpecies = EMiniGameCombatCharacterSpecies_EZRA;
+    mType = ECombatCharacterType_PLAYER;
+    mSpecies = ECombatCharacterSpecies_EZRA;
     mName = "EZRA";
 
     // SUPPORT
     // ATTACK UP
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_WHOLE_GRID, EAttackTargetType_ALL_ALIVE_PLAYERS, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 1, "Attack Up", "Increase all player attacks");
-    attack1.mDamageDistanceDependent = false;
-    attack1.mRequiresDirectionInput = false;
-    attack1.mGenericSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.25f, INT_MAX, EAttackTargetType_ALL_ALIVE_PLAYERS));
+    Attack attack1 = Attack(ECombatActionGridPattern_WHOLE_GRID, ECombatAttackTargetType_ALL_ALIVE_PLAYERS, ECombatAttackCategoryType_SUPPORT, 0.0f, 1, "Attack Up", "Increase all player attacks");
+    attack1.mNumTilesToAttack = ECombatNumTilesToAttack_ALL;
+    attack1.mGenericSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.25f, INT_MAX, ECombatAttackTargetType_ALL_ALIVE_PLAYERS));
     mAttacks.push_back(attack1);
 
     // ATTACK UP ++
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_WHOLE_GRID, EAttackTargetType_ALL_ALIVE_PLAYERS, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 0, "Attack Up ++", "Increase all player attacks");
-    attack2.mDamageDistanceDependent = false;
-    attack2.mRequiresDirectionInput = false;
-    attack2.mGenericSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.5f, INT_MAX, EAttackTargetType_ALL_ALIVE_PLAYERS));
+    Attack attack2 = Attack(ECombatActionGridPattern_WHOLE_GRID, ECombatAttackTargetType_ALL_ALIVE_PLAYERS, ECombatAttackCategoryType_SUPPORT, 0.0f, 0, "Attack Up ++", "Increase all player attacks");
+    attack2.mNumTilesToAttack = ECombatNumTilesToAttack_ALL;
+    attack2.mGenericSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.5f, INT_MAX, ECombatAttackTargetType_ALL_ALIVE_PLAYERS));
     attack2.mGenericSpecialEffects.push_back(SpecialEffectSelfStun(1));
     mAttacks.push_back(attack2);
 
     // DEFENSE CAPACITY UP
-    Attack attack3 = Attack(EMiniGameCombatMoveAttackTypes_WHOLE_GRID, EAttackTargetType_ALL_ALIVE_PLAYERS, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 0, "Defense Capacity Up", "Increase all player defense capacity");
-    attack3.mDamageDistanceDependent = false;
-    attack3.mRequiresDirectionInput = false;
-    attack3.mGenericSpecialEffects.push_back(SpecialEffectDefenseCapacityMultiplier(1.3f, INT_MAX, EAttackTargetType_ALL_ALIVE_PLAYERS));
+    Attack attack3 = Attack(ECombatActionGridPattern_WHOLE_GRID, ECombatAttackTargetType_ALL_ALIVE_PLAYERS, ECombatAttackCategoryType_SUPPORT, 0.0f, 0, "Defense Capacity Up", "Increase all player defense capacity");
+    attack3.mNumTilesToAttack = ECombatNumTilesToAttack_ALL;
+    attack3.mGenericSpecialEffects.push_back(SpecialEffectDefenseCapacityMultiplier(1.3f, INT_MAX, ECombatAttackTargetType_ALL_ALIVE_PLAYERS));
     mAttacks.push_back(attack3);
 
     // FULL CHARACTER HEAL
-    Attack attack4 = Attack(EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE, EAttackTargetType_ONE_ALIVE_PLAYER, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 5, "Full Heal");
-    attack4.mDamageDistanceDependent = false;
-    attack4.mRequiresDirectionInput = false;
-    attack4.mCharacterTileSpecialEffects.push_back(SpecialEffectFullHeal(EAttackTargetType_ONE_ALIVE_PLAYER));
+    Attack attack4 = Attack(ECombatActionGridPattern_WHOLE_GRID, ECombatAttackTargetType_ONE_ALIVE_PLAYER, ECombatAttackCategoryType_SUPPORT, 0.0f, 5, "Full Heal");
+    attack4.mNumTilesToAttack = ECombatNumTilesToAttack_ONE;
+    attack4.mCharacterTileSpecialEffects.push_back(SpecialEffectFullHeal(ECombatAttackTargetType_ONE_ALIVE_PLAYER));
     mAttacks.push_back(attack4);
 
     // ATTACKS
     // GROW ROOTS
-    Attack attack5 = Attack(EMiniGameCombatMoveAttackTypes_CHECKERBOARD, EAttackTargetType_ALIVE_ENEMIES, 2, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Grow Roots");
-    attack5.mDamageDistanceDependent = false;
-    attack5.mRequiresDirectionInput = false;
+    Attack attack5 = Attack(ECombatActionGridPattern_CHECKERBOARD, ECombatAttackTargetType_ALIVE_ENEMIES, 2, 0, ECombatAttackCategoryType_ATTACK, 1.0f, 0, "Grow Roots");
+    attack5.mNumTilesToAttack = ECombatNumTilesToAttack_ALL;
     mAttacks.push_back(attack5);
 
     
-    setMove(EMiniGameCombatMoveAttackTypes_CROSS, 3, 0);
+    setMove(ECombatActionGridPattern_CROSS, 3, 0);
 
     mAttackDamage = 10;
     mHealthCapacity = 25;
@@ -105,30 +95,27 @@ EzraCombatPreset::EzraCombatPreset() : CombatCharacterPreset()
 // DRAGAUR BLOSSOM
 RatCombatPreset::RatCombatPreset() : CombatCharacterPreset()
 {
-    mType = EMiniGameCombatCharacterType_ENEMY;
-    mSpecies = EMiniGameCombatCharacterSpecies_RAT;
+    mType = ECombatCharacterType_ENEMY;
+    mSpecies = ECombatCharacterSpecies_RAT;
     mName = "DRAGAUR";
 
     // SLASH
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ALIVE_PLAYERS, 2, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.6f, 0, "Slash");
-    attack1.mDamageDistanceDependent = false;
-    attack1.mRequiresDirectionInput = true;
+    Attack attack1 = Attack(ECombatActionGridPattern_SQUARE, ECombatAttackTargetType_ALIVE_PLAYERS, 2, 0, ECombatAttackCategoryType_ATTACK, 0.6f, 0, "Slash");
+    attack1.mNumTilesToAttack = ECombatNumTilesToAttack_DIRECTION;
     mAttacks.push_back(attack1);
 
     // SPIT THORNS
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 3, 1, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Spit Thorns");
-    attack2.mDamageDistanceDependent = false;
-    attack2.mRequiresDirectionInput = false;
+    Attack attack2 = Attack(ECombatActionGridPattern_CROSS, ECombatAttackTargetType_ALIVE_PLAYERS, 3, 1, ECombatAttackCategoryType_ATTACK, 1.0f, 0, "Spit Thorns");
+    attack2.mNumTilesToAttack = ECombatNumTilesToAttack_ALL;
     mAttacks.push_back(attack2);
 
     // DRAGAUR GROWL
-    Attack attack3 = Attack(EMiniGameCombatMoveAttackTypes_WHOLE_GRID, EAttackTargetType_ALL_ALIVE_ENEMIES, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 1, "Dragaur Growl", "Increase all enemies's attack damage");
-    attack3.mDamageDistanceDependent = false;
-    attack3.mRequiresDirectionInput = false;
-    attack3.mGenericSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.25, 3, EAttackTargetType_ALL_ALIVE_ENEMIES));
+    Attack attack3 = Attack(ECombatActionGridPattern_WHOLE_GRID, ECombatAttackTargetType_ALL_ALIVE_ENEMIES, ECombatAttackCategoryType_SUPPORT, 0.0f, 1, "Dragaur Growl", "Increase all enemies's attack damage");
+    attack3.mNumTilesToAttack = ECombatNumTilesToAttack_ALL;
+    attack3.mGenericSpecialEffects.push_back(SpecialEffectAttackMultiplier(1.25, 3, ECombatAttackTargetType_ALL_ALIVE_ENEMIES));
     mAttacks.push_back(attack3);
 
-    setMove(EMiniGameCombatMoveAttackTypes_CROSS, 2, 0);
+    setMove(ECombatActionGridPattern_CROSS, 2, 0);
 
     mAttackDamage       = 8;
     mHealthCapacity     = 36;
@@ -141,23 +128,21 @@ RatCombatPreset::RatCombatPreset() : CombatCharacterPreset()
 // SHROOM VIPER
 BouncyRatCombatPreset::BouncyRatCombatPreset() : CombatCharacterPreset()
 {
-    mType = EMiniGameCombatCharacterType_ENEMY;
-    mSpecies = EMiniGameCombatCharacterSpecies_BOUNCY_RAT;
+    mType = ECombatCharacterType_ENEMY;
+    mSpecies = ECombatCharacterSpecies_BOUNCY_RAT;
     mName = "SHROOM VIPER";
 
     // CHOMP
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 2, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Chomp");
-    attack1.mDamageDistanceDependent = false;
-    attack1.mRequiresDirectionInput = false;
+    Attack attack1 = Attack(ECombatActionGridPattern_CROSS, ECombatAttackTargetType_ALIVE_PLAYERS, 2, 0, ECombatAttackCategoryType_ATTACK, 1.0f, 0, "Chomp");
+    attack1.mNumTilesToAttack = ECombatNumTilesToAttack_ALL;
     mAttacks.push_back(attack1);
 
     // LICK
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ALIVE_PLAYERS, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.5f, 0, "Lick");
-    attack2.mDamageDistanceDependent = false;
-    attack2.mRequiresDirectionInput = true;
+    Attack attack2 = Attack(ECombatActionGridPattern_SQUARE, ECombatAttackTargetType_ALIVE_PLAYERS, 1, 0, ECombatAttackCategoryType_ATTACK, 0.5f, 0, "Lick");
+    attack2.mNumTilesToAttack = ECombatNumTilesToAttack_DIRECTION;
     mAttacks.push_back(attack2);
 
-    setMove(EMiniGameCombatMoveAttackTypes_CROSS, 3, 0);
+    setMove(ECombatActionGridPattern_CROSS, 3, 0);
 
     mAttackDamage = 8;
     mHealthCapacity = 48;
@@ -170,24 +155,23 @@ BouncyRatCombatPreset::BouncyRatCombatPreset() : CombatCharacterPreset()
 // FROCODILE
 FrogCombatPreset::FrogCombatPreset() : CombatCharacterPreset()
 {
-    mType = EMiniGameCombatCharacterType_ENEMY;
-    mSpecies = EMiniGameCombatCharacterSpecies_FROG;
+    mType = ECombatCharacterType_ENEMY;
+    mSpecies = ECombatCharacterSpecies_FROG;
     mName = "FROCODILE";
 
     // JUMP STRIKE
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 5, 0, EMiniGameCombatAttackCategoryType_ATTACK, 0.6f, 1, "Jump Strike");
+    Attack attack1 = Attack(ECombatActionGridPattern_CROSS, ECombatAttackTargetType_ALIVE_PLAYERS, 5, 0, ECombatAttackCategoryType_ATTACK, 0.6f, 1, "Jump Strike");
     attack1.mDamageDistanceDependent = true;
     attack1.mDamageDropOff           = .25f;
-    attack1.mRequiresDirectionInput  = false;
+    attack1.mNumTilesToAttack        = ECombatNumTilesToAttack_ALL;
     mAttacks.push_back(attack1);
 
     // SPIT
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_SQUARE, EAttackTargetType_ALIVE_PLAYERS, 1, 1, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Spit");
-    attack2.mDamageDistanceDependent = false;
-    attack2.mRequiresDirectionInput  = false;
+    Attack attack2 = Attack(ECombatActionGridPattern_SQUARE, ECombatAttackTargetType_ALIVE_PLAYERS, 1, 1, ECombatAttackCategoryType_ATTACK, 1.0f, 0, "Spit");
+    attack2.mNumTilesToAttack = ECombatNumTilesToAttack_ALL;
     mAttacks.push_back(attack2);
 
-    setMove(EMiniGameCombatMoveAttackTypes_CROSS, 3, 1);
+    setMove(ECombatActionGridPattern_CROSS, 3, 1);
 
     mAttackDamage = 5;
     mHealthCapacity = 40;
@@ -200,28 +184,26 @@ FrogCombatPreset::FrogCombatPreset() : CombatCharacterPreset()
 // FROG SHROOM
 BouncyFrogCombatPreset::BouncyFrogCombatPreset() : CombatCharacterPreset()
 {
-    mType = EMiniGameCombatCharacterType_ENEMY;
-    mSpecies = EMiniGameCombatCharacterSpecies_BOUNCY_FROG;
+    mType = ECombatCharacterType_ENEMY;
+    mSpecies = ECombatCharacterSpecies_BOUNCY_FROG;
     mName = "FROG SHROOM";
 
     // TODO JUMP (teleport)
     // 5 turn cooldown
 
     // CRUSH
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 2, 1, EMiniGameCombatAttackCategoryType_ATTACK, 0.67f, 0, "Crush");
-    attack1.mDamageDistanceDependent = false;
-    attack1.mRequiresDirectionInput = false;
+    Attack attack1 = Attack(ECombatActionGridPattern_CROSS, ECombatAttackTargetType_ALIVE_PLAYERS, 2, 1, ECombatAttackCategoryType_ATTACK, 0.67f, 0, "Crush");
+    attack1.mNumTilesToAttack = ECombatNumTilesToAttack_ALL;
     mAttacks.push_back(attack1);
 
     // CRUSH ++
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 3, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Crush++");
-    attack2.mDamageDistanceDependent    = false;
-    attack2.mRequiresDirectionInput     = false;
+    Attack attack2 = Attack(ECombatActionGridPattern_CROSS, ECombatAttackTargetType_ALIVE_PLAYERS, 3, 0, ECombatAttackCategoryType_ATTACK, 1.0f, 0, "Crush++");
+    attack2.mNumTilesToAttack = ECombatNumTilesToAttack_ALL;
     attack2.mCooldownAmount             = 3;
     attack2.mCharacterTileSpecialEffects.push_back(SpecialEffect(SpecialEffectStun(1)));
     mAttacks.push_back(attack2);
 
-    setMove(EMiniGameCombatMoveAttackTypes_CROSS, 2, 1);
+    setMove(ECombatActionGridPattern_CROSS, 2, 1);
 
     mAttackDamage = 12;
     mHealthCapacity = 24;
@@ -234,25 +216,23 @@ BouncyFrogCombatPreset::BouncyFrogCombatPreset() : CombatCharacterPreset()
 // SPIDERING
 HidingRatCombatPreset::HidingRatCombatPreset() : CombatCharacterPreset()
 {
-    mType = EMiniGameCombatCharacterType_ENEMY;
-    mSpecies = EMiniGameCombatCharacterSpecies_HIDING_RAT;
+    mType = ECombatCharacterType_ENEMY;
+    mSpecies = ECombatCharacterSpecies_HIDING_RAT;
     mName = "SPIDERIG";
 
     // WEB
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS,  2, 0, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 0, "Web");
-    attack1.mDamageDistanceDependent = false;
-    attack1.mRequiresDirectionInput = false;
+    Attack attack1 = Attack(ECombatActionGridPattern_CROSS, ECombatAttackTargetType_ALIVE_PLAYERS,  2, 0, ECombatAttackCategoryType_SUPPORT, 0.0f, 0, "Web");
+    attack1.mNumTilesToAttack = ECombatNumTilesToAttack_ONE;
     attack1.mCharacterTileSpecialEffects.push_back(SpecialEffectStun(1));
     mAttacks.push_back(attack1);
 
     // POISON
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_CROSS, EAttackTargetType_ALIVE_PLAYERS, 1, 0, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 2, "Poison");
-    attack2.mDamageDistanceDependent = false;
-    attack2.mRequiresDirectionInput = false;
+    Attack attack2 = Attack(ECombatActionGridPattern_CROSS, ECombatAttackTargetType_ALIVE_PLAYERS, 1, 0, ECombatAttackCategoryType_ATTACK, 1.0f, 2, "Poison");
+    attack2.mNumTilesToAttack = ECombatNumTilesToAttack_ONE;
     attack2.mCharacterTileSpecialEffects.push_back(SpecialEffect(SpecialEffectPoison(2, 2)));
     mAttacks.push_back(attack2);
 
-    setMove(EMiniGameCombatMoveAttackTypes_SQUARE, 1, 0);
+    setMove(ECombatActionGridPattern_SQUARE, 1, 0);
 
     mAttackDamage = 6;
     mHealthCapacity = 20;
@@ -265,32 +245,29 @@ HidingRatCombatPreset::HidingRatCombatPreset() : CombatCharacterPreset()
 // SEEDLING
 FastRatCombatPreset::FastRatCombatPreset() : CombatCharacterPreset()
 {
-    mType = EMiniGameCombatCharacterType_ENEMY;
-    mSpecies = EMiniGameCombatCharacterSpecies_FAST_RAT;
+    mType = ECombatCharacterType_ENEMY;
+    mSpecies = ECombatCharacterSpecies_FAST_RAT;
     mName = "SEEDLING";
 
     // Poke
-    Attack attack1 = Attack(EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE, EAttackTargetType_ONE_ALIVE_PLAYER, EMiniGameCombatAttackCategoryType_ATTACK, 1.0f, 0, "Poke");
-    attack1.mDamageDistanceDependent = false;
-    attack1.mRequiresDirectionInput = false;
+    Attack attack1 = Attack(ECombatActionGridPattern_WHOLE_GRID, ECombatAttackTargetType_ONE_ALIVE_PLAYER, ECombatAttackCategoryType_ATTACK, 1.0f, 0, "Poke");
+    attack1.mNumTilesToAttack = ECombatNumTilesToAttack_ONE;
     mAttacks.push_back(attack1);
 
     // Heal
-    Attack attack2 = Attack(EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE, EAttackTargetType_ONE_ALIVE_ENEMY, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 5, "Heal");
-    attack2.mDamageDistanceDependent = false;
-    attack2.mRequiresDirectionInput = false;
-    attack2.mCharacterTileSpecialEffects.push_back(SpecialEffect(SpecialEffectHeal(15, EAttackTargetType_ONE_ALIVE_ENEMY)));
+    Attack attack2 = Attack(ECombatActionGridPattern_WHOLE_GRID, ECombatAttackTargetType_ONE_ALIVE_ENEMY, ECombatAttackCategoryType_SUPPORT, 0.0f, 5, "Heal");
+    attack2.mNumTilesToAttack = ECombatNumTilesToAttack_ONE;
+    attack2.mCharacterTileSpecialEffects.push_back(SpecialEffect(SpecialEffectHeal(15, ECombatAttackTargetType_ONE_ALIVE_ENEMY)));
     mAttacks.push_back(attack2);
 
     // REVIVE (limit once)
-    Attack attack3 = Attack(EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE, EAttackTargetType_ONE_ENEMY, EMiniGameCombatAttackCategoryType_SUPPORT, 0.0f, 5, "Revive");
-    attack3.mDamageDistanceDependent    = false;
-    attack3.mRequiresDirectionInput     = false;
+    Attack attack3 = Attack(ECombatActionGridPattern_WHOLE_GRID, ECombatAttackTargetType_ONE_ENEMY, ECombatAttackCategoryType_SUPPORT, 0.0f, 5, "Revive");
+    attack3.mNumTilesToAttack = ECombatNumTilesToAttack_ONE;
     attack3.mLimit                      = 1;
-    attack3.mCharacterTileSpecialEffects.push_back(SpecialEffectRevive(EAttackTargetType_ONE_ENEMY));
+    attack3.mCharacterTileSpecialEffects.push_back(SpecialEffectRevive(ECombatAttackTargetType_ONE_ENEMY));
     mAttacks.push_back(attack3);
 
-    setMove(EMiniGameCombatMoveAttackTypes_SQUARE, 2, 0);
+    setMove(ECombatActionGridPattern_SQUARE, 2, 0);
 
     mAttackDamage = 2;
     mHealthCapacity = 24;
