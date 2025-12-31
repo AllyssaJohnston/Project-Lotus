@@ -314,10 +314,7 @@ void createMiniGameMenu(MenuManager& menuManager, const ScreenObject& screen,  M
 	debugStatLine = nullptr;
 
 	// undo
-	UIBlock* undoBlock = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(1250, 417, 150, 50)), EUIPositionAlign_CENTER, EUIPositionAlign_CENTER, EDirection_RIGHT, EDirection_DOWN, true, 1, !fill, !fill, Edges(), 0, clear, "undo block");
-	miniGameMenuPage->addBox(new TextBox(StandardTextBoxPreset("UNDO"), ETextBoxFunction_MINI_GAME_UNDO_BOX, UIPositionInfo(EUIPositionAlign_CENTER, EUIPositionAlign_CENTER, 125, 50, Edges()), font, TextBoxSizeInfo(optionText, optionText + 5, 2), optionBox), true, undoBlock);
-	miniGameMenuPage->mpElems.push_back(undoBlock);
-	undoBlock = nullptr;
+	miniGameMenuPage->addBox(new TextBox(StandardTextBoxPreset("UNDO"), ETextBoxFunction_MINI_GAME_UNDO_BOX, UIPositionInfo(EUIPositionAlign_CENTER, EUIPositionAlign_CENTER, Hitbox(CoordsX1Y1WidthHeight(1250, 417, 150, 50)), Edges()), font, TextBoxSizeInfo(optionText, optionText + 5, 2), optionBox), true);
 
 	miniGameMenuPage = nullptr;
 	characterOptionsBlock = nullptr;

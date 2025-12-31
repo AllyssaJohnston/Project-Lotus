@@ -140,7 +140,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(0,    3975,  0,    25,   levelBlockX, levelBlockY), preset 					));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(3975, 4150,  0,    25,   levelBlockX, levelBlockY), solidPreset 				));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(3975, 4000,  25,   700,  levelBlockX, levelBlockY), wallJumpablePreset			));
-		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(4125, 4150,  200,  825,  levelBlockX, levelBlockY), wallJumpablePreset 	    ));
+		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(4125, 4150,  200,  1625, levelBlockX, levelBlockY), wallJumpablePreset 	    ));
 		curLevel->mpPlatforms.push_back(new Gate(			  CoordsX1X2Y1Y2(4125, 4150,  25,   200,  levelBlockX, levelBlockY), gatePreset 				));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(25,   275,   500,  525,  levelBlockX, levelBlockY), preset 					));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(100,  300,   325,  350,  levelBlockX, levelBlockY), preset 					));
@@ -168,12 +168,12 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		levelBlockX = 1800;
 		levelBlockY = 1650;
 
-		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(0,    1725,  800,  825,  levelBlockX, levelBlockY), preset 			));
+		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(0,    400,   800,  825,  levelBlockX, levelBlockY), preset 			));
+		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(400,  1725,  800,  825,  levelBlockX, levelBlockY), solidPreset 		));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(1725, 1850,  810,  825,  levelBlockX, levelBlockY), spikePreset 		));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(1850, 2350,  800,  825,  levelBlockX, levelBlockY), preset 			));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(0,    25,    0,    800,  levelBlockX, levelBlockY), preset 			));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(2175, 2200,  0,    625,  levelBlockX, levelBlockY), wallJumpablePreset	));
-		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(2325, 2350,  0,    800,  levelBlockX, levelBlockY), wallJumpablePreset	));
 		curLevel->mpAllNonStaticPlatforms.push_back(new Crate(CoordsX1X2Y1Y2(2175, 2250,  725,  800,  levelBlockX, levelBlockY), cratePreset		));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(1900, 1925,  600,  800,  levelBlockX, levelBlockY), preset 			));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(1800, 2025,  575,  600,  levelBlockX, levelBlockY), preset 			));
@@ -185,8 +185,6 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(475,  750,   675,  700,  levelBlockX, levelBlockY), preset 			));
 
 		curLevel->mpAllCollectibles.push_back(new Collectible(Vect2(100 + levelBlockX, 350 + levelBlockY), keyPreset));
-
-
 
 
 		//LEVEL BLOCK - CRATES
@@ -223,12 +221,12 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(  75, 100,   300, 1725, levelBlockX, levelBlockY), lavaPreset 					));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(   0, 200,   275,  300, levelBlockX, levelBlockY), preset 						));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 250, 400,   200,  225, levelBlockX, levelBlockY), preset 						));
-		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 450, 600,   400,  425, levelBlockX, levelBlockY), spikePreset 				));
-		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 250, 400,   700,  725, levelBlockX, levelBlockY), spikePreset 				));
-		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 450, 600,   900,  925, levelBlockX, levelBlockY), spikePreset 				));
-		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 150, 300,  1100, 1125, levelBlockX, levelBlockY), spikePreset 				));
-		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 350, 600,  1400, 1425, levelBlockX, levelBlockY), spikePreset 				));
-		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 100, 275,  1700, 1725, levelBlockX, levelBlockY), spikePreset 				));
+		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 450, 600,   400,  425, levelBlockX, levelBlockY), lavaPreset 					));
+		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 250, 400,   700,  725, levelBlockX, levelBlockY), lavaPreset					));
+		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 450, 600,   900,  925, levelBlockX, levelBlockY), lavaPreset					));
+		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 150, 300,  1100, 1125, levelBlockX, levelBlockY), lavaPreset					));
+		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 350, 600,  1400, 1425, levelBlockX, levelBlockY), lavaPreset					));
+		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 100, 275,  1700, 1725, levelBlockX, levelBlockY), lavaPreset					));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 600, 625,     0, 1725, levelBlockX, levelBlockY), lavaPreset 					));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2( 600, 625,  1725, 2000, levelBlockX, levelBlockY), preset 						));
 		curLevel->mpPlatforms.push_back(new Platform(	      CoordsX1X2Y1Y2(-800, 625,  2000, 2025, levelBlockX, levelBlockY), preset 						));
@@ -313,7 +311,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1075, 1400,  1600,    1625,   levelBlockX, levelBlockY), preset 			 ));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1400, 1700,  1600,    1625,   levelBlockX, levelBlockY), bouncyPreset		 ));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1075, 1250,  1425,    1450,   levelBlockX, levelBlockY), preset 			 ));
-		curLevel->mpAllNonStaticPlatforms.push_back(new Crate(CoordsX1X2Y1Y2(1125, 1200,  1350,    1425,   levelBlockX, levelBlockY), cratePreset 		 ));
+		curLevel->mpAllNonStaticPlatforms.push_back(new Crate(CoordsX1X2Y1Y2(1150, 1225,  1350,    1425,   levelBlockX, levelBlockY), cratePreset 		 ));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1225, 1250,  400,     1350,   levelBlockX, levelBlockY), preset 		 	 ));
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1050, 1225,  975,     1000,   levelBlockX, levelBlockY), solidPreset 		 ));
 
