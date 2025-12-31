@@ -1,6 +1,7 @@
 #pragma once
 #include "gameStateHelpers.h"
 #include "menuManager.h"
+#include "menuDataController.h"
 #include "miniGameStateManager.h"
 
 class GameState
@@ -10,6 +11,7 @@ public:
     KeyboardData& mKeyboardData;
 
     MenuManager& mMenuManager;
+    MenuDataController& mMenuDataController;
 
     GameStateData& mGameStateData;
 
@@ -21,7 +23,7 @@ public:
 
     Vect2 mousePos;
 
-    GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager, SettingsManager& settingsManager, ScreenObject& screen);
+    GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager, MenuDataController& menuController, SettingsManager& settingsManager, ScreenObject& screen);
 
     virtual ~GameState() { ; }
 
@@ -50,7 +52,7 @@ public:
     SlashManager& mSlashManager;
 
     GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, WorldData& worldData,
-        MenuManager& menuManager, SettingsManager& settingsManager, CollisionManager& collisionManager,
+        MenuManager& menuManager, MenuDataController& menuController, SettingsManager& settingsManager, CollisionManager& collisionManager,
         SlashManager& slashManager);
 
     ~GameStatePlay() { ; }
@@ -71,7 +73,7 @@ public:
     MiniGameStateManager& mMiniGameStateManager;
 
     GameStatePlayMiniGame(GameStateData& gameStateData, KeyboardData& keyboardData,
-        MiniGameStateManager& miniGameStateManager, MenuManager& menuManager, ScreenObject& screen,
+        MiniGameStateManager& miniGameStateManager, MenuManager& menuManager, MenuDataController& menuController, ScreenObject& screen,
         SettingsManager& settingsManager);
 
     ~GameStatePlayMiniGame() { ; }
@@ -90,7 +92,7 @@ class GameStateMenu : public GameState
 {
 public:
     GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboardData,
-        MenuManager& menuManager, SettingsManager& settingsManager,
+        MenuManager& menuManager, MenuDataController& menuController, SettingsManager& settingsManager,
         WorldData& worldData);
 
     ~GameStateMenu() { ; }
@@ -99,6 +101,4 @@ public:
 
     void render(EGameState curState) override;
 
-private:
-    WorldData& mWorldData;
 };

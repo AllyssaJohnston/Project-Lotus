@@ -5,6 +5,7 @@
 #include "styleManager.h"
 #include "settingsManager.h"
 #include "slashManager.h"
+#include "menuDataController.h"
 #include "menuManager.h"
 #include "worldData.h"
 #include "miniGameWorldData.h"
@@ -35,13 +36,16 @@ struct GameInstance
 	SettingsManager					mSettingsManager;
 	FontSizeChart					mFontSizeChart;
 
-	GameStateManager				mGameStateManager = GameStateManager(mKeyboardData, mWorldData, mMenuManager, 
+	MenuManager						mMenuManager = MenuManager(mScreen, mSettingsManager, mFontSizeChart);
+	MenuDataController				mMenuDataController = MenuDataController(mMenuManager, mWorldData, mMiniGameStateManager.mData, mMiniGameWorldData,
+																			 mScreen, mSettingsManager, mFontSizeChart, mKeyboardData);
+
+	GameStateManager				mGameStateManager = GameStateManager(mKeyboardData, mWorldData, mMenuManager, mMenuDataController, 
 																		mSettingsManager, mCollisionManager, mSlashManager,
 																		mMiniGameStateManager);
-	MenuManager						mMenuManager	  = MenuManager(mScreen, mWorldData, mSettingsManager, mFontSizeChart, mMiniGameStateManager.mData, mMiniGameWorldData); 
-
+	
 	GameInstance();
-	~GameInstance();
+	~GameInstance() { ; }
 
 	void preTick();
 	void tick();

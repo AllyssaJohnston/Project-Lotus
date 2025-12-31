@@ -9,26 +9,20 @@
 #include "uiBox.h"
 #include "UIBlock.h"
 
-#include "settingsManager.h"
 #include "screen.h"
-#include "worldData.h"
-#include "miniGameWorldData.h"
 
 #include "menuPage.h"
 #include "menuHelpers.h"
-
-
 
 
 class MenuManager
 {
 public:
 	std::vector <MenuPage*> mpMenuPages;
-	MenuPage* mpCurMenuPage		= nullptr;
+	MenuPage* mpCurMenuPage			= nullptr;
 	MenuPage* mpLastFrameMenuPage	= nullptr;
 	
-	MenuManager(ScreenObject& screen, WorldData& worldData, SettingsManager& settingsManager, FontSizeChart& fontSizeChart, MiniGameStateManagerData& miniGameStateManagerData, 
-			MiniGameWorldData& miniWorldData);
+	MenuManager(ScreenObject& screen, SettingsManager& settingsManager, FontSizeChart& fontSizeChart);
 	
 	~MenuManager();
 
@@ -42,21 +36,23 @@ public:
 
 	void setCurMenuPage(MenuPage* pNewMenuPage);
 
-	void renderMenus(EGameState curState, bool forceUpdate, std::string& curKeys);
-
-	bool shouldUpdateTextBoxShowState(EGameState curState, bool forceUpdate);
-
-	void updateUIElements();
+	void renderMenus();
 
 private:
 	ScreenObject& mScreen;
-	WorldData& mWorldData;
-	SettingsManager& mSettingsManager;
 	FontSizeChart& mFontSizeChart;
-	MiniGameStateManagerData& mMiniGameStateManagerData;
-	MiniGameWorldData& mMiniGameWorldData;
-
-	void getUpdatedMenuBoxes(EGameState curState, bool forceUpdate, std::string& curKeys);
+	SettingsManager& mSettingsManager;
 
 	void printBoxes();
+
+	void printBlock(const UIBlock& block);
+
+	void printTextBox(const TextBox& textBox);
+
+	void printImageBox(const ImageBox& iamgeBox);
+
+	void printShapeBox(const ShapeBox& shapeBox);
+
+	void printHealthBox(const HealthBox& healthBox);
 };
+

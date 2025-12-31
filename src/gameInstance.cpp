@@ -5,17 +5,9 @@ GameInstance::GameInstance()
 	mWorldData.createLevelChunk();
 }
 
-GameInstance::~GameInstance() { }
+void GameInstance::preTick()  { mGameStateManager.preTick(); }
 
-void GameInstance::preTick() 
-{
-	mGameStateManager.preTick();
-}
-
-void GameInstance::tick() 
-{
-	mGameStateManager.tick();
-}
+void GameInstance::tick() { mGameStateManager.tick(); }
 
 void GameInstance::postTick()
 {

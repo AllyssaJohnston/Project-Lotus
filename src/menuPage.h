@@ -61,8 +61,6 @@ public:
 
 	std::vector <UIElement*> getAllElems() const;
 
-	void updateAllUIBoxesShowState(MiniGameStateManagerData& data, const CombatManager& combatManager);
-
 	void setDefaultSelectedBox();
 
 	void adjustBlocks();

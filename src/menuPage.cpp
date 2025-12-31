@@ -235,34 +235,6 @@ std::vector <UIElement*> MenuPage::getAllElems() const
 }
 
 
-void MenuPage::updateAllUIBoxesShowState(MiniGameStateManagerData& data, const CombatManager& combatManager)
-{
-	// update show state for all textboxes
-	for (TextBox* pCurTextBox : mpAllSelectableTextBoxes)
-	{
-		pCurTextBox->mShow = shouldShowUIBox(pCurTextBox->mData, data, combatManager);
-	}
-
-	for (TextBox* pCurTextBox : mpAllDisplayOnlyTextBoxes)
-	{
-		pCurTextBox->mShow = shouldShowUIBox(pCurTextBox->mData, data, combatManager);
-	}
-
-	for (ImageBox* pImageBox : mpImageBoxes)
-	{
-		pImageBox->mShow = shouldShowUIBox(pImageBox->mData, data, combatManager);
-	}
-
-	for (ShapeBox* pShapeBox : mpShapeBoxes)
-	{
-		pShapeBox->mShow = shouldShowUIBox(pShapeBox->mData, data, combatManager);
-	}
-
-	for (HealthBox* pHealthBox : mpHealthBoxes)
-	{
-		pHealthBox->mShow = shouldShowUIBox(pHealthBox->mData, data, combatManager);
-	}
-}
 
 void MenuPage::setDefaultSelectedBox()
 {
