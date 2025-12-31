@@ -70,7 +70,7 @@ std::string returnDescriptionCharacterAttack(const ECombatNumTilesToAttack numTi
 	{
 	case ECombatNumTilesToAttack_ONE:		return "ONE " + target + " TILE";
 	case ECombatNumTilesToAttack_DIRECTION: return "ALL " + target + " TILES IN ONE DIRECTION";
-	case ECombatNumTilesToAttack_ALL:		return "ALL " + target + "TILES";
+	case ECombatNumTilesToAttack_ALL:		return "ALL " + target + " TILES";
 	default:
 		SDL_assert(false);
 	}
