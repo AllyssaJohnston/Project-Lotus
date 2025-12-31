@@ -560,7 +560,7 @@ void createMiniGameCharacterAttackPanel(MenuManager& menuManager, const ScreenOb
 
 void createBlockDiagram(const Attack& attack, const int characterIndex, const int attackNum, MenuPage* pPage, UIBlock* pBlock, const std::vector<EMiniGameState>& whenToShow, MenuManager& menuManager)
 {
-	int blockSize = 15;
+	int blockSize = 12;
 	int spacing = 5;
 	SDL_Color blockColor = StyleManager::white;
 	SDL_Color clear = StyleManager::clear;
