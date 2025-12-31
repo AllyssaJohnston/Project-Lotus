@@ -2,8 +2,22 @@
 
 MiniGameState::MiniGameState(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : mKeyboardData(keyboardData), mData(data), mWorldData(worldData) {}
 
-void MiniGameState::useMouseInput(EMiniGameState curStateEnum, ScreenObject& screenObject) 
+void MiniGameState::useInput(EMiniGameState curStateEnum, ScreenObject& screenObject) 
 {
+	if (mKeyboardData.mKeyState[int(EKeyboardInput_P)] == true)
+	{
+		if (!mWorldData.onLastStage() or mWorldData.onLastStage() and (mWorldData.getLevel()->mNextLevelData.mType == ELevelType_MINI_GAME))
+		{
+			mData.mNextMiniGameState = EMiniGameState_BUILD_NEXT_LEVEL;
+			return;
+		}
+		else
+		{
+			mData.mNextMiniGameState = EMiniGameState_EXIT;
+			return;
+		}
+	}
+
 	if (curStateEnum == EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT or curStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT)
 	{
 		float x;

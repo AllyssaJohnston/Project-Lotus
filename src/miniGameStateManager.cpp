@@ -92,7 +92,7 @@ void MiniGameStateManager::postTick()
 			start();
 			return;
 		}
-		if (mData.mCurStateEnum != mData.mStateData.mNextMiniGameState)
+		if (mData.mCurStateEnum != mData.mStateData.mNextMiniGameState && mData.mStateData.mNextMiniGameState != EMiniGameState_EXIT && mData.mStateData.mNextMiniGameState != EMiniGameState_BUILD_NEXT_LEVEL)
 		{
 			createDebugLog();
 		}

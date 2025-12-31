@@ -553,7 +553,7 @@ void GameStatePlayMiniGame::tick(GameStateManagerData& gameStateManagerData, Min
 	getInput();
 	useMouseCursor();
 	useInput(gameStateManagerData);
-	mMiniGameStateManager.mpCurState->useMouseInput(mMiniGameStateManager.mData.mCurStateEnum, mScreen);
+	mMiniGameStateManager.mpCurState->useInput(mMiniGameStateManager.mData.mCurStateEnum, mScreen);
 	takeMenuAction(miniGameStateManager);
 
 	mMiniGameStateManager.preTick();
