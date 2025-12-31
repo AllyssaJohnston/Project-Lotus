@@ -9,6 +9,7 @@ class CombatManager
 private:
     std::vector <CombatCharacter*> mpCurAliveCombatCharacters;
     std::vector <CombatCharacter*> mpAllCombatCharacters;
+    std::vector <CombatCharacter*> mpCharctersSpawningNextRound;
     int mRounds = 0;
 
     const int mMaxCharactersInPlay = 5;
@@ -47,6 +48,8 @@ public:
     std::vector <CombatCharacter*> getAllEnemies() const;
 
     std::vector <CombatCharacter*> getCurAliveEnemies() const;
+
+    std::vector <CombatCharacter*> getGhostEnemies() const;
 
     CombatCharacter* returnNextAliveCharacter(CombatCharacter& curCharacter);
 

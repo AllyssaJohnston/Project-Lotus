@@ -8,12 +8,14 @@ CombatManager::~CombatManager()
     }
     mpAllCombatCharacters.clear();
     mpCurAliveCombatCharacters.clear();
+    mpCharctersSpawningNextRound.clear();
+    mpCharactersToSpawnInRound.clear();
 }
 
 void CombatManager::endRound()
 {
     mRounds++;
-    if (mpCharactersToSpawnInRound[mRounds].size() > 0)
+    if (mpCharactersToSpawnInRound[mRounds].size() > 0 || mpCharactersToSpawnInRound[mRounds + 1].size() > 0)
     {
         createCurAliveCharacterList();
     }
@@ -48,33 +50,35 @@ void CombatManager::createCurAliveCharacterList()
 {
     bool done = false;
     mpCurAliveCombatCharacters.clear();
+    mpCharctersSpawningNextRound.clear();
     for (int i = 0; i <= mRounds; i++)
     {
         for (CombatCharacter* pCharacter : mpCharactersToSpawnInRound[i])
         {
             if (pCharacter->isAlive())
             {
-                if (characterOnTile(*pCharacter->mCombatMovementManager.getCurTile()))
+                if (characterOnTile(*pCharacter->mCombatMovementManager.getCurTile()) || done)
                 {
+                    mpCharctersSpawningNextRound.push_back(pCharacter);
                     done = true;
-                    break;
                 }
                 else
                 {
                     pCharacter->start();
                     mpCurAliveCombatCharacters.push_back(pCharacter);
                 }
-            }
-            if (mpCurAliveCombatCharacters.size() == mMaxCharactersInPlay)
-            {
-                done = true;
-                break;
+
+                if (mpCurAliveCombatCharacters.size() == mMaxCharactersInPlay)
+                {
+                    done = true;
+                }
             }
         }
-        if (done) 
-        {
-            break;
-        }
+    }
+
+    for (CombatCharacter* pCharacter : mpCharactersToSpawnInRound[mRounds + 1])
+    {
+        mpCharctersSpawningNextRound.push_back(pCharacter);
     }
 }
 
@@ -135,6 +139,8 @@ std::vector <CombatCharacter*> CombatManager::getAllEnemies() const
     }
     return pAllCombatEnemies;
 }
+
+std::vector <CombatCharacter*> CombatManager::getGhostEnemies() const { return mpCharctersSpawningNextRound; }
 
 CombatCharacter* CombatManager::returnNextAliveCharacter(CombatCharacter& curCharacter)
 {

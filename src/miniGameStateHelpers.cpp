@@ -115,6 +115,7 @@ std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldD
 
 
 
+
 bool tileInAttackRange(const Attack& attack, const EDirection attackDirection, const Grid& grid, const Tile* const pGivenTile, const Tile* const pTileToAttackFrom)
 {
 	if (attack.mType == ECombatActionGridPattern_WHOLE_GRID)

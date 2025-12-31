@@ -145,6 +145,7 @@ void MiniGameStateManager::printBoard(ScreenObject& screenObject)
 void MiniGameStateManager::printCharacters(ScreenObject& screenObject)
 {
 	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
+	// characters in play
 	// sort characters by row, so that characters on rows further down print over characters on rows further up
 	std::vector<CombatCharacter*> pCharactersInPrintOrder = combatManager.getCurAliveCharacters();
 	std::sort(pCharactersInPrintOrder.begin(), pCharactersInPrintOrder.end(), SortCharacterByTileRow());
@@ -160,6 +161,26 @@ void MiniGameStateManager::printCharacters(ScreenObject& screenObject)
 
 		SDL_FRect curEntityPositionToPrintTo = { printX, printY, printWidth, printHeight };
 		SDL_RenderTextureRotated(screenObject.mpRenderer, pCurCombatCharacter->mModel.getTexture(), NULL, &curEntityPositionToPrintTo, NULL, NULL, SDL_FLIP_NONE);
+	}
+
+	// ghost enemies
+	pCharactersInPrintOrder = combatManager.getGhostEnemies();
+	std::sort(pCharactersInPrintOrder.begin(), pCharactersInPrintOrder.end(), SortCharacterByTileRow());
+	Uint8 alpha = 128; // 50% transparency
+	for (CombatCharacter* pCurCombatCharacter : pCharactersInPrintOrder)
+	{
+		Tile* pCurTile = pCurCombatCharacter->mCombatMovementManager.getCurTile();
+
+		// center x and align with bottom
+		float printX = (float(pCurTile->mCoords.mX1) + (float)(pCurTile->mCoords.mWidth - pCurCombatCharacter->mModel.mIdealImageWidth) / 2.0f) * screenObject.mGameScreenToGameLevelChunkRatio;
+		float printY = (float(pCurTile->mCoords.mY1) + (float)(pCurTile->mCoords.mHeight - pCurCombatCharacter->mModel.mIdealImageHeight)) * screenObject.mGameScreenToGameLevelChunkRatio;
+		float printWidth = float(pCurCombatCharacter->mModel.mIdealImageWidth) * screenObject.mGameScreenToGameLevelChunkRatio;
+		float printHeight = float(pCurCombatCharacter->mModel.mIdealImageHeight) * screenObject.mGameScreenToGameLevelChunkRatio;
+
+		SDL_FRect curEntityPositionToPrintTo = { printX, printY, printWidth, printHeight };
+		Uint8 setAlpha = SDL_SetTextureAlphaMod(pCurCombatCharacter->mModel.getTexture(), alpha);
+		SDL_RenderTextureRotated(screenObject.mpRenderer, pCurCombatCharacter->mModel.getTexture(), NULL, &curEntityPositionToPrintTo, NULL, NULL, SDL_FLIP_NONE);
+		SDL_SetTextureAlphaMod(pCurCombatCharacter->mModel.getTexture(), 255); // set it back so that it doesn't stay at 50% forever
 	}
 }
 
