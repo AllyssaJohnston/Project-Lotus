@@ -345,6 +345,18 @@ void CombatManager::genericSpecialEffect(CombatCharacter& attackingCharacter, co
     }
 }
 
+// return copy of all characters
+std::vector<CombatCharacter> CombatManager::createCombatCharacterSnapShots()
+{
+    std::vector<CombatCharacter> snapShots;
+    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
+    {
+        snapShots.push_back(*pCharacter);
+    }
+    return snapShots;
+}
+
+
 bool CombatManager::characterOnTile(const Tile& tile)
 {
     for (CombatCharacter* pCurCharacterToTest : mpCurAliveCombatCharacters)
@@ -357,6 +369,7 @@ bool CombatManager::characterOnTile(const Tile& tile)
     }
     return false;
 }
+
 
 int CombatManager::getRoundNum() { return mRounds; }
 

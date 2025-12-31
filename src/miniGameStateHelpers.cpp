@@ -152,16 +152,6 @@ std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& combatMana
 }
 
 
-std::vector<CombatCharacter> createCombatCharacterSnapShots(const CombatManager& combatManager) 
-{
-	std::vector<CombatCharacter> snapShots;
-	for (CombatCharacter* pCharacter : combatManager.getAllCharacters())
-	{
-		snapShots.push_back(*pCharacter);
-	}
-	return snapShots;
-}
-
 std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacter>& preTickCharacters)
 {
 	std::string line = "";

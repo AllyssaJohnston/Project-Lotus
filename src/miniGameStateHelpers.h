@@ -71,7 +71,7 @@ bool tileInAttackRange(const Attack& attack, const EDirection attackDirection, c
 
 std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& pCombatManager, const std::vector <Tile*>& pListOfTiles);
 
-std::vector<CombatCharacter> createCombatCharacterSnapShots(const CombatManager& combatManager);
+
 
 std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacter>& preTickCharacters);
 

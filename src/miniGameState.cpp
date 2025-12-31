@@ -584,9 +584,9 @@ void MiniGameBuffer::postTick()
 	mData.mCurAttackDirection = EDirection_NONE;
 
 	// check if game is over
-	MiniGameLevel* pLevel = mWorldData.getLevel();
-	MiniGameStage* pStage = mWorldData.getStage();
-	GameOverStats stats = pStage->mCombatManager.getGameOverStats();
+	MiniGameLevel& level = *mWorldData.getLevel();
+	MiniGameStage& stage = *mWorldData.getStage();
+	GameOverStats stats = stage.mCombatManager.getGameOverStats();
 	if (stats.mGameOver)
 	{
 		if (!stats.mWonGame)
@@ -596,7 +596,7 @@ void MiniGameBuffer::postTick()
 		}
 		else
 		{
-			if (!mWorldData.onLastStage() or mWorldData.onLastStage() and (pLevel->mNextLevelData.mType == ELevelType_MINI_GAME))
+			if (!mWorldData.onLastStage() or mWorldData.onLastStage() and (level.mNextLevelData.mType == ELevelType_MINI_GAME))
 			{
 				mData.mNextMiniGameState = EMiniGameState_BUILD_NEXT_LEVEL;
 			}
@@ -613,8 +613,6 @@ void MiniGameBuffer::postTick()
 
 	// continue game / set up for next time
 	mData.mPostBufferGameState = EMiniGameState_INVALID;
-	pStage = nullptr;
-	pLevel = nullptr;
 }
 
 

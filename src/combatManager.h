@@ -65,6 +65,8 @@ public:
 
     void attackMultipleTiles(CombatCharacter& attackingCharacter, std::vector <Tile*>& pTilesToAttack, Attack& attack);
 
+
+    std::vector<CombatCharacter> createCombatCharacterSnapShots();
     
     
     bool characterOnTile(const Tile& tile);

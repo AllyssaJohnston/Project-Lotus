@@ -59,18 +59,18 @@ void MiniGameStateManager::start()
 
 void MiniGameStateManager::preTick()
 {
-	MiniGameStage* pStage = mWorldData.getStage();
+	MiniGameStage& stage = *mWorldData.getStage();
+	CombatManager& combatManager = stage.mCombatManager;
 	if (mData.mLastFrameStateEnum != mData.mCurStateEnum || mData.mPreviousStateDatas.empty())
 	{
 		// changed state
-		mData.mPreTickCharacters.push(createCombatCharacterSnapShots(pStage->mCombatManager));
+		mData.mPreTickCharacters.push(combatManager.createCombatCharacterSnapShots());
 		mData.mPreviousStateDatas.push(std::pair<EMiniGameState, MiniGameStateData>(mData.mCurStateEnum, mData.mStateData));
-		mData.mRoundNum.push(pStage->mCombatManager.getRoundNum());
+		mData.mRoundNum.push(combatManager.getRoundNum());
 	}
 	mData.mLastFrameStateEnum = mData.mCurStateEnum;
 
-	pStage->preTick();
-	pStage = nullptr;
+	stage.preTick();
 }
 
 void MiniGameStateManager::tick()
