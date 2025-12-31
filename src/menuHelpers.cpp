@@ -136,24 +136,14 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 
 	switch (textBox.mData.mGameStatToDisplay)
 	{
-	case EUIBoxValueToDisplay_CHARACTER_NAME:
-		return pCharacter->mName;
-	case EUIBoxValueToDisplay_CHARACTER_HEALTH:
-		return std::to_string(pCharacter->getCurHealth());
-	case EUIBoxValueToDisplay_CHARACTER_HEALTH_MODIFIER_AMOUNT:
-		return std::to_string(pCharacter->getCurHealthModifier());
-	case EUIBoxValueToDisplay_CHARACTER_DEFENSE:
-		return std::to_string(pCharacter->getCurDefense());
-	case EUIBoxValueToDisplay_CHARACTER_ATTACK:
-		return std::to_string(pCharacter->getCurDamage());
-	case EUIBoxValueToDisplay_CHARACTER_STUN:
-		return std::to_string(pCharacter->getStuns());
-	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME:
-		return pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum].mName;
-	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TYPE:
-		return getAttackType(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]);
-	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TARGET_TYPE:
-		return returnDescriptionOfAttackTargetType(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum].mAttackTargetType);
+	case EUIBoxValueToDisplay_CHARACTER_NAME:					return pCharacter->mName;
+	case EUIBoxValueToDisplay_CHARACTER_HEALTH:					return std::to_string(pCharacter->getCurHealth());
+	case EUIBoxValueToDisplay_CHARACTER_HEALTH_MODIFIER_AMOUNT:	return std::to_string(pCharacter->getCurHealthModifier());
+	case EUIBoxValueToDisplay_CHARACTER_DEFENSE:				return std::to_string(pCharacter->getCurDefense());
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK:					return std::to_string(pCharacter->getCurDamage());
+	case EUIBoxValueToDisplay_CHARACTER_STUN:					return std::to_string(pCharacter->getStuns());
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_NAME:		return pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum].mName;
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_TYPE:		return getAttackType(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]);
 	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_CUR_COOLDOWN:
 		if (pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum].mCurCooldown > 0)
 		{
@@ -163,18 +153,13 @@ std::string updateCharacterStatBoxCurTextBoxMessage(const TextBox& textBox, cons
 		{
 			return getAttackCooldownAmount(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " TURN COOLDOWN";
 		}
-	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_COOLDOWN_AMOUNT:
-		return getAttackCooldownAmount(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " TURN COOLDOWN";
-	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE:
-		return getAttackDamage(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum], pCharacter->getBaseDamage());
-	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES:
-		return getSpecialEffect(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]);
-	case EUIBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME:
-		return managerData.mStateData.mpCurAttack->mName;
-	case EUIBoxValueToDisplay_CHARACTER_MOVE_TYPE:
-		return returnDescriptionOfGridPattern(pCharacter->mCombatMovementManager.getMoveType(), pCharacter->mCombatMovementManager.getMoveNum(), pCharacter->mCombatMovementManager.getMoveOut());
-	case EUIBoxValueToDisplay_INVALID:
-		return textBox.mMessage;
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_COOLDOWN_AMOUNT:	return getAttackCooldownAmount(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]) + " TURN COOLDOWN";
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_DAMAGE:			return getAttackDamage(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum], pCharacter->getBaseDamage());
+	case EUIBoxValueToDisplay_CHARACTER_ATTACK_OPTION_SPECIAL_EFFECTS_AND_NOTES:	return getSpecialEffectAndNotes(pCharacter->mCombatMovementManager.getAttacks()[textBox.mData.mAttackNum]);
+	
+	case EUIBoxValueToDisplay_CHARACTER_CUR_ATTACK_NAME:	return managerData.mStateData.mpCurAttack->mName;
+	case EUIBoxValueToDisplay_CHARACTER_MOVE_TYPE:			return returnDescriptionOfGridPattern(pCharacter->mCombatMovementManager.getMoveType(), pCharacter->mCombatMovementManager.getMoveNum(), pCharacter->mCombatMovementManager.getMoveOut());
+	case EUIBoxValueToDisplay_INVALID:	return textBox.mMessage;
 	default:
 		SDL_assert(false);
 	}

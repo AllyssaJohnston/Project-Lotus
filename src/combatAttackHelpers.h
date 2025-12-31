@@ -10,7 +10,7 @@ std::string getAttackCurCooldown(const Attack& attack);
 
 std::string getAttackCooldownAmount(const Attack& attack);
 
-std::string getSpecialEffect(const Attack& attack);
+std::string getSpecialEffectAndNotes(const Attack& attack);
 
 
 

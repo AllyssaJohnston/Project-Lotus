@@ -90,26 +90,12 @@ enum ECombatTileMode
     ECombatTileMode_MAX
 };
 
-enum ECombatAttackTargetType
+enum ECombatAttackTargetAlive
 {
-    ECombatAttackTargetType_INVALID = -1,
-    ECombatAttackTargetType_SELF,
-
-    ECombatAttackTargetType_ALIVE_PLAYERS,
-    ECombatAttackTargetType_ONE_ALIVE_PLAYER,
-    ECombatAttackTargetType_ONE_PLAYER,
-    ECombatAttackTargetType_ALL_ALIVE_PLAYERS,
-
-    ECombatAttackTargetType_ALIVE_ENEMIES,
-    ECombatAttackTargetType_ONE_ALIVE_ENEMY,
-    ECombatAttackTargetType_ONE_ENEMY,
-    ECombatAttackTargetType_ALL_ALIVE_ENEMIES,
-
-    ECombatAttackTargetType_ALIVE_CHARACTERS,
-    ECombatAttackTargetType_ONE_ALIVE_CHARACTER,
-    ECombatAttackTargetType_ONE_CHARACTER,
-    ECombatAttackTargetType_ALL_ALIVE_CHARACTERS,
-    ECombatAttackTargetType_MAX
+    ECombatAttackTargetAlive_INVALID = -1,
+    ECombatAttackTargetAlive_ALIVE,
+    ECombatAttackTargetAlive_DEAD,
+    ECombatAttackTargetAlive_MAX
 };
 
 struct GameOverStats
@@ -119,12 +105,8 @@ struct GameOverStats
 };
 
 
-bool characterTypeFit(ECombatAttackTargetType targetType, ECombatCharacterType characterType, bool targetAlive);
-
-ECombatCharacterType getCharacterTypeFromAttackTargetType(ECombatAttackTargetType targetType);
+bool characterTypeFit(ECombatCharacterType targetType, ECombatAttackTargetAlive targetAlive, ECombatCharacterType givenCharacterType, bool givenCharacterAlive);
 
 std::string returnDescriptionOfGridPattern(const ECombatActionGridPattern moveAttackType, const int num, const int out);
 
-std::string returnDescriptionOfAttackTargetType(const ECombatAttackTargetType targetType);
-
-std::string returnDescirptionOfNumTilesToAttack(const ECombatNumTilesToAttack numTiles);
+std::string returnDescriptionCharacterAttack(const ECombatNumTilesToAttack numTiles, const ECombatCharacterType targetType);

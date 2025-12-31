@@ -241,7 +241,7 @@ void CombatManager::attack(CombatCharacter& attackingCharacter, CombatCharacter&
 
 void CombatManager::attackInternal(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack)
 {
-    if (!characterTypeFit(attack.mAttackTargetType, attackedCharacter.mType, attackedCharacter.isAlive()))
+    if (!characterTypeFit(attack.mAttackTargetType, attack.mAttackTargetAlive, attackedCharacter.mType, attackedCharacter.isAlive()))
     {
         return;
     }
@@ -262,7 +262,7 @@ void CombatManager::characterTileSpecialEffect(CombatCharacter& attackingCharact
     std::vector<CombatCharacter*> pCharacters;
     for (const SpecialEffect& specialEffect : attack.mCharacterTileSpecialEffects)
     {
-        if (!characterTypeFit(specialEffect.mAttackTargetType, attackedCharacter.mType, attackedCharacter.isAlive()))
+        if (!characterTypeFit(specialEffect.mAttackTargetType, attack.mAttackTargetAlive, attackedCharacter.mType, attackedCharacter.isAlive()))
         {
             continue;
         }
@@ -278,44 +278,13 @@ void CombatManager::characterTileSpecialEffect(CombatCharacter& attackingCharact
             break;
 
         case ECombatSpecialEffectTypes_HEAL:
-        case ECombatSpecialEffectTypes_FULL_HEAL:
-            switch (specialEffect.mAttackTargetType)
-            {
-           
-            case ECombatAttackTargetType_ONE_PLAYER:
-            case ECombatAttackTargetType_ONE_ENEMY:
-            case ECombatAttackTargetType_ONE_CHARACTER:
-                pCharacters = { &attackedCharacter };
-            case ECombatAttackTargetType_ONE_ALIVE_PLAYER:
-            case ECombatAttackTargetType_ONE_ALIVE_ENEMY:
-            case ECombatAttackTargetType_ONE_ALIVE_CHARACTER:
-                if (attackedCharacter.isAlive())
-                {
-                    pCharacters = { &attackedCharacter };
-                }
-                break;
-            default:
-                SDL_assert(false);
-                break;
-            }
-            for (CombatCharacter* pCharacter : pCharacters)
-            {
-                switch (specialEffect.mType)
-                {
-                case ECombatSpecialEffectTypes_FULL_HEAL:
-                    pCharacter->fullHeal();
-                    break;
-                case ECombatSpecialEffectTypes_HEAL:
-                    pCharacter->heal((int)specialEffect.mAmount);
-                    break;
-                case ECombatSpecialEffectTypes_REVIVE:
-                    //pCharacter->revive();
-                    break;
-                default:
-                    SDL_assert(false);
-                }
-            }
+            attackedCharacter.heal((int)specialEffect.mAmount);
             break;
+
+        case ECombatSpecialEffectTypes_FULL_HEAL:
+            attackedCharacter.fullHeal();
+            break;
+          
         default:
             SDL_assert(false);
             break;
@@ -337,16 +306,13 @@ void CombatManager::genericSpecialEffect(CombatCharacter& attackingCharacter, co
         default:
             switch (specialEffect.mAttackTargetType)
             {
-            case ECombatAttackTargetType_SELF:
-                pCharacters = { &attackingCharacter };
-                break;
-            case ECombatAttackTargetType_ALL_ALIVE_CHARACTERS:
+            case ECombatCharacterType_CHARACTER:
                 pCharacters = getCurAliveCharacters();
                 break;
-            case ECombatAttackTargetType_ALL_ALIVE_PLAYERS:
+            case ECombatCharacterType_PLAYER:
                 pCharacters = getCurAlivePlayers();
                 break;
-            case ECombatAttackTargetType_ALL_ALIVE_ENEMIES:
+            case ECombatCharacterType_ENEMY:
                 pCharacters = getCurAliveEnemies();
                 break;
             default:
@@ -367,7 +333,6 @@ void CombatManager::genericSpecialEffect(CombatCharacter& attackingCharacter, co
                     SDL_assert(false);
                     break;
                 }
-               
             }
             break;
         }

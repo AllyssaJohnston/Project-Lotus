@@ -3,7 +3,7 @@
 SpecialEffectStun::SpecialEffectStun(const int numTurns) : SpecialEffectPreset()
 {
     mType = ECombatSpecialEffectTypes_STUN;
-    mAttackTargetType = ECombatAttackTargetType_ONE_ALIVE_CHARACTER;
+    mAttackTargetType = ECombatCharacterType_CHARACTER;
     mName = "STUN " + std::to_string(numTurns) + ((numTurns == 1) ? " TURN" : " TURNS");
     mTurns = numTurns;
 }
@@ -11,12 +11,12 @@ SpecialEffectStun::SpecialEffectStun(const int numTurns) : SpecialEffectPreset()
 SpecialEffectSelfStun::SpecialEffectSelfStun(const int numTurns) : SpecialEffectPreset()
 {
     mType = ECombatSpecialEffectTypes_LOSE_TURN;
-    mAttackTargetType = ECombatAttackTargetType_SELF;
+    mAttackTargetType = ECombatCharacterType_CHARACTER;
     mTurns = numTurns;
     mName = "LOSE " + std::to_string(numTurns) + ((numTurns == 1) ? " TURN" : " TURNS");
 }
 
-SpecialEffectAttackMultiplier::SpecialEffectAttackMultiplier(const float multiplier, const int turns, const ECombatAttackTargetType attackTargetType) : SpecialEffectPreset()
+SpecialEffectAttackMultiplier::SpecialEffectAttackMultiplier(const float multiplier, const int turns, const ECombatCharacterType attackTargetType) : SpecialEffectPreset()
 {
     mType = ECombatSpecialEffectTypes_ATTACK_MULTIPLIER;
     mAttackTargetType = attackTargetType;
@@ -25,7 +25,7 @@ SpecialEffectAttackMultiplier::SpecialEffectAttackMultiplier(const float multipl
     mName = "INCREASE ATTACK BY " + floatDecimalToString(multiplier) + ((turns == INT_MAX) ? "" : (" FOR " + std::to_string(turns)) + ((turns == 1) ? " TURN" : " TURNS"));
 }
 
-SpecialEffectDefenseCapacityMultiplier::SpecialEffectDefenseCapacityMultiplier(const float multiplier, const int turns, const ECombatAttackTargetType attackTargetType) : SpecialEffectPreset()
+SpecialEffectDefenseCapacityMultiplier::SpecialEffectDefenseCapacityMultiplier(const float multiplier, const int turns, const ECombatCharacterType attackTargetType) : SpecialEffectPreset()
 {
     mType = ECombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER;
     mAttackTargetType = attackTargetType;
@@ -34,7 +34,7 @@ SpecialEffectDefenseCapacityMultiplier::SpecialEffectDefenseCapacityMultiplier(c
     mName = "INCREASE DEFENSE CAPACITY BY " + floatDecimalToString(multiplier) + ((turns == INT_MAX) ? "" : (" FOR " + std::to_string(turns)) + ((turns == 1) ? " TURN" : " TURNS"));
 }
 
-SpecialEffectHeal::SpecialEffectHeal(const int amount, const ECombatAttackTargetType attackTargetType) : SpecialEffectPreset()
+SpecialEffectHeal::SpecialEffectHeal(const int amount, const ECombatCharacterType attackTargetType) : SpecialEffectPreset()
 {
     mType = ECombatSpecialEffectTypes_HEAL;
     mName = "HEAL " + std::to_string(amount);
@@ -43,7 +43,7 @@ SpecialEffectHeal::SpecialEffectHeal(const int amount, const ECombatAttackTarget
     mAttackTargetType = attackTargetType;
 }
 
-SpecialEffectFullHeal::SpecialEffectFullHeal(const ECombatAttackTargetType attackTargetType) : SpecialEffectPreset()
+SpecialEffectFullHeal::SpecialEffectFullHeal(const ECombatCharacterType attackTargetType) : SpecialEffectPreset()
 {
     mType = ECombatSpecialEffectTypes_FULL_HEAL;
     mName = "FULL HEAL";
@@ -51,7 +51,7 @@ SpecialEffectFullHeal::SpecialEffectFullHeal(const ECombatAttackTargetType attac
     mAttackTargetType = attackTargetType;
 }
 
-SpecialEffectRevive::SpecialEffectRevive(const ECombatAttackTargetType attackTargetType) : SpecialEffectPreset()
+SpecialEffectRevive::SpecialEffectRevive(const ECombatCharacterType attackTargetType) : SpecialEffectPreset()
 {
     mType = ECombatSpecialEffectTypes_REVIVE;
     mName = "REVIVE";
@@ -65,5 +65,5 @@ SpecialEffectPoison::SpecialEffectPoison(const int amount, const int turns)
     mName = "POISON";
     mAmount = (float)amount;
     mTurns = turns;
-    mAttackTargetType = ECombatAttackTargetType_ONE_ALIVE_CHARACTER;
+    mAttackTargetType = ECombatCharacterType_CHARACTER;
 }

@@ -114,14 +114,13 @@ void MiniGamePlayerWaitForAttackOptionInput::postTick(Attack& attack)
 		if (attack.mType == ECombatActionGridPattern_WHOLE_GRID)
 		{
 			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT;
-			mData.mTargetCharacterType = getCharacterTypeFromAttackTargetType(mData.mpCurAttack->mAttackTargetType);
+			mData.mTargetCharacterType = mData.mpCurAttack->mAttackTargetType;
 		}
 		else
 		{
 			mData.mCurAttackDirection = EDirection_ALL;
 			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT;
 		}
-
 	}
 }
 
@@ -492,7 +491,7 @@ bool MiniGameEnemyTakeAction::shouldDefend()
 		}
 		for (const Attack& attack : pCharacter->mCombatMovementManager.getAttacks())
 		{
-			if (attack.mCurCooldown != 0 || !characterTypeFit(attack.mAttackTargetType, ECombatCharacterType_ENEMY, true))
+			if (attack.mCurCooldown != 0 || !characterTypeFit(attack.mAttackTargetType, attack.mAttackTargetAlive, ECombatCharacterType_ENEMY, true))
 			{
 				// potential attacker can't use this attack
 				continue;

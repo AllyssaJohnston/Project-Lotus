@@ -9,7 +9,7 @@
 struct SpecialEffect
 {
     ECombatSpecialEffectTypes   mType;
-    ECombatAttackTargetType     mAttackTargetType;
+    ECombatCharacterType        mAttackTargetType;
     std::string                 mName;
     float                       mAmount;
     int                         mTurns;
@@ -25,7 +25,8 @@ public:
     int                             mNum                        = -1;
     int                             mOut                        = -1;
     ECombatAttackCategoryType       mCategory                   = ECombatAttackCategoryType_INVALID;
-    ECombatAttackTargetType         mAttackTargetType           = ECombatAttackTargetType_INVALID;
+    ECombatCharacterType            mAttackTargetType           = ECombatCharacterType_INVALID;
+    ECombatAttackTargetAlive        mAttackTargetAlive          = ECombatAttackTargetAlive_ALIVE;
     ECombatNumTilesToAttack         mNumTilesToAttack           = ECombatNumTilesToAttack_ONE;
     float                           mDamagePercent              = 0;
     std::string                     mName;
@@ -46,13 +47,13 @@ private:
 
 public:
    
-    Attack(const ECombatActionGridPattern type, ECombatAttackTargetType targetType, const int num, const int out, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description);
+    Attack(const ECombatActionGridPattern type, ECombatCharacterType targetType, const int num, const int out, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description);
 
-    Attack(const ECombatActionGridPattern type, ECombatAttackTargetType targetType, const int num, const int out, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name);
+    Attack(const ECombatActionGridPattern type, ECombatCharacterType targetType, const int num, const int out, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name);
 
-    Attack(const ECombatActionGridPattern type, ECombatAttackTargetType targetType, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description);
+    Attack(const ECombatActionGridPattern type, ECombatCharacterType targetType, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description);
 
-    Attack(const ECombatActionGridPattern type, ECombatAttackTargetType targetType, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name);
+    Attack(const ECombatActionGridPattern type, ECombatCharacterType targetType, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name);
 
     bool canUse() const;
 
