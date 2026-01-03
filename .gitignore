@@ -4,9 +4,6 @@ x64
 bin
 
 ArtFiles/AirEnemies
-ArtFiles/Collectibles/endOfLevelFire.bmp
-ArtFiles/Collectibles/endOfLevelWater.bmp
-ArtFiles/Collectibles/endOfLevelAir.bmp
 ArtFiles/FireEnemies
 ArtFiles/FireWorld
 ArtFiles/blue.bmp
