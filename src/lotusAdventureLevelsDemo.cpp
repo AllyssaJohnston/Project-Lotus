@@ -1,11 +1,10 @@
 #include "lotusAdventureLevelsDemo.h"
 
-#if DEMO != 0
 void createNames(Level* pCurLevel)
 {
 	for (int count = 0; count < pCurLevel->mpPlatforms.size(); count++)
 	{
-		pCurLevel->mpPlatforms[count]->mName = pCurLevel->mpPlatforms[count]->mTypeName + " "  + std::to_string(count);
+		pCurLevel->mpPlatforms[count]->mName = pCurLevel->mpPlatforms[count]->mTypeName + " " + std::to_string(count);
 	}
 	for (int count = 0; count < pCurLevel->mpAllNonStaticPlatforms.size(); count++)
 	{
@@ -13,7 +12,7 @@ void createNames(Level* pCurLevel)
 	}
 	for (int count = 0; count < pCurLevel->mpAllEnemies.size(); count++)
 	{
-		pCurLevel->mpAllEnemies[count]->mName = pCurLevel->mpAllEnemies[count]->mTypeName + " "  + std::to_string(count);
+		pCurLevel->mpAllEnemies[count]->mName = pCurLevel->mpAllEnemies[count]->mTypeName + " " + std::to_string(count);
 	}
 	for (int count = 0; count < pCurLevel->mpAllCollectibles.size(); count++)
 	{
@@ -36,12 +35,35 @@ void createMiniGameNames(MiniGameStage* pCurStage)
 	}
 }
 
+#if DEMO != 0
 void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenObject& screen) 
 {
-	// GENERAL PLATFORMS
-	static PSpikePreset spikePreset;
-	static PLavaPreset  lavaPreset;
+	createDemoLevels(worldData, mgWorldData, screen);
 
+	for (World* pWorld : worldData.mpWorlds)
+	{
+		for (Level* pLevel : pWorld->mpLevels)
+		{
+			pLevel->setUp(screen.mpRenderer);
+			createNames(pLevel);
+		}
+	}
+
+	for (MiniGameWorld* pWorld : mgWorldData.mpMiniGameWorlds)
+	{
+		for (MiniGameLevel* pLevel : pWorld->mpLevels)
+		{
+			for (MiniGameStage* pStage : pLevel->mpStages)
+			{
+				createMiniGameNames(pStage);
+			}
+		}
+	}
+}
+#endif
+
+void createDemoLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenObject& screen)
+{
 	// MAIN GAME
 	int curWorldNumber;
 	int curLevelNumber;
@@ -58,32 +80,36 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 	curWorld = worldData.mpWorlds[curWorldNumber];
 
 	// EARTH PLATFORMS
-	static PStandardPreset		preset			    = PStandardPreset(curWorldNumber);
-	static PSolidPreset			solidPreset			= PSolidPreset(curWorldNumber);
-	static PBouncyPreset		bouncyPreset;
-	static PWallJumpablePreset	wallJumpablePreset;
-	static PCratePreset			cratePreset;
-	static PGatePreset			gatePreset		    = PGatePreset(curWorldNumber);
-	static PTargetGatePreset	targetGatePreset    = PTargetGatePreset(curWorldNumber);
-	static PTargetPreset		targetPreset		= PTargetPreset(curWorldNumber);
+	const static	PStandardPreset		preset			    = PStandardPreset(curWorldNumber);
+	const static	PSolidPreset		solidPreset			= PSolidPreset(curWorldNumber);
+	const static	PBouncyPreset		bouncyPreset;
+	const static	PWallJumpablePreset	wallJumpablePreset;
+	const static	PCratePreset		cratePreset;
+	const static	PGatePreset			gatePreset		    = PGatePreset(curWorldNumber);
+	const static	PTargetGatePreset	targetGatePreset    = PTargetGatePreset(curWorldNumber);
+	const static	PTargetPreset		targetPreset		= PTargetPreset(curWorldNumber);
+	const static	PSpikePreset		spikePreset;
+	const static	PLavaPreset			lavaPreset;
 
 	// EARTH ENEMIES
-	static ERatPreset			ratPreset;
-	static EFastRatPreset		fastRatPreset;
-	static EBouncyRatPreset		bouncyRatPreset;
-	static EHidingRatPreset		hidingRatPreset;
-	static EFrogPreset			frogPreset;
-	static EBouncyFrogPreset    bouncyFrogPreset;
+	const static ERatPreset				ratPreset;
+	const static EFastRatPreset			fastRatPreset;
+	const static EBouncyRatPreset		bouncyRatPreset;
+	const static EHidingRatPreset		hidingRatPreset;
+	const static EFrogPreset			frogPreset;
+	const static EBouncyFrogPreset		bouncyFrogPreset;
 
-	static CEndOfLevelPreset    endOfLevelPreset = CEndOfLevelPreset(curWorldNumber);
-	static CKeyPreset			keyPreset;
+	// COLLECTIBLES
+	const static CKeyPreset				keyPreset;
+	const static CEndOfLevelPreset		endOfLevelPresetH = CEndOfLevelPreset(false);
+	const static CEndOfLevelPreset		endOfLevelPresetV = CEndOfLevelPreset(true);
 
 	// LEVEL INFO
-	bool doubleJumpAllowed				= false;
-	bool throwProjectileAllowed			= false;
-	bool throwDownwardProjectileAllowed = false;
-	bool slashAllowed					= false;
-	bool mustKillAllEnemies             = false;
+	const bool doubleJumpAllowed				= false;
+	bool throwProjectileAllowed					= false;
+	const bool throwDownwardProjectileAllowed	= false;
+	const bool slashAllowed						= false;
+	const bool mustKillAllEnemies				= false;
 	LevelInfo levelInfo =  LevelInfo(doubleJumpAllowed, throwProjectileAllowed, throwDownwardProjectileAllowed, slashAllowed, mustKillAllEnemies);
 
 	int levelBlockX = 0;
@@ -92,16 +118,16 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 
 
 	// MINI GAME
-	static LotusCombatPreset		mgLotusPreset		= LotusCombatPreset();
-	static EzraCombatPreset			mgEzraPreset		= EzraCombatPreset();
-	static RatCombatPreset			mgRatPreset			= RatCombatPreset();
-	static BouncyRatCombatPreset	mgBouncyRatPreset	= BouncyRatCombatPreset();
-	static FrogCombatPreset			mgFrogPreset		= FrogCombatPreset();
-	static BouncyFrogCombatPreset	mgBouncyFrogPreset	= BouncyFrogCombatPreset();
-	static HidingRatCombatPreset	mgHidingRatPreset	= HidingRatCombatPreset();
-	static FastRatCombatPreset		mgFastRatPreset		= FastRatCombatPreset();
+	const static LotusCombatPreset		mgLotusPreset		= LotusCombatPreset();
+	const static EzraCombatPreset		mgEzraPreset		= EzraCombatPreset();
+	const static RatCombatPreset		mgRatPreset			= RatCombatPreset();
+	const static BouncyRatCombatPreset	mgBouncyRatPreset	= BouncyRatCombatPreset();
+	const static FrogCombatPreset		mgFrogPreset		= FrogCombatPreset();
+	const static BouncyFrogCombatPreset	mgBouncyFrogPreset	= BouncyFrogCombatPreset();
+	const static HidingRatCombatPreset	mgHidingRatPreset	= HidingRatCombatPreset();
+	const static FastRatCombatPreset	mgFastRatPreset		= FastRatCombatPreset();
 
-	static ImpassableTilePreset mgImpassiblePreset = ImpassableTilePreset();
+	const static ImpassableTilePreset mgImpassiblePreset = ImpassableTilePreset();
 
 
 	int mgWorldNumber = 0;
@@ -287,7 +313,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 
 		curLevel->mpAllCollectibles.push_back(new Collectible(Vect2(100  + levelBlockX,  250 + levelBlockY), keyPreset));
 		curLevel->mpAllCollectibles.push_back(new SavePoint(  Vect2(3300 + levelBlockX,  475 + levelBlockY)));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(3325 + levelBlockX, 850 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(3325 + levelBlockX, 850 + levelBlockY), endOfLevelPresetV));
 	}
 
 	// LEVEL 1 
@@ -396,7 +422,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllEnemies.push_back(new Enemy(Vect2(900  + levelBlockX, 1525 + levelBlockY), fastRatPreset));
 
 		curLevel->mpAllCollectibles.push_back(new Collectible(			Vect2(2600 + levelBlockX, 1150 + levelBlockY), keyPreset));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1800 + levelBlockX, 550  + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1800 + levelBlockX, 550  + levelBlockY), endOfLevelPresetV));
 	}
 
 	// LEVEL 2 (--> MG 0)
@@ -406,7 +432,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(75, 275);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		//curLevel->mArtFileName = "EarthWorld/earthWorldLevel2Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel2Background.bmp";
 
 		//LEVEL BLOCK 1
 		levelBlockX = 0;
@@ -420,7 +446,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 
 		
 		curLevel->mpAllCollectibles.push_back(new MiniGameLevelCollectible(Vect2(675 + levelBlockX, 700 + levelBlockY), CMiniGameLevelPreset(EEntityCharacterTypes_E_RAT, LevelData(mgWorldNumber, mgLevelNumber, mgStageNumber))));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(	 900 + levelBlockX, 700 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(	 900 + levelBlockX, 700 + levelBlockY), endOfLevelPresetV));
 	}
 
 	// MG LEVEL 0
@@ -503,7 +529,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(75, 275);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel2Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel3Background.bmp";
 
 
 		//LEVEL BLOCK 1
@@ -589,8 +615,8 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllEnemies.push_back(new Enemy(Vect2(400 + levelBlockX,1150 + levelBlockY), frogPreset));
 
 		curLevel->mpAllCollectibles.push_back(new SavePoint(Vect2(  100 + levelBlockX,  150 + levelBlockY)));
-		curLevel->mpAllCollectibles.push_back(new MiniGameLevelCollectible( Vect2(975  + levelBlockX, 1275 + levelBlockY), CMiniGameLevelPreset(EEntityCharacterTypes_E_FROG, LevelData(mgWorldNumber, mgLevelNumber, mgStageNumber))));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(	Vect2(1100 + levelBlockX, 1275 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new MiniGameLevelCollectible( Vect2(1000  + levelBlockX, 1275 + levelBlockY), CMiniGameLevelPreset(EEntityCharacterTypes_E_FROG, LevelData(mgWorldNumber, mgLevelNumber, mgStageNumber))));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(	Vect2(1100 + levelBlockX, 1275 + levelBlockY), endOfLevelPresetV));
 	}
 
 	// MG LEVEL 1
@@ -672,7 +698,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(100, 275);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel3Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel4Background.bmp";
 
 		//LEVEL BLOCK - BOUNCY
 		levelBlockX = 0;
@@ -765,7 +791,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllCollectibles.push_back(new Collectible(Vect2(350 + levelBlockX,  200 + levelBlockY), keyPreset));
 		curLevel->mpAllCollectibles.push_back(new Collectible(Vect2(600 + levelBlockX,  800 + levelBlockY), keyPreset));
 		curLevel->mpAllCollectibles.push_back(new SavePoint(Vect2( 1600 + levelBlockX,  400 + levelBlockY)));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1800 + levelBlockX, 1200 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1800 + levelBlockX, 1150 + levelBlockY), endOfLevelPresetV));
 	}
 
 	// MG LEVEL 2
@@ -815,7 +841,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(100, 2600);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel4Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel5Background.bmp";
 
 
 		//LEVEL BLOCK - 1
@@ -887,7 +913,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllCollectibles.push_back(new LotusCollectible(Vect2(1900 + levelBlockX, 2300 + levelBlockY)));
 		curLevel->mpAllCollectibles.push_back(new SavePoint(	   Vect2(2500 + levelBlockX, 2200 + levelBlockY)));
 
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(2525 + levelBlockX, 2500 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(2525 + levelBlockX, 2500 + levelBlockY), endOfLevelPresetV));
 	}
 
 	// LEVEL 6 (--> OPT MG 3, MG 4)
@@ -900,7 +926,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(100, 100);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel5Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel6Background.bmp";
 
 		//LEVEL BLOCK - 1
 		int levelBlockX = 0;
@@ -1012,7 +1038,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllCollectibles.push_back(new LotusCollectible(Vect2(2375	   + levelBlockX, 1300 + levelBlockY)));
 		curLevel->mpAllCollectibles.push_back(new MiniGameLevelCollectible(Vect2(2700 + levelBlockX, 1200 + levelBlockY), CMiniGameLevelPreset(EEntityCharacterTypes_E_FAST_RAT, LevelData(mgWorldNumber, mgLevelNumber,	 mgStageNumber))));
 		curLevel->mpAllCollectibles.push_back(new MiniGameLevelCollectible(Vect2(2500 + levelBlockX, 2275 + levelBlockY), CMiniGameLevelPreset(EEntityCharacterTypes_E_FROG,	 LevelData(mgWorldNumber, mgLevelNumber + 1, mgStageNumber))));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(2650 + levelBlockX, 2250 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(2650 + levelBlockX, 2250 + levelBlockY), endOfLevelPresetV));
 	}
 
 	// MG LEVEL 3
@@ -1137,7 +1163,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(100, 275);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel6Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel7Background.bmp";
 
 		//LEVEL BLOCK 1
 		levelBlockX = 0;
@@ -1210,7 +1236,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllCollectibles.push_back(new SavePoint(	   Vect2(2400 + levelBlockX, 125  + levelBlockY)));
 		curLevel->mpAllCollectibles.push_back(new LotusCollectible(Vect2(1300 + levelBlockX, 1060 + levelBlockY)));
 
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(2700 + levelBlockX, 1200 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(2700 + levelBlockX, 1200 + levelBlockY), endOfLevelPresetV));
 
 	}
 
@@ -1224,7 +1250,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(1100, 275);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel7Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel8Background.bmp";
 
 		//LEVEL BLOCK 1
 		levelBlockX = 1000;
@@ -1275,7 +1301,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllCollectibles.push_back(new SavePoint(Vect2(400    + levelBlockX, 750  + levelBlockY)));
 
 		curLevel->mpAllCollectibles.push_back(new MiniGameLevelCollectible(Vect2(2150 + levelBlockX, 1425 + levelBlockY), CMiniGameLevelPreset(EEntityCharacterTypes_E_BOUNCY_FROG, LevelData(mgWorldNumber, mgLevelNumber, mgStageNumber))));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(2350 + levelBlockX, 1275 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(2350 + levelBlockX, 1275 + levelBlockY), endOfLevelPresetV));
 
 		//LEVEL BLOCK 2 SECRET
 		levelBlockX = 0; 
@@ -1337,7 +1363,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(100, 1200);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel8Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel9Background.bmp";
 
 
 		//LEVEL BLOCK FROG SHROOM
@@ -1412,7 +1438,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpPlatforms.push_back(new Platform(		  CoordsX1X2Y1Y2(1075, 1100,    175,      1500,  levelBlockX, levelBlockY), wallJumpablePreset 			));
 
 		curLevel->mpAllCollectibles.push_back(new SavePoint(Vect2(200 + levelBlockX,   825 + levelBlockY)));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1300 + levelBlockX, 50 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1300 + levelBlockX, 50 + levelBlockY), endOfLevelPresetV));
 
 		//LEVEL BLOCK SPIKES
 		levelBlockX = 800;
@@ -1466,7 +1492,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(50, 275);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel9Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel10Background.bmp";
 
 
 		//LEVEL BLOCK 1
@@ -1519,7 +1545,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllCollectibles.push_back(new Collectible(Vect2(     50   + levelBlockX,  1050 + levelBlockY), keyPreset));
 		curLevel->mpAllCollectibles.push_back(new SavePoint(Vect2(		 2100 + levelBlockX,  1325 + levelBlockY)));
 		curLevel->mpAllCollectibles.push_back(new LotusCollectible(Vect2(1800 + levelBlockX,  450  + levelBlockY)));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1900 + levelBlockX, 1600 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1900 + levelBlockX, 1600 + levelBlockY), endOfLevelPresetV));
 
 	}
 
@@ -1533,7 +1559,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(150, 275);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel10Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel11Background.bmp";
 
 
 		//LEVEL BLOCK 1
@@ -1639,7 +1665,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllEnemies.push_back(new Enemy(Vect2( 700 + levelBlockX, 150 + levelBlockY), ratPreset));
 		curLevel->mpAllEnemies.push_back(new Enemy(Vect2(1500 + levelBlockX, 250 + levelBlockY), ratPreset	));
 
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1300 + levelBlockX, 400 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1300 + levelBlockX, 400 + levelBlockY), endOfLevelPresetV));
 	}
 
 	// LEVEL 12
@@ -1649,7 +1675,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(150, 1800);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel11Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel12Background.bmp";
 
 		//LEVEL BLOCK 1
 		levelBlockX = 0;
@@ -1777,7 +1803,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllCollectibles.push_back(new SavePoint(			Vect2(600  + levelBlockX, 900 + levelBlockY)));
 		curLevel->mpAllCollectibles.push_back(new Collectible(			Vect2(900  + levelBlockX, 200 + levelBlockY), keyPreset));
 		curLevel->mpAllCollectibles.push_back(new Collectible(			Vect2(100  + levelBlockX, 400 + levelBlockY), keyPreset));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(2425 + levelBlockX, 800 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(2425 + levelBlockX, 800 + levelBlockY), endOfLevelPresetV));
 	}
 
 	// LEVEL 13
@@ -1787,7 +1813,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(300, 1100);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber, curLevelNumber + 1)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel12Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel13Background.bmp";
 
 		//LEVEL BLOCK 1
 		levelBlockX = 0;
@@ -1850,7 +1876,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		curLevel->mpAllCollectibles.push_back(new Collectible(Vect2(3000 + levelBlockX,   350 + levelBlockY), keyPreset));
 		curLevel->mpAllCollectibles.push_back(new SavePoint(Vect2(  2900 + levelBlockX,   400 + levelBlockY)));
 		curLevel->mpAllCollectibles.push_back(new SavePoint(Vect2(  1600 + levelBlockX,   150 + levelBlockY)));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1000 + levelBlockX, 1150 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1000 + levelBlockX, 1150 + levelBlockY), endOfLevelPresetV));
 
 
 		//LEVEL BLOCK 2
@@ -1875,7 +1901,7 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 		playerStartingPosition = Vect2(1400, 800);
 		worldData.mpWorlds[curWorldNumber]->mpLevels.push_back(new Level(curLevelNumber, playerStartingPosition, levelInfo, LevelData(curWorldNumber + 1, 0)));
 		curLevel = worldData.mpWorlds[curWorldNumber]->mpLevels[curLevelNumber];
-		curLevel->mArtFileName = "EarthWorld/earthWorldLevel13Background.bmp";
+		curLevel->mArtFileName = "EarthWorld/earthWorldLevel14Background.bmp";
 
 
 		//LEVEL BLOCK 1
@@ -2044,29 +2070,14 @@ void createLevels(WorldData& worldData, MiniGameWorldData& mgWorldData, ScreenOb
 
 		curLevel->mpAllCollectibles.push_back(new Collectible(			Vect2(1600 + levelBlockX,  10 + levelBlockY), keyPreset));
 		curLevel->mpAllCollectibles.push_back(new SavePoint(			Vect2(2200 + levelBlockX, 100 + levelBlockY)));
-		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1900 + levelBlockX, 750 + levelBlockY), endOfLevelPreset));
+		curLevel->mpAllCollectibles.push_back(new EndOfLevelCollectible(Vect2(1900 + levelBlockX, 750 + levelBlockY), endOfLevelPresetV));
 	}
 
-
-	for (World* pWorld : worldData.mpWorlds)
-	{
-		for (Level* pLevel : pWorld->mpLevels)
-		{
-			pLevel->setUp(screen.mpRenderer);
-			createNames(pLevel);
-		}
-	}
-
-	for (MiniGameWorld* pWorld : mgWorldData.mpMiniGameWorlds)
-	{
-		for (MiniGameLevel* pLevel : pWorld->mpLevels)
-		{
-			for (MiniGameStage* pStage : pLevel->mpStages)
-			{
-				createMiniGameNames(pStage);
-			}
-		}
-	}
+	curWorld = nullptr;
+	curLevel = nullptr;
+	pMGCurWorld = nullptr;
+	pMGCurLevel = nullptr;
+	pMGCurStage = nullptr;
+	pCombatManager = nullptr;
+	pGrid = nullptr;
 }
-
-#endif

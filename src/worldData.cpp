@@ -2536,29 +2536,49 @@ void WorldData::renderBackgrounds()
 		float dW = (float)mScreen.mGameScreenWidth;
 		float dH = (float)mScreen.mGameScreenHeight;
 
-		if (curLevelChunkX1 < xShift)
+		if (curLevelChunkX1 < xShift && curLevelChunkX2 >(levelW + xShift))
 		{
+			dX = (xShift - curLevelChunkX1) * mScreen.mGameScreenToGameLevelChunkRatio;
+			// cur level chunk x1 is neg
+			cropW -= -((xShift - curLevelChunkX1) + (curLevelChunkX2 - (levelW + xShift)))  * actualToPrintRatio;
+			dW -= ((xShift - curLevelChunkX1) + (curLevelChunkX2 - (levelW + xShift))) * mScreen.mGameScreenToGameLevelChunkRatio;
+		}
+		else if (curLevelChunkX1 < xShift)
+		{
+			// cur level chunk x1 is neg
 			dX     = (xShift - curLevelChunkX1) * mScreen.mGameScreenToGameLevelChunkRatio;
 			cropW += (xShift - curLevelChunkX1) * actualToPrintRatio;
 		}
-		if (curLevelChunkY1 < yShift)
+		else if (curLevelChunkX2 > (levelW + xShift))
 		{
+			dW -= (curLevelChunkX2 - (levelW + xShift)) * mScreen.mGameScreenToGameLevelChunkRatio;
+			cropW -= (curLevelChunkX2 - (levelW + xShift)) * actualToPrintRatio;
+		}
+
+		if (curLevelChunkY1 < yShift && curLevelChunkY2 >(levelH + yShift))
+		{
+			// cur level chunk y1 is neg
+			dY = (yShift - curLevelChunkY1) * mScreen.mGameScreenToGameLevelChunkRatio;
+			cropH -= -((yShift - curLevelChunkY1) + (curLevelChunkY2 - (levelH + yShift))) * actualToPrintRatio;
+			dH -= ((yShift - curLevelChunkY1) + (curLevelChunkY2 - (levelH + yShift))) * mScreen.mGameScreenToGameLevelChunkRatio;
+		}
+		else if (curLevelChunkY1 < yShift)
+		{
+			// cur level chunk y1 is neg
 			dY     = (yShift - curLevelChunkY1) * mScreen.mGameScreenToGameLevelChunkRatio;
 			cropH += (yShift - curLevelChunkY1) * actualToPrintRatio;
 		}
-
-		if (curLevelChunkX2 > (levelW + xShift))
-		{
-			dW    -= (curLevelChunkX2 - (levelW + xShift)) * mScreen.mGameScreenToGameLevelChunkRatio;
-			cropW -= (curLevelChunkX2 - (levelW + xShift)) * actualToPrintRatio;
-		}
-		if (curLevelChunkY2 > (levelH + yShift))
+		else if (curLevelChunkY2 > (levelH + yShift))
 		{
 			dH    -= (curLevelChunkY2 - (levelH + yShift)) * mScreen.mGameScreenToGameLevelChunkRatio;
 			cropH -= (curLevelChunkY2 - (levelH + yShift)) * actualToPrintRatio;
 		}
 
+		
+
+		// where on the screen it's being printed (in screen space)
 		SDL_FRect destination = {dX, dY, dW, dH};
+		// what section of the texture is being printed (in texture space)
 		SDL_FRect curCropBox = {cropX, cropY, cropW, cropH};
 
 		SDL_RenderTextureRotated(mScreen.mpRenderer, pCurLevel->mpArtFileTexture, &curCropBox, &destination, 0, NULL, SDL_FLIP_NONE);

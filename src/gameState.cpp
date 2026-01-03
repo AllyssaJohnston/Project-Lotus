@@ -400,6 +400,11 @@ void GameStatePlay::useInput(GameStateManagerData& gameStateManagerData)
 			{
 				mGameStateData.mNextGameState = EGameState_MENU;
 			}
+			else if (countEvent == EKeyboardInput_P && !mKeyboardData.mLastFrameKeyState[countEvent])
+			{
+				mWorldData.mGoToNextLevel = true;
+				mWorldData.mpNextLevelData = &mWorldData.mpWorlds[mWorldData.mCurWorldNumber]->mpLevels[mWorldData.mCurLevelNumber]->mNextLevelData;
+			}
 			else if (countEvent == EKeyboardInput_ESC)
 			{
 				gameStateManagerData.mRunGame = false;
