@@ -112,8 +112,54 @@ std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldD
 	return pTilesWithPlayers;
 }
 
+Tile* returnTileFromAttackWithLowestHealthPlayer(const MiniGameWorldData& worldData, const Tile* const pReferenceTile, const Attack& curAttack, const EDirection direction)
+{
+	CombatCharacter* pLowestHealthPlayer = nullptr;
+	MiniGameStage* pStage = worldData.getStage();
+	Grid& grid = pStage->mGrid;
+	CombatManager& combatManager = pStage->mCombatManager;
 
+	if (!curAttack.canUse())
+	{
+		return nullptr;
+	}
 
+	if (curAttack.mType == ECombatActionGridPattern_WHOLE_GRID)
+	{
+		// just return the tiles with players
+		for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())
+		{
+			if (pCurCharacterToTest->mType == ECombatCharacterType_PLAYER && (pLowestHealthPlayer == nullptr || pCurCharacterToTest->getCurHealth() < pLowestHealthPlayer->getCurHealth()))
+			{
+				pLowestHealthPlayer = pCurCharacterToTest;
+			}
+		}
+	}
+	else
+	{
+		for (TileCoords& curTileCoord : returnTileCoords(*pReferenceTile, curAttack.mType, curAttack.mNum, curAttack.mOut, direction))
+		{
+			Tile* pCurAttackTile = grid.findTile(curTileCoord);
+			if (pCurAttackTile == nullptr)
+			{
+				continue;
+			}
+			for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())
+			{
+				if (pCurCharacterToTest->mType == ECombatCharacterType_PLAYER && pCurCharacterToTest->mCombatMovementManager.getCurTile() == pCurAttackTile 
+							&& (pLowestHealthPlayer == nullptr || pCurCharacterToTest->getCurHealth() < pLowestHealthPlayer->getCurHealth()))
+				{
+					pLowestHealthPlayer = pCurCharacterToTest;
+				}
+			}
+		}
+	}
+	if (pLowestHealthPlayer == nullptr)
+	{
+		return nullptr;
+	}
+	return pLowestHealthPlayer->mCombatMovementManager.getCurTile();
+}
 
 
 bool tileInAttackRange(const Attack& attack, const EDirection attackDirection, const Grid& grid, const Tile* const pGivenTile, const Tile* const pTileToAttackFrom)
@@ -197,11 +243,11 @@ std::string getCharacterChangesString(const CombatManager& combatManager, const 
 			int curHealthModifier = pCharacter->getCurHealthModifier();
 			if (curHealthModifier < 0 && curHealthModifier != prevHealthModifier)
 			{
-				curLine += pCharacter->mName + "'s is posioned " + std::to_string(curHealthModifier) + " ";
+				curLine += pCharacter->mName + "'s is healing " + std::to_string(curHealthModifier) + " each turn";
 			}
 			else if (curHealthModifier > 0 && curHealthModifier != prevHealthModifier)
 			{
-				curLine += pCharacter->mName + "'s is healing " + std::to_string(curHealthModifier) + " each turn";
+				curLine += pCharacter->mName + "'s is posioned " + std::to_string(curHealthModifier) + " each turn";
 			}
 
 			int baseHealthCapacity = pCharacter->getBaseHealthCapacity();

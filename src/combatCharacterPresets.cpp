@@ -221,7 +221,7 @@ HidingRatCombatPreset::HidingRatCombatPreset() : CombatCharacterPreset()
     mName = "SPIDERIG";
 
     // WEB
-    Attack attack1 = Attack(ECombatActionGridPattern_CROSS, ECombatCharacterType_PLAYER,  2, 0, ECombatAttackCategoryType_SUPPORT, 0.0f, 0, "Web");
+    Attack attack1 = Attack(ECombatActionGridPattern_CROSS, ECombatCharacterType_PLAYER,  2, 0, ECombatAttackCategoryType_SUPPORT, 0.0f, 2, "Web");
     attack1.mNumTilesToAttack = ECombatNumTilesToAttack_ONE;
     attack1.mCharacterTileSpecialEffects.push_back(SpecialEffectStun(1));
     mAttacks.push_back(attack1);

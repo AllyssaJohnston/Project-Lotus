@@ -66,6 +66,8 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 
 std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldData& worldData, const Tile* const pReferenceTile, const std::vector<Attack>& attacks, const EDirection direction);
 
+Tile* returnTileFromAttackWithLowestHealthPlayer(const MiniGameWorldData& worldData, const Tile* const pReferenceTile, const Attack& curAttack, const EDirection direction);
+
 
 bool tileInAttackRange(const Attack& attack, const EDirection attackDirection, const Grid& grid, const Tile* const pGivenTile, const Tile* const pTileToAttackFrom);
 

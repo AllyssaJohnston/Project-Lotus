@@ -43,9 +43,12 @@ void createMainMenu(MenuManager& menuManager, const ScreenObject& screen)
 
 
 	UIBlock* titleText = new UIBlock(Hitbox(CoordsX1Y1WidthHeight(0, 0, levelChunkWidth, 300)), EUIPositionAlign_CENTER, EUIPositionAlign_TOP, EDirection_RIGHT, EDirection_DOWN, false, 1, fill, !fill, Edges(100, 0, 0, 0), 0, clear, "title text block");
-	mainMenuPage->addBox(new ImageBox(ImageBoxPreset(),																	UIPositionInfo(0,	EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 200, Edges()),				"Menu/TitleScreen.bmp"), titleText);
-	mainMenuPage->addBox(new TextBox(StandardTextBoxPreset("PLAY GAME"),		ETextBoxFunction_PLAY_GAME_BOX,			UIPositionInfo(		EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 140, Edges()),				fontFileName, TextBoxSizeInfo(60, 80), TextBoxColorInfo(hintBlue, white, teal, teal, clear, clear)), true, titleText);
-	mainMenuPage->addBox(new TextBox(StandardTextBoxPreset("PLAY MINI GAME"),	ETextBoxFunction_PLAY_MINI_GAME_BOX,	UIPositionInfo(		EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 140, Edges(8, 0, 0, 0)),	fontFileName, TextBoxSizeInfo(60, 80), TextBoxColorInfo(hintBlue, white, teal, teal, clear, clear)), true, titleText);
+	mainMenuPage->addBox(		new ImageBox(ImageBoxPreset(),																	UIPositionInfo(0,	EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 200, Edges()),				"Menu/TitleScreen.bmp"), titleText);
+	mainMenuPage->addBox(		new TextBox(StandardTextBoxPreset("PLAY GAME"),			ETextBoxFunction_PLAY_GAME_BOX,			UIPositionInfo(		EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 140, Edges()),				fontFileName, TextBoxSizeInfo(60, 80), TextBoxColorInfo(hintBlue, white, teal, teal, clear, clear)), true, titleText);
+	if (DEMO == 0)
+	{
+		mainMenuPage->addBox(	new TextBox(StandardTextBoxPreset("PLAY MINI GAME"),	ETextBoxFunction_PLAY_MINI_GAME_BOX,	UIPositionInfo(		EUIPositionAlign_CENTER, EUIPositionAlign_TOP, levelChunkWidth, 140, Edges(8, 0, 0, 0)),	fontFileName, TextBoxSizeInfo(60, 80), TextBoxColorInfo(hintBlue, white, teal, teal, clear, clear)), true, titleText);
+	}
 	mainMenuPage->mpElems.push_back(titleText);
 	titleText = nullptr;
 

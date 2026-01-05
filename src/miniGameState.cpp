@@ -423,7 +423,7 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 		{
 			continue;
 		}
-
+		Tile* pTile = nullptr;
 		std::vector <Tile*> pTilesToAttackWithCharacters;
 		EDirection curBestDirection = EDirection_INVALID;
 		CombatCharacter* pCharacterWithLowestHealth = nullptr;
@@ -447,18 +447,13 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 			}
 			break;
 		case ECombatNumTilesToAttack_ONE:
-			// attacking tile with player with lowest health
 			curBestDirection = EDirection_ALL;
-			pCharacterWithLowestHealth = mWorldData.getStage()->mCombatManager.getCurAliveCharacters()[0];
-			for (CombatCharacter* pCurCharacterToTest : mWorldData.getStage()->mCombatManager.getCurAliveCharacters())
+			pTile = returnTileFromAttackWithLowestHealthPlayer(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, EDirection_ALL);
+			if (pTile != nullptr)
 			{
-				if (pCurCharacterToTest->mType == ECombatCharacterType_PLAYER && pCurCharacterToTest->getCurHealth() > pCharacterWithLowestHealth->getCurHealth())
-				{
-					pCharacterWithLowestHealth = pCurCharacterToTest;
-				}
+				pTilesToAttackWithCharacters = { pTile };
 			}
-			pTilesToAttackWithCharacters = { pCharacterWithLowestHealth->mCombatMovementManager.getCurTile() };
-			pCharacterWithLowestHealth = nullptr;
+			pTile = nullptr;
 			break;
 		default:
 			SDL_assert(false);
