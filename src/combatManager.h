@@ -9,6 +9,7 @@ class CombatManager
 private:
     std::vector <CombatCharacter*> mpCurAliveCombatCharacters;
     std::vector <CombatCharacter*> mpAllCombatCharacters;
+    std::vector <CombatCharacter*> mpCharctersSpawningNextRound;
     int mRounds = 0;
 
     const int mMaxCharactersInPlay = 5;
@@ -48,6 +49,8 @@ public:
 
     std::vector <CombatCharacter*> getCurAliveEnemies() const;
 
+    std::vector <CombatCharacter*> getGhostEnemies() const;
+
     CombatCharacter* returnNextAliveCharacter(CombatCharacter& curCharacter);
 
     CombatCharacter* returnNextAliveCharacter(CombatCharacter& curCharacter, int& outIndex);
@@ -62,6 +65,8 @@ public:
 
     void attackMultipleTiles(CombatCharacter& attackingCharacter, std::vector <Tile*>& pTilesToAttack, Attack& attack);
 
+
+    std::vector<CombatCharacter> createCombatCharacterSnapShots();
     
     
     bool characterOnTile(const Tile& tile);

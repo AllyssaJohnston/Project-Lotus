@@ -1,18 +1,17 @@
 #include "tileHelpers.h"
 
-std::vector <TileCoords> returnTileCoords(const Tile& givenTile, const EMiniGameCombatMoveAttackTypes moveAttackType, const int num, const int out, const EDirection direction)
+std::vector <TileCoords> returnTileCoords(const Tile& givenTile, const ECombatActionGridPattern moveAttackType, const int num, const int out, const EDirection direction)
 {
     switch (moveAttackType)
     {
-    case EMiniGameCombatMoveAttackTypes_CROSS:
+    case ECombatActionGridPattern_CROSS:
         return getCrossTiles(givenTile, out, num, direction);
-    case EMiniGameCombatMoveAttackTypes_SQUARE:
+    case ECombatActionGridPattern_SQUARE:
         return getSquareTiles(givenTile, out, num, direction);
-    case EMiniGameCombatMoveAttackTypes_CHECKERBOARD:
+    case ECombatActionGridPattern_CHECKERBOARD:
         return getCheckerboardTiles(givenTile, out, num, direction);
-    case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
-    case EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE:
-    case EMiniGameCombatMoveAttackTypes_NONE:
+    case ECombatActionGridPattern_WHOLE_GRID:
+    case ECombatActionGridPattern_NONE:
         SDL_assert(false);
         break;
     default:
@@ -145,14 +144,11 @@ bool isPlayableTile(const Tile& givenTile)
 {
     switch (givenTile.getType())
     {
-    case EMiniGameCombatTileType_IMPASSABLE:
-        break;
-    case EMiniGameCombatTileType_TELEPORTER:
+    case ECombatTileType_IMPASSABLE: return false;
+    case ECombatTileType_TELEPORTER:
         //TODO
         break;
-    default:
-        return true;
-        break;
+    default: return true;
     }
     return false;
 }

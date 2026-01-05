@@ -2,6 +2,7 @@
 #include "entityPresets.h"
 #include "worldHelpers.h"
 
+
 struct CCollectiblePreset : public EntityPreset { CCollectiblePreset(); };
 
 struct CKeyPreset : public CCollectiblePreset { CKeyPreset(); };
@@ -12,12 +13,7 @@ static CSavePointPreset gStaticSavePointPreset;
 struct CLotusCollectiblePreset : public CCollectiblePreset { CLotusCollectiblePreset(); };
 static CLotusCollectiblePreset gStaticLotusCollectiblePreset;
 
-struct CEndOfLevelPreset : public CCollectiblePreset
-{
-	CEndOfLevelPreset(int worldType);
-
-	virtual void setUpAnimationPresets(int worldType);
-};
+struct CEndOfLevelPreset : public CCollectiblePreset { CEndOfLevelPreset(bool vertical); };
 
 struct CMiniGameLevelPreset : public CCollectiblePreset
 {

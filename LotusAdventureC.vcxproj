@@ -51,6 +51,7 @@
     <ClInclude Include="src\lotusAdventureLevels.h" />
     <ClInclude Include="src\lotusAdventureLevelsDemo.h" />
     <ClInclude Include="src\lotusAdventureMenus.h" />
+    <ClInclude Include="src\menuDataController.h" />
     <ClInclude Include="src\menuHelpers.h" />
     <ClInclude Include="src\menuPage.h" />
     <ClInclude Include="src\miniGameState.h" />
@@ -129,6 +130,7 @@
     <ClCompile Include="src\lotusAdventureLevelsDemo.cpp" />
     <ClCompile Include="src\lotusAdventureMenus.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\menuDataController.cpp" />
     <ClCompile Include="src\menuManager.cpp" />
     <ClCompile Include="src\menuHelpers.cpp" />
     <ClCompile Include="src\menuPage.cpp" />
@@ -224,6 +226,10 @@
     <IncludePath>$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)\bin\</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(VC_IncludePath);</IncludePath>
+    <OutDir>$(SolutionDir)\bin\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -276,14 +282,18 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>.\SDKs\SDL\include\;.\SDKs\SDL_ttf\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);sdl3_ttf.lib</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>/NODEFAULTLIB:MSVCRT</IgnoreSpecificDefaultLibraries>
+      <AdditionalLibraryDirectories>.\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,8 +1,10 @@
 #include "gameState.h"
 
 // GAME STATE
-GameState::GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager, SettingsManager& settingsManager, ScreenObject& screen)
-	: mGameStateData(gameStateData), mKeyboardData(keyboardData), mMenuManager(menuManager), mSettingsManager(settingsManager), mScreen(screen) { ; }
+GameState::GameState(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager, MenuDataController& menuController, 
+		SettingsManager& settingsManager, ScreenObject& screen)
+		: mGameStateData(gameStateData), mKeyboardData(keyboardData), mMenuManager(menuManager), mMenuDataController(menuController), 
+		mSettingsManager(settingsManager), mScreen(screen) { ; }
 
 void GameState::preTick()
 {
@@ -209,7 +211,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 	case ETextBoxFunction_ATTACK_CUR_COMBAT_CHARACTER_BOX:
 		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
 		{
-			miniStateManager.mData.mStateData.mAttackCategory = EMiniGameCombatAttackCategoryType_ATTACK;
+			miniStateManager.mData.mStateData.mAttackCategory = ECombatAttackCategoryType_ATTACK;
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
 			pSpecificCurState->postTick(EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT);
 			pSpecificCurState = nullptr;
@@ -218,7 +220,7 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 	case ETextBoxFunction_SUPPORT_CUR_COMBAT_CHARACTER_BOX:
 		if (miniStateManager.mData.mCurStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ACTION_INPUT)
 		{
-			miniStateManager.mData.mStateData.mAttackCategory = EMiniGameCombatAttackCategoryType_SUPPORT;
+			miniStateManager.mData.mStateData.mAttackCategory = ECombatAttackCategoryType_SUPPORT;
 			MiniGamePlayerWaitForActionInput* pSpecificCurState = (MiniGamePlayerWaitForActionInput*)pCurState;
 			pSpecificCurState->postTick(EMiniGameState_PLAYER_WAIT_FOR_ATTACK_OPTION_INPUT);
 			pSpecificCurState = nullptr;
@@ -294,8 +296,9 @@ void GameState::takeMenuAction(MiniGameStateManager& miniStateManager)
 
 
 // TYPES GAME STATES
-GameStatePlay::GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, SettingsManager& settingsManager,
-	CollisionManager& collisionManager, SlashManager& slashManager) : GameState(gameStateData, keyboardData, menuManager, settingsManager, worldData.mScreen),
+GameStatePlay::GameStatePlay(GameStateData& gameStateData, KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, MenuDataController& menuController, 
+	SettingsManager& settingsManager, CollisionManager& collisionManager, SlashManager& slashManager) 
+	: GameState(gameStateData, keyboardData, menuManager, menuController, settingsManager, worldData.mScreen),
 	mWorldData(worldData), mCollisionManager(collisionManager), mSlashManager(slashManager) {
 }
 
@@ -396,6 +399,11 @@ void GameStatePlay::useInput(GameStateManagerData& gameStateManagerData)
 			else if (countEvent == EKeyboardInput_2)
 			{
 				mGameStateData.mNextGameState = EGameState_MENU;
+			}
+			else if (countEvent == EKeyboardInput_P && !mKeyboardData.mLastFrameKeyState[countEvent])
+			{
+				mWorldData.mGoToNextLevel = true;
+				mWorldData.mpNextLevelData = &mWorldData.mpWorlds[mWorldData.mCurWorldNumber]->mpLevels[mWorldData.mCurLevelNumber]->mNextLevelData;
 			}
 			else if (countEvent == EKeyboardInput_ESC)
 			{
@@ -522,18 +530,19 @@ void GameStatePlay::render(EGameState curState)
 
 	// PLAYER
 	mWorldData.renderEntity(mWorldData.mPlayer);
-	mMenuManager.updateUIElements();
+	mMenuDataController.updateUIElements();
 	mMenuManager.setCurMenuPage(mMenuManager.mpMenuPages[int(EMenuPageType_MAIN_GAME_MENU)]);
-	mMenuManager.renderMenus(curState, false, mKeyboardData.mCurKeysString);
+
+	mMenuDataController.getUpdatedMenuBoxes(curState, false);
+	mMenuManager.renderMenus();
 }
 
 
 
 
-GameStatePlayMiniGame::GameStatePlayMiniGame(GameStateData& gameStateData, KeyboardData& keyboardData, MiniGameStateManager& miniGameStateManager, MenuManager& menuManager,
-	ScreenObject& screen, SettingsManager& settingsManager) : GameState(gameStateData, keyboardData, menuManager, settingsManager, screen), mMiniGameStateManager(miniGameStateManager) {
-	;
-}
+GameStatePlayMiniGame::GameStatePlayMiniGame(GameStateData& gameStateData, KeyboardData& keyboardData, MiniGameStateManager& miniGameStateManager, 
+	MenuManager& menuManager, MenuDataController& menuController, ScreenObject& screen, SettingsManager& settingsManager) 
+	: GameState(gameStateData, keyboardData, menuManager, menuController, settingsManager, screen), mMiniGameStateManager(miniGameStateManager) { ; }
 
 void GameStatePlayMiniGame::setUp() { mTicks = 0; }
 
@@ -553,7 +562,7 @@ void GameStatePlayMiniGame::tick(GameStateManagerData& gameStateManagerData, Min
 	getInput();
 	useMouseCursor();
 	useInput(gameStateManagerData);
-	mMiniGameStateManager.mpCurState->useMouseInput(mMiniGameStateManager.mData.mCurStateEnum, mScreen);
+	mMiniGameStateManager.mpCurState->useInput(mMiniGameStateManager.mData.mCurStateEnum, mScreen);
 	takeMenuAction(miniGameStateManager);
 
 	mMiniGameStateManager.preTick();
@@ -573,7 +582,9 @@ void GameStatePlayMiniGame::render(EGameState curState)
 	SDL_FRect screenRect{ 0.0f, 0.0f, float(mScreen.mGameScreenWidth), float(mScreen.mGameScreenHeight) };
 	SDL_RenderFillRect(mScreen.mpRenderer, &screenRect);
 	mMiniGameStateManager.printBoard(mScreen);
-	mMenuManager.renderMenus(curState, mTicks <= 1, mKeyboardData.mCurKeysString);
+
+	mMenuDataController.getUpdatedMenuBoxes(curState, mTicks <= 1);
+	mMenuManager.renderMenus();
 
 	SDL_SetRenderDrawColor(mScreen.mpRenderer, 50, 50, 50, 1);
 	SDL_FRect rect{ (mousePos.getX() - 10.0f), (mousePos.getY() - 10.0f), 20.0f, 20.0f };
@@ -587,10 +598,9 @@ void GameStatePlayMiniGame::render(EGameState curState)
 
 
 
-GameStateMenu::GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager, SettingsManager& settingsManager, WorldData& worldData)
-	: GameState(gameStateData, keyboardData, menuManager, settingsManager, worldData.mScreen), mWorldData(worldData) {
-	;
-}
+GameStateMenu::GameStateMenu(GameStateData& gameStateData, KeyboardData& keyboardData, MenuManager& menuManager, MenuDataController& menuController, 
+	SettingsManager& settingsManager, WorldData& worldData)
+	: GameState(gameStateData, keyboardData, menuManager, menuController, settingsManager, worldData.mScreen) { ; }
 
 void GameStateMenu::tick(GameStateManagerData& gameStateManagerData, MiniGameStateManager& miniGameStateManager)
 {
@@ -615,8 +625,8 @@ void GameStateMenu::render(EGameState curState)
 	SDL_FRect box = { 0.0f, 0.0f, (float)mScreen.mGameScreenWidth, (float)mScreen.mGameScreenHeight };
 	SDL_RenderFillRect(mScreen.mpRenderer, &box);
 
-
-	mMenuManager.renderMenus(curState, false, mKeyboardData.mCurKeysString);
+	mMenuDataController.getUpdatedMenuBoxes(curState, false);
+	mMenuManager.renderMenus();
 
 	SDL_SetRenderDrawColor(mScreen.mpRenderer, 50, 50, 50, 1);
 	SDL_FRect rect{ (mousePos.getX() - 10.0f), (mousePos.getY() - 10.0f), 20.0f, 20.0f };

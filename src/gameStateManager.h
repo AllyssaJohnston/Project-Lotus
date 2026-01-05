@@ -25,13 +25,17 @@ public:
 	std::vector <GameState*>    mStates;
 	GameState*				    mpCurState;
     GameStateManagerData        mData;
-    WorldData&                  mWorldData;
-
     MiniGameStateManager&       mMiniGameStateManager;
 
-    GameStateManager(KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, 
+private:
+    WorldData& mWorldData;
+
+public:
+
+    GameStateManager(KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, MenuDataController& menuController,
             SettingsManager& settingsManager, CollisionManager& collisionManager, SlashManager& slashManager, 
             MiniGameStateManager& miniGameStateManager);
+
     ~GameStateManager();
 
     void preTick();

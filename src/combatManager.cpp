@@ -8,12 +8,14 @@ CombatManager::~CombatManager()
     }
     mpAllCombatCharacters.clear();
     mpCurAliveCombatCharacters.clear();
+    mpCharctersSpawningNextRound.clear();
+    mpCharactersToSpawnInRound.clear();
 }
 
 void CombatManager::endRound()
 {
     mRounds++;
-    if (mpCharactersToSpawnInRound[mRounds].size() > 0)
+    if (mpCharactersToSpawnInRound[mRounds].size() > 0 || mpCharactersToSpawnInRound[mRounds + 1].size() > 0)
     {
         createCurAliveCharacterList();
     }
@@ -48,33 +50,35 @@ void CombatManager::createCurAliveCharacterList()
 {
     bool done = false;
     mpCurAliveCombatCharacters.clear();
+    mpCharctersSpawningNextRound.clear();
     for (int i = 0; i <= mRounds; i++)
     {
         for (CombatCharacter* pCharacter : mpCharactersToSpawnInRound[i])
         {
             if (pCharacter->isAlive())
             {
-                if (characterOnTile(*pCharacter->mCombatMovementManager.getCurTile()))
+                if (characterOnTile(*pCharacter->mCombatMovementManager.getCurTile()) || done)
                 {
+                    mpCharctersSpawningNextRound.push_back(pCharacter);
                     done = true;
-                    break;
                 }
                 else
                 {
                     pCharacter->start();
                     mpCurAliveCombatCharacters.push_back(pCharacter);
                 }
-            }
-            if (mpCurAliveCombatCharacters.size() == mMaxCharactersInPlay)
-            {
-                done = true;
-                break;
+
+                if (mpCurAliveCombatCharacters.size() == mMaxCharactersInPlay)
+                {
+                    done = true;
+                }
             }
         }
-        if (done) 
-        {
-            break;
-        }
+    }
+
+    for (CombatCharacter* pCharacter : mpCharactersToSpawnInRound[mRounds + 1])
+    {
+        mpCharctersSpawningNextRound.push_back(pCharacter);
     }
 }
 
@@ -89,7 +93,7 @@ std::vector <CombatCharacter*> CombatManager::getCurAlivePlayers() const
     std::vector <CombatCharacter*> pCurAliveCombatPlayers;
     for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
     {
-        if (pCharacter->isAlive() && pCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
+        if (pCharacter->isAlive() && pCharacter->mType == ECombatCharacterType_PLAYER)
         {
             pCurAliveCombatPlayers.push_back(pCharacter);
         }
@@ -102,7 +106,7 @@ std::vector <CombatCharacter*> CombatManager::getAllPlayers() const
     std::vector <CombatCharacter*> pAllCombatPlayers;
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        if (pCharacter->mType == EMiniGameCombatCharacterType_PLAYER)
+        if (pCharacter->mType == ECombatCharacterType_PLAYER)
         {
             pAllCombatPlayers.push_back(pCharacter);
         }
@@ -115,7 +119,7 @@ std::vector <CombatCharacter*> CombatManager::getCurAliveEnemies() const
     std::vector <CombatCharacter*> pCurAliveCombatEnemies;
     for (CombatCharacter* pCharacter : mpCurAliveCombatCharacters)
     {
-        if (pCharacter->isAlive() && pCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
+        if (pCharacter->isAlive() && pCharacter->mType == ECombatCharacterType_ENEMY)
         {
             pCurAliveCombatEnemies.push_back(pCharacter);
         }
@@ -128,13 +132,15 @@ std::vector <CombatCharacter*> CombatManager::getAllEnemies() const
     std::vector <CombatCharacter*> pAllCombatEnemies;
     for (CombatCharacter* pCharacter : mpAllCombatCharacters)
     {
-        if (pCharacter->mType == EMiniGameCombatCharacterType_ENEMY)
+        if (pCharacter->mType == ECombatCharacterType_ENEMY)
         {
             pAllCombatEnemies.push_back(pCharacter);
         }
     }
     return pAllCombatEnemies;
 }
+
+std::vector <CombatCharacter*> CombatManager::getGhostEnemies() const { return mpCharctersSpawningNextRound; }
 
 CombatCharacter* CombatManager::returnNextAliveCharacter(CombatCharacter& curCharacter)
 {
@@ -241,7 +247,7 @@ void CombatManager::attack(CombatCharacter& attackingCharacter, CombatCharacter&
 
 void CombatManager::attackInternal(CombatCharacter& attackingCharacter, CombatCharacter& attackedCharacter, const Attack& attack)
 {
-    if (!characterTypeFit(attack.mAttackTargetType, attackedCharacter.mType, attackedCharacter.isAlive()))
+    if (!characterTypeFit(attack.mAttackTargetType, attack.mAttackTargetAlive, attackedCharacter.mType, attackedCharacter.isAlive()))
     {
         return;
     }
@@ -262,60 +268,29 @@ void CombatManager::characterTileSpecialEffect(CombatCharacter& attackingCharact
     std::vector<CombatCharacter*> pCharacters;
     for (const SpecialEffect& specialEffect : attack.mCharacterTileSpecialEffects)
     {
-        if (!characterTypeFit(specialEffect.mAttackTargetType, attackedCharacter.mType, attackedCharacter.isAlive()))
+        if (!characterTypeFit(specialEffect.mAttackTargetType, attack.mAttackTargetAlive, attackedCharacter.mType, attackedCharacter.isAlive()))
         {
             continue;
         }
 
         switch (specialEffect.mType)
         {
-        case EMiniGameCombatSpecialEffectTypes_STUN:
+        case ECombatSpecialEffectTypes_STUN:
             attackedCharacter.stun(specialEffect.mTurns);
             break;
 
-        case EMiniGameCombatSpecialEffectTypes_POISON:
+        case ECombatSpecialEffectTypes_POISON:
             attackedCharacter.addHealthModifier(((int)specialEffect.mAmount), specialEffect.mTurns);
             break;
 
-        case EMiniGameCombatSpecialEffectTypes_HEAL:
-        case EMiniGameCombatSpecialEffectTypes_FULL_HEAL:
-            switch (specialEffect.mAttackTargetType)
-            {
-           
-            case EAttackTargetType_ONE_PLAYER:
-            case EAttackTargetType_ONE_ENEMY:
-            case EAttackTargetType_ONE_CHARACTER:
-                pCharacters = { &attackedCharacter };
-            case EAttackTargetType_ONE_ALIVE_PLAYER:
-            case EAttackTargetType_ONE_ALIVE_ENEMY:
-            case EAttackTargetType_ONE_ALIVE_CHARACTER:
-                if (attackedCharacter.isAlive())
-                {
-                    pCharacters = { &attackedCharacter };
-                }
-                break;
-            default:
-                SDL_assert(false);
-                break;
-            }
-            for (CombatCharacter* pCharacter : pCharacters)
-            {
-                switch (specialEffect.mType)
-                {
-                case EMiniGameCombatSpecialEffectTypes_FULL_HEAL:
-                    pCharacter->fullHeal();
-                    break;
-                case EMiniGameCombatSpecialEffectTypes_HEAL:
-                    pCharacter->heal((int)specialEffect.mAmount);
-                    break;
-                case EMiniGameCombatSpecialEffectTypes_REVIVE:
-                    //pCharacter->revive();
-                    break;
-                default:
-                    SDL_assert(false);
-                }
-            }
+        case ECombatSpecialEffectTypes_HEAL:
+            attackedCharacter.heal((int)specialEffect.mAmount);
             break;
+
+        case ECombatSpecialEffectTypes_FULL_HEAL:
+            attackedCharacter.fullHeal();
+            break;
+          
         default:
             SDL_assert(false);
             break;
@@ -330,23 +305,20 @@ void CombatManager::genericSpecialEffect(CombatCharacter& attackingCharacter, co
     {
         switch (specialEffect.mType)
         {
-        case EMiniGameCombatSpecialEffectTypes_LOSE_TURN: // self stun
+        case ECombatSpecialEffectTypes_LOSE_TURN: // self stun
             attackingCharacter.stun(specialEffect.mTurns + 1);
             break;
 
         default:
             switch (specialEffect.mAttackTargetType)
             {
-            case EAttackTargetType_SELF:
-                pCharacters = { &attackingCharacter };
-                break;
-            case EAttackTargetType_ALL_ALIVE_CHARACTERS:
+            case ECombatCharacterType_CHARACTER:
                 pCharacters = getCurAliveCharacters();
                 break;
-            case EAttackTargetType_ALL_ALIVE_PLAYERS:
+            case ECombatCharacterType_PLAYER:
                 pCharacters = getCurAlivePlayers();
                 break;
-            case EAttackTargetType_ALL_ALIVE_ENEMIES:
+            case ECombatCharacterType_ENEMY:
                 pCharacters = getCurAliveEnemies();
                 break;
             default:
@@ -357,22 +329,33 @@ void CombatManager::genericSpecialEffect(CombatCharacter& attackingCharacter, co
             {
                 switch (specialEffect.mType)
                 {
-                case EMiniGameCombatSpecialEffectTypes_ATTACK_MULTIPLIER:
+                case ECombatSpecialEffectTypes_ATTACK_MULTIPLIER:
                     pCharacter->addDamageModifier(specialEffect.mAmount, specialEffect.mTurns);
                     break;
-                case EMiniGameCombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER:
+                case ECombatSpecialEffectTypes_DEFENSE_CAPACITY_MULTIPLIER:
                     pCharacter->addDefenseCapacityModifier(specialEffect.mAmount, specialEffect.mTurns);
                     break;
                 default:
                     SDL_assert(false);
                     break;
                 }
-               
             }
             break;
         }
     }
 }
+
+// return copy of all characters
+std::vector<CombatCharacter> CombatManager::createCombatCharacterSnapShots()
+{
+    std::vector<CombatCharacter> snapShots;
+    for (CombatCharacter* pCharacter : mpAllCombatCharacters)
+    {
+        snapShots.push_back(*pCharacter);
+    }
+    return snapShots;
+}
+
 
 bool CombatManager::characterOnTile(const Tile& tile)
 {
@@ -387,6 +370,7 @@ bool CombatManager::characterOnTile(const Tile& tile)
     return false;
 }
 
+
 int CombatManager::getRoundNum() { return mRounds; }
 
 GameOverStats CombatManager::getGameOverStats()
@@ -398,10 +382,10 @@ GameOverStats CombatManager::getGameOverStats()
     {
         switch (pCurCharacter->mType)
         {
-        case EMiniGameCombatCharacterType_PLAYER:
+        case ECombatCharacterType_PLAYER:
             numPlayers += 1;
             break;
-        case EMiniGameCombatCharacterType_ENEMY:
+        case ECombatCharacterType_ENEMY:
             numEnemies += 1;
             break;
         default:

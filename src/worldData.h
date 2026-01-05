@@ -1,5 +1,6 @@
 #pragma once
 #include <corecrt_math_defines.h>
+#include <algorithm>
 #include "globals.h"
 #include "player.h"
 #include "world.h"

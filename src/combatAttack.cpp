@@ -2,28 +2,28 @@
 
 SpecialEffect::SpecialEffect(const SpecialEffectPreset& preset) : mType(preset.mType), mName(preset.mName), mAmount(preset.mAmount), mTurns(preset.mTurns), mAttackTargetType(preset.mAttackTargetType) { ; }
 
-Attack::Attack(const EMiniGameCombatMoveAttackTypes type, EAttackTargetType targetType, const int num, const int out, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description)
+Attack::Attack(const ECombatActionGridPattern type, ECombatCharacterType targetType, const int num, const int out, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description)
     : mType(type), mAttackTargetType(targetType), mNum(num), mOut(out), mCategory(category), mDamagePercent(damagePercent), mCooldownAmount(cooldownAmount), mName(name)
 {
     mDescription = name + ": " + description;
 }
 
-Attack::Attack(const EMiniGameCombatMoveAttackTypes type, EAttackTargetType targetType, const int num, const int out, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name)
+Attack::Attack(const ECombatActionGridPattern type, ECombatCharacterType targetType, const int num, const int out, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name)
     : mType(type), mAttackTargetType(targetType), mNum(num), mOut(out), mCategory(category), mDamagePercent(damagePercent), mCooldownAmount(cooldownAmount), mName(name)
 {
-    mDescription = name + ": " + returnDescriptionOfMoveAttackType(type, num, out);
+    mDescription = name + ": " + returnDescriptionOfGridPattern(type, num, out);
 }
 
-Attack::Attack(const EMiniGameCombatMoveAttackTypes type, EAttackTargetType targetType, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description)
+Attack::Attack(const ECombatActionGridPattern type, ECombatCharacterType targetType, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name, const std::string description)
     : mType(type), mAttackTargetType(targetType), mCategory(category), mDamagePercent(damagePercent), mCooldownAmount(cooldownAmount), mName(name)
 {
     mDescription = name + ": " + description;
 }
 
-Attack::Attack(const EMiniGameCombatMoveAttackTypes type, EAttackTargetType targetType, const EMiniGameCombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name)
+Attack::Attack(const ECombatActionGridPattern type, ECombatCharacterType targetType, const ECombatAttackCategoryType category, const float damagePercent, const int cooldownAmount, const std::string name)
     : mType(type), mAttackTargetType(targetType), mCategory(category), mDamagePercent(damagePercent), mCooldownAmount(cooldownAmount), mName(name)
 {
-    mDescription = name + ": " + returnDescriptionOfMoveAttackType(type, -1, -1);
+    mDescription = name + ": " + returnDescriptionOfGridPattern(type, -1, -1);
 }
 
 bool Attack::canUse() const { return mCurCooldown == 0 && (mLimit == -1 || mUses < mLimit); }

@@ -147,18 +147,18 @@ enum EShapeBoxClass
 
 struct UIBoxData 
 {
-	EUIBoxValueToDisplay				mGameStatToDisplay			= EUIBoxValueToDisplay_INVALID;
-	int									mCombatCharacterIndex		= -1;
-	EMiniGameCombatCharacterType        mCombatCharacterType		= EMiniGameCombatCharacterType_CHARACTER;
-	bool								mShowDuringAllCharacters	= false;
-	int									mAttackNum					= -1;
-	EMiniGameCombatAttackCategoryType	mAttackCategory				= EMiniGameCombatAttackCategoryType_INVALID;
-	EDirection							mAttackDirection			= EDirection_INVALID;
-	EUIBoxType							mType						= EUIBoxType_INVALID;
-	std::vector <EMiniGameState>		mMiniGameStateWhenToShowList;
+	EUIBoxValueToDisplay			mGameStatToDisplay			= EUIBoxValueToDisplay_INVALID;
+	int								mCombatCharacterIndex		= -1;
+	ECombatCharacterType			mCombatCharacterType		= ECombatCharacterType_CHARACTER;
+	bool							mShowDuringAllCharacters	= false;
+	int								mAttackNum					= -1;
+	ECombatAttackCategoryType		mAttackCategory				= ECombatAttackCategoryType_INVALID;
+	EDirection						mAttackDirection			= EDirection_INVALID;
+	EUIBoxType						mType						= EUIBoxType_INVALID;
+	std::vector <EMiniGameState>	mMiniGameStateWhenToShowList;
 
 	UIBoxData() { ; }
-	UIBoxData(EUIBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, int attackNum, EMiniGameCombatAttackCategoryType attackCategory, 
+	UIBoxData(EUIBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, int attackNum, ECombatAttackCategoryType attackCategory, 
 			EUIBoxType mType, std::vector <EMiniGameState>& miniGameStateWhenToShowList);
 };
 

@@ -80,7 +80,7 @@ CLotusCollectiblePreset::CLotusCollectiblePreset() : CCollectiblePreset()
 }
 
 
-CEndOfLevelPreset::CEndOfLevelPreset(int worldType) : CCollectiblePreset()
+CEndOfLevelPreset::CEndOfLevelPreset(bool vertical) : CCollectiblePreset()
 {
 	mEntityCharacterType	= EEntityCharacterTypes_C_END_OF_LEVEL;
 	mTypeName				= "END OF LEVEL";
@@ -88,13 +88,8 @@ CEndOfLevelPreset::CEndOfLevelPreset(int worldType) : CCollectiblePreset()
 	mWidth = 40;
 	mHeight = 40;
 
-	setUpAnimationPresets(worldType);
-}
-
-void CEndOfLevelPreset::setUpAnimationPresets(int worldType)
-{
-	int maxImageWidth  = 60;
-	int maxImageHeight = 60;
+	int imageLongDim = 90;
+	int imageShortDim = 60;
 
 	int imageOffsetX = 0;
 	int imageOffsetY = 10;
@@ -102,21 +97,17 @@ void CEndOfLevelPreset::setUpAnimationPresets(int worldType)
 	int  stationaryFrameRate = 0;
 	bool stationaryMustFinish = false;
 
-	std::vector <std::string> animationStationaryFileNames;
-	switch (worldType)
+	if (vertical)
 	{
-	case EWorldType_EARTH:
-		animationStationaryFileNames = {"Collectibles/endOfLevelEarth.bmp"};
-		break;
-	case EWorldType_FIRE:
-		animationStationaryFileNames = {"Collectibles/endOfLevelFire.bmp"};
-		break;
-	case EWorldType_WATER:
-	default:
-		animationStationaryFileNames = {"Collectibles/endOfLevelWater.bmp"};
-		break;
+		std::vector <std::string> animationVFileNames = { "Collectibles/portalV.bmp" };
+		mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationVFileNames, imageShortDim, imageLongDim, imageOffsetX, imageOffsetY, stationaryFrameRate, stationaryMustFinish));
+
 	}
-	mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationStationaryFileNames, maxImageWidth, maxImageHeight, imageOffsetX, imageOffsetY, stationaryFrameRate, stationaryMustFinish));
+	else // horizontal
+	{
+		std::vector <std::string> animationHFileNames = { "Collectibles/portalH.bmp" };
+		mAnimationPresets.push_back(AnimationPreset(EAnimationType_STATIONARY, animationHFileNames, imageLongDim, imageShortDim, imageOffsetX, imageOffsetY, stationaryFrameRate, stationaryMustFinish));
+	}
 }
 
 

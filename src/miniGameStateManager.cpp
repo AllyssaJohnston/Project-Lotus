@@ -59,18 +59,18 @@ void MiniGameStateManager::start()
 
 void MiniGameStateManager::preTick()
 {
-	MiniGameStage* pStage = mWorldData.getStage();
+	MiniGameStage& stage = *mWorldData.getStage();
+	CombatManager& combatManager = stage.mCombatManager;
 	if (mData.mLastFrameStateEnum != mData.mCurStateEnum || mData.mPreviousStateDatas.empty())
 	{
 		// changed state
-		mData.mPreTickCharacters.push(createCombatCharacterSnapShots(pStage->mCombatManager));
+		mData.mPreTickCharacters.push(combatManager.createCombatCharacterSnapShots());
 		mData.mPreviousStateDatas.push(std::pair<EMiniGameState, MiniGameStateData>(mData.mCurStateEnum, mData.mStateData));
-		mData.mRoundNum.push(pStage->mCombatManager.getRoundNum());
+		mData.mRoundNum.push(combatManager.getRoundNum());
 	}
 	mData.mLastFrameStateEnum = mData.mCurStateEnum;
 
-	pStage->preTick();
-	pStage = nullptr;
+	stage.preTick();
 }
 
 void MiniGameStateManager::tick()
@@ -92,7 +92,7 @@ void MiniGameStateManager::postTick()
 			start();
 			return;
 		}
-		if (mData.mCurStateEnum != mData.mStateData.mNextMiniGameState)
+		if (mData.mCurStateEnum != mData.mStateData.mNextMiniGameState && mData.mStateData.mNextMiniGameState != EMiniGameState_EXIT && mData.mStateData.mNextMiniGameState != EMiniGameState_BUILD_NEXT_LEVEL)
 		{
 			createDebugLog();
 		}
@@ -145,6 +145,7 @@ void MiniGameStateManager::printBoard(ScreenObject& screenObject)
 void MiniGameStateManager::printCharacters(ScreenObject& screenObject)
 {
 	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
+	// characters in play
 	// sort characters by row, so that characters on rows further down print over characters on rows further up
 	std::vector<CombatCharacter*> pCharactersInPrintOrder = combatManager.getCurAliveCharacters();
 	std::sort(pCharactersInPrintOrder.begin(), pCharactersInPrintOrder.end(), SortCharacterByTileRow());
@@ -161,6 +162,26 @@ void MiniGameStateManager::printCharacters(ScreenObject& screenObject)
 		SDL_FRect curEntityPositionToPrintTo = { printX, printY, printWidth, printHeight };
 		SDL_RenderTextureRotated(screenObject.mpRenderer, pCurCombatCharacter->mModel.getTexture(), NULL, &curEntityPositionToPrintTo, NULL, NULL, SDL_FLIP_NONE);
 	}
+
+	// ghost enemies
+	pCharactersInPrintOrder = combatManager.getGhostEnemies();
+	std::sort(pCharactersInPrintOrder.begin(), pCharactersInPrintOrder.end(), SortCharacterByTileRow());
+	Uint8 alpha = 128; // 50% transparency
+	for (CombatCharacter* pCurCombatCharacter : pCharactersInPrintOrder)
+	{
+		Tile* pCurTile = pCurCombatCharacter->mCombatMovementManager.getCurTile();
+
+		// center x and align with bottom
+		float printX = (float(pCurTile->mCoords.mX1) + (float)(pCurTile->mCoords.mWidth - pCurCombatCharacter->mModel.mIdealImageWidth) / 2.0f) * screenObject.mGameScreenToGameLevelChunkRatio;
+		float printY = (float(pCurTile->mCoords.mY1) + (float)(pCurTile->mCoords.mHeight - pCurCombatCharacter->mModel.mIdealImageHeight)) * screenObject.mGameScreenToGameLevelChunkRatio;
+		float printWidth = float(pCurCombatCharacter->mModel.mIdealImageWidth) * screenObject.mGameScreenToGameLevelChunkRatio;
+		float printHeight = float(pCurCombatCharacter->mModel.mIdealImageHeight) * screenObject.mGameScreenToGameLevelChunkRatio;
+
+		SDL_FRect curEntityPositionToPrintTo = { printX, printY, printWidth, printHeight };
+		Uint8 setAlpha = SDL_SetTextureAlphaMod(pCurCombatCharacter->mModel.getTexture(), alpha);
+		SDL_RenderTextureRotated(screenObject.mpRenderer, pCurCombatCharacter->mModel.getTexture(), NULL, &curEntityPositionToPrintTo, NULL, NULL, SDL_FLIP_NONE);
+		SDL_SetTextureAlphaMod(pCurCombatCharacter->mModel.getTexture(), 255); // set it back so that it doesn't stay at 50% forever
+	}
 }
 
 void MiniGameStateManager::updateTileColors()
@@ -174,11 +195,11 @@ void MiniGameStateManager::updateTileColors()
 		SDL_Color curColor = pCurTile->mCurColor;
 		SDL_Color colorToDraw = curColor;
 		float alpha = 0.0f;
-		if (pCurTile->getMode() == EMiniGameCombatTileMode_SELECTED)
+		if (pCurTile->getMode() == ECombatTileMode_SELECTED)
 		{
 			alpha = .1f;
 		}
-		else if (pCurTile->getMode() == EMiniGameCombatTileMode_HIGHLIGHTED)
+		else if (pCurTile->getMode() == ECombatTileMode_HIGHLIGHTED)
 		{
 			alpha = .35f;
 		}
@@ -190,27 +211,26 @@ void MiniGameStateManager::updateTileColors()
 
 	// SHOW MOVE and ATTACK TILES
 	CombatCharacter* pCurCombatCharacter = mData.mStateData.getCharacter();
-	EMiniGameCombatActionType tileType = EMiniGameCombatActionType_MOVE;
+	ECombatActionType tileType = ECombatActionType_INVALID;
 	std::vector <TileCoords> tileCoordsList;
 	switch (mData.mCurStateEnum)
 	{
 	case EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT:
 	case EMiniGameState_ENEMY_MOVE_CHARACTER:
 		tileCoordsList = pCurCombatCharacter->mCombatMovementManager.getMoveTileCoords();
-		tileType = EMiniGameCombatActionType_MOVE;
+		tileType = ECombatActionType_MOVE;
 		break;
 	case EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT:
 	case EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK:
 	case EMiniGameState_ENEMY_TAKE_ACTION:
-		tileType = EMiniGameCombatActionType_ATTACK;
+		tileType = ECombatActionType_ATTACK;
 		if (mData.mStateData.mpCurAttack != nullptr)
 		{
-			if (mData.mStateData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID
-				|| mData.mStateData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE)
+			if (mData.mStateData.mpCurAttack->mType == ECombatActionGridPattern_WHOLE_GRID)
 			{
 				colorWholeGrid = true;
 			}
-			else if (mData.mStateData.mpCurAttack->mRequiresDirectionInput and mData.mStateData.mCurAttackDirection != EDirection_NONE and mData.mStateData.mCurAttackDirection != EDirection_INVALID)
+			else if (mData.mStateData.mpCurAttack->mNumTilesToAttack == ECombatNumTilesToAttack_DIRECTION and mData.mStateData.mCurAttackDirection != EDirection_NONE and mData.mStateData.mCurAttackDirection != EDirection_INVALID)
 			{
 				tileCoordsList = returnTileCoords(*pCurCombatCharacter->mCombatMovementManager.getCurTile(), mData.mStateData.mpCurAttack->mType, mData.mStateData.mpCurAttack->mNum, mData.mStateData.mpCurAttack->mOut, mData.mStateData.mCurAttackDirection);
 			}
@@ -245,7 +265,7 @@ void MiniGameStateManager::updateTileColors()
 	}
 }
 
-void MiniGameStateManager::colorTile(Tile& tile, const EMiniGameCombatActionType tileType)
+void MiniGameStateManager::colorTile(Tile& tile, const ECombatActionType tileType)
 {
 	CombatManager& combatManager = mWorldData.getStage()->mCombatManager;
 	if (isPlayableTile(tile))
@@ -254,14 +274,14 @@ void MiniGameStateManager::colorTile(Tile& tile, const EMiniGameCombatActionType
 		SDL_Color otherColor;
 		switch (tileType)
 		{
-		case EMiniGameCombatActionType_MOVE:
+		case ECombatActionType_MOVE:
 			if (combatManager.characterOnTile(tile))
 			{
 				return;
 			}
 			otherColor = StyleManager::sunYellow;
 			break;
-		case EMiniGameCombatActionType_ATTACK:
+		case ECombatActionType_ATTACK:
 			otherColor = StyleManager::red;
 			break;
 		default:
@@ -305,7 +325,7 @@ void MiniGameStateManager::createDebugLog()
 		if (mData.mStateData.mAttacked)
 		{
 			line = preTickStateData.getCharacter()->mName + " choose to " + mData.mStateData.mpCurAttack->mName
-				+ (mData.mStateData.mpCurAttack->mRequiresDirectionInput ? (" " + directionToString(mData.mStateData.mCurAttackDirection)) : "") 
+				+ (mData.mStateData.mpCurAttack->mNumTilesToAttack == ECombatNumTilesToAttack_DIRECTION ? (" " + directionToString(mData.mStateData.mCurAttackDirection)) : "") 
 				+ (mData.mStateData.mpCurAttack->mCurCooldown != 0 ? (". " + mData.mStateData.mpCurAttack->mName + " is now on " + std::to_string(mData.mStateData.mpCurAttack->mCurCooldown) + " turn cooldown") : "");
 		}
 		else if (mData.mStateData.mDefended || mData.mStateData.mHealed)

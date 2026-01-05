@@ -38,7 +38,7 @@ public:
 
     void updateTileColors();
 
-    void colorTile(Tile& tile, const EMiniGameCombatActionType tileType);
+    void colorTile(Tile& tile, const ECombatActionType tileType);
 
     void updateCurState(EMiniGameState state);
 

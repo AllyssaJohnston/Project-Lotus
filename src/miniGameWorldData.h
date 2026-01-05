@@ -12,8 +12,8 @@ struct MiniGameWorldData
     int                             mCurStageNumber = 0;
 
     int mCheatWorldNumber = 0;
-    int mCheatLevelNumber = 1;
-    int mCheatStageNumber = 1;
+    int mCheatLevelNumber = 0;
+    int mCheatStageNumber = 0;
 
     bool                            mGoToNextLevel = false;
     LevelData*                      mpNextLevelData = nullptr;
@@ -29,6 +29,5 @@ struct MiniGameWorldData
     bool onLastStage() const;
 
     MiniGameLevel* getLevel() const;
-
     MiniGameStage* getStage() const;
 };

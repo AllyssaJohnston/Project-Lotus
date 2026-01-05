@@ -314,6 +314,7 @@ SDL_Color TextBox::getTextBoxColor() const
 	default:
 		SDL_assert(false);
 	}
+	return mStandardTextBoxColor;
 }
 
 SDL_Color TextBox::getTextColor() const
@@ -328,6 +329,7 @@ SDL_Color TextBox::getTextColor() const
 	default:
 		SDL_assert(false);
 	}
+	return mStandardTextColor;
 }
 
 SDL_Color TextBox::getOutlineColor() const
@@ -342,6 +344,7 @@ SDL_Color TextBox::getOutlineColor() const
 	default:
 		SDL_assert(false);
 	}
+	return mOutlineColor;
 }
 
 

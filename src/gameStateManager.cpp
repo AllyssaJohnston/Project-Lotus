@@ -5,13 +5,13 @@ extern const std::map<const EKeyboardInput, const std::string> keyboardToStringM
 extern const int numEventsToGrab;
 
 // GAME STATE MANAGER
-GameStateManager::GameStateManager(KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, SettingsManager& settingsManager, 
+GameStateManager::GameStateManager(KeyboardData& keyboardData, WorldData& worldData, MenuManager& menuManager, MenuDataController& menuDataController, SettingsManager& settingsManager, 
 	CollisionManager& collisionManager, SlashManager& slashManager, MiniGameStateManager& miniGameStateManager) : mMiniGameStateManager(miniGameStateManager), mWorldData(worldData)
 {
 	mGameStateData = GameStateData();
-	mStates.push_back(new GameStatePlay(mGameStateData, keyboardData, worldData, menuManager, settingsManager, collisionManager, slashManager));
-	mStates.push_back(new GameStatePlayMiniGame(mGameStateData, keyboardData, miniGameStateManager, menuManager, worldData.mScreen, settingsManager));
-	mStates.push_back(new GameStateMenu(mGameStateData, keyboardData, menuManager, settingsManager, worldData));
+	mStates.push_back(new GameStatePlay(mGameStateData, keyboardData, worldData, menuManager, menuDataController, settingsManager, collisionManager, slashManager));
+	mStates.push_back(new GameStatePlayMiniGame(mGameStateData, keyboardData, miniGameStateManager, menuManager, menuDataController, worldData.mScreen, settingsManager));
+	mStates.push_back(new GameStateMenu(mGameStateData, keyboardData, menuManager, menuDataController, settingsManager, worldData));
 	mData.mCurStateEnum			= EGameState_PLAY;
 	mData.mLastFrameStateEnum	= EGameState_INVALID;
 	mpCurState = mStates[mData.mCurStateEnum];

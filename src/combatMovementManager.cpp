@@ -47,7 +47,7 @@ std::vector<Attack>& CombatMovementManager::getAttacks() { return mAttacks; }
 
 Tile* CombatMovementManager::getCurTile() const { return mpCurTile; }
 
-EMiniGameCombatMoveAttackTypes CombatMovementManager::getMoveType() const { return mType; }
+ECombatActionGridPattern CombatMovementManager::getMoveType() const { return mType; }
 
 int CombatMovementManager::getMoveNum() const { return mNum; }
 

@@ -7,7 +7,7 @@ void Grid::preTick()
         pTile->preTick();
     }
     resetTileColors();
-    resetAllTilesModes(EMiniGameCombatTileMode_NOT_SELECTED);
+    resetAllTilesModes(ECombatTileMode_NOT_SELECTED);
 }
 
 int Grid::getIndex(int x, int y) const { return x * (mNumCols) + y; }
@@ -58,7 +58,7 @@ void Grid::setMouseTile(int mouseX, int mouseY)
     mpMouseTile = mpTiles[getIndex(row, col)];
 }
 
-void Grid::setMouseTileMode(EMiniGameCombatTileMode mode)
+void Grid::setMouseTileMode(ECombatTileMode mode)
 {
     if (mpMouseTile != nullptr)
     {
@@ -76,11 +76,11 @@ void Grid::resetTileColors()
     }
 }
 
-void Grid::resetAllTilesModes(EMiniGameCombatTileMode tileMode)
+void Grid::resetAllTilesModes(ECombatTileMode tileMode)
 {
     for (Tile* pTile : mpTiles)
     {
-        if (pTile->getLastFrameMode() == EMiniGameCombatTileMode_SELECTED)
+        if (pTile->getLastFrameMode() == ECombatTileMode_SELECTED)
         {
             pTile->setMode(tileMode);
         }

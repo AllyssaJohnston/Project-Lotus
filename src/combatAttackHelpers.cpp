@@ -1,6 +1,6 @@
 #include "combatAttackHelpers.h"
 
-std::string getAttackType(const Attack& attack) { return returnDescriptionOfMoveAttackType(attack.mType, attack.mNum, attack.mOut); }
+std::string getAttackType(const Attack& attack) { return returnDescriptionOfGridPattern(attack.mType, attack.mNum, attack.mOut); }
 
 std::string getAttackDamage(const Attack& attack, const int characterDamage) { return std::to_string((int)(attack.mDamagePercent * characterDamage)) + " DAMAGE"; }
 
@@ -8,9 +8,9 @@ std::string getAttackCurCooldown(const Attack& attack) { return std::to_string(a
 
 std::string getAttackCooldownAmount(const Attack& attack) { return std::to_string(attack.mCooldownAmount); }
 
-std::string getSpecialEffect(const Attack& attack)
+std::string getSpecialEffectAndNotes(const Attack& attack)
 {
-	std::string message = (attack.mRequiresDirectionInput ? "Requires directional input." : "");
+	std::string message = returnDescriptionCharacterAttack(attack.mNumTilesToAttack, attack.mAttackTargetType) + ". ";
 	message += (attack.mDamageDistanceDependent ? "Damage is distance dependent." : "");
 	for (SpecialEffect curSpecialEffect : attack.mCharacterTileSpecialEffects)
 	{
@@ -20,6 +20,5 @@ std::string getSpecialEffect(const Attack& attack)
 	{
 		message += curSpecialEffect.mName + ". ";
 	}
-
 	return message;
 }

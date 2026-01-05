@@ -1,7 +1,7 @@
 #include "uiBoxHelpers.h"
 
 
-UIBoxData::UIBoxData(EUIBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, int attackNum, EMiniGameCombatAttackCategoryType attackCategory, 
+UIBoxData::UIBoxData(EUIBoxValueToDisplay gameStatToDisplay, int combatCharacterIndex, bool showDuringAllCharacters, int attackNum, ECombatAttackCategoryType attackCategory, 
 	EUIBoxType type, std::vector <EMiniGameState>& miniGameStateWhenToShowList) : mGameStatToDisplay(gameStatToDisplay), mCombatCharacterIndex(combatCharacterIndex),
 	mShowDuringAllCharacters(showDuringAllCharacters), mAttackNum(attackNum), mAttackCategory(attackCategory), mType(type), mMiniGameStateWhenToShowList(miniGameStateWhenToShowList) { ; }
 

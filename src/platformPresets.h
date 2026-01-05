@@ -147,7 +147,6 @@ struct PAreaEffectPlatformPreset : public PPlatformPreset
 	int mAreaEffectMovement = 0;
 
 	PAreaEffectPlatformPreset();
-
 };
 
 struct PWindGustPlatformPreset : public PAreaEffectPlatformPreset

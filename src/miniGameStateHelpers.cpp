@@ -56,12 +56,12 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 		return pTilesWithPlayers;
 	}
 
-	if (curAttack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID || curAttack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE )
+	if (curAttack.mType == ECombatActionGridPattern_WHOLE_GRID)
 	{
 		// just return the tiles with players
 		for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())
 		{
-			if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER)
+			if (pCurCharacterToTest->mType == ECombatCharacterType_PLAYER)
 			{
 				pTilesWithPlayers.push_back(pCurCharacterToTest->mCombatMovementManager.getCurTile());
 			}
@@ -78,7 +78,7 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 			}
 			for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())
 			{
-				if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER && pCurCharacterToTest->mCombatMovementManager.getCurTile() == pCurAttackTile)
+				if (pCurCharacterToTest->mType == ECombatCharacterType_PLAYER && pCurCharacterToTest->mCombatMovementManager.getCurTile() == pCurAttackTile)
 				{
 					pTilesWithPlayers.push_back(pCurAttackTile);
 				}
@@ -112,18 +112,63 @@ std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldD
 	return pTilesWithPlayers;
 }
 
+Tile* returnTileFromAttackWithLowestHealthPlayer(const MiniGameWorldData& worldData, const Tile* const pReferenceTile, const Attack& curAttack, const EDirection direction)
+{
+	CombatCharacter* pLowestHealthPlayer = nullptr;
+	MiniGameStage* pStage = worldData.getStage();
+	Grid& grid = pStage->mGrid;
+	CombatManager& combatManager = pStage->mCombatManager;
 
+	if (!curAttack.canUse())
+	{
+		return nullptr;
+	}
+
+	if (curAttack.mType == ECombatActionGridPattern_WHOLE_GRID)
+	{
+		// just return the tiles with players
+		for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())
+		{
+			if (pCurCharacterToTest->mType == ECombatCharacterType_PLAYER && (pLowestHealthPlayer == nullptr || pCurCharacterToTest->getCurHealth() < pLowestHealthPlayer->getCurHealth()))
+			{
+				pLowestHealthPlayer = pCurCharacterToTest;
+			}
+		}
+	}
+	else
+	{
+		for (TileCoords& curTileCoord : returnTileCoords(*pReferenceTile, curAttack.mType, curAttack.mNum, curAttack.mOut, direction))
+		{
+			Tile* pCurAttackTile = grid.findTile(curTileCoord);
+			if (pCurAttackTile == nullptr)
+			{
+				continue;
+			}
+			for (CombatCharacter* pCurCharacterToTest : combatManager.getCurAliveCharacters())
+			{
+				if (pCurCharacterToTest->mType == ECombatCharacterType_PLAYER && pCurCharacterToTest->mCombatMovementManager.getCurTile() == pCurAttackTile 
+							&& (pLowestHealthPlayer == nullptr || pCurCharacterToTest->getCurHealth() < pLowestHealthPlayer->getCurHealth()))
+				{
+					pLowestHealthPlayer = pCurCharacterToTest;
+				}
+			}
+		}
+	}
+	if (pLowestHealthPlayer == nullptr)
+	{
+		return nullptr;
+	}
+	return pLowestHealthPlayer->mCombatMovementManager.getCurTile();
+}
 
 
 bool tileInAttackRange(const Attack& attack, const EDirection attackDirection, const Grid& grid, const Tile* const pGivenTile, const Tile* const pTileToAttackFrom)
 {
-	if (attack.mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID
-		|| attack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE)
-
+	if (attack.mType == ECombatActionGridPattern_WHOLE_GRID)
 	{
 		return true;
 	}
-	for (TileCoords& coords : returnTileCoords(*pTileToAttackFrom, attack.mType, attack.mNum, attack.mOut, (attack.mRequiresDirectionInput ? attackDirection : EDirection_ALL)))
+	for (TileCoords& coords : returnTileCoords(*pTileToAttackFrom, attack.mType, attack.mNum, attack.mOut, (attack.mNumTilesToAttack == ECombatNumTilesToAttack_DIRECTION ? attackDirection : EDirection_ALL)))
 	{
 		Tile* pTile = grid.findTile(coords);
 		if (pTile != nullptr && pTile == pGivenTile)
@@ -152,16 +197,6 @@ std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& combatMana
 	return pTilesWithoutCharacters;
 }
 
-
-std::vector<CombatCharacter> createCombatCharacterSnapShots(const CombatManager& combatManager) 
-{
-	std::vector<CombatCharacter> snapShots;
-	for (CombatCharacter* pCharacter : combatManager.getAllCharacters())
-	{
-		snapShots.push_back(*pCharacter);
-	}
-	return snapShots;
-}
 
 std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacter>& preTickCharacters)
 {
@@ -208,11 +243,11 @@ std::string getCharacterChangesString(const CombatManager& combatManager, const 
 			int curHealthModifier = pCharacter->getCurHealthModifier();
 			if (curHealthModifier < 0 && curHealthModifier != prevHealthModifier)
 			{
-				curLine += pCharacter->mName + "'s is posioned " + std::to_string(curHealthModifier) + " ";
+				curLine += pCharacter->mName + "'s is healing " + std::to_string(curHealthModifier) + " each turn";
 			}
 			else if (curHealthModifier > 0 && curHealthModifier != prevHealthModifier)
 			{
-				curLine += pCharacter->mName + "'s is healing " + std::to_string(curHealthModifier) + " each turn";
+				curLine += pCharacter->mName + "'s is posioned " + std::to_string(curHealthModifier) + " each turn";
 			}
 
 			int baseHealthCapacity = pCharacter->getBaseHealthCapacity();
@@ -338,9 +373,9 @@ EMiniGameState getPostBufferState(const CombatCharacter& character)
 	}
 	switch (character.mType)
 	{
-	case EMiniGameCombatCharacterType_PLAYER:
+	case ECombatCharacterType_PLAYER:
 		return EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT;
-	case EMiniGameCombatCharacterType_ENEMY:
+	case ECombatCharacterType_ENEMY:
 		return EMiniGameState_ENEMY_MOVE_CHARACTER;
 	default:
 		SDL_assert(false);

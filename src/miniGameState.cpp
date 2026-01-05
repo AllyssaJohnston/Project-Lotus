@@ -2,8 +2,22 @@
 
 MiniGameState::MiniGameState(KeyboardData& keyboardData, MiniGameStateData& data, MiniGameWorldData& worldData) : mKeyboardData(keyboardData), mData(data), mWorldData(worldData) {}
 
-void MiniGameState::useMouseInput(EMiniGameState curStateEnum, ScreenObject& screenObject) 
+void MiniGameState::useInput(EMiniGameState curStateEnum, ScreenObject& screenObject) 
 {
+	if (mKeyboardData.mKeyState[int(EKeyboardInput_P)] == true)
+	{
+		if (!mWorldData.onLastStage() or mWorldData.onLastStage() and (mWorldData.getLevel()->mNextLevelData.mType == ELevelType_MINI_GAME))
+		{
+			mData.mNextMiniGameState = EMiniGameState_BUILD_NEXT_LEVEL;
+			return;
+		}
+		else
+		{
+			mData.mNextMiniGameState = EMiniGameState_EXIT;
+			return;
+		}
+	}
+
 	if (curStateEnum == EMiniGameState_PLAYER_WAIT_FOR_MOVE_INPUT or curStateEnum == EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT)
 	{
 		float x;
@@ -23,14 +37,14 @@ void MiniGameState::useMouseInput(EMiniGameState curStateEnum, ScreenObject& scr
 void MiniGameState::highlightTile(Vect2 pos)
 {
 	Grid& grid = mWorldData.getStage()->mGrid;
-	grid.setMouseTileMode(EMiniGameCombatTileMode_NOT_SELECTED);
+	grid.setMouseTileMode(ECombatTileMode_NOT_SELECTED);
 	grid.setMouseTile(pos.getX(), pos.getY());
 	Tile* pMouseTile = grid.getMouseTile();
 	if (pMouseTile != nullptr)
 	{
-		if (pMouseTile->getMode() != EMiniGameCombatTileMode_SELECTED)
+		if (pMouseTile->getMode() != ECombatTileMode_SELECTED)
 		{
-			pMouseTile->setMode(EMiniGameCombatTileMode_HIGHLIGHTED);
+			pMouseTile->setMode(ECombatTileMode_HIGHLIGHTED);
 		}
 	}
 }
@@ -45,7 +59,7 @@ void MiniGamePlayerWaitForMoveInput::selectTile(const Vect2 pos)
 	Tile* pMouseTile = grid.getMouseTile();
 	if (pMouseTile != nullptr && isPlayableTile(*pMouseTile))
 	{
-		pMouseTile->setMode(EMiniGameCombatTileMode_SELECTED);
+		pMouseTile->setMode(ECombatTileMode_SELECTED);
 		moveToTile(*pMouseTile);
 	}
 }
@@ -101,29 +115,27 @@ MiniGamePlayerWaitForAttackOptionInput::MiniGamePlayerWaitForAttackOptionInput(K
 void MiniGamePlayerWaitForAttackOptionInput::postTick(Attack& attack)
 {
 	mData.mpCurAttack = &attack;
-	if (attack.mRequiresDirectionInput)
+	switch (attack.mNumTilesToAttack)
 	{
+	case ECombatNumTilesToAttack_ALL:
+		mData.mCurAttackDirection = EDirection_ALL;
+		mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK;
+		break;
+	case ECombatNumTilesToAttack_DIRECTION:
 		mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_DIRECTION_INPUT;
-	}
-	else
-	{
-		switch (attack.mType)
+		break;
+	case ECombatNumTilesToAttack_ONE:
+		if (attack.mType == ECombatActionGridPattern_WHOLE_GRID)
 		{
-		case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:
-			mData.mCurAttackDirection = EDirection_ALL;
-			mData.mNextMiniGameState = EMiniGameState_PLAYER_COMPLETE_ACTION_ATTACK;
-			break;
-		case EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE:
 			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_CHARACTER_INPUT;
-			mData.mTargetCharacterType = getCharacterTypeFromAttackTargetType(mData.mpCurAttack->mAttackTargetType);
-			break;
-		default:
+			mData.mTargetCharacterType = mData.mpCurAttack->mAttackTargetType;
+		}
+		else
+		{
 			mData.mCurAttackDirection = EDirection_ALL;
 			mData.mNextMiniGameState = EMiniGameState_PLAYER_WAIT_FOR_ATTACK_TILE_INPUT;
-			break;
 		}
 	}
-	
 }
 
 
@@ -146,7 +158,7 @@ void MiniGamePlayerWaitForAttackTileInput::selectTile(const Vect2 pos)
 	Tile* pMouseTile = grid.getMouseTile();
 	if (pMouseTile != nullptr && tileInAttackRange(*mData.mpCurAttack, mData.mCurAttackDirection, mWorldData.getStage()->mGrid, pMouseTile, mData.getCharacter()->mCombatMovementManager.getCurTile()))
 	{
-		pMouseTile->setMode(EMiniGameCombatTileMode_SELECTED);
+		pMouseTile->setMode(ECombatTileMode_SELECTED);
 		mData.mpTilesToAttack = { pMouseTile };
 		postTick();
 	}
@@ -192,7 +204,7 @@ void MiniGamePlayerCompleteActionAttack::attackTiles()
 	{
 		Grid& grid = mWorldData.getStage()->mGrid;
 		std::vector <Tile* > pTilesToAttack;
-		if (mData.mpCurAttack->mType == EMiniGameCombatMoveAttackTypes_WHOLE_GRID)
+		if (mData.mpCurAttack->mType == ECombatActionGridPattern_WHOLE_GRID)
 		{
 			pTilesToAttack = grid.mpTiles;
 		}
@@ -411,56 +423,51 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 		{
 			continue;
 		}
-		else if (attack.mType == EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE)
+		Tile* pTile = nullptr;
+		std::vector <Tile*> pTilesToAttackWithCharacters;
+		EDirection curBestDirection = EDirection_INVALID;
+		CombatCharacter* pCharacterWithLowestHealth = nullptr;
+		
+		switch (attack.mNumTilesToAttack)
 		{
-			CombatCharacter* characterWithLowestHealth = nullptr;
-			// choose tile with player with lowest health
-			for (CombatCharacter* pCurCharacterToTest : mWorldData.getStage()->mCombatManager.getCurAliveCharacters())
-			{
-				if (pCurCharacterToTest->mType == EMiniGameCombatCharacterType_PLAYER && pCurCharacterToTest->getCurHealth() > characterWithLowestHealth->getCurHealth())
-				{
-					characterWithLowestHealth = pCurCharacterToTest;
-				}
-			}
-			pBestTilesToAttack = { characterWithLowestHealth->mCombatMovementManager.getCurTile() };
-		}
-		else if (attack.mRequiresDirectionInput)
-		{
-			// choose direction that can attack the most characters
-			std::vector <Tile*> pTilesToAttackWithCharacters;
-			EDirection curBestDirection = EDirection_INVALID;
+		case ECombatNumTilesToAttack_ALL:
+			curBestDirection = EDirection_ALL;
+			pTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, EDirection_ALL);
+			break;
+		case ECombatNumTilesToAttack_DIRECTION:
 			for (int i = 0; i < 4; i++)
 			{
-				std::vector <Tile*> pCurTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, (EDirection)i);
-				if (pCurTilesToAttackWithCharacters.size() > pTilesToAttackWithCharacters.size())
+				std::vector <Tile*> pCurDirectionalTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, (EDirection)i);
+				if (pCurDirectionalTilesToAttackWithCharacters.size() > pTilesToAttackWithCharacters.size())
 				{
-					pTilesToAttackWithCharacters = pCurTilesToAttackWithCharacters;
+					pTilesToAttackWithCharacters = pCurDirectionalTilesToAttackWithCharacters;
 					curBestDirection = (EDirection)i;
 				}
 
 			}
-			
-			float damageOutput = pTilesToAttackWithCharacters.size() * attack.mDamagePercent * mData.getCharacter()->getCurDamage();
-			if (damageOutput > maxDamageOutput && !(pTilesToAttackWithCharacters.size() == 0))
+			break;
+		case ECombatNumTilesToAttack_ONE:
+			curBestDirection = EDirection_ALL;
+			pTile = returnTileFromAttackWithLowestHealthPlayer(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, EDirection_ALL);
+			if (pTile != nullptr)
 			{
-				maxDamageOutput = damageOutput;
-				pBestTilesToAttack = pTilesToAttackWithCharacters;
-				pBestAttack = &attack;
-				attackDir = curBestDirection;
+				pTilesToAttackWithCharacters = { pTile };
 			}
+			pTile = nullptr;
+			break;
+		default:
+			SDL_assert(false);
 		}
-		else
+
+		float damageOutput = pTilesToAttackWithCharacters.size() * attack.mDamagePercent * mData.getCharacter()->getCurDamage();
+		if (damageOutput > maxDamageOutput && !(pTilesToAttackWithCharacters.size() == 0))
 		{
-			std::vector <Tile*> pTilesToAttackWithCharacters = returnTilesFromAttackWithPlayersOnThem(mWorldData, mData.getCharacter()->mCombatMovementManager.getCurTile(), attack, EDirection_ALL);
-			float damageOutput = pTilesToAttackWithCharacters.size() * attack.mDamagePercent * mData.getCharacter()->getCurDamage();
-			if (damageOutput > maxDamageOutput && !(pTilesToAttackWithCharacters.size() == 0))
-			{
-				maxDamageOutput		= damageOutput;
-				pBestAttack			= &attack;
-				pBestTilesToAttack	= pTilesToAttackWithCharacters;
-				attackDir			= EDirection_ALL;
-			}
+			maxDamageOutput		= damageOutput;
+			pBestTilesToAttack	= pTilesToAttackWithCharacters;
+			pBestAttack			= &attack;
+			attackDir			= curBestDirection;
 		}
+		pTilesToAttackWithCharacters.clear();
 	}
 	
 
@@ -472,6 +479,8 @@ bool MiniGameEnemyTakeAction::shouldAttack()
 	mData.mpCurAttack			= pBestAttack;
 	mData.mpTilesToAttack		= pBestTilesToAttack;
 	mData.mCurAttackDirection	= attackDir;
+	pBestAttack = nullptr;
+	pBestTilesToAttack.clear();
 	return true;
 }
 
@@ -491,7 +500,7 @@ bool MiniGameEnemyTakeAction::shouldDefend()
 		}
 		for (const Attack& attack : pCharacter->mCombatMovementManager.getAttacks())
 		{
-			if (attack.mCurCooldown != 0 || !characterTypeFit(attack.mAttackTargetType, EMiniGameCombatCharacterType_ENEMY, true))
+			if (attack.mCurCooldown != 0 || !characterTypeFit(attack.mAttackTargetType, attack.mAttackTargetAlive, ECombatCharacterType_ENEMY, true))
 			{
 				// potential attacker can't use this attack
 				continue;
@@ -570,9 +579,9 @@ void MiniGameBuffer::postTick()
 	mData.mCurAttackDirection = EDirection_NONE;
 
 	// check if game is over
-	MiniGameLevel* pLevel = mWorldData.getLevel();
-	MiniGameStage* pStage = mWorldData.getStage();
-	GameOverStats stats = pStage->mCombatManager.getGameOverStats();
+	MiniGameLevel& level = *mWorldData.getLevel();
+	MiniGameStage& stage = *mWorldData.getStage();
+	GameOverStats stats = stage.mCombatManager.getGameOverStats();
 	if (stats.mGameOver)
 	{
 		if (!stats.mWonGame)
@@ -582,7 +591,7 @@ void MiniGameBuffer::postTick()
 		}
 		else
 		{
-			if (!mWorldData.onLastStage() or mWorldData.onLastStage() and (pLevel->mNextLevelData.mType == ELevelType_MINI_GAME))
+			if (!mWorldData.onLastStage() or mWorldData.onLastStage() and (level.mNextLevelData.mType == ELevelType_MINI_GAME))
 			{
 				mData.mNextMiniGameState = EMiniGameState_BUILD_NEXT_LEVEL;
 			}
@@ -599,8 +608,6 @@ void MiniGameBuffer::postTick()
 
 	// continue game / set up for next time
 	mData.mPostBufferGameState = EMiniGameState_INVALID;
-	pStage = nullptr;
-	pLevel = nullptr;
 }
 
 

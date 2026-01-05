@@ -138,7 +138,7 @@ int CombatCharacter::getCurHealthModifier() const
     return healthLoss;
 }
 
-void CombatCharacter::addHealthModifier(const int amount, const int numTurns) { mHealthCapacityModifiers.push_back(std::pair<int, int>(amount, numTurns)); }
+void CombatCharacter::addHealthModifier(const int amount, const int numTurns) { mHealthModifiers.push_back(std::pair<int, int>(amount, numTurns)); }
 
 std::vector<std::pair<int, int>> CombatCharacter::getHealthModifiers() const { return mHealthModifiers; }
 

@@ -20,10 +20,10 @@ public:
     bool                                mGoingToAttack      = false;
     std::vector <Tile*>                 mpTilesToAttack;
     Attack*                             mpCurAttack         = nullptr;
-    EMiniGameCombatAttackCategoryType   mAttackCategory     = EMiniGameCombatAttackCategoryType_INVALID;
+    ECombatAttackCategoryType           mAttackCategory     = ECombatAttackCategoryType_INVALID;
     EDirection                          mCurAttackDirection = EDirection_INVALID;
 
-    EMiniGameCombatCharacterType mTargetCharacterType = EMiniGameCombatCharacterType_INVALID;
+    ECombatCharacterType mTargetCharacterType = ECombatCharacterType_INVALID;
     CombatCharacter* mpTargetCharacter = nullptr;
 
     bool                mAttacked   = false;
@@ -66,12 +66,14 @@ std::vector <Tile*> returnTilesFromAttackWithPlayersOnThem(const MiniGameWorldDa
 
 std::vector <Tile*> returnTilesFromAttacksWithPlayersOnThem(const MiniGameWorldData& worldData, const Tile* const pReferenceTile, const std::vector<Attack>& attacks, const EDirection direction);
 
+Tile* returnTileFromAttackWithLowestHealthPlayer(const MiniGameWorldData& worldData, const Tile* const pReferenceTile, const Attack& curAttack, const EDirection direction);
+
 
 bool tileInAttackRange(const Attack& attack, const EDirection attackDirection, const Grid& grid, const Tile* const pGivenTile, const Tile* const pTileToAttackFrom);
 
 std::vector <Tile*> returnTilesWithoutCharacters(const CombatManager& pCombatManager, const std::vector <Tile*>& pListOfTiles);
 
-std::vector<CombatCharacter> createCombatCharacterSnapShots(const CombatManager& combatManager);
+
 
 std::string getCharacterChangesString(const CombatManager& combatManager, const std::vector<CombatCharacter>& preTickCharacters);
 

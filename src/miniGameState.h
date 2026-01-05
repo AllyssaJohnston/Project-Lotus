@@ -22,7 +22,7 @@ struct MiniGameState
 
     void highlightTile(const Vect2 pos);
 
-    void useMouseInput(EMiniGameState curStateEnum, ScreenObject& screenObject);
+    void useInput(EMiniGameState curStateEnum, ScreenObject& screenObject);
 
     virtual void selectTile(const Vect2 pos) { ; }
 };

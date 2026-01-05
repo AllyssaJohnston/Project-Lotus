@@ -4,36 +4,36 @@
 #include "combatHelpers.h"
 #include <vector>
 
-enum EMiniGameCombatCharacterSpecies
+enum ECombatCharacterSpecies
 {
-    EMiniGameCombatCharacterSpecies_INVALID = -1,
-    EMiniGameCombatCharacterSpecies_LOTUS,
-    EMiniGameCombatCharacterSpecies_EZRA,
-    EMiniGameCombatCharacterSpecies_RAT,
-    EMiniGameCombatCharacterSpecies_BOUNCY_RAT,
-    EMiniGameCombatCharacterSpecies_FROG,
-    EMiniGameCombatCharacterSpecies_BOUNCY_FROG,
-    EMiniGameCombatCharacterSpecies_HIDING_RAT,
-    EMiniGameCombatCharacterSpecies_FAST_RAT,
-    EMiniGameCombatCharacterSpecies_MAX
+    ECombatCharacterSpecies_INVALID = -1,
+    ECombatCharacterSpecies_LOTUS,
+    ECombatCharacterSpecies_EZRA,
+    ECombatCharacterSpecies_RAT,
+    ECombatCharacterSpecies_BOUNCY_RAT,
+    ECombatCharacterSpecies_FROG,
+    ECombatCharacterSpecies_BOUNCY_FROG,
+    ECombatCharacterSpecies_HIDING_RAT,
+    ECombatCharacterSpecies_FAST_RAT,
+    ECombatCharacterSpecies_MAX
 };
 
 
 struct CombatCharacterPreset
 {
-    EMiniGameCombatCharacterType mType          = EMiniGameCombatCharacterType_INVALID;
-    EMiniGameCombatCharacterSpecies mSpecies = EMiniGameCombatCharacterSpecies_INVALID;
+    ECombatCharacterType mType          = ECombatCharacterType_INVALID;
+    ECombatCharacterSpecies mSpecies    = ECombatCharacterSpecies_INVALID;
     std::string mName;
     std::vector <Attack> mAttacks;
 
-    EMiniGameCombatMoveAttackTypes mMoveType    = EMiniGameCombatMoveAttackTypes_INVALID;
-    int                            mMoveNum     = 1;
-    int                            mMoveOut     = 0;
+    ECombatActionGridPattern mMoveType  = ECombatActionGridPattern_INVALID;
+    int                      mMoveNum   = 1;
+    int                      mMoveOut   = 0;
 
-    int mAttackDamage                           = -1;
-    int mHealAmount                             = 0;
-    int mHealthCapacity                         = -1;
-    int mDefenseCapacity                        = -1;
+    int mAttackDamage                   = -1;
+    int mHealAmount                     = 0;
+    int mHealthCapacity                 = -1;
+    int mDefenseCapacity                = -1;
 
     std::string mModelFileName;
     std::string mIconFileName;
@@ -41,7 +41,7 @@ struct CombatCharacterPreset
     int mMaxWidth  = 30;
     int mMaxHeight = 75;
 
-    void setMove(const EMiniGameCombatMoveAttackTypes type, const int num, const int out);
+    void setMove(const ECombatActionGridPattern type, const int num, const int out);
 };
 
 

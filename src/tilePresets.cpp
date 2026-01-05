@@ -2,19 +2,19 @@
 
 RegularTilePreset::RegularTilePreset() : TilePreset()
 {
-    mType           = EMiniGameCombatTileType_NORMAL;
+    mType           = ECombatTileType_NORMAL;
     mRegularColor   = StyleManager::oliveGreen;
 }
 
 ImpassableTilePreset::ImpassableTilePreset() : TilePreset()
 {
-    mType           = EMiniGameCombatTileType_IMPASSABLE;
+    mType           = ECombatTileType_IMPASSABLE;
     mRegularColor   = StyleManager::gray;
 }
 
 TeleporterTilePreset::TeleporterTilePreset(TileCoords* pTileToMoveTo) : TilePreset()
 {
-    mType = EMiniGameCombatTileType_TELEPORTER;
+    mType = ECombatTileType_TELEPORTER;
     mRegularColor = StyleManager::navy;
     mpTileToMoveTo = pTileToMoveTo;
 }

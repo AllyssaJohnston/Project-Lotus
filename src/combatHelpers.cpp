@@ -2,74 +2,38 @@
 
 std::string createTileName(const int row, const int col) { return std::to_string(row) + " " + std::to_string(col); }
 
-bool characterTypeFit(EAttackTargetType targetType, EMiniGameCombatCharacterType characterType, bool targetAlive)
+bool characterTypeFit(ECombatCharacterType targetType, ECombatAttackTargetAlive targetAlive, ECombatCharacterType givenCharacterType, bool givenCharacterAlive)
 {
-	if (targetType == EAttackTargetType_ONE_CHARACTER)
+	if (targetType == ECombatCharacterType_CHARACTER || targetType == givenCharacterType)
 	{
-		return true;
-	}
-	if ((targetType == EAttackTargetType_ALL_ALIVE_CHARACTERS || targetType == EAttackTargetType_ALIVE_CHARACTERS || targetType == EAttackTargetType_ONE_ALIVE_CHARACTER) && targetAlive)
-	{
-		return true;
-	}
-	if (targetType == EAttackTargetType_ONE_PLAYER && characterType == EMiniGameCombatCharacterType_PLAYER)
-	{
-		return true;
-	}
-	if ((targetType == EAttackTargetType_ALL_ALIVE_PLAYERS || targetType == EAttackTargetType_ALIVE_PLAYERS || targetType == EAttackTargetType_ONE_ALIVE_PLAYER)
-		&& characterType == EMiniGameCombatCharacterType_PLAYER && targetAlive) 
-	{
-		return true;
-	}
-	if (targetType == EAttackTargetType_ONE_ENEMY && characterType == EMiniGameCombatCharacterType_ENEMY)
-	{
-		return true;
-	}
-	if ((targetType == EAttackTargetType_ALL_ALIVE_ENEMIES || targetType == EAttackTargetType_ALIVE_ENEMIES || targetType == EAttackTargetType_ONE_ALIVE_ENEMY)
-		&& characterType == EMiniGameCombatCharacterType_ENEMY && targetAlive)
-	{
-		return true;
+		switch (targetAlive)
+		{
+		case ECombatAttackTargetAlive_ALIVE:
+			return givenCharacterAlive;
+		case ECombatAttackTargetAlive_DEAD:
+			return !givenCharacterAlive;
+		default:
+			SDL_assert(false);
+		}
 	}
 	return false;
 }
 
-EMiniGameCombatCharacterType getCharacterTypeFromAttackTargetType(EAttackTargetType targetType)
-{
-	switch (targetType)
-	{
-	case EAttackTargetType_ALIVE_PLAYERS:
-	case EAttackTargetType_ONE_ALIVE_PLAYER:
-	case EAttackTargetType_ONE_PLAYER:
-	case EAttackTargetType_ALL_ALIVE_PLAYERS:
-		return EMiniGameCombatCharacterType_PLAYER;
-
-	case EAttackTargetType_ALIVE_ENEMIES:
-	case EAttackTargetType_ONE_ALIVE_ENEMY:
-	case EAttackTargetType_ONE_ENEMY:
-	case EAttackTargetType_ALL_ALIVE_ENEMIES:
-		return EMiniGameCombatCharacterType_ENEMY;
-	default:
-		SDL_assert(false);
-	}
-	return EMiniGameCombatCharacterType_CHARACTER;
-}
-
-std::string returnDescriptionOfMoveAttackType(const EMiniGameCombatMoveAttackTypes moveAttackType, const int num, const int out)
+std::string returnDescriptionOfGridPattern(const ECombatActionGridPattern moveAttackType, const int num, const int out)
 {
 	std::string type;
 	switch (moveAttackType)
 	{
-	case EMiniGameCombatMoveAttackTypes_SQUARE: 
+	case ECombatActionGridPattern_SQUARE:
 		type = "SQUARE";
 		break;
-	case EMiniGameCombatMoveAttackTypes_CROSS:
+	case ECombatActionGridPattern_CROSS:
 		type = "CROSS";
 		break;
-	case EMiniGameCombatMoveAttackTypes_CHECKERBOARD:
+	case ECombatActionGridPattern_CHECKERBOARD:
 		type = "CHECKERBOARD";
 		break;
-	case EMiniGameCombatMoveAttackTypes_WHOLE_GRID:		return "WHOLE GRID";
-	case EMiniGameCombatMoveAttackTypes_ANY_ONE_TILE:	return "ANY ONE TILE";
+	case ECombatActionGridPattern_WHOLE_GRID: return "WHOLE GRID";
 	default:
 		SDL_assert(false);
 		break;
@@ -83,34 +47,30 @@ std::string returnDescriptionOfMoveAttackType(const EMiniGameCombatMoveAttackTyp
 	return type + " " + std::to_string(num) + ", " + std::to_string(out);
 }
 
-std::string returnDescriptionOfAttackTargetType(const EAttackTargetType targetType)
+std::string returnDescriptionCharacterAttack(const ECombatNumTilesToAttack numTiles, const ECombatCharacterType targetType)
 {
+	std::string target;
 	switch (targetType)
 	{
-	case EAttackTargetType_SELF: return "SELF";
-
-	case EAttackTargetType_ALIVE_PLAYERS:
-	case EAttackTargetType_ALL_ALIVE_PLAYERS:
-		return "PLAYERS IN RANGE";
-	case EAttackTargetType_ONE_ALIVE_PLAYER:
-	case EAttackTargetType_ONE_PLAYER:
-		return "ONE PLAYER";
-		
-	case EAttackTargetType_ALIVE_ENEMIES:
-	case EAttackTargetType_ALL_ALIVE_ENEMIES:
-		return "ENEMIES IN RANGE";
-
-	case EAttackTargetType_ONE_ALIVE_ENEMY:
-	case EAttackTargetType_ONE_ENEMY:
-		return "ONE ENEMY";
+	case ECombatCharacterType_CHARACTER:
+		target = "CHARACTER";
+		break;
+	case ECombatCharacterType_PLAYER:
+		target = "PLAYER";
+		break;
+	case ECombatCharacterType_ENEMY:
+		target = "ENEMY";
+		break;
+	default:
+		SDL_assert(false);
+		break;
+	}
 	
-	case EAttackTargetType_ALIVE_CHARACTERS:
-	case EAttackTargetType_ALL_ALIVE_CHARACTERS:
-		return "CHARACTERS IN RANGE";
-	case EAttackTargetType_ONE_ALIVE_CHARACTER:
-	case EAttackTargetType_ONE_CHARACTER:
-		return "ONE CHARACTER";
-		
+	switch (numTiles)
+	{
+	case ECombatNumTilesToAttack_ONE:		return "ONE " + target + " TILE";
+	case ECombatNumTilesToAttack_DIRECTION: return "ALL " + target + " TILES IN ONE DIRECTION";
+	case ECombatNumTilesToAttack_ALL:		return "ALL " + target + " TILES";
 	default:
 		SDL_assert(false);
 	}
